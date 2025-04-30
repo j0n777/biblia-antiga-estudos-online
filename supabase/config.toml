@@ -1,1 +1,8 @@
+
 project_id = "gwgljnfvkdkrodzcyxai"
+
+[functions.import-bible]
+verify_jwt = false
+
+[functions.fetch-bible-data]
+verify_jwt = false

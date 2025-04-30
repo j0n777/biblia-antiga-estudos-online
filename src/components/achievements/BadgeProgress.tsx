@@ -47,7 +47,6 @@ const BadgeProgress = ({ badges }: BadgeProgressProps) => {
         <Badge 
           variant="outline" 
           className="bg-transparent border-parchment-darker/30 text-scripture-heading hover:text-ancient-gold"
-          asChild
         >
           <a href="/profile">Ver todas</a>
         </Badge>

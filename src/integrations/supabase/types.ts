@@ -9,6 +9,152 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bible_books: {
+        Row: {
+          chapters_count: number
+          id: string
+          name: string
+          position: number
+          testament: string
+        }
+        Insert: {
+          chapters_count: number
+          id: string
+          name: string
+          position: number
+          testament: string
+        }
+        Update: {
+          chapters_count?: number
+          id?: string
+          name?: string
+          position?: number
+          testament?: string
+        }
+        Relationships: []
+      }
+      bible_chapters: {
+        Row: {
+          book_id: string
+          chapter_number: number
+          id: string
+          verses_count: number
+          version_id: string
+        }
+        Insert: {
+          book_id: string
+          chapter_number: number
+          id?: string
+          verses_count: number
+          version_id: string
+        }
+        Update: {
+          book_id?: string
+          chapter_number?: number
+          id?: string
+          verses_count?: number
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "bible_books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bible_chapters_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "bible_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bible_verses: {
+        Row: {
+          chapter_id: string
+          id: string
+          text: string
+          verse_number: number
+        }
+        Insert: {
+          chapter_id: string
+          id?: string
+          text: string
+          verse_number: number
+        }
+        Update: {
+          chapter_id?: string
+          id?: string
+          text?: string
+          verse_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "bible_chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bible_versions: {
+        Row: {
+          id: string
+          is_original: boolean
+          language: string
+          language_name: string
+          name: string
+          original_language: string | null
+        }
+        Insert: {
+          id: string
+          is_original?: boolean
+          language: string
+          language_name: string
+          name: string
+          original_language?: string | null
+        }
+        Update: {
+          id?: string
+          is_original?: boolean
+          language?: string
+          language_name?: string
+          name?: string
+          original_language?: string | null
+        }
+        Relationships: []
+      }
+      bible_word_definitions: {
+        Row: {
+          definition: string
+          id: string
+          language: string
+          strongs_number: string | null
+          transliteration: string | null
+          word: string
+        }
+        Insert: {
+          definition: string
+          id?: string
+          language: string
+          strongs_number?: string | null
+          transliteration?: string | null
+          word: string
+        }
+        Update: {
+          definition?: string
+          id?: string
+          language?: string
+          strongs_number?: string | null
+          transliteration?: string | null
+          word?: string
+        }
+        Relationships: []
+      }
       followers: {
         Row: {
           created_at: string | null
