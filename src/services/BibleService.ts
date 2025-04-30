@@ -134,3 +134,25 @@ export function getChapterMock(
     originalLanguage: "hebrew"
   };
 }
+
+export async function importCompleteVersion(version: string, language: string): Promise<any> {
+  try {
+    // Call our edge function to import the complete version
+    const response = await supabase.functions.invoke('import-bible', {
+      body: JSON.stringify({
+        action: 'import-complete-version',
+        version,
+        language
+      })
+    });
+    
+    if (response.error) {
+      throw new Error(`Error importing Bible version: ${response.error.message}`);
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error importing Bible version:', error);
+    throw error;
+  }
+}

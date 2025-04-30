@@ -1,53 +1,47 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getAllBooks, getAllVersions, importCompleteVersion } from '@/services/BibleService';
+import { BibleBook, BibleVersion } from '@/services/BibleService';
+import { toast } from 'sonner';
 
 const Read = () => {
   const [selectedBook, setSelectedBook] = useState('genesis');
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVersion, setSelectedVersion] = useState('kjv');
+  const [books, setBooks] = useState<BibleBook[]>([]);
+  const [versions, setVersions] = useState<BibleVersion[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
   
-  // Mock data for Bible books
-  const oldTestamentBooks = [
-    { id: 'genesis', name: 'Gênesis' }, 
-    { id: 'exodus', name: 'Êxodo' }, 
-    { id: 'leviticus', name: 'Levítico' }, 
-    { id: 'numbers', name: 'Números' }, 
-    { id: 'deuteronomy', name: 'Deuteronômio' }
-  ];
-  
-  const newTestamentBooks = [
-    { id: 'matthew', name: 'Mateus' }, 
-    { id: 'mark', name: 'Marcos' }, 
-    { id: 'luke', name: 'Lucas' }, 
-    { id: 'john', name: 'João' }, 
-    { id: 'acts', name: 'Atos' }
-  ];
-  
-  // Mock data for Bible versions
-  const bibleVersions = [
-    { id: 'kjv', name: 'King James (English)' },
-    { id: 'acf', name: 'Almeida Corrigida Fiel (Português)' },
-    { id: 'rvr', name: 'Reina Valera (Español)' },
-  ];
-  
-  // Calculate the number of chapters for the selected book (this would come from actual data)
-  const getChaptersForBook = (book: string) => {
-    const chaptersMap: Record<string, number> = {
-      'genesis': 50,
-      'exodus': 40,
-      'leviticus': 27,
-      'matthew': 28,
-      'mark': 16,
-      'luke': 24,
-      'john': 21,
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [booksData, versionsData] = await Promise.all([
+          getAllBooks(),
+          getAllVersions()
+        ]);
+        
+        setBooks(booksData);
+        setVersions(versionsData);
+      } catch (error) {
+        console.error('Error loading Bible data:', error);
+      }
     };
     
-    return chaptersMap[book] || 1;
+    loadData();
+  }, []);
+  
+  const oldTestamentBooks = books.filter(book => book.testament === 'old');
+  const newTestamentBooks = books.filter(book => book.testament === 'new');
+  
+  // Calculate the number of chapters for the selected book
+  const getChaptersForBook = (bookId: string) => {
+    const book = books.find(b => b.id === bookId);
+    return book?.chapters_count || 1;
   };
   
   const chaptersArray = Array.from(
@@ -67,24 +61,63 @@ const Read = () => {
     }
   };
   
+  const handleImportVersion = async (version: string) => {
+    try {
+      setIsImporting(true);
+      
+      let language = 'en';
+      if (version === 'acf') language = 'pt-br';
+      if (version === 'rvr') language = 'es';
+      
+      toast.info(`Iniciando importação da Bíblia versão ${version}...`, {
+        duration: 3000,
+      });
+      
+      const result = await importCompleteVersion(version, language);
+      
+      toast.success(`Bíblia versão ${version} importada com sucesso. ${result.importedBooks?.length || 0} livros processados.`, {
+        duration: 5000,
+      });
+    } catch (error) {
+      console.error('Error importing Bible version:', error);
+      toast.error(`Erro ao importar Bíblia: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, {
+        duration: 5000,
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+  
   return (
     <PageLayout>
       <div className="py-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-oldstyle text-scripture-heading">Leitura Bíblica</h1>
           
-          <Select value={selectedVersion} onValueChange={setSelectedVersion}>
-            <SelectTrigger className="w-[180px] bg-parchment-light border-parchment-dark/30">
-              <SelectValue placeholder="Versão" />
-            </SelectTrigger>
-            <SelectContent className="bg-parchment border-parchment-dark/30">
-              {bibleVersions.map((version) => (
-                <SelectItem key={version.id} value={version.id}>
-                  {version.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select value={selectedVersion} onValueChange={setSelectedVersion}>
+              <SelectTrigger className="w-[180px] bg-parchment-light border-parchment-dark/30">
+                <SelectValue placeholder="Versão" />
+              </SelectTrigger>
+              <SelectContent className="bg-parchment border-parchment-dark/30">
+                {versions.map((version) => (
+                  <SelectItem key={version.id} value={version.id}>
+                    {version.name} ({version.language_name})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleImportVersion(selectedVersion)}
+              disabled={isImporting}
+              className="bg-parchment-light border-parchment-dark/30"
+            >
+              {isImporting ? 'Importando...' : 'Importar Versão'}
+            </Button>
+          </div>
         </div>
         
         <div className="flex items-center gap-2 mb-4">
