@@ -41,7 +41,11 @@ export async function getAllBooks(): Promise<BibleBook[]> {
       throw new Error(`Error fetching Bible books: ${error.message}`);
     }
     
-    return data || [];
+    // Explicitly cast the testament field to 'old' | 'new'
+    return (data || []).map(book => ({
+      ...book,
+      testament: book.testament as 'old' | 'new'
+    }));
   } catch (error) {
     console.error('Error in getAllBooks:', error);
     return [];
@@ -58,7 +62,11 @@ export async function getAllVersions(): Promise<BibleVersion[]> {
       throw new Error(`Error fetching Bible versions: ${error.message}`);
     }
     
-    return data || [];
+    // Explicitly cast the original_language field if it exists
+    return (data || []).map(version => ({
+      ...version,
+      original_language: version.original_language as 'hebrew' | 'greek' | 'aramaic' | undefined
+    }));
   } catch (error) {
     console.error('Error in getAllVersions:', error);
     return [];

@@ -7,50 +7,44 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Read = () => {
-  const [selectedBook, setSelectedBook] = useState('Gênesis');
+  const [selectedBook, setSelectedBook] = useState('genesis');
   const [selectedChapter, setSelectedChapter] = useState(1);
-  const [selectedVersion, setSelectedVersion] = useState('kjv-pt');
-  
-  // Mock data for the Bible text
-  const mockVerses = [
-    { number: 1, text: "No princípio, criou Deus os céus e a terra." },
-    { number: 2, text: "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas." },
-    { number: 3, text: "E disse Deus: Haja luz. E houve luz." },
-    { number: 4, text: "E viu Deus que a luz era boa; e fez Deus separação entre a luz e as trevas." },
-    { number: 5, text: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã: o dia primeiro." },
-    { number: 6, text: "E disse Deus: Haja um firmamento no meio das águas, e haja separação entre águas e águas." },
-    { number: 7, text: "E fez Deus o firmamento e separação entre as águas que estavam debaixo do firmamento e as águas que estavam sobre o firmamento. E assim foi." },
-    { number: 8, text: "E chamou Deus ao firmamento Céus. E foi a tarde e a manhã: o dia segundo." },
-    { number: 9, text: "E disse Deus: Ajuntem-se as águas debaixo dos céus num só lugar, e apareça a terra seca. E assim foi." },
-    { number: 10, text: "E chamou Deus à porção seca Terra; e ao ajuntamento das águas chamou Mares. E viu Deus que era bom." },
-  ];
+  const [selectedVersion, setSelectedVersion] = useState('kjv');
   
   // Mock data for Bible books
   const oldTestamentBooks = [
-    'Gênesis', 'Êxodo', 'Levítico', 'Números', 'Deuteronômio'
+    { id: 'genesis', name: 'Gênesis' }, 
+    { id: 'exodus', name: 'Êxodo' }, 
+    { id: 'leviticus', name: 'Levítico' }, 
+    { id: 'numbers', name: 'Números' }, 
+    { id: 'deuteronomy', name: 'Deuteronômio' }
   ];
   
   const newTestamentBooks = [
-    'Mateus', 'Marcos', 'Lucas', 'João', 'Atos'
+    { id: 'matthew', name: 'Mateus' }, 
+    { id: 'mark', name: 'Marcos' }, 
+    { id: 'luke', name: 'Lucas' }, 
+    { id: 'john', name: 'João' }, 
+    { id: 'acts', name: 'Atos' }
   ];
   
   // Mock data for Bible versions
   const bibleVersions = [
-    { id: 'kjv-pt', name: 'King James (Português)' },
-    { id: 'kjv-en', name: 'King James (English)' },
-    { id: 'reina-valera', name: 'Reina Valera (Español)' },
+    { id: 'kjv', name: 'King James (English)' },
+    { id: 'acf', name: 'Almeida Corrigida Fiel (Português)' },
+    { id: 'rvr', name: 'Reina Valera (Español)' },
   ];
   
   // Calculate the number of chapters for the selected book (this would come from actual data)
   const getChaptersForBook = (book: string) => {
     const chaptersMap: Record<string, number> = {
-      'Gênesis': 50,
-      'Êxodo': 40,
-      'Levítico': 27,
-      'Mateus': 28,
-      'Marcos': 16,
-      'Lucas': 24,
-      'João': 21,
+      'genesis': 50,
+      'exodus': 40,
+      'leviticus': 27,
+      'matthew': 28,
+      'mark': 16,
+      'luke': 24,
+      'john': 21,
     };
     
     return chaptersMap[book] || 1;
@@ -94,21 +88,24 @@ const Read = () => {
         </div>
         
         <div className="flex items-center gap-2 mb-4">
-          <Select value={selectedBook} onValueChange={setSelectedBook}>
+          <Select 
+            value={selectedBook} 
+            onValueChange={setSelectedBook}
+          >
             <SelectTrigger className="bg-parchment-light border-parchment-dark/30">
               <SelectValue placeholder="Livro" />
             </SelectTrigger>
             <SelectContent className="max-h-[300px] bg-parchment border-parchment-dark/30">
               <div className="p-2 font-oldstyle text-sm text-scripture-heading">Antigo Testamento</div>
               {oldTestamentBooks.map((book) => (
-                <SelectItem key={book} value={book}>
-                  {book}
+                <SelectItem key={book.id} value={book.id}>
+                  {book.name}
                 </SelectItem>
               ))}
               <div className="p-2 font-oldstyle text-sm text-scripture-heading">Novo Testamento</div>
               {newTestamentBooks.map((book) => (
-                <SelectItem key={book} value={book}>
-                  {book}
+                <SelectItem key={book.id} value={book.id}>
+                  {book.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -134,8 +131,7 @@ const Read = () => {
         <BibleChapter 
           book={selectedBook}
           chapter={selectedChapter}
-          verses={mockVerses}
-          originalLanguage={selectedBook === 'Gênesis' || selectedBook === 'Êxodo' ? 'hebrew' : 'greek'}
+          version={selectedVersion}
         />
         
         <div className="flex justify-between mt-4">
