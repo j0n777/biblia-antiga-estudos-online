@@ -76,9 +76,11 @@ export async function getAllVersions(): Promise<BibleVersion[]> {
 export async function getChapter(
   book: string, 
   chapter: number, 
-  version: string = 'acf'
+  version: string = 'kja'
 ): Promise<BibleChapter | null> {
   try {
+    console.log(`Fetching chapter: Book=${book}, Chapter=${chapter}, Version=${version}`);
+    
     // Call our edge function
     const response = await supabase.functions.invoke('fetch-bible-data', {
       body: JSON.stringify({
@@ -125,9 +127,9 @@ export function getChapterMock(
     chapter,
     verses,
     version: {
-      id: "acf",
-      name: "Almeida Corrigida Fiel",
-      language: "pt",
+      id: "kja",
+      name: "King James Atualizada",
+      language: "pt-br",
       language_name: "Português",
       is_original: false
     },

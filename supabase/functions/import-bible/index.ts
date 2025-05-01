@@ -25,12 +25,87 @@ type BibleVersion = {
 };
 
 // Type for the complete Bible version JSON format
-type BibleVersionJson = {
-  [bookId: string]: {
-    id: string;
-    name: string;
-    chapters: string[][]
-  }
+type BibleBookJson = {
+  id: string;
+  name: string;
+  chapters: string[][];
+};
+
+// Book ID mapping between API shortcodes and database IDs
+const bookIdMapping: Record<string, string> = {
+  'gn': 'genesis',
+  'ex': 'exodus',
+  'lv': 'leviticus',
+  'nm': 'numbers',
+  'dt': 'deuteronomy',
+  'js': 'joshua',
+  'jud': 'judges',
+  'rt': 'ruth',
+  '1sm': '1samuel',
+  '2sm': '2samuel',
+  '1kgs': '1kings',
+  '2kgs': '2kings',
+  '1ch': '1chronicles',
+  '2ch': '2chronicles',
+  'ezr': 'ezra',
+  'ne': 'nehemiah',
+  'et': 'esther',
+  'job': 'job',
+  'ps': 'psalms',
+  'prv': 'proverbs',
+  'ec': 'ecclesiastes',
+  'so': 'songofsolomon',
+  'is': 'isaiah',
+  'jr': 'jeremiah',
+  'lm': 'lamentations',
+  'ez': 'ezekiel',
+  'dn': 'daniel',
+  'ho': 'hosea',
+  'jl': 'joel',
+  'am': 'amos',
+  'ob': 'obadiah',
+  'jn': 'jonah',
+  'mi': 'micah',
+  'na': 'nahum',
+  'hk': 'habakkuk',
+  'zp': 'zephaniah',
+  'hg': 'haggai',
+  'zc': 'zechariah',
+  'ml': 'malachi',
+  'mt': 'matthew',
+  'mk': 'mark',
+  'lk': 'luke',
+  'jo': 'john',
+  'act': 'acts',
+  'rm': 'romans',
+  '1co': '1corinthians',
+  '2co': '2corinthians',
+  'gl': 'galatians',
+  'eph': 'ephesians',
+  'ph': 'philippians',
+  'cl': 'colossians',
+  '1ts': '1thessalonians',
+  '2ts': '2thessalonians',
+  '1tm': '1timothy',
+  '2tm': '2timothy',
+  'tt': 'titus',
+  'phm': 'philemon',
+  'hb': 'hebrews',
+  'jm': 'james',
+  '1pe': '1peter',
+  '2pe': '2peter',
+  '1jo': '1john',
+  '2jo': '2john',
+  '3jo': '3john',
+  'jd': 'jude',
+  're': 'revelation',
+};
+
+// Version and language information for our specific versions
+const versionInfo: Record<string, {name: string, language: string, languageName: string}> = {
+  'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
+  'kja': {name: 'King James Atualizada', language: 'pt-br', languageName: 'Português'},
+  'rvr': {name: 'Reina Valera 1909', language: 'es', languageName: 'Español'},
 };
 
 serve(async (req) => {
@@ -130,6 +205,7 @@ serve(async (req) => {
       // Define Bible versions
       const bibleVersions: BibleVersion[] = [
         { id: 'kjv', name: 'King James Version', language: 'en', languageName: 'English', isOriginal: false },
+        { id: 'kja', name: 'King James Atualizada', language: 'pt-br', languageName: 'Português', isOriginal: false },
         { id: 'acf', name: 'Almeida Corrigida Fiel', language: 'pt', languageName: 'Português', isOriginal: false },
         { id: 'rvr', name: 'Reina Valera 1909', language: 'es', languageName: 'Español', isOriginal: false },
         { id: 'hebrew', name: 'Hebrew Bible', language: 'he', languageName: 'Hebrew', isOriginal: true, originalLanguage: 'hebrew' },
@@ -197,26 +273,64 @@ serve(async (req) => {
       }
       
       const bibleData = await versionResponse.json();
-      console.log(`Successfully fetched Bible version data with ${Object.keys(bibleData).length} books`);
+      console.log(`Successfully fetched Bible version data with ${bibleData.length} books`);
+      
+      // Make sure the version exists in the database
+      const versionInfo = {
+        'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
+        'kja': {name: 'King James Atualizada', language: 'pt-br', languageName: 'Português'},
+        'rvr': {name: 'Reina Valera 1909', language: 'es', languageName: 'Español'},
+      }[version] || {name: version.toUpperCase(), language, languageName: language};
+      
+      // Insert or update version record
+      const { error: versionError } = await supabase
+        .from('bible_versions')
+        .upsert({
+          id: version,
+          name: versionInfo.name,
+          language: versionInfo.language,
+          language_name: versionInfo.languageName,
+          is_original: false
+        });
+      
+      if (versionError) {
+        console.error(`Error updating version: ${versionError.message}`);
+      }
       
       // Process each book in the Bible data
       const importedBooks = [];
       
-      for (const [bookId, bookData] of Object.entries(bibleData)) {
+      for (const book of bibleData) {
         try {
-          const book = bookData as { id: string; name: string; chapters: string[][] };
-          console.log(`Processing book ${bookId}: ${book.name} with ${book.chapters.length} chapters`);
+          // Map short ID to full ID if needed
+          const shortId = book.id;
+          const fullId = bookIdMapping[shortId] || shortId;
           
-          // Get book information from our database
-          const { data: dbBookData, error: dbBookError } = await supabase
+          console.log(`Processing book ${shortId}/${fullId}: ${book.name} with ${book.chapters.length} chapters`);
+          
+          // Update or insert book metadata if needed
+          const { data: dbBookData, error: bookLookupError } = await supabase
             .from('bible_books')
             .select('*')
-            .eq('id', bookId)
+            .eq('id', fullId)
             .single();
+          
+          if (bookLookupError) {
+            console.log(`Book ${fullId} not found in database, creating it`);
             
-          if (dbBookError) {
-            console.error(`Error fetching book data for ${bookId}: ${dbBookError.message}`);
-            continue; // Skip this book and continue with others
+            // Determine testament
+            const testament = fullId.match(/^(matthew|mark|luke|john|acts|romans|1corinthians|2corinthians|galatians|ephesians|philippians|colossians|1thessalonians|2thessalonians|1timothy|2timothy|titus|philemon|hebrews|james|1peter|2peter|1john|2john|3john|jude|revelation)$/i) ? 'new' : 'old';
+            
+            // Get position based on traditional order
+            const position = bibleBooks.find(b => b.id.toLowerCase() === fullId.toLowerCase())?.position || 0;
+            
+            await supabase.from('bible_books').upsert({
+              id: fullId,
+              name: book.name,
+              testament,
+              chapters_count: book.chapters.length,
+              position
+            });
           }
           
           // Process each chapter in the book
@@ -225,13 +339,13 @@ serve(async (req) => {
             const verses = book.chapters[chapterIndex];
             const versesCount = verses.length;
             
-            console.log(`Processing ${bookId} chapter ${chapterNumber} with ${versesCount} verses`);
+            console.log(`Processing ${fullId} chapter ${chapterNumber} with ${versesCount} verses`);
             
             // Insert the chapter record
             const { data: chapterData, error: chapterError } = await supabase
               .from('bible_chapters')
               .upsert({
-                book_id: bookId,
+                book_id: fullId,
                 version_id: version,
                 chapter_number: chapterNumber,
                 verses_count: versesCount,
@@ -240,7 +354,7 @@ serve(async (req) => {
               .single();
             
             if (chapterError || !chapterData) {
-              console.error(`Error creating chapter ${chapterNumber} for ${bookId}: ${chapterError?.message || 'Unknown error'}`);
+              console.error(`Error creating chapter ${chapterNumber} for ${fullId}: ${chapterError?.message || 'Unknown error'}`);
               continue;
             }
             
@@ -261,20 +375,20 @@ serve(async (req) => {
                 .upsert(batch);
               
               if (versesError) {
-                console.error(`Error inserting verses batch for ${bookId} chapter ${chapterNumber}: ${versesError.message}`);
+                console.error(`Error inserting verses batch for ${fullId} chapter ${chapterNumber}: ${versesError.message}`);
                 continue;
               }
             }
           }
           
           importedBooks.push({
-            id: bookId,
+            id: fullId,
             name: book.name,
             chaptersCount: book.chapters.length
           });
           
         } catch (bookError) {
-          console.error(`Error processing book ${bookId}:`, bookError);
+          console.error(`Error processing book ${book.id}:`, bookError);
           continue; // Skip this book and continue with others
         }
       }
@@ -283,206 +397,7 @@ serve(async (req) => {
         success: true,
         message: `Bible version ${version} (${language}) imported successfully`,
         importedBooks: importedBooks,
-        totalBooks: Object.keys(bibleData).length
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-    
-    // Action to import entire book
-    else if (action === 'import-book') {
-      if (!bookId || !version) {
-        throw new Error('Book ID and version are required for importing a book');
-      }
-      
-      console.log(`Importing book: ${bookId} in version: ${version}`);
-      
-      // Find the book in the database to get chapter count
-      const { data: bookData, error: bookError } = await supabase
-        .from('bible_books')
-        .select('*')
-        .eq('id', bookId)
-        .single();
-      
-      if (bookError || !bookData) {
-        throw new Error(`Error fetching book data: ${bookError?.message || 'Book not found'}`);
-      }
-      
-      const chaptersCount = bookData.chapters_count;
-      
-      // For each chapter in the book
-      const importedChapters = [];
-      for (let chapterNumber = 1; chapterNumber <= chaptersCount; chapterNumber++) {
-        try {
-          // For GitHub structure, map shortened book IDs to GitHub folder names
-          let githubBookId = bookId;
-          
-          // Map book IDs to GitHub folder structure if needed
-          // For example: genesis -> gn, matthew -> mt
-          const bookIdMapping: Record<string, string> = {
-            'genesis': 'gn',
-            'exodus': 'ex',
-            'leviticus': 'lv',
-            'numbers': 'nm',
-            'deuteronomy': 'dt',
-            'matthew': 'mt',
-            'mark': 'mk',
-            'luke': 'lk',
-            'john': 'jn',
-            // Add more mappings as needed
-          };
-          
-          if (bookIdMapping[bookId]) {
-            githubBookId = bookIdMapping[bookId];
-          }
-          
-          // URL path based on GitHub structure: versions/language/version/book/chapter
-          // For example: versions/pt-br/kja/gn/1
-          const versesUrl = `${baseUrl}/versions/${language}/${version}/${githubBookId}/${chapterNumber}.json`;
-          console.log(`Fetching from URL: ${versesUrl}`);
-          
-          const versesResponse = await fetch(versesUrl);
-          
-          if (!versesResponse.ok) {
-            console.error(`Error fetching chapter ${chapterNumber}: ${versesResponse.statusText}`);
-            continue; // Skip this chapter and continue with others
-          }
-          
-          const versesData = await versesResponse.json();
-          
-          // Insert the chapter record
-          const { data: chapterData, error: chapterError } = await supabase
-            .from('bible_chapters')
-            .upsert({
-              book_id: bookId,
-              version_id: version,
-              chapter_number: chapterNumber,
-              verses_count: Object.keys(versesData).length,
-            })
-            .select('id')
-            .single();
-          
-          if (chapterError || !chapterData) {
-            console.error(`Error creating chapter ${chapterNumber}: ${chapterError?.message || 'Unknown error'}`);
-            continue;
-          }
-          
-          // Prepare verses for insertion
-          const verses = Object.entries(versesData).map(([verseNumber, text]) => ({
-            chapter_id: chapterData.id,
-            verse_number: parseInt(verseNumber, 10),
-            text: text as string,
-          }));
-          
-          // Insert verses
-          const { error: versesError } = await supabase
-            .from('bible_verses')
-            .upsert(verses);
-          
-          if (versesError) {
-            console.error(`Error inserting verses for chapter ${chapterNumber}: ${versesError.message}`);
-            continue;
-          }
-          
-          importedChapters.push({
-            chapter: chapterNumber,
-            versesCount: verses.length
-          });
-          
-        } catch (chapterError) {
-          console.error(`Error processing chapter ${chapterNumber}:`, chapterError);
-          continue; // Skip this chapter and continue with others
-        }
-      }
-      
-      return new Response(JSON.stringify({
-        success: true,
-        message: `Book ${bookId} (${version}) imported successfully`,
-        importedChapters: importedChapters,
-        totalChapters: chaptersCount
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-    
-    // Action to import a specific chapter
-    else if (action === 'import-chapter') {
-      const { chapter } = reqData;
-      
-      if (!bookId || !chapter || !version) {
-        throw new Error('Book ID, chapter number, and version are required for importing a chapter');
-      }
-      
-      // For GitHub structure, map shortened book IDs to GitHub folder names
-      let githubBookId = bookId;
-      
-      // Map book IDs to GitHub folder structure if needed
-      const bookIdMapping: Record<string, string> = {
-        'genesis': 'gn',
-        'exodus': 'ex',
-        'leviticus': 'lv',
-        'numbers': 'nm',
-        'deuteronomy': 'dt',
-        'matthew': 'mt',
-        'mark': 'mk',
-        'luke': 'lk',
-        'john': 'jn',
-        // Add more mappings as needed
-      };
-      
-      if (bookIdMapping[bookId]) {
-        githubBookId = bookIdMapping[bookId];
-      }
-      
-      // URL path based on GitHub structure
-      const versesUrl = `${baseUrl}/versions/${language}/${version}/${githubBookId}/${chapter}.json`;
-      console.log(`Fetching from URL: ${versesUrl}`);
-      
-      const versesResponse = await fetch(versesUrl);
-      
-      if (!versesResponse.ok) {
-        throw new Error(`Error fetching verses from GitHub: ${versesResponse.statusText}`);
-      }
-      
-      const versesData = await versesResponse.json();
-      
-      // Insert the chapter record
-      const { data: chapterData, error: chapterError } = await supabase
-        .from('bible_chapters')
-        .upsert({
-          book_id: bookId,
-          version_id: version,
-          chapter_number: parseInt(chapter, 10),
-          verses_count: Object.keys(versesData).length,
-        })
-        .select('id')
-        .single();
-      
-      if (chapterError || !chapterData) {
-        throw new Error(`Error creating chapter: ${chapterError?.message || 'Unknown error'}`);
-      }
-      
-      // Prepare verses for insertion
-      const verses = Object.entries(versesData).map(([verseNumber, text]) => ({
-        chapter_id: chapterData.id,
-        verse_number: parseInt(verseNumber, 10),
-        text: text as string,
-      }));
-      
-      // Insert verses
-      const { error: versesError } = await supabase
-        .from('bible_verses')
-        .upsert(verses);
-      
-      if (versesError) {
-        throw new Error(`Error inserting verses: ${versesError.message}`);
-      }
-      
-      return new Response(JSON.stringify({
-        success: true,
-        message: `Chapter ${chapter} of ${bookId} (${version}) imported with ${verses.length} verses`,
+        totalBooks: bibleData.length
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,

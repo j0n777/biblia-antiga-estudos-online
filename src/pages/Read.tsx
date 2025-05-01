@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const Read = () => {
   const [selectedBook, setSelectedBook] = useState('genesis');
   const [selectedChapter, setSelectedChapter] = useState(1);
-  const [selectedVersion, setSelectedVersion] = useState('kjv');
+  const [selectedVersion, setSelectedVersion] = useState('kja');
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
   const [isImporting, setIsImporting] = useState(false);
@@ -65,7 +65,9 @@ const Read = () => {
     try {
       setIsImporting(true);
       
+      // Map version IDs to language codes
       let language = 'en';
+      if (version === 'kja') language = 'pt-br';
       if (version === 'acf') language = 'pt-br';
       if (version === 'rvr') language = 'es';
       
