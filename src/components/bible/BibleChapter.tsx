@@ -99,21 +99,28 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
         <div className="space-y-1">
           {chapterData.verses.length > 0 && (
             <div className="first-letter-drop-cap">
-              <span className="chapter-number">{chapterData.verses[0]?.number}</span>
-              <BibleVerse 
-                key={`${chapterData.book}-${chapterData.chapter}-${chapterData.verses[0]?.number}`}
-                verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
-                wordDefinitions={mockWordDefinitions}
-              />
+              <div className="flex">
+                <span className="verse-number mr-1 text-2xl text-ancient-red font-oldstyle">1</span>
+                <BibleVerse 
+                  key={`${chapterData.book}-${chapterData.chapter}-${chapterData.verses[0]?.number}`}
+                  verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
+                  wordDefinitions={mockWordDefinitions}
+                  displayVerseNumber={false}
+                />
+              </div>
             </div>
           )}
           
           {chapterData.verses.slice(1).map((verse) => (
-            <BibleVerse 
-              key={`${chapterData.book}-${chapterData.chapter}-${verse.number}`}
-              verse={verse}
-              wordDefinitions={mockWordDefinitions} 
-            />
+            <div key={`verse-container-${verse.number}`} className="flex">
+              <span className="verse-number mr-1 text-ancient-red font-oldstyle">{verse.number}</span>
+              <BibleVerse 
+                key={`${chapterData.book}-${chapterData.chapter}-${verse.number}`}
+                verse={verse}
+                wordDefinitions={mockWordDefinitions}
+                displayVerseNumber={false}
+              />
+            </div>
           ))}
         </div>
       </ScrollArea>

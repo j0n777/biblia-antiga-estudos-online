@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
@@ -48,6 +49,7 @@ const Read = () => {
             duration: 3000,
           });
           
+          console.log("Importing initial Bible versions...");
           const result = await importInitialVersions();
           setIsLoading(false);
           

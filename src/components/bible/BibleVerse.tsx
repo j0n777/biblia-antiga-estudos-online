@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -19,15 +20,22 @@ export type BibleVerseProps = {
     strongsNumber?: string;
   }>;
   className?: string;
+  displayVerseNumber?: boolean;
 };
 
-const BibleVerse = ({ verse, originalText, wordDefinitions, className }: BibleVerseProps) => {
+const BibleVerse = ({ 
+  verse, 
+  originalText, 
+  wordDefinitions, 
+  className,
+  displayVerseNumber = true 
+}: BibleVerseProps) => {
   // Split the verse text into words to make them individually selectable
   const words = verse.text.split(' ');
 
   return (
     <div className={cn("my-2", className)}>
-      <span className="verse-number">{verse.number}</span>{" "}
+      {displayVerseNumber && <span className="verse-number mr-1">{verse.number}</span>}
       <span className="scripture-text">
         {words.map((word, index) => {
           // Remove punctuation for word lookup but keep it for display
@@ -38,7 +46,7 @@ const BibleVerse = ({ verse, originalText, wordDefinitions, className }: BibleVe
           // For words that have definitions available, wrap them in Popover
           if (wordDefinition) {
             return (
-              <Popover key={index}>
+              <Popover key={`${verse.number}-word-${index}`}>
                 <PopoverTrigger asChild>
                   <span className="cursor-pointer hover:text-ancient-brown hover:underline hover:underline-offset-2">
                     {word}{" "}
@@ -68,7 +76,7 @@ const BibleVerse = ({ verse, originalText, wordDefinitions, className }: BibleVe
           }
           
           return (
-            <span key={index}>
+            <span key={`${verse.number}-word-${index}`}>
               {word}{" "}
             </span>
           );
