@@ -11,7 +11,7 @@ export type BibleChapterProps = {
   version?: string;
 };
 
-const BibleChapter = ({ book, chapter, version = 'acf' }: BibleChapterProps) => {
+const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => {
   const [chapterData, setChapterData] = useState<BibleChapterType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +27,13 @@ const BibleChapter = ({ book, chapter, version = 'acf' }: BibleChapterProps) => 
           setChapterData(data);
         } else {
           // If database fetch fails, use mock data
-          setChapterData(getChapterMock(book, chapter));
+          setChapterData(getChapterMock(book, chapter, version));
         }
         
         setError(null);
       } catch (err) {
         console.error('Error loading chapter:', err);
-        setChapterData(getChapterMock(book, chapter)); // Fallback to mock data
+        setChapterData(getChapterMock(book, chapter, version)); // Fallback to mock data
         setError('Não foi possível carregar o capítulo. Usando dados offline.');
       } finally {
         setLoading(false);
@@ -99,9 +99,9 @@ const BibleChapter = ({ book, chapter, version = 'acf' }: BibleChapterProps) => 
         <div className="space-y-1">
           {chapterData.verses.length > 0 && (
             <div className="first-letter-drop-cap">
-              <span className="chapter-number">{chapterData.verses[0]?.text.charAt(0)}</span>
+              <span className="chapter-number">{chapterData.verses[0]?.number}</span>
               <BibleVerse 
-                verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text.substring(1) }} 
+                verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
                 wordDefinitions={mockWordDefinitions}
               />
             </div>

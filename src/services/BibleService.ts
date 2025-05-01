@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export type BibleBook = {
@@ -30,6 +29,81 @@ export type BibleChapter = {
   originalLanguage: 'hebrew' | 'greek' | 'aramaic';
 };
 
+// Map between API book IDs and database book IDs
+export const bookIdMapping: Record<string, string> = {
+  'gn': 'genesis',
+  'ex': 'exodus',
+  'lv': 'leviticus',
+  'nm': 'numbers',
+  'dt': 'deuteronomy',
+  'js': 'joshua',
+  'jud': 'judges',
+  'rt': 'ruth',
+  '1sm': '1samuel',
+  '2sm': '2samuel',
+  '1kgs': '1kings',
+  '2kgs': '2kings',
+  '1ch': '1chronicles',
+  '2ch': '2chronicles',
+  'ezr': 'ezra',
+  'ne': 'nehemiah',
+  'et': 'esther',
+  'job': 'job',
+  'ps': 'psalms',
+  'prv': 'proverbs',
+  'ec': 'ecclesiastes',
+  'so': 'songofsolomon',
+  'is': 'isaiah',
+  'jr': 'jeremiah',
+  'lm': 'lamentations',
+  'ez': 'ezekiel',
+  'dn': 'daniel',
+  'ho': 'hosea',
+  'jl': 'joel',
+  'am': 'amos',
+  'ob': 'obadiah',
+  'jn': 'jonah',
+  'mi': 'micah',
+  'na': 'nahum',
+  'hk': 'habakkuk',
+  'zp': 'zephaniah',
+  'hg': 'haggai',
+  'zc': 'zechariah',
+  'ml': 'malachi',
+  'mt': 'matthew',
+  'mk': 'mark',
+  'lk': 'luke',
+  'jo': 'john',
+  'act': 'acts',
+  'rm': 'romans',
+  '1co': '1corinthians',
+  '2co': '2corinthians',
+  'gl': 'galatians',
+  'eph': 'ephesians',
+  'ph': 'philippians',
+  'cl': 'colossians',
+  '1ts': '1thessalonians',
+  '2ts': '2thessalonians',
+  '1tm': '1timothy',
+  '2tm': '2timothy',
+  'tt': 'titus',
+  'phm': 'philemon',
+  'hb': 'hebrews',
+  'jm': 'james',
+  '1pe': '1peter',
+  '2pe': '2peter',
+  '1jo': '1john',
+  '2jo': '2john',
+  '3jo': '3john',
+  'jd': 'jude',
+  're': 'revelation',
+};
+
+// Database book IDs to API IDs (reverse mapping)
+export const reverseBookIdMapping: Record<string, string> = Object.fromEntries(
+  Object.entries(bookIdMapping).map(([k, v]) => [v, k])
+);
+
 export async function getAllBooks(): Promise<BibleBook[]> {
   try {
     const { data, error } = await supabase
@@ -56,7 +130,8 @@ export async function getAllVersions(): Promise<BibleVersion[]> {
   try {
     const { data, error } = await supabase
       .from('bible_versions')
-      .select('*');
+      .select('*')
+      .not('is_original', 'eq', true);  // Do not include original language versions in the main selection
       
     if (error) {
       throw new Error(`Error fetching Bible versions: ${error.message}`);
@@ -109,7 +184,8 @@ export async function getChapter(
 // This is a temporary function that will be used until we have proper data loaded
 export function getChapterMock(
   book: string, 
-  chapter: number
+  chapter: number,
+  version: string = 'kja'
 ): BibleChapter {
   // Mock data for Genesis 1
   const verses = [
@@ -120,21 +196,89 @@ export function getChapterMock(
     { number: 5, text: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro." },
     // Add more verses as needed
   ];
+
+  // Get localized version name based on the version ID
+  const versionInfo = getVersionInfo(version);
   
   return {
     book,
-    bookName: "Gênesis",
+    bookName: getBookName(book),
     chapter,
     verses,
     version: {
-      id: "kja",
-      name: "King James Atualizada",
-      language: "pt-br",
-      language_name: "Português",
+      id: version,
+      name: versionInfo.name,
+      language: versionInfo.language,
+      language_name: versionInfo.languageName,
       is_original: false
     },
     originalLanguage: "hebrew"
   };
+}
+
+// Helper function to get version information
+function getVersionInfo(versionId: string): {name: string, language: string, languageName: string} {
+  const versionMap: Record<string, {name: string, language: string, languageName: string}> = {
+    'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
+    'kja': {name: 'King James Atualizada', language: 'pt-br', languageName: 'Português'},
+    'rvr': {name: 'Reina Valera 1909', language: 'es', languageName: 'Español'},
+  };
+  
+  return versionMap[versionId] || {name: versionId.toUpperCase(), language: 'en', languageName: 'English'};
+}
+
+// Helper function to get book name
+function getBookName(bookId: string): string {
+  const bookNames: Record<string, string> = {
+    'genesis': 'Gênesis',
+    'exodus': 'Êxodo',
+    'leviticus': 'Levítico',
+    // ... other books
+    'revelation': 'Apocalipse'
+  };
+  
+  return bookNames[bookId] || bookId.charAt(0).toUpperCase() + bookId.slice(1);
+}
+
+export async function importInitialVersions(): Promise<any> {
+  try {
+    // Import the three main versions we need - this can be called at app initialization
+    const versions = [
+      { version: 'kjv', language: 'en' },
+      { version: 'kja', language: 'pt-br' },
+      { version: 'rvr', language: 'es' }
+    ];
+    
+    const results = [];
+    
+    for (const v of versions) {
+      const response = await supabase.functions.invoke('import-bible', {
+        body: JSON.stringify({
+          action: 'import-complete-version',
+          version: v.version,
+          language: v.language
+        })
+      });
+      
+      results.push({
+        version: v.version,
+        success: !response.error && response.data?.success,
+        message: response.error?.message || response.data?.message || 'Unknown status',
+        data: response.data
+      });
+    }
+    
+    return {
+      success: results.every(r => r.success),
+      results
+    };
+  } catch (error) {
+    console.error('Error importing initial versions:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 }
 
 export async function importCompleteVersion(version: string, language: string): Promise<any> {

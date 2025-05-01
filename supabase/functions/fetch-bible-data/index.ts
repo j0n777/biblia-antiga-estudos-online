@@ -124,7 +124,8 @@ serve(async (req) => {
     if (action === 'get-versions') {
       const { data, error } = await supabase
         .from('bible_versions')
-        .select('*');
+        .select('*')
+        .not('is_original', 'eq', true);  // Do not include original language versions in the main selection
       
       if (error) {
         throw new Error(`Error fetching versions: ${error.message}`);
@@ -239,7 +240,7 @@ serve(async (req) => {
     
     return new Response(JSON.stringify({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

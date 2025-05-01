@@ -5,35 +5,61 @@ import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getAllBooks, getAllVersions, importCompleteVersion } from '@/services/BibleService';
+import { getAllBooks, getAllVersions, importInitialVersions } from '@/services/BibleService';
 import { BibleBook, BibleVersion } from '@/services/BibleService';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 const Read = () => {
   const [selectedBook, setSelectedBook] = useState('genesis');
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVersion, setSelectedVersion] = useState('kja');
-  const [books, setBooks] = useState<BibleBook[]>([]);
-  const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [isImporting, setIsImporting] = useState(false);
   
+  // Fetch books and versions with React Query
+  const { 
+    data: books = [], 
+    isLoading: booksLoading 
+  } = useQuery({
+    queryKey: ['bible-books'],
+    queryFn: getAllBooks,
+  });
+  
+  const { 
+    data: versions = [], 
+    isLoading: versionsLoading 
+  } = useQuery({
+    queryKey: ['bible-versions'],
+    queryFn: getAllVersions,
+  });
+  
+  // On first load, ensure we have the Bible data
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [booksData, versionsData] = await Promise.all([
-          getAllBooks(),
-          getAllVersions()
-        ]);
-        
-        setBooks(booksData);
-        setVersions(versionsData);
-      } catch (error) {
-        console.error('Error loading Bible data:', error);
+    async function ensureDataAvailability() {
+      if (!booksLoading && !versionsLoading) {
+        if (books.length === 0 || versions.length === 0) {
+          toast.info("Preparando a Bíblia para leitura...", {
+            duration: 3000,
+          });
+          
+          const result = await importInitialVersions();
+          
+          if (result.success) {
+            toast.success("As versões da Bíblia estão prontas para uso.", {
+              duration: 3000,
+            });
+            // Refetch books and versions to update the UI
+            window.location.reload(); // Simple solution to refresh data
+          } else {
+            toast.error("Houve um problema ao preparar as versões da Bíblia. Por favor, tente novamente mais tarde.", {
+              duration: 5000,
+            });
+          }
+        }
       }
-    };
+    }
     
-    loadData();
-  }, []);
+    ensureDataAvailability();
+  }, [books.length, versions.length, booksLoading, versionsLoading]);
   
   const oldTestamentBooks = books.filter(book => book.testament === 'old');
   const newTestamentBooks = books.filter(book => book.testament === 'new');
@@ -61,35 +87,6 @@ const Read = () => {
     }
   };
   
-  const handleImportVersion = async (version: string) => {
-    try {
-      setIsImporting(true);
-      
-      // Map version IDs to language codes
-      let language = 'en';
-      if (version === 'kja') language = 'pt-br';
-      if (version === 'acf') language = 'pt-br';
-      if (version === 'rvr') language = 'es';
-      
-      toast.info(`Iniciando importação da Bíblia versão ${version}...`, {
-        duration: 3000,
-      });
-      
-      const result = await importCompleteVersion(version, language);
-      
-      toast.success(`Bíblia versão ${version} importada com sucesso. ${result.importedBooks?.length || 0} livros processados.`, {
-        duration: 5000,
-      });
-    } catch (error) {
-      console.error('Error importing Bible version:', error);
-      toast.error(`Erro ao importar Bíblia: ${error instanceof Error ? error.message : 'Erro desconhecido'}`, {
-        duration: 5000,
-      });
-    } finally {
-      setIsImporting(false);
-    }
-  };
-  
   return (
     <PageLayout>
       <div className="py-4">
@@ -109,16 +106,6 @@ const Read = () => {
                 ))}
               </SelectContent>
             </Select>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleImportVersion(selectedVersion)}
-              disabled={isImporting}
-              className="bg-parchment-light border-parchment-dark/30"
-            >
-              {isImporting ? 'Importando...' : 'Importar Versão'}
-            </Button>
           </div>
         </div>
         

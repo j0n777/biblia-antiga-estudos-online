@@ -101,12 +101,30 @@ const bookIdMapping: Record<string, string> = {
   're': 'revelation',
 };
 
+// Database book IDs to API IDs (reverse mapping)
+const reverseBookIdMapping: Record<string, string> = Object.fromEntries(
+  Object.entries(bookIdMapping).map(([k, v]) => [v, k])
+);
+
 // Version and language information for our specific versions
 const versionInfo: Record<string, {name: string, language: string, languageName: string}> = {
   'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
   'kja': {name: 'King James Atualizada', language: 'pt-br', languageName: 'Português'},
   'rvr': {name: 'Reina Valera 1909', language: 'es', languageName: 'Español'},
 };
+
+// Helper to determine testament
+function getTestament(bookId: string): 'old' | 'new' {
+  const newTestamentBooks = [
+    'matthew', 'mark', 'luke', 'john', 'acts', 'romans', '1corinthians', 
+    '2corinthians', 'galatians', 'ephesians', 'philippians', 'colossians', 
+    '1thessalonians', '2thessalonians', '1timothy', '2timothy', 'titus', 
+    'philemon', 'hebrews', 'james', '1peter', '2peter', '1john', '2john', 
+    '3john', 'jude', 'revelation'
+  ];
+  
+  return newTestamentBooks.includes(bookId.toLowerCase()) ? 'new' : 'old';
+}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -206,7 +224,6 @@ serve(async (req) => {
       const bibleVersions: BibleVersion[] = [
         { id: 'kjv', name: 'King James Version', language: 'en', languageName: 'English', isOriginal: false },
         { id: 'kja', name: 'King James Atualizada', language: 'pt-br', languageName: 'Português', isOriginal: false },
-        { id: 'acf', name: 'Almeida Corrigida Fiel', language: 'pt', languageName: 'Português', isOriginal: false },
         { id: 'rvr', name: 'Reina Valera 1909', language: 'es', languageName: 'Español', isOriginal: false },
         { id: 'hebrew', name: 'Hebrew Bible', language: 'he', languageName: 'Hebrew', isOriginal: true, originalLanguage: 'hebrew' },
         { id: 'greek', name: 'Greek New Testament', language: 'el', languageName: 'Greek', isOriginal: true, originalLanguage: 'greek' },
@@ -269,27 +286,23 @@ serve(async (req) => {
       const versionResponse = await fetch(versionFileUrl);
       
       if (!versionResponse.ok) {
-        throw new Error(`Error fetching Bible version: ${versionResponse.statusText}`);
+        throw new Error(`Error fetching Bible version from ${versionFileUrl}: ${versionResponse.status} ${versionResponse.statusText}`);
       }
       
       const bibleData = await versionResponse.json();
       console.log(`Successfully fetched Bible version data with ${bibleData.length} books`);
       
       // Make sure the version exists in the database
-      const versionInfo = {
-        'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
-        'kja': {name: 'King James Atualizada', language: 'pt-br', languageName: 'Português'},
-        'rvr': {name: 'Reina Valera 1909', language: 'es', languageName: 'Español'},
-      }[version] || {name: version.toUpperCase(), language, languageName: language};
+      const versionInfoData = versionInfo[version] || {name: version.toUpperCase(), language, languageName: language};
       
       // Insert or update version record
       const { error: versionError } = await supabase
         .from('bible_versions')
         .upsert({
           id: version,
-          name: versionInfo.name,
-          language: versionInfo.language,
-          language_name: versionInfo.languageName,
+          name: versionInfoData.name,
+          language: versionInfoData.language,
+          language_name: versionInfoData.languageName,
           is_original: false
         });
       
@@ -299,6 +312,7 @@ serve(async (req) => {
       
       // Process each book in the Bible data
       const importedBooks = [];
+      const failedBooks = [];
       
       for (const book of bibleData) {
         try {
@@ -308,29 +322,26 @@ serve(async (req) => {
           
           console.log(`Processing book ${shortId}/${fullId}: ${book.name} with ${book.chapters.length} chapters`);
           
-          // Update or insert book metadata if needed
-          const { data: dbBookData, error: bookLookupError } = await supabase
-            .from('bible_books')
-            .select('*')
-            .eq('id', fullId)
-            .single();
+          // Get or create book metadata
+          const testament = getTestament(fullId);
+          const position = bibleBooks.find(b => b.id.toLowerCase() === fullId.toLowerCase())?.position || 0;
+          const chaptersCount = book.chapters.length;
           
-          if (bookLookupError) {
-            console.log(`Book ${fullId} not found in database, creating it`);
-            
-            // Determine testament
-            const testament = fullId.match(/^(matthew|mark|luke|john|acts|romans|1corinthians|2corinthians|galatians|ephesians|philippians|colossians|1thessalonians|2thessalonians|1timothy|2timothy|titus|philemon|hebrews|james|1peter|2peter|1john|2john|3john|jude|revelation)$/i) ? 'new' : 'old';
-            
-            // Get position based on traditional order
-            const position = bibleBooks.find(b => b.id.toLowerCase() === fullId.toLowerCase())?.position || 0;
-            
-            await supabase.from('bible_books').upsert({
+          // Insert or update the book record
+          const { error: bookError } = await supabase
+            .from('bible_books')
+            .upsert({
               id: fullId,
               name: book.name,
               testament,
-              chapters_count: book.chapters.length,
+              chapters_count: chaptersCount,
               position
             });
+          
+          if (bookError) {
+            console.error(`Error updating book ${fullId}: ${bookError.message}`);
+            failedBooks.push({ id: fullId, error: bookError.message });
+            continue;
           }
           
           // Process each chapter in the book
@@ -389,6 +400,7 @@ serve(async (req) => {
           
         } catch (bookError) {
           console.error(`Error processing book ${book.id}:`, bookError);
+          failedBooks.push({ id: book.id, error: bookError instanceof Error ? bookError.message : 'Unknown error' });
           continue; // Skip this book and continue with others
         }
       }
@@ -397,6 +409,7 @@ serve(async (req) => {
         success: true,
         message: `Bible version ${version} (${language}) imported successfully`,
         importedBooks: importedBooks,
+        failedBooks: failedBooks,
         totalBooks: bibleData.length
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -417,7 +430,8 @@ serve(async (req) => {
     
     return new Response(JSON.stringify({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.stack : null,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
