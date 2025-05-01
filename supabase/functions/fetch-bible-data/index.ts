@@ -148,6 +148,22 @@ serve(async (req) => {
       console.log(`Fetching chapter for book_id=${bookId}, chapter=${chapter}, version=${version}`);
       
       // Get the book info first
+      // Get version info to determine language
+      const { data: versionData, error: versionError } = await supabase
+        .from('bible_versions')
+        .select('*')
+        .eq('id', version)
+        .single();
+      
+      if (versionError) {
+        throw new Error(`Error fetching version: ${versionError.message}`);
+      }
+      
+      if (!versionData) {
+        throw new Error(`Version not found: ${version}`);
+      }
+      
+      // Get the book info first
       const { data: bookData, error: bookError } = await supabase
         .from('bible_books')
         .select('*')
@@ -191,17 +207,6 @@ serve(async (req) => {
       
       if (versesError) {
         throw new Error(`Error fetching verses: ${versesError.message}`);
-      }
-      
-      // Get the version info
-      const { data: versionData, error: versionError } = await supabase
-        .from('bible_versions')
-        .select('*')
-        .eq('id', version)
-        .single();
-      
-      if (versionError) {
-        throw new Error(`Error fetching version: ${versionError.message}`);
       }
       
       // Get the original language for this book

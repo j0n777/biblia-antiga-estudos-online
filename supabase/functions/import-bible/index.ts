@@ -7,30 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-type BibleBook = {
-  id: string;
-  name: string;
-  testament: 'old' | 'new';
-  chaptersCount: number;
-  position: number;
-};
-
-type BibleVersion = {
-  id: string;
-  name: string;
-  language: string;
-  languageName: string;
-  isOriginal: boolean;
-  originalLanguage?: 'hebrew' | 'greek' | 'aramaic';
-};
-
-// Type for the complete Bible version JSON format
-type BibleBookJson = {
-  id: string;
-  name: string;
-  chapters: string[][];
-};
-
 // Book ID mapping between API shortcodes and database IDs
 const bookIdMapping: Record<string, string> = {
   'gn': 'genesis',
@@ -106,6 +82,214 @@ const reverseBookIdMapping: Record<string, string> = Object.fromEntries(
   Object.entries(bookIdMapping).map(([k, v]) => [v, k])
 );
 
+// Localized book names based on language
+const bookNamesByLanguage: Record<string, Record<string, string>> = {
+  'en': {
+    'genesis': 'Genesis',
+    'exodus': 'Exodus',
+    'leviticus': 'Leviticus',
+    'numbers': 'Numbers',
+    'deuteronomy': 'Deuteronomy',
+    'joshua': 'Joshua',
+    'judges': 'Judges',
+    'ruth': 'Ruth',
+    '1samuel': '1 Samuel',
+    '2samuel': '2 Samuel',
+    '1kings': '1 Kings',
+    '2kings': '2 Kings',
+    '1chronicles': '1 Chronicles',
+    '2chronicles': '2 Chronicles',
+    'ezra': 'Ezra',
+    'nehemiah': 'Nehemiah',
+    'esther': 'Esther',
+    'job': 'Job',
+    'psalms': 'Psalms',
+    'proverbs': 'Proverbs',
+    'ecclesiastes': 'Ecclesiastes',
+    'songofsolomon': 'Song of Solomon',
+    'isaiah': 'Isaiah',
+    'jeremiah': 'Jeremiah',
+    'lamentations': 'Lamentations',
+    'ezekiel': 'Ezekiel',
+    'daniel': 'Daniel',
+    'hosea': 'Hosea',
+    'joel': 'Joel',
+    'amos': 'Amos',
+    'obadiah': 'Obadiah',
+    'jonah': 'Jonah',
+    'micah': 'Micah',
+    'nahum': 'Nahum',
+    'habakkuk': 'Habakkuk',
+    'zephaniah': 'Zephaniah',
+    'haggai': 'Haggai',
+    'zechariah': 'Zechariah',
+    'malachi': 'Malachi',
+    'matthew': 'Matthew',
+    'mark': 'Mark',
+    'luke': 'Luke',
+    'john': 'John',
+    'acts': 'Acts',
+    'romans': 'Romans',
+    '1corinthians': '1 Corinthians',
+    '2corinthians': '2 Corinthians',
+    'galatians': 'Galatians',
+    'ephesians': 'Ephesians',
+    'philippians': 'Philippians',
+    'colossians': 'Colossians',
+    '1thessalonians': '1 Thessalonians',
+    '2thessalonians': '2 Thessalonians',
+    '1timothy': '1 Timothy',
+    '2timothy': '2 Timothy',
+    'titus': 'Titus',
+    'philemon': 'Philemon',
+    'hebrews': 'Hebrews',
+    'james': 'James',
+    '1peter': '1 Peter',
+    '2peter': '2 Peter',
+    '1john': '1 John',
+    '2john': '2 John',
+    '3john': '3 John',
+    'jude': 'Jude',
+    'revelation': 'Revelation',
+  },
+  'pt-br': {
+    'genesis': 'Gênesis',
+    'exodus': 'Êxodo',
+    'leviticus': 'Levítico',
+    'numbers': 'Números',
+    'deuteronomy': 'Deuteronômio',
+    'joshua': 'Josué',
+    'judges': 'Juízes',
+    'ruth': 'Rute',
+    '1samuel': '1 Samuel',
+    '2samuel': '2 Samuel',
+    '1kings': '1 Reis',
+    '2kings': '2 Reis',
+    '1chronicles': '1 Crônicas',
+    '2chronicles': '2 Crônicas',
+    'ezra': 'Esdras',
+    'nehemiah': 'Neemias',
+    'esther': 'Ester',
+    'job': 'Jó',
+    'psalms': 'Salmos',
+    'proverbs': 'Provérbios',
+    'ecclesiastes': 'Eclesiastes',
+    'songofsolomon': 'Cânticos',
+    'isaiah': 'Isaías',
+    'jeremiah': 'Jeremias',
+    'lamentations': 'Lamentações',
+    'ezekiel': 'Ezequiel',
+    'daniel': 'Daniel',
+    'hosea': 'Oséias',
+    'joel': 'Joel',
+    'amos': 'Amós',
+    'obadiah': 'Obadias',
+    'jonah': 'Jonas',
+    'micah': 'Miquéias',
+    'nahum': 'Naum',
+    'habakkuk': 'Habacuque',
+    'zephaniah': 'Sofonias',
+    'haggai': 'Ageu',
+    'zechariah': 'Zacarias',
+    'malachi': 'Malaquias',
+    'matthew': 'Mateus',
+    'mark': 'Marcos',
+    'luke': 'Lucas',
+    'john': 'João',
+    'acts': 'Atos',
+    'romans': 'Romanos',
+    '1corinthians': '1 Coríntios',
+    '2corinthians': '2 Coríntios',
+    'galatians': 'Gálatas',
+    'ephesians': 'Efésios',
+    'philippians': 'Filipenses',
+    'colossians': 'Colossenses',
+    '1thessalonians': '1 Tessalonicenses',
+    '2thessalonians': '2 Tessalonicenses',
+    '1timothy': '1 Timóteo',
+    '2timothy': '2 Timóteo',
+    'titus': 'Tito',
+    'philemon': 'Filemom',
+    'hebrews': 'Hebreus',
+    'james': 'Tiago',
+    '1peter': '1 Pedro',
+    '2peter': '2 Pedro',
+    '1john': '1 João',
+    '2john': '2 João',
+    '3john': '3 João',
+    'jude': 'Judas',
+    'revelation': 'Apocalipse',
+  },
+  'es': {
+    'genesis': 'Génesis',
+    'exodus': 'Éxodo',
+    'leviticus': 'Levítico',
+    'numbers': 'Números',
+    'deuteronomy': 'Deuteronomio',
+    'joshua': 'Josué',
+    'judges': 'Jueces',
+    'ruth': 'Rut',
+    '1samuel': '1 Samuel',
+    '2samuel': '2 Samuel',
+    '1kings': '1 Reyes',
+    '2kings': '2 Reyes',
+    '1chronicles': '1 Crónicas',
+    '2chronicles': '2 Crónicas',
+    'ezra': 'Esdras',
+    'nehemiah': 'Nehemías',
+    'esther': 'Ester',
+    'job': 'Job',
+    'psalms': 'Salmos',
+    'proverbs': 'Proverbios',
+    'ecclesiastes': 'Eclesiastés',
+    'songofsolomon': 'Cantares',
+    'isaiah': 'Isaías',
+    'jeremiah': 'Jeremías',
+    'lamentations': 'Lamentaciones',
+    'ezekiel': 'Ezequiel',
+    'daniel': 'Daniel',
+    'hosea': 'Oseas',
+    'joel': 'Joel',
+    'amos': 'Amós',
+    'obadiah': 'Abdías',
+    'jonah': 'Jonás',
+    'micah': 'Miqueas',
+    'nahum': 'Nahúm',
+    'habakkuk': 'Habacuc',
+    'zephaniah': 'Sofonías',
+    'haggai': 'Hageo',
+    'zechariah': 'Zacarías',
+    'malachi': 'Malaquías',
+    'matthew': 'Mateo',
+    'mark': 'Marcos',
+    'luke': 'Lucas',
+    'john': 'Juan',
+    'acts': 'Hechos',
+    'romans': 'Romanos',
+    '1corinthians': '1 Corintios',
+    '2corinthians': '2 Corintios',
+    'galatians': 'Gálatas',
+    'ephesians': 'Efesios',
+    'philippians': 'Filipenses',
+    'colossians': 'Colosenses',
+    '1thessalonians': '1 Tesalonicenses',
+    '2thessalonians': '2 Tesalonicenses',
+    '1timothy': '1 Timoteo',
+    '2timothy': '2 Timoteo',
+    'titus': 'Tito',
+    'philemon': 'Filemón',
+    'hebrews': 'Hebreos',
+    'james': 'Santiago',
+    '1peter': '1 Pedro',
+    '2peter': '2 Pedro',
+    '1john': '1 Juan',
+    '2john': '2 Juan',
+    '3john': '3 Juan',
+    'jude': 'Judas',
+    'revelation': 'Apocalipsis',
+  }
+};
+
 // Version and language information for our specific versions
 const versionInfo: Record<string, {name: string, language: string, languageName: string}> = {
   'kjv': {name: 'King James Version', language: 'en', languageName: 'English'},
@@ -125,6 +309,79 @@ function getTestament(bookId: string): 'old' | 'new' {
   
   return newTestamentBooks.includes(bookId.toLowerCase()) ? 'new' : 'old';
 }
+
+// Book position in the Bible
+const bibleBooks = [
+  // Old Testament (39 books)
+  { id: 'genesis', name: 'Gênesis', testament: 'old', position: 1 },
+  { id: 'exodus', name: 'Êxodo', testament: 'old', position: 2 },
+  { id: 'leviticus', name: 'Levítico', testament: 'old', position: 3 },
+  { id: 'numbers', name: 'Números', testament: 'old', position: 4 },
+  { id: 'deuteronomy', name: 'Deuteronômio', testament: 'old', position: 5 },
+  { id: 'joshua', name: 'Josué', testament: 'old', position: 6 },
+  { id: 'judges', name: 'Juízes', testament: 'old', position: 7 },
+  { id: 'ruth', name: 'Rute', testament: 'old', position: 8 },
+  { id: '1samuel', name: '1 Samuel', testament: 'old', position: 9 },
+  { id: '2samuel', name: '2 Samuel', testament: 'old', position: 10 },
+  { id: '1kings', name: '1 Reis', testament: 'old', position: 11 },
+  { id: '2kings', name: '2 Reis', testament: 'old', position: 12 },
+  { id: '1chronicles', name: '1 Crônicas', testament: 'old', position: 13 },
+  { id: '2chronicles', name: '2 Crônicas', testament: 'old', position: 14 },
+  { id: 'ezra', name: 'Esdras', testament: 'old', position: 15 },
+  { id: 'nehemiah', name: 'Neemias', testament: 'old', position: 16 },
+  { id: 'esther', name: 'Ester', testament: 'old', position: 17 },
+  { id: 'job', name: 'Jó', testament: 'old', position: 18 },
+  { id: 'psalms', name: 'Salmos', testament: 'old', position: 19 },
+  { id: 'proverbs', name: 'Provérbios', testament: 'old', position: 20 },
+  { id: 'ecclesiastes', name: 'Eclesiastes', testament: 'old', position: 21 },
+  { id: 'songofsolomon', name: 'Cânticos', testament: 'old', position: 22 },
+  { id: 'isaiah', name: 'Isaías', testament: 'old', position: 23 },
+  { id: 'jeremiah', name: 'Jeremias', testament: 'old', position: 24 },
+  { id: 'lamentations', name: 'Lamentações', testament: 'old', position: 25 },
+  { id: 'ezekiel', name: 'Ezequiel', testament: 'old', position: 26 },
+  { id: 'daniel', name: 'Daniel', testament: 'old', position: 27 },
+  { id: 'hosea', name: 'Oséias', testament: 'old', position: 28 },
+  { id: 'joel', name: 'Joel', testament: 'old', position: 29 },
+  { id: 'amos', name: 'Amós', testament: 'old', position: 30 },
+  { id: 'obadiah', name: 'Obadias', testament: 'old', position: 31 },
+  { id: 'jonah', name: 'Jonas', testament: 'old', position: 32 },
+  { id: 'micah', name: 'Miquéias', testament: 'old', position: 33 },
+  { id: 'nahum', name: 'Naum', testament: 'old', position: 34 },
+  { id: 'habakkuk', name: 'Habacuque', testament: 'old', position: 35 },
+  { id: 'zephaniah', name: 'Sofonias', testament: 'old', position: 36 },
+  { id: 'haggai', name: 'Ageu', testament: 'old', position: 37 },
+  { id: 'zechariah', name: 'Zacarias', testament: 'old', position: 38 },
+  { id: 'malachi', name: 'Malaquias', testament: 'old', position: 39 },
+  
+  // New Testament (27 books)
+  { id: 'matthew', name: 'Mateus', testament: 'new', position: 40 },
+  { id: 'mark', name: 'Marcos', testament: 'new', position: 41 },
+  { id: 'luke', name: 'Lucas', testament: 'new', position: 42 },
+  { id: 'john', name: 'João', testament: 'new', position: 43 },
+  { id: 'acts', name: 'Atos', testament: 'new', position: 44 },
+  { id: 'romans', name: 'Romanos', testament: 'new', position: 45 },
+  { id: '1corinthians', name: '1 Coríntios', testament: 'new', position: 46 },
+  { id: '2corinthians', name: '2 Coríntios', testament: 'new', position: 47 },
+  { id: 'galatians', name: 'Gálatas', testament: 'new', position: 48 },
+  { id: 'ephesians', name: 'Efésios', testament: 'new', position: 49 },
+  { id: 'philippians', name: 'Filipenses', testament: 'new', position: 50 },
+  { id: 'colossians', name: 'Colossenses', testament: 'new', position: 51 },
+  { id: '1thessalonians', name: '1 Tessalonicenses', testament: 'new', position: 52 },
+  { id: '2thessalonians', name: '2 Tessalonicenses', testament: 'new', position: 53 },
+  { id: '1timothy', name: '1 Timóteo', testament: 'new', position: 54 },
+  { id: '2timothy', name: '2 Timóteo', testament: 'new', position: 55 },
+  { id: 'titus', name: 'Tito', testament: 'new', position: 56 },
+  { id: 'philemon', name: 'Filemom', testament: 'new', position: 57 },
+  { id: 'hebrews', name: 'Hebreus', testament: 'new', position: 58 },
+  { id: 'james', name: 'Tiago', testament: 'new', position: 59 },
+  { id: '1peter', name: '1 Pedro', testament: 'new', position: 60 },
+  { id: '2peter', name: '2 Pedro', testament: 'new', position: 61 },
+  { id: '1john', name: '1 João', testament: 'new', position: 62 },
+  { id: '2john', name: '2 João', testament: 'new', position: 63 },
+  { id: '3john', name: '3 João', testament: 'new', position: 64 },
+  { id: 'jude', name: 'Judas', testament: 'new', position: 65 },
+  { id: 'revelation', name: 'Apocalipse', testament: 'new', position: 66 },
+];
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -147,81 +404,25 @@ serve(async (req) => {
     
     // Action to import Bible books metadata
     if (action === 'import-books') {
-      // Define the Bible books metadata
-      const bibleBooks: BibleBook[] = [
-        // Old Testament (39 books)
-        { id: 'genesis', name: 'Gênesis', testament: 'old', chaptersCount: 50, position: 1 },
-        { id: 'exodus', name: 'Êxodo', testament: 'old', chaptersCount: 40, position: 2 },
-        { id: 'leviticus', name: 'Levítico', testament: 'old', chaptersCount: 27, position: 3 },
-        { id: 'numbers', name: 'Números', testament: 'old', chaptersCount: 36, position: 4 },
-        { id: 'deuteronomy', name: 'Deuteronômio', testament: 'old', chaptersCount: 34, position: 5 },
-        { id: 'joshua', name: 'Josué', testament: 'old', chaptersCount: 24, position: 6 },
-        { id: 'judges', name: 'Juízes', testament: 'old', chaptersCount: 21, position: 7 },
-        { id: 'ruth', name: 'Rute', testament: 'old', chaptersCount: 4, position: 8 },
-        { id: '1samuel', name: '1 Samuel', testament: 'old', chaptersCount: 31, position: 9 },
-        { id: '2samuel', name: '2 Samuel', testament: 'old', chaptersCount: 24, position: 10 },
-        { id: '1kings', name: '1 Reis', testament: 'old', chaptersCount: 22, position: 11 },
-        { id: '2kings', name: '2 Reis', testament: 'old', chaptersCount: 25, position: 12 },
-        { id: '1chronicles', name: '1 Crônicas', testament: 'old', chaptersCount: 29, position: 13 },
-        { id: '2chronicles', name: '2 Crônicas', testament: 'old', chaptersCount: 36, position: 14 },
-        { id: 'ezra', name: 'Esdras', testament: 'old', chaptersCount: 10, position: 15 },
-        { id: 'nehemiah', name: 'Neemias', testament: 'old', chaptersCount: 13, position: 16 },
-        { id: 'esther', name: 'Ester', testament: 'old', chaptersCount: 10, position: 17 },
-        { id: 'job', name: 'Jó', testament: 'old', chaptersCount: 42, position: 18 },
-        { id: 'psalms', name: 'Salmos', testament: 'old', chaptersCount: 150, position: 19 },
-        { id: 'proverbs', name: 'Provérbios', testament: 'old', chaptersCount: 31, position: 20 },
-        { id: 'ecclesiastes', name: 'Eclesiastes', testament: 'old', chaptersCount: 12, position: 21 },
-        { id: 'songofsolomon', name: 'Cânticos', testament: 'old', chaptersCount: 8, position: 22 },
-        { id: 'isaiah', name: 'Isaías', testament: 'old', chaptersCount: 66, position: 23 },
-        { id: 'jeremiah', name: 'Jeremias', testament: 'old', chaptersCount: 52, position: 24 },
-        { id: 'lamentations', name: 'Lamentações', testament: 'old', chaptersCount: 5, position: 25 },
-        { id: 'ezekiel', name: 'Ezequiel', testament: 'old', chaptersCount: 48, position: 26 },
-        { id: 'daniel', name: 'Daniel', testament: 'old', chaptersCount: 12, position: 27 },
-        { id: 'hosea', name: 'Oséias', testament: 'old', chaptersCount: 14, position: 28 },
-        { id: 'joel', name: 'Joel', testament: 'old', chaptersCount: 3, position: 29 },
-        { id: 'amos', name: 'Amós', testament: 'old', chaptersCount: 9, position: 30 },
-        { id: 'obadiah', name: 'Obadias', testament: 'old', chaptersCount: 1, position: 31 },
-        { id: 'jonah', name: 'Jonas', testament: 'old', chaptersCount: 4, position: 32 },
-        { id: 'micah', name: 'Miquéias', testament: 'old', chaptersCount: 7, position: 33 },
-        { id: 'nahum', name: 'Naum', testament: 'old', chaptersCount: 3, position: 34 },
-        { id: 'habakkuk', name: 'Habacuque', testament: 'old', chaptersCount: 3, position: 35 },
-        { id: 'zephaniah', name: 'Sofonias', testament: 'old', chaptersCount: 3, position: 36 },
-        { id: 'haggai', name: 'Ageu', testament: 'old', chaptersCount: 2, position: 37 },
-        { id: 'zechariah', name: 'Zacarias', testament: 'old', chaptersCount: 14, position: 38 },
-        { id: 'malachi', name: 'Malaquias', testament: 'old', chaptersCount: 4, position: 39 },
-        
-        // New Testament (27 books)
-        { id: 'matthew', name: 'Mateus', testament: 'new', chaptersCount: 28, position: 40 },
-        { id: 'mark', name: 'Marcos', testament: 'new', chaptersCount: 16, position: 41 },
-        { id: 'luke', name: 'Lucas', testament: 'new', chaptersCount: 24, position: 42 },
-        { id: 'john', name: 'João', testament: 'new', chaptersCount: 21, position: 43 },
-        { id: 'acts', name: 'Atos', testament: 'new', chaptersCount: 28, position: 44 },
-        { id: 'romans', name: 'Romanos', testament: 'new', chaptersCount: 16, position: 45 },
-        { id: '1corinthians', name: '1 Coríntios', testament: 'new', chaptersCount: 16, position: 46 },
-        { id: '2corinthians', name: '2 Coríntios', testament: 'new', chaptersCount: 13, position: 47 },
-        { id: 'galatians', name: 'Gálatas', testament: 'new', chaptersCount: 6, position: 48 },
-        { id: 'ephesians', name: 'Efésios', testament: 'new', chaptersCount: 6, position: 49 },
-        { id: 'philippians', name: 'Filipenses', testament: 'new', chaptersCount: 4, position: 50 },
-        { id: 'colossians', name: 'Colossenses', testament: 'new', chaptersCount: 4, position: 51 },
-        { id: '1thessalonians', name: '1 Tessalonicenses', testament: 'new', chaptersCount: 5, position: 52 },
-        { id: '2thessalonians', name: '2 Tessalonicenses', testament: 'new', chaptersCount: 3, position: 53 },
-        { id: '1timothy', name: '1 Timóteo', testament: 'new', chaptersCount: 6, position: 54 },
-        { id: '2timothy', name: '2 Timóteo', testament: 'new', chaptersCount: 4, position: 55 },
-        { id: 'titus', name: 'Tito', testament: 'new', chaptersCount: 3, position: 56 },
-        { id: 'philemon', name: 'Filemom', testament: 'new', chaptersCount: 1, position: 57 },
-        { id: 'hebrews', name: 'Hebreus', testament: 'new', chaptersCount: 13, position: 58 },
-        { id: 'james', name: 'Tiago', testament: 'new', chaptersCount: 5, position: 59 },
-        { id: '1peter', name: '1 Pedro', testament: 'new', chaptersCount: 5, position: 60 },
-        { id: '2peter', name: '2 Pedro', testament: 'new', chaptersCount: 3, position: 61 },
-        { id: '1john', name: '1 João', testament: 'new', chaptersCount: 5, position: 62 },
-        { id: '2john', name: '2 João', testament: 'new', chaptersCount: 1, position: 63 },
-        { id: '3john', name: '3 João', testament: 'new', chaptersCount: 1, position: 64 },
-        { id: 'jude', name: 'Judas', testament: 'new', chaptersCount: 1, position: 65 },
-        { id: 'revelation', name: 'Apocalipse', testament: 'new', chaptersCount: 22, position: 66 },
-      ];
+      // Insert Bible books with proper localized names
+      const localizedBooks = Object.keys(bookNamesByLanguage).flatMap(lang => {
+        return Object.entries(bookNamesByLanguage[lang]).map(([id, name]) => {
+          const book = bibleBooks.find(b => b.id === id);
+          if (!book) return null;
+          
+          return {
+            id,
+            name,
+            language: lang,
+            testament: book.testament,
+            chapters_count: 0, // Will be updated when importing versions
+            position: book.position
+          };
+        }).filter(Boolean);
+      });
       
       // Define Bible versions
-      const bibleVersions: BibleVersion[] = [
+      const bibleVersions = [
         { id: 'kjv', name: 'King James Version', language: 'en', languageName: 'English', isOriginal: false },
         { id: 'kja', name: 'King James Atualizada', language: 'pt-br', languageName: 'Português', isOriginal: false },
         { id: 'rvr', name: 'Reina Valera 1909', language: 'es', languageName: 'Español', isOriginal: false },
@@ -230,40 +431,52 @@ serve(async (req) => {
       ];
       
       // Insert Bible books
-      const { error: booksError } = await supabase
-        .from('bible_books')
-        .upsert(bibleBooks.map(book => ({
-          id: book.id,
-          name: book.name,
-          testament: book.testament,
-          chapters_count: book.chaptersCount,
-          position: book.position
-        })));
-      
-      if (booksError) {
-        throw new Error(`Error inserting Bible books: ${booksError.message}`);
+      for (const book of localizedBooks) {
+        try {
+          const { error } = await supabase
+            .from('bible_books')
+            .upsert({
+              id: book.id,
+              name: book.name,
+              testament: book.testament,
+              chapters_count: book.chapters_count,
+              position: book.position
+            });
+          
+          if (error) {
+            console.error(`Error inserting book ${book.id}: ${error.message}`);
+          }
+        } catch (err) {
+          console.error(`Error inserting book ${book.id}:`, err);
+        }
       }
       
       // Insert Bible versions
-      const { error: versionsError } = await supabase
-        .from('bible_versions')
-        .upsert(bibleVersions.map(version => ({
-          id: version.id,
-          name: version.name,
-          language: version.language,
-          language_name: version.languageName,
-          is_original: version.isOriginal,
-          original_language: version.originalLanguage
-        })));
-      
-      if (versionsError) {
-        throw new Error(`Error inserting Bible versions: ${versionsError.message}`);
+      for (const version of bibleVersions) {
+        try {
+          const { error } = await supabase
+            .from('bible_versions')
+            .upsert({
+              id: version.id,
+              name: version.name,
+              language: version.language,
+              language_name: version.languageName,
+              is_original: version.isOriginal,
+              original_language: version.originalLanguage
+            });
+          
+          if (error) {
+            console.error(`Error inserting version ${version.id}: ${error.message}`);
+          }
+        } catch (err) {
+          console.error(`Error inserting version ${version.id}:`, err);
+        }
       }
       
       return new Response(JSON.stringify({
         success: true,
         message: 'Bible books and versions imported successfully',
-        booksCount: bibleBooks.length,
+        booksCount: localizedBooks.length,
         versionsCount: bibleVersions.length
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -271,7 +484,7 @@ serve(async (req) => {
       });
     }
     
-    // New action to import entire version from a single JSON file
+    // Action to import entire version from a single JSON file
     else if (action === 'import-complete-version') {
       if (!version) {
         throw new Error('Version is required for importing a complete Bible version');
@@ -316,23 +529,26 @@ serve(async (req) => {
       
       for (const book of bibleData) {
         try {
-          // Map short ID to full ID if needed
+          // Map short ID to full ID
           const shortId = book.id;
           const fullId = bookIdMapping[shortId] || shortId;
           
           console.log(`Processing book ${shortId}/${fullId}: ${book.name} with ${book.chapters.length} chapters`);
           
-          // Get or create book metadata
+          // Get book position and testament
           const testament = getTestament(fullId);
           const position = bibleBooks.find(b => b.id.toLowerCase() === fullId.toLowerCase())?.position || 0;
           const chaptersCount = book.chapters.length;
+          
+          // Get localized name for the book based on language
+          const bookName = bookNamesByLanguage[language]?.[fullId] || book.name;
           
           // Insert or update the book record
           const { error: bookError } = await supabase
             .from('bible_books')
             .upsert({
               id: fullId,
-              name: book.name,
+              name: bookName,
               testament,
               chapters_count: chaptersCount,
               position
@@ -369,15 +585,17 @@ serve(async (req) => {
               continue;
             }
             
+            const chapterId = chapterData.id;
+            
             // Prepare verses for insertion
             const versesForInsert = verses.map((text, verseIndex) => ({
-              chapter_id: chapterData.id,
+              chapter_id: chapterId,
               verse_number: verseIndex + 1,
               text: text,
             }));
             
             // Insert verses in batches to avoid hitting size limits
-            const batchSize = 100;
+            const batchSize = 50;
             for (let i = 0; i < versesForInsert.length; i += batchSize) {
               const batch = versesForInsert.slice(i, i + batchSize);
               
@@ -387,14 +605,13 @@ serve(async (req) => {
               
               if (versesError) {
                 console.error(`Error inserting verses batch for ${fullId} chapter ${chapterNumber}: ${versesError.message}`);
-                continue;
               }
             }
           }
           
           importedBooks.push({
             id: fullId,
-            name: book.name,
+            name: bookName,
             chaptersCount: book.chapters.length
           });
           

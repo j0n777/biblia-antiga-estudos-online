@@ -11,9 +11,11 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 
 const Read = () => {
-  const [selectedBook, setSelectedBook] = useState('genesis');
+  // Default to Matthew (Chapter 1) in PT-BR
+  const [selectedBook, setSelectedBook] = useState('matthew');
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVersion, setSelectedVersion] = useState('kja');
+  const [isLoading, setIsLoading] = useState(false);
   
   // Fetch books and versions with React Query
   const { 
@@ -37,11 +39,13 @@ const Read = () => {
     async function ensureDataAvailability() {
       if (!booksLoading && !versionsLoading) {
         if (books.length === 0 || versions.length === 0) {
+          setIsLoading(true);
           toast.info("Preparando a Bíblia para leitura...", {
             duration: 3000,
           });
           
           const result = await importInitialVersions();
+          setIsLoading(false);
           
           if (result.success) {
             toast.success("As versões da Bíblia estão prontas para uso.", {
@@ -87,6 +91,19 @@ const Read = () => {
     }
   };
   
+  const getLocalizedVersionName = (version: BibleVersion) => {
+    switch (version.language) {
+      case 'pt-br':
+        return `${version.name} (Português)`;
+      case 'es':
+        return `${version.name} (Español)`;
+      case 'en':
+        return `${version.name} (English)`;
+      default:
+        return version.name;
+    }
+  };
+  
   return (
     <PageLayout>
       <div className="py-4">
@@ -95,13 +112,13 @@ const Read = () => {
           
           <div className="flex items-center gap-2">
             <Select value={selectedVersion} onValueChange={setSelectedVersion}>
-              <SelectTrigger className="w-[180px] bg-parchment-light border-parchment-dark/30">
+              <SelectTrigger className="w-[220px] bg-parchment-light border-parchment-dark/30">
                 <SelectValue placeholder="Versão" />
               </SelectTrigger>
               <SelectContent className="bg-parchment border-parchment-dark/30">
                 {versions.map((version) => (
                   <SelectItem key={version.id} value={version.id}>
-                    {version.name} ({version.language_name})
+                    {getLocalizedVersionName(version)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -161,7 +178,7 @@ const Read = () => {
             variant="outline" 
             size="sm" 
             onClick={handlePreviousChapter}
-            disabled={selectedChapter <= 1}
+            disabled={selectedChapter <= 1 || isLoading}
             className="bg-parchment-light border-parchment-dark/30"
           >
             <ChevronLeft size={16} className="mr-1" /> Anterior
@@ -171,7 +188,7 @@ const Read = () => {
             variant="outline" 
             size="sm" 
             onClick={handleNextChapter}
-            disabled={selectedChapter >= getChaptersForBook(selectedBook)}
+            disabled={selectedChapter >= getChaptersForBook(selectedBook) || isLoading}
             className="bg-parchment-light border-parchment-dark/30"
           >
             Próximo <ChevronRight size={16} className="ml-1" />

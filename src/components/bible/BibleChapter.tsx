@@ -101,6 +101,7 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
             <div className="first-letter-drop-cap">
               <span className="chapter-number">{chapterData.verses[0]?.number}</span>
               <BibleVerse 
+                key={`${chapterData.book}-${chapterData.chapter}-${chapterData.verses[0]?.number}`}
                 verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
                 wordDefinitions={mockWordDefinitions}
               />
@@ -109,7 +110,7 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
           
           {chapterData.verses.slice(1).map((verse) => (
             <BibleVerse 
-              key={verse.number} 
+              key={`${chapterData.book}-${chapterData.chapter}-${verse.number}`}
               verse={verse}
               wordDefinitions={mockWordDefinitions} 
             />

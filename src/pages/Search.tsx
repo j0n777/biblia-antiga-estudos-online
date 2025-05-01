@@ -1,134 +1,163 @@
 
 import { useState } from 'react';
-import { Search as SearchIcon } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
-import BibleVerse from '@/components/bible/BibleVerse';
+import { Search as SearchIcon } from 'lucide-react';
 
-type SearchResult = {
-  book: string;
-  chapter: number;
-  verse: number;
-  text: string;
-};
+// Dummy suggested topics
+const suggestedTopics = [
+  "Fé", "Amor", "Esperança", "Salvação", "Graça", 
+  "Perdão", "Casamento", "Família", "Oração", "Sabedoria",
+  "Justiça", "Misericórdia", "Ressurreição"
+];
 
 const Search = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('texto');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([
+    "Jesus", "Isaías 53", "João 3:16", "Salmos 23", "Provérbios"
+  ]);
+  const [isSearching, setIsSearching] = useState(false);
   
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  const handleSearch = (term: string = searchTerm) => {
+    if (!term.trim()) return;
     
     setIsSearching(true);
     
-    // Simulate search results - in a real app this would query an API or local database
+    // Mock search results - in a real app, this would call the API
     setTimeout(() => {
-      // Mock search results
-      if (activeTab === 'texto') {
-        setSearchResults([
-          { book: 'João', chapter: 3, verse: 16, text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna." },
-          { book: 'Romanos', chapter: 5, verse: 8, text: "Mas Deus prova o seu amor para conosco em que Cristo morreu por nós, sendo nós ainda pecadores." },
-          { book: '1 João', chapter: 4, verse: 8, text: "Aquele que não ama não conhece a Deus, porque Deus é amor." },
-        ]);
-      } else if (activeTab === 'referencia') {
-        setSearchResults([
-          { book: 'João', chapter: 3, verse: 16, text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna." },
-        ]);
-      } else {
-        // Strong's number search or other specialized searches would go here
-        setSearchResults([
-          { book: 'João', chapter: 1, verse: 1, text: "No princípio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus." },
-          { book: 'Gênesis', chapter: 1, verse: 1, text: "No princípio, criou Deus os céus e a terra." },
-        ]);
-      }
-      
+      setSearchResults([
+        { ref: "João 3:16", text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna." },
+        { ref: "Romanos 5:8", text: "Mas Deus prova o seu amor para conosco em que Cristo morreu por nós, sendo nós ainda pecadores." },
+        // Add more mock results as needed
+      ]);
       setIsSearching(false);
+      
+      // Add to recent searches if not already included
+      if (!recentSearches.includes(term)) {
+        setRecentSearches(prev => [term, ...prev].slice(0, 5));
+      }
     }, 500);
+  };
+  
+  const handleSuggestedTopicSearch = (topic: string) => {
+    setSearchTerm(topic);
+    handleSearch(topic);
+  };
+  
+  const handleRecentSearch = (term: string) => {
+    setSearchTerm(term);
+    handleSearch(term);
   };
   
   return (
     <PageLayout>
-      <div className="py-6">
-        <h1 className="text-2xl font-oldstyle text-center text-scripture-heading mb-6">Busca Bíblica</h1>
+      <div className="py-4">
+        <h1 className="text-xl font-oldstyle text-scripture-heading mb-4">Busca Bíblica</h1>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full bg-parchment-light">
-            <TabsTrigger value="texto" className="flex-1">Texto</TabsTrigger>
-            <TabsTrigger value="referencia" className="flex-1">Referência</TabsTrigger>
-            <TabsTrigger value="strongs" className="flex-1">Strong's</TabsTrigger>
+        <Tabs defaultValue="texto" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 bg-parchment-light">
+            <TabsTrigger value="texto">Texto</TabsTrigger>
+            <TabsTrigger value="referencia">Referência</TabsTrigger>
+            <TabsTrigger value="strongs">Strong's</TabsTrigger>
           </TabsList>
           
+          <div className="mt-4">
+            <div className="relative">
+              <Input
+                className="pr-10 bg-parchment-light border-parchment-dark/30"
+                placeholder="Buscar palavras ou frases..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button
+                size="icon"
+                className="absolute right-1 top-1 h-8 w-8 rounded-sm bg-ancient-brown text-white"
+                onClick={() => handleSearch()}
+                disabled={isSearching}
+              >
+                <SearchIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          
           <TabsContent value="texto" className="mt-4">
-            <form onSubmit={handleSearch}>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Buscar palavras ou frases..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-parchment-light border-parchment-dark/30 placeholder:text-muted-foreground/70"
-                />
-                <Button type="submit" disabled={isSearching} className="bg-ancient-brown hover:bg-ancient-brown/80 text-white">
-                  {isSearching ? "Buscando..." : <SearchIcon size={18} />}
-                </Button>
+            {!searchResults.length && !isSearching && (
+              <div className="space-y-6">
+                {/* Recent Searches */}
+                {recentSearches.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-oldstyle text-scripture-heading mb-2">Buscas Recentes</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {recentSearches.map((term, idx) => (
+                        <Button
+                          key={idx}
+                          variant="outline"
+                          size="sm"
+                          className="bg-parchment-light border-parchment-dark/30"
+                          onClick={() => handleRecentSearch(term)}
+                        >
+                          {term}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Suggested Topics */}
+                <div>
+                  <h3 className="text-lg font-oldstyle text-scripture-heading mb-2">Tópicos Sugeridos</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedTopics.map((topic, idx) => (
+                      <Button
+                        key={idx}
+                        variant="outline"
+                        size="sm"
+                        className="bg-parchment-light border-parchment-dark/30"
+                        onClick={() => handleSuggestedTopicSearch(topic)}
+                      >
+                        {topic}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </form>
+            )}
+            
+            {/* Search Results */}
+            {isSearching && (
+              <div className="py-4 text-center text-scripture-text">
+                <p>Buscando resultados...</p>
+              </div>
+            )}
+            
+            {searchResults.length > 0 && !isSearching && (
+              <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-oldstyle text-scripture-heading">Resultados para "{searchTerm}"</h3>
+                {searchResults.map((result, idx) => (
+                  <div key={idx} className="parchment-container p-3">
+                    <p className="font-bold text-scripture-heading">{result.ref}</p>
+                    <p className="mt-1 text-scripture-text">{result.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="referencia" className="mt-4">
-            <form onSubmit={handleSearch}>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: João 3:16 ou Gênesis 1:1-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-parchment-light border-parchment-dark/30 placeholder:text-muted-foreground/70"
-                />
-                <Button type="submit" disabled={isSearching} className="bg-ancient-brown hover:bg-ancient-brown/80 text-white">
-                  {isSearching ? "Buscando..." : <SearchIcon size={18} />}
-                </Button>
-              </div>
-            </form>
+            {/* Reference search content */}
+            <p>Busque por referências como "João 3:16", "Gênesis 1:1", etc.</p>
           </TabsContent>
           
           <TabsContent value="strongs" className="mt-4">
-            <form onSubmit={handleSearch}>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: H7225 (hebraico) ou G3056 (grego)"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-parchment-light border-parchment-dark/30 placeholder:text-muted-foreground/70"
-                />
-                <Button type="submit" disabled={isSearching} className="bg-ancient-brown hover:bg-ancient-brown/80 text-white">
-                  {isSearching ? "Buscando..." : <SearchIcon size={18} />}
-                </Button>
-              </div>
-            </form>
+            {/* Strong's search content */}
+            <p>Busque pelo número Strong's como "H430" (Elohim), "G2316" (Theos), etc.</p>
           </TabsContent>
         </Tabs>
-        
-        {searchResults.length > 0 && (
-          <div className="mt-6 space-y-4">
-            <h2 className="text-lg font-oldstyle text-scripture-heading">Resultados ({searchResults.length})</h2>
-            
-            {searchResults.map((result, index) => (
-              <Card key={index} className="parchment-container">
-                <div className="p-4">
-                  <h3 className="font-oldstyle text-sm text-scripture-heading mb-2">
-                    {result.book} {result.chapter}:{result.verse}
-                  </h3>
-                  <BibleVerse verse={{ number: result.verse, text: result.text }} />
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
       </div>
     </PageLayout>
   );
