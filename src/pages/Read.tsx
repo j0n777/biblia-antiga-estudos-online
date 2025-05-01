@@ -1,12 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { getAllBooks, getAllVersions, importInitialVersions } from '@/services/BibleService';
-import { BibleBook, BibleVersion } from '@/services/BibleService';
+import { 
+  getAllBooks, 
+  getAllVersions, 
+  importInitialVersions, 
+  BibleBook, 
+  BibleVersion 
+} from '@/services/BibleService';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 
