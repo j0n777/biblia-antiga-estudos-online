@@ -49,7 +49,7 @@ export type WordDefinition = {
   strongsNumber?: string;
 };
 
-// New types for user reading history and achievements
+// Reading position types
 export type ReadingPosition = {
   version_id: string;
   book_id: string;
@@ -57,6 +57,9 @@ export type ReadingPosition = {
   verse_number?: number;
   timestamp: Date;
 };
+
+// Achievement system types
+export type AchievementCategory = 'book' | 'testament' | 'streak' | 'milestone' | 'challenge';
 
 export type Achievement = {
   id: string;
@@ -68,5 +71,41 @@ export type Achievement = {
   progress?: number;
   maxProgress?: number;
   unlockedAt?: Date;
-  category: 'book' | 'testament' | 'streak' | 'milestone' | 'challenge';
+  category: AchievementCategory;
+};
+
+export type UserProfile = {
+  id: string;
+  display_name?: string;
+  nickname?: string;
+  avatar_url?: string;
+  country?: string;
+  birth_year?: number;
+  preferred_language?: string;
+  preferred_bible_version?: string;
+  experience_points: number;
+  streak_count: number;
+  last_streak_date?: Date;
+};
+
+export type DailyChallenge = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  points: number;
+  book_category: string;
+  chapters_required: number;
+  progress?: number;
+  completed?: boolean;
+};
+
+export type LeaderboardEntry = {
+  id: string;
+  nickname: string | null;
+  avatar_url: string | null;
+  experience_points: number;
+  streak_count: number;
+  achievements_count: number;
+  rank: number;
 };
