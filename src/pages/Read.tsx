@@ -12,6 +12,7 @@ import {
   BibleBook, 
   BibleVersion 
 } from '@/services/BibleService';
+import { saveReadingPosition, getLastReadingPosition } from '@/services/ReadingService';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 
@@ -21,6 +22,7 @@ const Read = () => {
   const [selectedChapter, setSelectedChapter] = useState(1);
   const [selectedVersionId, setSelectedVersionId] = useState('kja');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoringPosition, setIsRestoringPosition] = useState(true);
   
   // Fetch books and versions with React Query
   const { 
@@ -71,6 +73,45 @@ const Read = () => {
     ensureDataAvailability();
   }, [books.length, versions.length, booksLoading, versionsLoading]);
   
+  // Restore the last reading position
+  useEffect(() => {
+    const restoreReadingPosition = async () => {
+      if (isRestoringPosition && !booksLoading && books.length > 0 && !versionsLoading && versions.length > 0) {
+        const lastPosition = getLastReadingPosition();
+        
+        if (lastPosition) {
+          // Check if the version exists in our available versions
+          const versionExists = versions.some(v => v.id === lastPosition.version_id);
+          
+          // Check if the book exists in our available books
+          const bookExists = books.some(b => b.book_id === lastPosition.book_id);
+          
+          if (versionExists && bookExists) {
+            setSelectedVersionId(lastPosition.version_id);
+            setSelectedBookId(lastPosition.book_id);
+            setSelectedChapter(lastPosition.chapter_number);
+            
+            toast.info("Continuando de onde você parou", {
+              duration: 2000,
+            });
+          }
+        }
+        
+        setIsRestoringPosition(false);
+      }
+    };
+    
+    restoreReadingPosition();
+  }, [books, versions, booksLoading, versionsLoading, isRestoringPosition]);
+  
+  // Save reading position whenever it changes
+  useEffect(() => {
+    // Don't save while we're still restoring the position
+    if (!isRestoringPosition) {
+      saveReadingPosition(selectedVersionId, selectedBookId, selectedChapter);
+    }
+  }, [selectedVersionId, selectedBookId, selectedChapter, isRestoringPosition]);
+  
   const oldTestamentBooks = books.filter(book => book.testament === 'old');
   const newTestamentBooks = books.filter(book => book.testament === 'new');
   
@@ -108,6 +149,11 @@ const Read = () => {
       default:
         return version.name;
     }
+  };
+
+  // Callback when a verse is viewed/read
+  const handleVerseRead = (verseNumber: number) => {
+    saveReadingPosition(selectedVersionId, selectedBookId, selectedChapter, verseNumber);
   };
   
   return (
@@ -177,6 +223,7 @@ const Read = () => {
           bookId={selectedBookId}
           chapterNumber={selectedChapter}
           versionId={selectedVersionId}
+          onVerseRead={handleVerseRead}
         />
         
         <div className="flex justify-between mt-4">

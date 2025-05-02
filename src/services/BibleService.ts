@@ -13,6 +13,11 @@ import {
   importInitialVersions,
   importCompleteVersion
 } from './BibleImportService';
+import {
+  saveReadingPosition,
+  getLastReadingPosition,
+  clearReadingPosition
+} from './ReadingService';
 
 // Types need to be exported with 'export type' when isolatedModules is enabled
 export type { BibleBook } from '../types/bible.types';
@@ -20,6 +25,8 @@ export type { BibleVersion } from '../types/bible.types';
 export type { BibleChapter } from '../types/bible.types';
 export type { BibleVerse } from '../types/bible.types';
 export type { WordDefinition } from '../types/bible.types';
+export type { ReadingPosition } from '../types/bible.types';
+export type { Achievement } from '../types/bible.types';
   
 // Mappings
 export {
@@ -41,5 +48,10 @@ export {
   
   // Import services
   importInitialVersions,
-  importCompleteVersion
+  importCompleteVersion,
+  
+  // Reading services
+  saveReadingPosition,
+  getLastReadingPosition,
+  clearReadingPosition
 };

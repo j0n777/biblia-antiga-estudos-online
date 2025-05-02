@@ -14,7 +14,7 @@ export type BibleVersion = {
   language: string;
   language_name: string;
   is_original: boolean;
-  original_language?: 'hebrew' | 'greek' | 'aramaic';
+  original_language?: string; // Changed from specific values to string
 };
 
 export type BibleChapter = {
@@ -29,7 +29,7 @@ export type BibleChapter = {
     text: string;
   }[];
   version: BibleVersion;
-  originalLanguage: 'hebrew' | 'greek' | 'aramaic';
+  originalLanguage: string; // Changed to match BibleVersion.original_language
 };
 
 export type BibleVerse = {
@@ -47,4 +47,26 @@ export type WordDefinition = {
   transliteration?: string;
   definition: string;
   strongsNumber?: string;
+};
+
+// New types for user reading history and achievements
+export type ReadingPosition = {
+  version_id: string;
+  book_id: string;
+  chapter_number: number;
+  verse_number?: number;
+  timestamp: Date;
+};
+
+export type Achievement = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  points: number;
+  unlocked: boolean;
+  progress?: number;
+  maxProgress?: number;
+  unlockedAt?: Date;
+  category: 'book' | 'testament' | 'streak' | 'milestone' | 'challenge';
 };

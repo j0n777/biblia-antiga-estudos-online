@@ -1,59 +1,89 @@
 
-import { BibleChapter } from '../types/bible.types';
-import { getVersionInfo } from './bible-utils';
+import { BibleChapter, BibleVersion } from '../types/bible.types';
+import { reverseBookIdMapping } from './bible-mappings';
 
-// This is a temporary function that will be used until we have proper data loaded
-export function getChapterMock(
-  book: string, 
-  chapter: number,
-  version: string = 'kja'
-): BibleChapter {
-  const bookData = {
-    genesis: {
-      pt: "Gênesis",
-      en: "Genesis", 
-      es: "Génesis"
+// Generate mock Bible chapter data for testing and fallback
+export const getChapterMock = (
+  bookId: string, 
+  chapterNumber: number, 
+  versionId = 'kja'
+): BibleChapter => {
+  // Default version info
+  const versionInfo: Record<string, BibleVersion> = {
+    'kja': {
+      id: 'kja',
+      name: 'King James Atualizada',
+      language: 'pt-br',
+      language_name: 'Português',
+      is_original: false,
+      original_language: null
     },
-    matthew: {
-      pt: "Mateus",
-      en: "Matthew",
-      es: "Mateo"
+    'kjv': {
+      id: 'kjv',
+      name: 'King James Version',
+      language: 'en',
+      language_name: 'English',
+      is_original: false,
+      original_language: null
+    },
+    'rvr': {
+      id: 'rvr',
+      name: 'Reina Valera',
+      language: 'es',
+      language_name: 'Español',
+      is_original: false,
+      original_language: null
+    },
+    'heb': {
+      id: 'heb',
+      name: 'Hebrew Bible',
+      language: 'he',
+      language_name: 'Hebrew',
+      is_original: true,
+      original_language: 'hebrew'
+    },
+    'grc': {
+      id: 'grc',
+      name: 'Greek New Testament',
+      language: 'el',
+      language_name: 'Greek',
+      is_original: true,
+      original_language: 'greek'
     }
   };
-
-  const verses = book === 'genesis' ? [
-    { number: 1, text: "No princípio criou Deus os céus e a terra." },
-    { number: 2, text: "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas." },
-    { number: 3, text: "E disse Deus: Haja luz; e houve luz." },
-    { number: 4, text: "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas." },
-    { number: 5, text: "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro." },
-  ] : [
-    { number: 1, text: "Livro da geração de Jesus Cristo, filho de Davi, filho de Abraão." },
-    { number: 2, text: "Abraão gerou a Isaque; e Isaque gerou a Jacó; e Jacó gerou a Judá e a seus irmãos;" },
-    { number: 3, text: "E Judá gerou a Perez e a Zerá de Tamar; e Perez gerou a Esrom; e Esrom gerou a Arão;" },
-    { number: 4, text: "E Arão gerou a Aminadab; e Aminadab gerou a Naassom; e Naassom gerou a Salmom;" },
-    { number: 5, text: "E Salmom gerou a Boaz de Raabe; e Boaz gerou a Obede de Rute; e Obede gerou a Jessé;" },
-  ];
-
-  // Get localized version name based on the version ID
-  const versionInfo = getVersionInfo(version);
   
-  // For mock data, let's determine language based on the version
-  const lang = versionInfo.language.startsWith('pt') ? 'pt' : (versionInfo.language === 'en' ? 'en' : 'es');
-  const localizedBookName = book === 'genesis' ? bookData.genesis[lang] : bookData.matthew[lang];
+  // Get version or fallback to KJA
+  const version = versionInfo[versionId] || versionInfo['kja'];
+  
+  // Get the proper book name from mappings
+  const bookName = reverseBookIdMapping[bookId] || 'Unknown Book';
+  
+  // Define original language based on testament
+  const isNewTestament = ['matthew', 'mark', 'luke', 'john', 'acts', 'romans', '1corinthians', '2corinthians', 'galatians', 
+    'ephesians', 'philippians', 'colossians', '1thessalonians', '2thessalonians', '1timothy', '2timothy', 'titus', 
+    'philemon', 'hebrews', 'james', '1peter', '2peter', '1john', '2john', '3john', 'jude', 'revelation'].includes(bookId);
+
+  const originalLanguage = isNewTestament ? 'greek' : 'hebrew';
+
+  // Generate mock verses
+  const versesCount = Math.floor(Math.random() * 30) + 10; // Random between 10-40 verses
+  const verses = [];
+  for (let i = 1; i <= versesCount; i++) {
+    verses.push({
+      id: `${bookId}-${chapterNumber}-${i}-${versionId}`, // Fixed: Added id field
+      verse_number: i, // Fixed: Changed from number to verse_number
+      text: `Este é um versículo de exemplo para ${bookName} ${chapterNumber}:${i}. Isso é apenas um texto de marcação usado quando a conexão com o banco de dados falha.`
+    });
+  }
   
   return {
-    book,
-    bookName: localizedBookName,
-    chapter,
-    verses,
-    version: {
-      id: version,
-      name: versionInfo.name,
-      language: versionInfo.language,
-      language_name: versionInfo.languageName,
-      is_original: false
-    },
-    originalLanguage: book === 'genesis' ? "hebrew" : "greek"
+    id: `${bookId}-${chapterNumber}-${versionId}`,
+    book_id: bookId,
+    book_name: bookName,
+    chapter_number: chapterNumber,
+    version_id: versionId,
+    verses: verses,
+    version: version,
+    originalLanguage: originalLanguage
   };
-}
+};

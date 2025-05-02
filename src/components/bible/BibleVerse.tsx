@@ -1,6 +1,9 @@
+
+import { useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { WordDefinition } from '@/services/BibleService';
+import { useInView } from 'react-intersection-observer';
 
 export type BibleVerseProps = {
   verse: {
@@ -11,11 +14,12 @@ export type BibleVerseProps = {
   originalText?: {
     text: string;
     transliteration?: string;
-    language: 'hebrew' | 'greek' | 'aramaic';
+    language: string;
   };
   wordDefinitions?: Record<string, WordDefinition>;
   className?: string;
   displayVerseNumber?: boolean;
+  onInView?: () => void;
 };
 
 const BibleVerse = ({ 
@@ -23,13 +27,27 @@ const BibleVerse = ({
   originalText, 
   wordDefinitions, 
   className,
-  displayVerseNumber = true 
+  displayVerseNumber = true,
+  onInView
 }: BibleVerseProps) => {
+  // Set up intersection observer to detect when verse is visible
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    triggerOnce: true
+  });
+
+  // Call onInView callback when verse comes into view
+  useEffect(() => {
+    if (inView && onInView) {
+      onInView();
+    }
+  }, [inView, onInView]);
+
   // Split the verse text into words to make them individually selectable
   const words = verse.text.split(' ');
 
   return (
-    <div className={cn("my-2 flex", className)}>
+    <div className={cn("my-2 flex", className)} ref={ref}>
       {displayVerseNumber && (
         <span className="verse-number mr-2 text-ancient-red font-oldstyle">{verse.verse_number}</span>
       )}
