@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import AchievementList from '../achievements/AchievementList';
 
 const ViewAllAchievements = () => {
@@ -24,7 +24,9 @@ const ViewAllAchievements = () => {
         </DialogHeader>
         
         <div className="py-4">
-          <AchievementList showAll={true} />
+          <TooltipProvider>
+            <AchievementList showAll={true} />
+          </TooltipProvider>
         </div>
       </DialogContent>
     </Dialog>

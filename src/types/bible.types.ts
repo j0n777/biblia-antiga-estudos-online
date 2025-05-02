@@ -14,7 +14,7 @@ export type BibleVersion = {
   language: string;
   language_name: string;
   is_original: boolean;
-  original_language?: string; // Changed from specific values to string
+  original_language?: string;
 };
 
 export type BibleChapter = {
@@ -29,7 +29,7 @@ export type BibleChapter = {
     text: string;
   }[];
   version: BibleVersion;
-  originalLanguage: string; // Changed to match BibleVersion.original_language
+  originalLanguage: string;
 };
 
 export type BibleVerse = {
