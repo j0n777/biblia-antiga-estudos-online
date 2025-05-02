@@ -1,6 +1,7 @@
 
 export type BibleBook = {
-  id: string;
+  version_id: string;
+  book_id: string;
   name: string;
   testament: 'old' | 'new';
   chapters_count: number;
@@ -17,13 +18,33 @@ export type BibleVersion = {
 };
 
 export type BibleChapter = {
-  book: string;
-  bookName: string;
-  chapter: number;
+  id: string;
+  version_id: string;
+  book_id: string;
+  book_name: string;
+  chapter_number: number;
   verses: {
-    number: number;
+    id: string;
+    verse_number: number;
     text: string;
   }[];
   version: BibleVersion;
   originalLanguage: 'hebrew' | 'greek' | 'aramaic';
+};
+
+export type BibleVerse = {
+  id: string;
+  chapter_id: string;
+  version_id: string;
+  book_id: string;
+  chapter_number: number;
+  verse_number: number;
+  text: string;
+};
+
+export type WordDefinition = {
+  original: string;
+  transliteration?: string;
+  definition: string;
+  strongsNumber?: string;
 };

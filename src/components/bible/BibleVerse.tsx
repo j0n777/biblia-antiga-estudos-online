@@ -1,11 +1,11 @@
-
-import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { WordDefinition } from '@/services/BibleService';
 
 export type BibleVerseProps = {
   verse: {
-    number: number;
+    id: string;
+    verse_number: number;
     text: string;
   };
   originalText?: {
@@ -13,12 +13,7 @@ export type BibleVerseProps = {
     transliteration?: string;
     language: 'hebrew' | 'greek' | 'aramaic';
   };
-  wordDefinitions?: Record<string, {
-    original: string;
-    transliteration?: string;
-    definition: string;
-    strongsNumber?: string;
-  }>;
+  wordDefinitions?: Record<string, WordDefinition>;
   className?: string;
   displayVerseNumber?: boolean;
 };
@@ -34,8 +29,10 @@ const BibleVerse = ({
   const words = verse.text.split(' ');
 
   return (
-    <div className={cn("my-2", className)}>
-      {displayVerseNumber && <span className="verse-number mr-1">{verse.number}</span>}
+    <div className={cn("my-2 flex", className)}>
+      {displayVerseNumber && (
+        <span className="verse-number mr-2 text-ancient-red font-oldstyle">{verse.verse_number}</span>
+      )}
       <span className="scripture-text">
         {words.map((word, index) => {
           // Remove punctuation for word lookup but keep it for display
@@ -46,7 +43,7 @@ const BibleVerse = ({
           // For words that have definitions available, wrap them in Popover
           if (wordDefinition) {
             return (
-              <Popover key={`${verse.number}-word-${index}`}>
+              <Popover key={`${verse.verse_number}-word-${index}`}>
                 <PopoverTrigger asChild>
                   <span className="cursor-pointer hover:text-ancient-brown hover:underline hover:underline-offset-2">
                     {word}{" "}
@@ -76,7 +73,7 @@ const BibleVerse = ({
           }
           
           return (
-            <span key={`${verse.number}-word-${index}`}>
+            <span key={`${verse.verse_number}-word-${index}`}>
               {word}{" "}
             </span>
           );

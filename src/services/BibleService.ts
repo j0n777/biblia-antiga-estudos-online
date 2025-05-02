@@ -6,7 +6,8 @@ import { getVersionInfo, getBookName } from '../utils/bible-utils';
 import { 
   getAllBooks, 
   getAllVersions,
-  getChapter 
+  getChapter,
+  searchBibleVerses
 } from './BibleDataService';
 import {
   importInitialVersions,
@@ -17,6 +18,8 @@ import {
 export type { BibleBook } from '../types/bible.types';
 export type { BibleVersion } from '../types/bible.types';
 export type { BibleChapter } from '../types/bible.types';
+export type { BibleVerse } from '../types/bible.types';
+export type { WordDefinition } from '../types/bible.types';
   
 // Mappings
 export {
@@ -34,6 +37,7 @@ export {
   getAllBooks,
   getAllVersions,
   getChapter,
+  searchBibleVerses,
   
   // Import services
   importInitialVersions,

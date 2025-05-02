@@ -1,17 +1,17 @@
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import BibleVerse from './BibleVerse';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BibleChapter as BibleChapterType, getChapter, getChapterMock } from '@/services/BibleService';
+import { BibleChapter as BibleChapterType, getChapter, getChapterMock, WordDefinition } from '@/services/BibleService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export type BibleChapterProps = {
-  book: string;
-  chapter: number;
-  version?: string;
+  bookId: string;
+  chapterNumber: number;
+  versionId?: string;
 };
 
-const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => {
+const BibleChapter = ({ bookId, chapterNumber, versionId = 'kja' }: BibleChapterProps) => {
   const [chapterData, setChapterData] = useState<BibleChapterType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,19 +21,19 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
       setLoading(true);
       try {
         // Try to get the chapter from the database
-        const data = await getChapter(book, chapter, version);
+        const data = await getChapter(bookId, chapterNumber, versionId);
         
         if (data) {
           setChapterData(data);
         } else {
           // If database fetch fails, use mock data
-          setChapterData(getChapterMock(book, chapter, version));
+          setChapterData(getChapterMock(bookId, chapterNumber, versionId));
         }
         
         setError(null);
       } catch (err) {
         console.error('Error loading chapter:', err);
-        setChapterData(getChapterMock(book, chapter, version)); // Fallback to mock data
+        setChapterData(getChapterMock(bookId, chapterNumber, versionId)); // Fallback to mock data
         setError('Não foi possível carregar o capítulo. Usando dados offline.');
       } finally {
         setLoading(false);
@@ -41,10 +41,10 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
     }
     
     loadChapter();
-  }, [book, chapter, version]);
+  }, [bookId, chapterNumber, versionId]);
 
   // Mock word definitions - in a real app, this would come from the database
-  const mockWordDefinitions = {
+  const mockWordDefinitions: Record<string, WordDefinition> = {
     "deus": {
       original: chapterData?.originalLanguage === 'hebrew' ? 'אֱלֹהִים' : chapterData?.originalLanguage === 'greek' ? 'θεός' : 'ܐܠܗܐ',
       transliteration: chapterData?.originalLanguage === 'hebrew' ? 'Elohim' : chapterData?.originalLanguage === 'greek' ? 'Theos' : 'Alaha',
@@ -90,8 +90,8 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
   return (
     <div className="parchment-container py-6 px-4">
       <header className="mb-6 border-b border-parchment-darker/30 pb-4">
-        <h2 className="text-3xl font-oldstyle text-ancient-brown text-center">{chapterData.bookName}</h2>
-        <h3 className="text-xl font-oldstyle text-center mt-1 text-scripture-heading">Capítulo {chapterData.chapter}</h3>
+        <h2 className="text-3xl font-oldstyle text-ancient-brown text-center">{chapterData.book_name}</h2>
+        <h3 className="text-xl font-oldstyle text-center mt-1 text-scripture-heading">Capítulo {chapterData.chapter_number}</h3>
         {error && <p className="text-sm text-ancient-red text-center mt-2">{error}</p>}
       </header>
       
@@ -99,28 +99,22 @@ const BibleChapter = ({ book, chapter, version = 'kja' }: BibleChapterProps) => 
         <div className="space-y-1">
           {chapterData.verses.length > 0 && (
             <div className="first-letter-drop-cap">
-              <div className="flex">
-                <span className="verse-number mr-1 text-2xl text-ancient-red font-oldstyle">1</span>
-                <BibleVerse 
-                  key={`${chapterData.book}-${chapterData.chapter}-${chapterData.verses[0]?.number}`}
-                  verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
-                  wordDefinitions={mockWordDefinitions}
-                  displayVerseNumber={false}
-                />
-              </div>
+              <BibleVerse 
+                key={`${chapterData.book_id}-${chapterData.chapter_number}-${chapterData.verses[0]?.verse_number}`}
+                verse={{ ...chapterData.verses[0], text: chapterData.verses[0]?.text }} 
+                wordDefinitions={mockWordDefinitions}
+                displayVerseNumber={true}
+              />
             </div>
           )}
           
           {chapterData.verses.slice(1).map((verse) => (
-            <div key={`verse-container-${verse.number}`} className="flex">
-              <span className="verse-number mr-1 text-ancient-red font-oldstyle">{verse.number}</span>
-              <BibleVerse 
-                key={`${chapterData.book}-${chapterData.chapter}-${verse.number}`}
-                verse={verse}
-                wordDefinitions={mockWordDefinitions}
-                displayVerseNumber={false}
-              />
-            </div>
+            <BibleVerse 
+              key={`${chapterData.book_id}-${chapterData.chapter_number}-${verse.verse_number}`}
+              verse={verse}
+              wordDefinitions={mockWordDefinitions}
+              displayVerseNumber={true}
+            />
           ))}
         </div>
       </ScrollArea>

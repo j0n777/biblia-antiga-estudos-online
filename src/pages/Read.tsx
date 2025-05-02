@@ -17,9 +17,9 @@ import { useQuery } from '@tanstack/react-query';
 
 const Read = () => {
   // Default to Matthew (Chapter 1) in PT-BR
-  const [selectedBook, setSelectedBook] = useState('matthew');
+  const [selectedBookId, setSelectedBookId] = useState('matthew');
   const [selectedChapter, setSelectedChapter] = useState(1);
-  const [selectedVersion, setSelectedVersion] = useState('kja');
+  const [selectedVersionId, setSelectedVersionId] = useState('kja');
   const [isLoading, setIsLoading] = useState(false);
   
   // Fetch books and versions with React Query
@@ -27,8 +27,8 @@ const Read = () => {
     data: books = [], 
     isLoading: booksLoading 
   } = useQuery({
-    queryKey: ['bible-books'],
-    queryFn: getAllBooks,
+    queryKey: ['bible-books', selectedVersionId],
+    queryFn: () => getAllBooks(selectedVersionId),
   });
   
   const { 
@@ -76,12 +76,12 @@ const Read = () => {
   
   // Calculate the number of chapters for the selected book
   const getChaptersForBook = (bookId: string) => {
-    const book = books.find(b => b.id === bookId);
+    const book = books.find(b => b.book_id === bookId);
     return book?.chapters_count || 1;
   };
   
   const chaptersArray = Array.from(
-    { length: getChaptersForBook(selectedBook) }, 
+    { length: getChaptersForBook(selectedBookId) }, 
     (_, i) => i + 1
   );
   
@@ -92,7 +92,7 @@ const Read = () => {
   };
   
   const handleNextChapter = () => {
-    if (selectedChapter < getChaptersForBook(selectedBook)) {
+    if (selectedChapter < getChaptersForBook(selectedBookId)) {
       setSelectedChapter(selectedChapter + 1);
     }
   };
@@ -117,7 +117,7 @@ const Read = () => {
           <h1 className="text-xl font-oldstyle text-scripture-heading">Leitura Bíblica</h1>
           
           <div className="flex items-center gap-2">
-            <Select value={selectedVersion} onValueChange={setSelectedVersion}>
+            <Select value={selectedVersionId} onValueChange={setSelectedVersionId}>
               <SelectTrigger className="w-[220px] bg-parchment-light border-parchment-dark/30">
                 <SelectValue placeholder="Versão" />
               </SelectTrigger>
@@ -134,8 +134,8 @@ const Read = () => {
         
         <div className="flex items-center gap-2 mb-4">
           <Select 
-            value={selectedBook} 
-            onValueChange={setSelectedBook}
+            value={selectedBookId} 
+            onValueChange={setSelectedBookId}
           >
             <SelectTrigger className="bg-parchment-light border-parchment-dark/30">
               <SelectValue placeholder="Livro" />
@@ -143,13 +143,13 @@ const Read = () => {
             <SelectContent className="max-h-[300px] bg-parchment border-parchment-dark/30">
               <div className="p-2 font-oldstyle text-sm text-scripture-heading">Antigo Testamento</div>
               {oldTestamentBooks.map((book) => (
-                <SelectItem key={book.id} value={book.id}>
+                <SelectItem key={book.book_id} value={book.book_id}>
                   {book.name}
                 </SelectItem>
               ))}
               <div className="p-2 font-oldstyle text-sm text-scripture-heading">Novo Testamento</div>
               {newTestamentBooks.map((book) => (
-                <SelectItem key={book.id} value={book.id}>
+                <SelectItem key={book.book_id} value={book.book_id}>
                   {book.name}
                 </SelectItem>
               ))}
@@ -174,9 +174,9 @@ const Read = () => {
         </div>
         
         <BibleChapter 
-          book={selectedBook}
-          chapter={selectedChapter}
-          version={selectedVersion}
+          bookId={selectedBookId}
+          chapterNumber={selectedChapter}
+          versionId={selectedVersionId}
         />
         
         <div className="flex justify-between mt-4">
@@ -194,7 +194,7 @@ const Read = () => {
             variant="outline" 
             size="sm" 
             onClick={handleNextChapter}
-            disabled={selectedChapter >= getChaptersForBook(selectedBook) || isLoading}
+            disabled={selectedChapter >= getChaptersForBook(selectedBookId) || isLoading}
             className="bg-parchment-light border-parchment-dark/30"
           >
             Próximo <ChevronRight size={16} className="ml-1" />

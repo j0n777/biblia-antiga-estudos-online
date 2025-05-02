@@ -11,27 +11,38 @@ export type Database = {
     Tables: {
       bible_books: {
         Row: {
+          book_id: string
           chapters_count: number
-          id: string
           name: string
           position: number
           testament: string
+          version_id: string
         }
         Insert: {
+          book_id: string
           chapters_count: number
-          id: string
           name: string
           position: number
           testament: string
+          version_id?: string
         }
         Update: {
+          book_id?: string
           chapters_count?: number
-          id?: string
           name?: string
           position?: number
           testament?: string
+          version_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_bible_books_version"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "bible_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bible_chapters: {
         Row: {
@@ -57,47 +68,49 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "bible_chapters_book_id_fkey"
-            columns: ["book_id"]
+            foreignKeyName: "bible_chapters_book_fk"
+            columns: ["version_id", "book_id"]
             isOneToOne: false
             referencedRelation: "bible_books"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bible_chapters_version_id_fkey"
-            columns: ["version_id"]
-            isOneToOne: false
-            referencedRelation: "bible_versions"
-            referencedColumns: ["id"]
+            referencedColumns: ["version_id", "book_id"]
           },
         ]
       }
       bible_verses: {
         Row: {
+          book_id: string | null
           chapter_id: string
+          chapter_number: number | null
           id: string
           text: string
           verse_number: number
+          version_id: string | null
         }
         Insert: {
+          book_id?: string | null
           chapter_id: string
+          chapter_number?: number | null
           id?: string
           text: string
           verse_number: number
+          version_id?: string | null
         }
         Update: {
+          book_id?: string | null
           chapter_id?: string
+          chapter_number?: number | null
           id?: string
           text?: string
           verse_number?: number
+          version_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "bible_verses_chapter_id_fkey"
-            columns: ["chapter_id"]
+            foreignKeyName: "bible_verses_chapter_fk"
+            columns: ["version_id", "book_id", "chapter_number"]
             isOneToOne: false
             referencedRelation: "bible_chapters"
-            referencedColumns: ["id"]
+            referencedColumns: ["version_id", "book_id", "chapter_number"]
           },
         ]
       }
