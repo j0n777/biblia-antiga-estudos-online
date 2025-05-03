@@ -9,6 +9,8 @@ import { updateUserProfile } from '@/services/AchievementService';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile } from '@/types/bible.types';
 import ProfileForm from './ProfileForm';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
 
 type SettingsDialogProps = {
   profile: UserProfile | null;
@@ -18,6 +20,7 @@ type SettingsDialogProps = {
 const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'profile'>('general');
+  const { language, setLanguage, t } = useLanguage();
 
   const handleClose = () => {
     setOpen(false);
@@ -43,6 +46,25 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
     }
   };
 
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage as Language);
+    toast({
+      title: t('settings.language'),
+      description: `${t('common.save')}: ${getLanguageName(newLanguage as Language)}`,
+    });
+  };
+
+  const getLanguageName = (lang: Language) => {
+    const names = {
+      'pt-BR': 'Português (Brasil)',
+      'en': 'English',
+      'es': 'Español',
+      'fr': 'Français',
+      'ar': 'العربية'
+    };
+    return names[lang];
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -52,9 +74,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
       </DialogTrigger>
       <DialogContent className="max-w-lg bg-parchment-light">
         <DialogHeader>
-          <DialogTitle className="font-oldstyle">Configurações</DialogTitle>
+          <DialogTitle className="font-oldstyle">{t('settings.title')}</DialogTitle>
           <DialogDescription>
-            Personalize sua experiência no aplicativo
+            {t('settings.title')}
           </DialogDescription>
         </DialogHeader>
         
@@ -64,23 +86,39 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               className={`px-4 py-2 ${activeTab === 'general' ? 'border-b-2 border-ancient-brown' : ''}`}
               onClick={() => setActiveTab('general')}
             >
-              Geral
+              {t('settings.title')}
             </button>
             <button
               className={`px-4 py-2 ${activeTab === 'profile' ? 'border-b-2 border-ancient-brown' : ''}`}
               onClick={() => setActiveTab('profile')}
             >
-              Perfil
+              {t('profile.title')}
             </button>
           </div>
           
           {activeTab === 'general' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="app-language" className="text-base">{t('settings.language')}</Label>
+                <Select value={language} onValueChange={handleLanguageChange}>
+                  <SelectTrigger id="app-language" className="w-full">
+                    <SelectValue placeholder={t('settings.language')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
+                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="ar">العربية</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="use-system-language" className="text-base">Usar idioma do sistema</Label>
+                  <Label htmlFor="use-system-language" className="text-base">{t('settings.language')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    O aplicativo usará o idioma definido pelo seu sistema
+                    {t('settings.language')}
                   </p>
                 </div>
                 <Switch 
@@ -93,9 +131,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="notifications" className="text-base">Notificações de leitura</Label>
+                  <Label htmlFor="notifications" className="text-base">{t('settings.notifications')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Receber lembretes diários para manter sua sequência de leitura
+                    {t('settings.notifications')}
                   </p>
                 </div>
                 <Switch 
@@ -109,7 +147,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 <div className="space-y-0.5">
                   <Label htmlFor="auto-scroll" className="text-base">Auto-rolagem</Label>
                   <p className="text-sm text-muted-foreground">
-                    Rolar automaticamente para o próximo versículo durante a leitura
+                    {t('settings.bibleVersion')}
                   </p>
                 </div>
                 <Switch 
@@ -127,7 +165,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
         </div>
         
         <div className="flex justify-end">
-          <Button variant="outline" onClick={handleClose}>Fechar</Button>
+          <Button variant="outline" onClick={handleClose}>{t('common.close')}</Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Share2, BookOpen, Trophy, Medal, LineChart, BadgeCheck } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Share2, BookOpen, Trophy, Medal, LineChart, BadgeCheck, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import ReadingStreak from '@/components/achievements/ReadingStreak';
 import AchievementList from '@/components/achievements/AchievementList';
 import DailyChallenges from '@/components/achievements/DailyChallenges';
@@ -47,19 +48,17 @@ const ProfilePage = () => {
   // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
-      if (isAuthenticated) {
-        const userAchievements = await getUserAchievements();
-        const userProfile = await getUserProfile();
-        
-        setAchievements(userAchievements);
-        setProfile(userProfile);
-      }
+      const userAchievements = await getUserAchievements();
+      const userProfile = await getUserProfile();
+      
+      setAchievements(userAchievements);
+      setProfile(userProfile);
     };
     
-    if (isAuthenticated !== null) {
+    if (isLoading === false) {
       fetchUserData();
     }
-  }, [isAuthenticated]);
+  }, [isLoading]);
   
   const handleProfileUpdate = async () => {
     const userProfile = await getUserProfile();
@@ -71,23 +70,8 @@ const ProfilePage = () => {
     navigate('/');
   };
   
-  // Display login prompt if not authenticated
-  if (!isLoading && !isAuthenticated) {
-    return (
-      <PageLayout>
-        <div className="py-8 flex flex-col items-center justify-center gap-4">
-          <h1 className="text-2xl font-oldstyle text-scripture-heading mb-2">Acesse sua conta</h1>
-          <p className="text-center text-muted-foreground mb-4">
-            Você precisa estar logado para acessar seu perfil, conquistas e ranking.
-          </p>
-          <Button onClick={() => navigate('/auth')}>Entrar / Cadastrar</Button>
-        </div>
-      </PageLayout>
-    );
-  }
-  
   // Loading state
-  if (isLoading || !profile) {
+  if (isLoading) {
     return (
       <PageLayout>
         <div className="py-6">
@@ -107,21 +91,36 @@ const ProfilePage = () => {
           <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
         </div>
         
+        {!isAuthenticated && (
+          <Alert className="mb-6 bg-parchment-light border-ancient-gold/40">
+            <AlertCircle className="h-4 w-4 text-ancient-gold" />
+            <AlertTitle className="text-ancient-brown">Modo visitante</AlertTitle>
+            <AlertDescription className="text-sm">
+              Você está navegando como visitante. Crie uma conta para salvar seu progresso, conquistas e participar do ranking.
+              <div className="mt-2">
+                <Button onClick={() => navigate('/auth')} className="bg-ancient-gold text-white hover:bg-ancient-gold/90">
+                  Criar conta / Entrar
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex flex-col items-center mb-6">
           <Avatar className="w-24 h-24 border-4 border-ancient-brown rounded-full mb-3">
-            <AvatarImage src={profile.avatar_url || undefined} />
+            <AvatarImage src={profile?.avatar_url || undefined} />
             <AvatarFallback className="bg-ancient-brown text-white text-3xl font-oldstyle">
-              {profile.display_name?.[0] || profile.nickname?.[0] || 'U'}
+              {profile?.display_name?.[0] || profile?.nickname?.[0] || 'V'}
             </AvatarFallback>
           </Avatar>
           
           <h2 className="text-xl font-oldstyle text-ancient-brown">
-            {profile.display_name || profile.nickname || "Usuário"}
+            {profile?.display_name || profile?.nickname || "Visitante"}
           </h2>
           
           <div className="flex items-center gap-2 mt-1">
             <Medal size={16} className="text-ancient-gold" />
-            <span className="text-sm font-medium">{profile.experience_points} pontos</span>
+            <span className="text-sm font-medium">{profile?.experience_points || 0} pontos</span>
           </div>
           
           <div className="flex gap-3 mt-3">
@@ -135,9 +134,9 @@ const ProfilePage = () => {
         </div>
         
         <ReadingStreak
-          currentStreak={profile.streak_count || 0}
-          longestStreak={profile.streak_count || 0} // This should ideally come from a different field
-          goalProgress={75} // This should come from daily challenges progress
+          currentStreak={profile?.streak_count || 0}
+          longestStreak={profile?.streak_count || 0}
+          goalProgress={75}
         />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -240,11 +239,13 @@ const ProfilePage = () => {
           </TabsContent>
         </Tabs>
         
-        <div className="mt-6 flex justify-center">
-          <Button variant="outline" onClick={handleSignOut}>
-            Sair da conta
-          </Button>
-        </div>
+        {isAuthenticated && (
+          <div className="mt-6 flex justify-center">
+            <Button variant="outline" onClick={handleSignOut}>
+              Sair da conta
+            </Button>
+          </div>
+        )}
       </div>
     </PageLayout>
   );

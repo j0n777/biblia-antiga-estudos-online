@@ -1,4 +1,3 @@
-
 export type BibleBook = {
   version_id: string;
   book_id: string;
@@ -86,6 +85,9 @@ export type UserProfile = {
   experience_points: number;
   streak_count: number;
   last_streak_date?: Date;
+  username?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type DailyChallenge = {

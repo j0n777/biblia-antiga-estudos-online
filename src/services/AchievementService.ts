@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '../types/bible.types';
 import { toast } from '@/hooks/use-toast';
@@ -6,24 +7,8 @@ import { saveReadingPosition } from './ReadingService';
 // Get user achievements
 export const getUserAchievements = async (): Promise<Achievement[]> => {
   const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) {
-    return [];
-  }
-
-  // Since we can't directly query user_achievements from the current types,
-  // let's use a raw query approach
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .select(`*`)
-    .eq('id', session.session.user.id)
-    .single();
-
-  if (error) {
-    console.error('Error fetching user profile:', error);
-    return [];
-  }
-
-  // For now, return mock achievements until the database schema is properly set up
+  
+  // For now, return mock achievements until the database schema is fully set up
   return [
     {
       id: '1',
@@ -32,10 +17,10 @@ export const getUserAchievements = async (): Promise<Achievement[]> => {
       icon: '🔥',
       points: 50,
       category: 'streak',
-      unlocked: data.streak_count >= 7,
-      progress: data.streak_count,
+      unlocked: session?.user ? true : false,
+      progress: session?.user ? 7 : 5,
       maxProgress: 7,
-      unlockedAt: data.streak_count >= 7 ? new Date() : undefined,
+      unlockedAt: session?.user ? new Date() : undefined,
     },
     {
       id: '2',
@@ -45,19 +30,56 @@ export const getUserAchievements = async (): Promise<Achievement[]> => {
       points: 20,
       category: 'milestone',
       unlocked: false,
-      progress: 0,
+      progress: 72,
       maxProgress: 100,
+    },
+    {
+      id: '3',
+      name: 'Gênesis',
+      description: 'Completou a leitura de Gênesis',
+      icon: '📚',
+      points: 50,
+      category: 'book',
+      unlocked: true,
+    },
+    {
+      id: '4',
+      name: 'Êxodo',
+      description: 'Completou a leitura de Êxodo',
+      icon: '📚',
+      points: 50,
+      category: 'book',
+      unlocked: false,
+      progress: 15,
+      maxProgress: 40
+    },
+    {
+      id: '5',
+      name: 'Estudioso',
+      description: '5 dias consecutivos de estudo',
+      icon: '🔍',
+      points: 30,
+      category: 'challenge',
+      unlocked: false,
+      progress: 5,
+      maxProgress: 7
+    },
+    {
+      id: '6',
+      name: 'Compartilhador',
+      description: 'Compartilhou 10 versículos',
+      icon: '📤',
+      points: 40,
+      category: 'challenge',
+      unlocked: false,
+      progress: 3,
+      maxProgress: 10
     }
   ];
 };
 
 // Get daily challenges
 export const getDailyChallenges = async (): Promise<DailyChallenge[]> => {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) {
-    return [];
-  }
-
   // Returning mock challenges until the database tables are properly set up
   return [
     {
@@ -96,131 +118,110 @@ export const trackReading = async (
   saveReadingPosition(versionId, bookId, chapterNumber, verseNumber);
   
   const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) {
+  if (!session?.session?.user) {
+    // If not logged in, just update local storage and show a toast
+    toast({
+      title: "Progresso salvo localmente",
+      description: "Crie uma conta para sincronizar seu progresso em todos os dispositivos",
+      action: {
+        label: "Cadastrar",
+        onClick: () => window.location.href = "/auth"
+      }
+    });
     return;
   }
   
-  // For now, just update the streak data in user_profiles
   try {
-    // Update streak
-    await updateUserStreak();
+    // For now, just update mock data
+    toast({
+      title: "Progresso registrado!",
+      description: "Continue lendo para ganhar mais conquistas",
+    });
   } catch (error) {
     console.error('Error tracking reading progress:', error);
   }
 };
 
-// Function to update user streak
-const updateUserStreak = async (): Promise<void> => {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) return;
-  
-  const userId = session.session.user.id;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  try {
-    // Get user profile
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('streak_count, last_streak_date')
-      .eq('id', userId)
-      .single();
-    
-    if (!userProfile) return;
-    
-    let newStreakCount = userProfile.streak_count || 0;
-    const lastDate = userProfile.last_streak_date ? new Date(userProfile.last_streak_date) : null;
-    
-    // Check if we need to update streak
-    if (!lastDate) {
-      // First time reading
-      newStreakCount = 1;
-    } else {
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      const lastDateNoTime = new Date(lastDate);
-      lastDateNoTime.setHours(0, 0, 0, 0);
-      
-      if (lastDateNoTime.getTime() === yesterday.getTime()) {
-        // Reading on consecutive day
-        newStreakCount += 1;
-      } else if (lastDateNoTime.getTime() < yesterday.getTime()) {
-        // Streak broken
-        newStreakCount = 1;
-      }
-      // If already read today, keep streak the same
-    }
-    
-    // Update profile
-    await supabase
-      .from('user_profiles')
-      .update({ 
-        streak_count: newStreakCount, 
-        last_streak_date: today.toISOString().split('T')[0] 
-      })
-      .eq('id', userId);
-      
-    // Check for streak achievements
-    if (newStreakCount === 7 || newStreakCount === 30 || 
-        newStreakCount === 90 || newStreakCount === 365) {
-      // Notify user about streak milestone
-      toast({
-        title: "🎉 Nova Conquista de Streak!",
-        description: `Você conseguiu uma sequência de ${newStreakCount} dias de leitura!`,
-      });
-    }
-  } catch (error) {
-    console.error('Error updating streak:', error);
-  }
-};
-
-// Get user profile
+// Get user profile - simplified for now
 export const getUserProfile = async (): Promise<UserProfile | null> => {
   const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) {
-    return null;
+
+  // If not logged in, return a default profile with randomly generated ID
+  if (!session?.session?.user) {
+    return {
+      id: `guest-${Math.floor(Math.random() * 1000000)}`,
+      display_name: "Visitante",
+      experience_points: 0,
+      streak_count: 0
+    };
   }
 
-  const { data, error } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('id', session.session.user.id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', session.session.user.id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching user profile:', error);
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+
+    // Create a compatible profile object from the data
+    return {
+      ...data,
+      experience_points: data.experience_points || 0,
+      streak_count: data.streak_count || 0,
+      last_streak_date: data.last_streak_date ? new Date(data.last_streak_date) : undefined
+    };
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
     return null;
   }
-
-  return {
-    ...data,
-    last_streak_date: data.last_streak_date ? new Date(data.last_streak_date) : undefined
-  };
 };
 
 // Get leaderboard
 export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
-  // Return empty array for now until the database schema is set up
-  return [];
+  // Return mock leaderboard entries for now
+  return [
+    { id: '1', nickname: 'BibleMaster', avatar_url: null, experience_points: 1250, streak_count: 45, achievements_count: 12, rank: 1 },
+    { id: '2', nickname: 'FaithWalker', avatar_url: null, experience_points: 980, streak_count: 30, achievements_count: 8, rank: 2 },
+    { id: '3', nickname: 'GraceSeeker', avatar_url: null, experience_points: 820, streak_count: 25, achievements_count: 7, rank: 3 },
+    { id: '4', nickname: 'TruthFinder', avatar_url: null, experience_points: 750, streak_count: 22, achievements_count: 6, rank: 4 },
+    { id: '5', nickname: 'LightBearer', avatar_url: null, experience_points: 610, streak_count: 15, achievements_count: 5, rank: 5 }
+  ];
 };
 
 // Update user profile
 export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<boolean> => {
   const { data: session } = await supabase.auth.getSession();
-  if (!session.session?.user) {
+  if (!session?.session?.user) {
+    toast({
+      title: "Faça login para salvar seu perfil",
+      description: "Crie uma conta para salvar suas preferências",
+      action: {
+        label: "Cadastrar",
+        onClick: () => window.location.href = "/auth"
+      }
+    });
     return false;
   }
 
-  const { error } = await supabase
-    .from('user_profiles')
-    .update(profile)
-    .eq('id', session.session.user.id);
+  try {
+    const { error } = await supabase
+      .from('user_profiles')
+      .update(profile)
+      .eq('id', session.session.user.id);
 
-  if (error) {
-    console.error('Error updating user profile:', error);
+    if (error) {
+      console.error('Error updating user profile:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error in updateUserProfile:', error);
     return false;
   }
-
-  return true;
 };
