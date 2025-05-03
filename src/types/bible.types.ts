@@ -1,3 +1,4 @@
+
 export type BibleBook = {
   version_id: string;
   book_id: string;
@@ -88,6 +89,8 @@ export type UserProfile = {
   username?: string;
   created_at?: string;
   updated_at?: string;
+  email?: string;
+  phone?: string;
 };
 
 export type DailyChallenge = {
@@ -110,4 +113,13 @@ export type LeaderboardEntry = {
   streak_count: number;
   achievements_count: number;
   rank: number;
+};
+
+export type BiblicalStudy = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  link: string;
+  category: string;
 };

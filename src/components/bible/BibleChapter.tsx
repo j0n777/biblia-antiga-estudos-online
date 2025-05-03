@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { BibleChapter as BibleChapterType, getChapter, getChapterMock, WordDefinition } from '@/services/BibleService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInView } from 'react-intersection-observer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export type BibleChapterProps = {
   bookId: string;
@@ -13,11 +14,38 @@ export type BibleChapterProps = {
   onVerseRead?: (verseNumber: number) => void;
 };
 
-const BibleChapter = ({ bookId, chapterNumber, versionId = 'kja', onVerseRead }: BibleChapterProps) => {
+const BibleChapter = ({ 
+  bookId = 'mt', // Default to Matthew
+  chapterNumber = 1, // Default to chapter 1
+  versionId, // Will be determined based on language
+  onVerseRead 
+}: BibleChapterProps) => {
   const [chapterData, setChapterData] = useState<BibleChapterType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [readVerses, setReadVerses] = useState<Set<number>>(new Set());
+  const { language } = useLanguage();
+
+  // Determine version based on language
+  const getVersionIdForLanguage = (lang: string): string => {
+    switch (lang) {
+      case 'pt-BR':
+        return 'nvi';
+      case 'en':
+        return 'kjv';
+      case 'es':
+        return 'rv1960';
+      case 'fr':
+        return 'lsg';
+      case 'ar':
+        return 'svd';
+      default:
+        return 'kjv';
+    }
+  };
+
+  // If versionId is not provided, determine based on language
+  const effectiveVersionId = versionId || getVersionIdForLanguage(language);
 
   // Use ref for the component
   const componentRef = useRef(null);
@@ -27,19 +55,19 @@ const BibleChapter = ({ bookId, chapterNumber, versionId = 'kja', onVerseRead }:
       setLoading(true);
       try {
         // Try to get the chapter from the database
-        const data = await getChapter(bookId, chapterNumber, versionId);
+        const data = await getChapter(bookId, chapterNumber, effectiveVersionId);
         
         if (data) {
           setChapterData(data);
         } else {
           // If database fetch fails, use mock data
-          setChapterData(getChapterMock(bookId, chapterNumber, versionId));
+          setChapterData(getChapterMock(bookId, chapterNumber, effectiveVersionId));
         }
         
         setError(null);
       } catch (err) {
         console.error('Error loading chapter:', err);
-        setChapterData(getChapterMock(bookId, chapterNumber, versionId)); // Fallback to mock data
+        setChapterData(getChapterMock(bookId, chapterNumber, effectiveVersionId)); // Fallback to mock data
         setError('Não foi possível carregar o capítulo. Usando dados offline.');
       } finally {
         setLoading(false);
@@ -49,7 +77,7 @@ const BibleChapter = ({ bookId, chapterNumber, versionId = 'kja', onVerseRead }:
     loadChapter();
     // Reset read verses when chapter changes
     setReadVerses(new Set());
-  }, [bookId, chapterNumber, versionId]);
+  }, [bookId, chapterNumber, effectiveVersionId]);
 
   // Mock word definitions - in a real app, this would come from the database
   const mockWordDefinitions: Record<string, WordDefinition> = {

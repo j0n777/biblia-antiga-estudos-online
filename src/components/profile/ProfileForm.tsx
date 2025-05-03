@@ -7,8 +7,10 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { updateUserProfile } from '@/services/AchievementService';
+import { updateUserProfile, isUserAuthenticated } from '@/services/AchievementService';
 import { toast } from '@/hooks/use-toast';
+import { Eye, EyeOff } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ProfileFormProps = {
   profile: UserProfile | null;
@@ -20,23 +22,42 @@ type FormData = {
   nickname: string;
   country: string;
   birth_year: string;
-  preferred_language: string;
-  preferred_bible_version: string;
+  email: string;
+  phone: string;
+  password: string;
+  password_confirm: string;
 };
 
 const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { t } = useLanguage();
+  
+  // Check authentication status
+  useState(() => {
+    const checkAuth = async () => {
+      const authStatus = await isUserAuthenticated();
+      setIsAuthenticated(authStatus);
+    };
+    checkAuth();
+  });
+
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
     defaultValues: profile ? {
       display_name: profile.display_name || '',
       nickname: profile.nickname || '',
       country: profile.country || '',
       birth_year: profile.birth_year?.toString() || '',
-      preferred_language: profile.preferred_language || '',
-      preferred_bible_version: profile.preferred_bible_version || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      password: '',
+      password_confirm: ''
     } : {}
   });
+
+  const password = watch('password');
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -46,35 +67,39 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
         nickname: data.nickname,
         country: data.country,
         birth_year: data.birth_year ? parseInt(data.birth_year, 10) : undefined,
-        preferred_language: data.preferred_language,
-        preferred_bible_version: data.preferred_bible_version,
+        email: data.email,
+        phone: data.phone,
       };
       
       const success = await updateUserProfile(updatedProfile);
       
       if (success) {
         toast({
-          title: "Perfil atualizado",
-          description: "Suas informações foram atualizadas com sucesso.",
+          title: t('profile.updated'),
+          description: t('profile.updateSuccess'),
         });
         onProfileUpdate();
       } else {
         toast({
-          title: "Erro",
-          description: "Não foi possível atualizar seu perfil. Tente novamente.",
+          title: t('common.error'),
+          description: t('profile.updateError'),
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao atualizar seu perfil.",
+        title: t('common.error'),
+        description: t('profile.errorMessage'),
         variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -89,9 +114,27 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
           </Avatar>
         </div>
         
+        {!isAuthenticated && (
+          <div className="bg-ancient-gold/10 border border-ancient-gold/30 p-3 rounded-md mb-4">
+            <p className="text-ancient-brown text-sm text-center">
+              {t('profile.createAccountPrompt')}
+            </p>
+            <div className="mt-2 flex justify-center">
+              <Button
+                type="button"
+                variant="default"
+                className="bg-ancient-gold hover:bg-ancient-gold/90 text-white"
+                onClick={() => window.location.href = '/auth'}
+              >
+                {t('auth.createAccount')}
+              </Button>
+            </div>
+          </div>
+        )}
+        
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="display_name">Nome completo</Label>
+            <Label htmlFor="display_name">{t('profile.fullName')}</Label>
             <Input
               id="display_name"
               type="text"
@@ -101,13 +144,13 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="nickname">Apelido (para ranking)</Label>
+            <Label htmlFor="nickname">{t('profile.nickname')}</Label>
             <Input
               id="nickname"
               type="text"
               {...register("nickname", { 
-                required: "Apelido é obrigatório",
-                minLength: { value: 3, message: "Mínimo de 3 caracteres" }
+                required: t('validation.nicknameRequired'),
+                minLength: { value: 3, message: t('validation.minCharacters') }
               })}
               className="bg-parchment-light"
             />
@@ -118,7 +161,7 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
           
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="country">País</Label>
+              <Label htmlFor="country">{t('profile.country')}</Label>
               <Input
                 id="country"
                 type="text"
@@ -128,7 +171,7 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="birth_year">Ano de nascimento</Label>
+              <Label htmlFor="birth_year">{t('profile.birthYear')}</Label>
               <Input
                 id="birth_year"
                 type="number"
@@ -139,30 +182,88 @@ const ProfileForm = ({ profile, onProfileUpdate }: ProfileFormProps) => {
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="preferred_language">Idioma preferido</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="preferred_language"
-              type="text"
-              {...register("preferred_language")}
-              placeholder="pt-BR"
+              id="email"
+              type="email"
+              {...register("email", {
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: t('validation.invalidEmail')
+                }
+              })}
+              className="bg-parchment-light"
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="phone">{t('profile.phone')}</Label>
+            <Input
+              id="phone"
+              type="tel"
+              {...register("phone")}
               className="bg-parchment-light"
             />
           </div>
           
-          <div className="grid gap-2">
-            <Label htmlFor="preferred_bible_version">Versão da Bíblia preferida</Label>
-            <Input
-              id="preferred_bible_version"
-              type="text"
-              {...register("preferred_bible_version")}
-              placeholder="nvi"
-              className="bg-parchment-light"
-            />
-          </div>
+          {isAuthenticated && (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="password">{t('auth.newPassword')}</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    {...register("password")}
+                    className="bg-parchment-light pr-10"
+                  />
+                  <button 
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"
+                    onClick={togglePasswordVisibility}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? 
+                      <EyeOff size={16} className="text-ancient-brown" /> : 
+                      <Eye size={16} className="text-ancient-brown" />
+                    }
+                  </button>
+                </div>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="password_confirm">{t('auth.confirmPassword')}</Label>
+                <Input
+                  id="password_confirm"
+                  type="password"
+                  {...register("password_confirm", {
+                    validate: value => 
+                      value === password || !password || t('validation.passwordMatch')
+                  })}
+                  className="bg-parchment-light"
+                />
+                {errors.password_confirm && (
+                  <p className="text-xs text-red-500">{errors.password_confirm.message}</p>
+                )}
+              </div>
+            </>
+          )}
         </div>
         
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando..." : "Salvar Perfil"}
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 
+            t('common.saving') : 
+            isAuthenticated ? 
+              t('common.save') : 
+              t('auth.createAccount')
+          }
         </Button>
       </form>
     </Card>

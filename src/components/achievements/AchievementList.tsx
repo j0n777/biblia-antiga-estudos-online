@@ -1,153 +1,158 @@
 
 import { useState, useEffect } from 'react';
-import { getUserAchievements } from '@/services/AchievementService';
-import { Achievement, AchievementCategory } from '@/types/bible.types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Trophy, Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { Achievement } from '@/types/bible.types';
+import { getUserAchievements } from '@/services/AchievementService';
+import { Badge } from '../ui/badge';
+import { Skeleton } from '../ui/skeleton';
+import { Progress } from '../ui/progress';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-type AchievementListProps = {
-  showLocked?: boolean;
-  showAll?: boolean;
-};
-
-const AchievementList = ({ showLocked = true, showAll = false }: AchievementListProps) => {
+const AchievementList = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'books' | 'testaments' | 'streaks' | 'milestones' | 'challenges'>('all');
+  
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchAchievements = async () => {
+      setLoading(true);
       const data = await getUserAchievements();
       setAchievements(data);
-      setIsLoading(false);
+      setLoading(false);
     };
 
     fetchAchievements();
   }, []);
 
-  if (isLoading) {
-    return <div className="parchment-container p-4">Carregando conquistas...</div>;
-  }
+  const filteredAchievements = achievements.filter(achievement => {
+    if (filter === 'all') return true;
+    if (filter === 'books') return achievement.category === 'book';
+    if (filter === 'testaments') return achievement.category === 'testament';
+    if (filter === 'streaks') return achievement.category === 'streak';
+    if (filter === 'milestones') return achievement.category === 'milestone';
+    if (filter === 'challenges') return achievement.category === 'challenge';
+    return true;
+  });
 
-  // Filter achievements based on active tab
-  const filterAchievements = (category: string | null): Achievement[] => {
-    const filtered = achievements.filter(achievement => {
-      // First filter by category
-      const matchesCategory = category === 'all' || achievement.category === category;
-      
-      // Then filter by unlock status if not showing all
-      const matchesUnlockStatus = showAll || (showLocked || achievement.unlocked);
-      
-      return matchesCategory && matchesUnlockStatus;
-    });
-    
-    // Sort unlocked first, then by progress/category
-    return filtered.sort((a, b) => {
-      // Unlocked ones first
-      if (a.unlocked && !b.unlocked) return -1;
-      if (!a.unlocked && b.unlocked) return 1;
-      
-      // Then sort by category
-      return 0;
-    });
+  const handleFilterChange = (newFilter: 'all' | 'books' | 'testaments' | 'streaks' | 'milestones' | 'challenges') => {
+    setFilter(newFilter);
   };
 
-  // Get display count of total achievements
-  const unlockedCount = achievements.filter(a => a.unlocked).length;
-  const totalCount = achievements.length;
-  
-  // Generate tabs for filtering by category
-  const categories: {id: string, label: string}[] = [
-    { id: 'all', label: 'Todas' },
-    { id: 'book', label: 'Livros' },
-    { id: 'testament', label: 'Testamentos' },
-    { id: 'streak', label: 'Sequências' },
-    { id: 'milestone', label: 'Marcos' },
-    { id: 'challenge', label: 'Desafios' }
-  ];
-
-  const displayedAchievements = filterAchievements(activeTab);
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="parchment-container">
+            <CardContent className="p-0">
+              <div className="p-4 flex gap-3">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="flex-1">
+                  <Skeleton className="h-4 w-1/2 mb-2" />
+                  <Skeleton className="h-3 w-3/4" />
+                </div>
+                <Skeleton className="h-5 w-12" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2">
-          <Trophy size={18} className="text-ancient-gold" />
-          Conquistas <span className="text-sm text-muted-foreground">({unlockedCount}/{totalCount})</span>
-        </h3>
+    <div className="space-y-6">
+      {/* Filter tabs */}
+      <div className="flex overflow-x-auto py-2 space-x-2 no-scrollbar">
+        <button
+          onClick={() => handleFilterChange('all')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'all' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('profile.all')}
+        </button>
+        <button
+          onClick={() => handleFilterChange('books')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'books' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('bible.book')}
+        </button>
+        <button
+          onClick={() => handleFilterChange('testaments')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'testaments' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('bible.testament')}
+        </button>
+        <button
+          onClick={() => handleFilterChange('streaks')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'streaks' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('profile.streak')}
+        </button>
+        <button
+          onClick={() => handleFilterChange('milestones')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'milestones' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('profile.milestones')}
+        </button>
+        <button
+          onClick={() => handleFilterChange('challenges')}
+          className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm ${filter === 'challenges' ? 'bg-ancient-brown text-white' : 'bg-parchment-light'}`}
+        >
+          {t('profile.challenges')}
+        </button>
       </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-parchment-light mb-4">
-          {categories.map(cat => (
-            <TabsTrigger key={cat.id} value={cat.id}>
-              {cat.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
 
-        {categories.map(cat => (
-          <TabsContent key={cat.id} value={cat.id} className="space-y-3">
-            {displayedAchievements.length === 0 ? (
-              <Card className="parchment-container">
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  {cat.id === 'all' 
-                    ? "Nenhuma conquista disponível" 
-                    : `Nenhuma conquista de ${cat.label.toLowerCase()} disponível`}
-                </CardContent>
-              </Card>
-            ) : (
-              displayedAchievements.map((achievement) => (
-                <Card 
-                  key={achievement.id} 
-                  className={`parchment-container ${!achievement.unlocked ? 'opacity-70' : ''}`}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`achievement-badge ${achievement.unlocked ? 'bg-ancient-gold' : 'bg-muted'}`}>
-                        {achievement.icon}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between">
-                          <h4 className="font-oldstyle text-scripture-heading">
-                            {achievement.name}
-                          </h4>
-                          <span className="text-sm text-muted-foreground">
-                            {achievement.points} XP
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                        
-                        {achievement.unlockedAt ? (
-                          <p className="text-xs text-ancient-brown mt-1 flex items-center gap-1">
-                            <Clock size={12} />
-                            Conquistado {formatDistanceToNow(achievement.unlockedAt, { addSuffix: true, locale: ptBR })}
-                          </p>
-                        ) : (achievement.progress !== undefined && achievement.maxProgress !== undefined) ? (
-                          <div className="mt-2 space-y-1">
-                            <div className="flex justify-between text-xs">
-                              <span>Progresso</span>
-                              <span>{achievement.progress}/{achievement.maxProgress}</span>
-                            </div>
-                            <Progress 
-                              value={(achievement.progress / achievement.maxProgress) * 100} 
-                              className="h-1.5 bg-muted"
-                            />
-                          </div>
-                        ) : null}
-                      </div>
+      {/* Achievements grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {filteredAchievements.map((achievement) => (
+          <Card key={achievement.id} className={`parchment-container ${!achievement.unlocked && 'opacity-70'}`}>
+            <CardContent className="p-4">
+              <div className="flex flex-col items-center text-center">
+                <div className={`h-16 w-16 rounded-full flex items-center justify-center text-xl ${achievement.unlocked ? 'bg-ancient-gold text-white' : 'bg-gray-300 text-gray-500'}`}>
+                  {achievement.icon}
+                </div>
+                
+                <h3 className="mt-3 font-oldstyle text-ancient-brown">
+                  {achievement.name}
+                </h3>
+                
+                <p className="text-xs mt-1 text-muted-foreground">
+                  {achievement.description}
+                </p>
+                
+                {(achievement.progress !== undefined && achievement.maxProgress !== undefined) && (
+                  <div className="w-full mt-3">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>{achievement.progress} / {achievement.maxProgress}</span>
+                      <span>{Math.round((achievement.progress / achievement.maxProgress) * 100)}%</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </TabsContent>
+                    <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="h-1.5" />
+                  </div>
+                )}
+                
+                <div className="mt-2">
+                  <Badge variant="outline" className="bg-ancient-brown/10">
+                    {achievement.points} XP
+                  </Badge>
+                </div>
+                
+                {achievement.unlockedAt && (
+                  <span className="text-xs mt-2 text-muted-foreground">
+                    {new Date(achievement.unlockedAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         ))}
-      </Tabs>
+        
+        {filteredAchievements.length === 0 && (
+          <div className="col-span-2 py-8 text-center">
+            <p className="text-muted-foreground">{t('achievements.none')}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

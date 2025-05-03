@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -39,8 +39,8 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
     } catch (error) {
       console.error("Error updating setting:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar configuração.",
+        title: t('common.error'),
+        description: t('settings.updateError'),
         variant: "destructive",
       });
     }
@@ -76,7 +76,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
         <DialogHeader>
           <DialogTitle className="font-oldstyle">{t('settings.title')}</DialogTitle>
           <DialogDescription>
-            {t('settings.title')}
+            {t('settings.description')}
           </DialogDescription>
         </DialogHeader>
         
@@ -116,9 +116,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="use-system-language" className="text-base">{t('settings.language')}</Label>
+                  <Label htmlFor="use-system-language" className="text-base">{t('settings.systemLanguage')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.language')}
+                    {t('settings.systemLanguageDescription')}
                   </p>
                 </div>
                 <Switch 
@@ -133,7 +133,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 <div className="space-y-0.5">
                   <Label htmlFor="notifications" className="text-base">{t('settings.notifications')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.notifications')}
+                    {t('settings.notificationsDescription')}
                   </p>
                 </div>
                 <Switch 
@@ -145,9 +145,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="auto-scroll" className="text-base">Auto-rolagem</Label>
+                  <Label htmlFor="auto-scroll" className="text-base">{t('settings.autoScroll')}</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.bibleVersion')}
+                    {t('settings.autoScrollDescription')}
                   </p>
                 </div>
                 <Switch 

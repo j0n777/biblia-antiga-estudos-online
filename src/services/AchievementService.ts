@@ -4,9 +4,31 @@ import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '../t
 import { toast } from '@/hooks/use-toast';
 import { saveReadingPosition } from './ReadingService';
 
+// Generate random animal name
+const animals = [
+  'Leão', 'Tubarão', 'Lobo', 'Águia', 'Urso', 'Tigre', 'Golfinho',
+  'Panda', 'Falcão', 'Raposa', 'Coelho', 'Elefante', 'Coruja',
+  'Girafa', 'Gato', 'Pantera', 'Jaguar', 'Cobra', 'Tartaruga'
+];
+
+// Generate random color
+const colors = [
+  'Vermelho', 'Azul', 'Verde', 'Amarelo', 'Roxo', 'Laranja',
+  'Rosa', 'Marrom', 'Preto', 'Branco', 'Dourado', 'Prateado',
+  'Turquesa', 'Violeta', 'Esmeralda', 'Carmesim', 'Índigo'
+];
+
+// Generate random nickname
+export const generateRandomNickname = (): string => {
+  const animal = animals[Math.floor(Math.random() * animals.length)];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  return `${color} ${animal}`;
+};
+
 // Get user achievements
 export const getUserAchievements = async (): Promise<Achievement[]> => {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: sessionData } = await supabase.auth.getSession();
+  const isAuthenticated = !!sessionData?.session?.user;
   
   // For now, return mock achievements until the database schema is fully set up
   return [
@@ -17,10 +39,10 @@ export const getUserAchievements = async (): Promise<Achievement[]> => {
       icon: '🔥',
       points: 50,
       category: 'streak',
-      unlocked: session?.user ? true : false,
-      progress: session?.user ? 7 : 5,
+      unlocked: isAuthenticated ? true : false,
+      progress: isAuthenticated ? 7 : 5,
       maxProgress: 7,
-      unlockedAt: session?.user ? new Date() : undefined,
+      unlockedAt: isAuthenticated ? new Date() : undefined,
     },
     {
       id: '2',
@@ -117,16 +139,13 @@ export const trackReading = async (
   // First, save the reading position in localStorage
   saveReadingPosition(versionId, bookId, chapterNumber, verseNumber);
   
-  const { data: session } = await supabase.auth.getSession();
-  if (!session?.session?.user) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData?.session?.user) {
     // If not logged in, just update local storage and show a toast
     toast({
       title: "Progresso salvo localmente",
       description: "Crie uma conta para sincronizar seu progresso em todos os dispositivos",
-      action: {
-        label: "Cadastrar",
-        onClick: () => window.location.href = "/auth"
-      }
+      action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
     });
     return;
   }
@@ -144,23 +163,36 @@ export const trackReading = async (
 
 // Get user profile - simplified for now
 export const getUserProfile = async (): Promise<UserProfile | null> => {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData?.session;
 
-  // If not logged in, return a default profile with randomly generated ID
-  if (!session?.session?.user) {
-    return {
+  // If not logged in, return a default profile with randomly generated ID and nickname
+  if (!session?.user) {
+    // Check if we already have a temporary guest profile in localStorage
+    const storedProfile = localStorage.getItem('guestProfile');
+    if (storedProfile) {
+      return JSON.parse(storedProfile);
+    }
+
+    // Create a new guest profile
+    const guestProfile: UserProfile = {
       id: `guest-${Math.floor(Math.random() * 1000000)}`,
+      nickname: generateRandomNickname(),
       display_name: "Visitante",
       experience_points: 0,
       streak_count: 0
     };
+    
+    // Store in localStorage
+    localStorage.setItem('guestProfile', JSON.stringify(guestProfile));
+    return guestProfile;
   }
 
   try {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
-      .eq('id', session.session.user.id)
+      .eq('id', session.user.id)
       .single();
 
     if (error) {
@@ -170,10 +202,22 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
 
     // Create a compatible profile object from the data
     return {
-      ...data,
+      id: data.id,
+      display_name: data.display_name,
+      nickname: data.nickname || data.username,
+      avatar_url: data.avatar_url,
+      country: data.country,
+      birth_year: data.birth_year,
+      preferred_language: data.preferred_language,
+      preferred_bible_version: data.preferred_bible_version,
       experience_points: data.experience_points || 0,
       streak_count: data.streak_count || 0,
-      last_streak_date: data.last_streak_date ? new Date(data.last_streak_date) : undefined
+      last_streak_date: data.last_streak_date ? new Date(data.last_streak_date) : undefined,
+      username: data.username,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      email: data.email,
+      phone: data.phone
     };
   } catch (error) {
     console.error('Error in getUserProfile:', error);
@@ -195,15 +239,29 @@ export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
 
 // Update user profile
 export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<boolean> => {
-  const { data: session } = await supabase.auth.getSession();
-  if (!session?.session?.user) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData?.session;
+  
+  if (!session?.user) {
+    // If not logged in but we have a temporary profile, update it in localStorage
+    const storedProfile = localStorage.getItem('guestProfile');
+    if (storedProfile) {
+      const guestProfile = JSON.parse(storedProfile);
+      const updatedProfile = { ...guestProfile, ...profile };
+      localStorage.setItem('guestProfile', JSON.stringify(updatedProfile));
+      
+      toast({
+        title: "Perfil atualizado localmente",
+        description: "Crie uma conta para salvar seus dados permanentemente",
+        action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
+      });
+      return true;
+    }
+    
     toast({
       title: "Faça login para salvar seu perfil",
       description: "Crie uma conta para salvar suas preferências",
-      action: {
-        label: "Cadastrar",
-        onClick: () => window.location.href = "/auth"
-      }
+      action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
     });
     return false;
   }
@@ -212,7 +270,7 @@ export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<
     const { error } = await supabase
       .from('user_profiles')
       .update(profile)
-      .eq('id', session.session.user.id);
+      .eq('id', session.user.id);
 
     if (error) {
       console.error('Error updating user profile:', error);
@@ -224,4 +282,10 @@ export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<
     console.error('Error in updateUserProfile:', error);
     return false;
   }
+};
+
+// Check if user is authenticated
+export const isUserAuthenticated = async (): Promise<boolean> => {
+  const { data } = await supabase.auth.getSession();
+  return !!data.session?.user;
 };

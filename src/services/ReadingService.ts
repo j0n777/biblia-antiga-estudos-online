@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { ReadingPosition } from '../types/bible.types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Save reading position (both locally and in DB if user is logged in)
 export const saveReadingPosition = async (
@@ -32,11 +33,50 @@ export const saveReadingPosition = async (
   }
 };
 
+// Get the default reading position based on language
+export const getDefaultReadingPosition = (language: string = 'pt-BR'): ReadingPosition => {
+  // Matthew 1:1 is the default verse for all languages
+  const bookId = 'mt';
+  const chapterNumber = 1;
+  
+  // Map language to version ID
+  let versionId: string;
+  switch (language) {
+    case 'pt-BR':
+      versionId = 'nvi';
+      break;
+    case 'en':
+      versionId = 'kjv';
+      break;
+    case 'es':
+      versionId = 'rv1960';
+      break;
+    case 'fr':
+      versionId = 'lsg';
+      break;
+    case 'ar':
+      versionId = 'svd';
+      break;
+    default:
+      versionId = 'kjv';
+  }
+  
+  return {
+    version_id: versionId,
+    book_id: bookId,
+    chapter_number: chapterNumber,
+    verse_number: 1,
+    timestamp: new Date()
+  };
+};
+
 // Get the last reading position
-export const getLastReadingPosition = (): ReadingPosition | null => {
+export const getLastReadingPosition = (language: string = 'pt-BR'): ReadingPosition => {
   try {
     const savedPosition = localStorage.getItem('lastReadingPosition');
-    if (!savedPosition) return null;
+    if (!savedPosition) {
+      return getDefaultReadingPosition(language);
+    }
     
     const position = JSON.parse(savedPosition) as ReadingPosition;
     position.timestamp = new Date(position.timestamp);
@@ -44,7 +84,7 @@ export const getLastReadingPosition = (): ReadingPosition | null => {
     return position;
   } catch (error) {
     console.error('Error getting reading position:', error);
-    return null;
+    return getDefaultReadingPosition(language);
   }
 };
 
