@@ -1,12 +1,7 @@
+
+import { useEffect, useState } from "react"
+import { Toast, ToastAction, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast"
 import { useToast } from "@/hooks/use-toast"
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from "@/components/ui/toast"
 
 export function Toaster() {
   const { toasts } = useToast()
@@ -22,7 +17,12 @@ export function Toaster() {
                 <ToastDescription>{description}</ToastDescription>
               )}
             </div>
-            {action}
+            {action && (
+              <ToastAction 
+                onClick={action.onClick} 
+                altText={action.altText}
+              />
+            )}
             <ToastClose />
           </Toast>
         )

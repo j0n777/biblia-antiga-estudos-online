@@ -1,8 +1,8 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '../types/bible.types';
 import { toast } from '@/hooks/use-toast';
 import { saveReadingPosition } from './ReadingService';
+import { Button } from '@/components/ui/button';
 
 // Generate random animal name
 const animals = [
@@ -23,6 +23,14 @@ export const generateRandomNickname = (): string => {
   const animal = animals[Math.floor(Math.random() * animals.length)];
   const color = colors[Math.floor(Math.random() * colors.length)];
   return `${color} ${animal}`;
+};
+
+// Helper function to create a register button action for toast
+const getRegisterAction = () => {
+  return {
+    altText: "Cadastrar",
+    onClick: () => window.location.href = "/auth"
+  };
 };
 
 // Get user achievements
@@ -145,7 +153,7 @@ export const trackReading = async (
     toast({
       title: "Progresso salvo localmente",
       description: "Crie uma conta para sincronizar seu progresso em todos os dispositivos",
-      action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
+      action: getRegisterAction()
     });
     return;
   }
@@ -253,7 +261,7 @@ export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<
       toast({
         title: "Perfil atualizado localmente",
         description: "Crie uma conta para salvar seus dados permanentemente",
-        action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
+        action: getRegisterAction()
       });
       return true;
     }
@@ -261,7 +269,7 @@ export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<
     toast({
       title: "Faça login para salvar seu perfil",
       description: "Crie uma conta para salvar suas preferências",
-      action: <a href="/auth" className="text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm">Cadastrar</a>
+      action: getRegisterAction()
     });
     return false;
   }
