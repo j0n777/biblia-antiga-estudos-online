@@ -1,6 +1,16 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '@/types/bible.types';
+import { getSavedVerses } from '@/services/BibleStudyService';
+
+// Export the getSavedVerses function
+export { getSavedVerses };
+
+// Add export for checking if user is authenticated
+export const isUserAuthenticated = async (): Promise<boolean> => {
+  const { data } = await supabase.auth.getSession();
+  return !!data.session?.user;
+};
 
 // Mock achievements for development
 export async function getUserAchievements(): Promise<Achievement[]> {
@@ -17,10 +27,15 @@ export async function getUserAchievements(): Promise<Achievement[]> {
           description: 'Leu seu primeiro capítulo',
           icon: '📚',
           progress: 1,
+          total: 1,
           target: 1,
           unlocked: true,
           unlockedAt: new Date().toISOString(),
-          points: 10
+          points: 10,
+          earned: true,
+          category: 'reading',
+          earned_at: new Date().toISOString(),
+          maxProgress: 1
         },
         {
           id: '2',
@@ -28,10 +43,15 @@ export async function getUserAchievements(): Promise<Achievement[]> {
           description: 'Leu por 7 dias seguidos',
           icon: '🔥',
           progress: 3,
+          total: 7,
           target: 7,
           unlocked: false,
           unlockedAt: null,
-          points: 50
+          points: 50,
+          earned: false,
+          category: 'streak',
+          earned_at: undefined,
+          maxProgress: 7
         },
       ];
     }

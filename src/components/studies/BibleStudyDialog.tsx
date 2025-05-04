@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,13 +11,13 @@ import { useNavigate } from 'react-router-dom';
 
 interface BibleStudyDialogProps {
   study: BibleStudy | null;
-  isOpen: boolean;
-  isCompleted: boolean;
-  onClose: () => void;
-  onStudyCompleted: (studyId: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete?: () => Promise<void> | void;
+  isCompleted?: boolean;
 }
 
-const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyCompleted }: BibleStudyDialogProps) => {
+const BibleStudyDialog = ({ study, open, onOpenChange, onComplete, isCompleted = false }: BibleStudyDialogProps) => {
   const { language } = useLanguage();
   const [localizedContent, setLocalizedContent] = useState<{title: string; content: string}>({ title: '', content: '' });
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +27,7 @@ const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyComplete
   const navigate = useNavigate();
   
   // When study changes, get localized content and check for next study
-  useState(() => {
+  useEffect(() => {
     if (study) {
       setLocalizedContent(getLocalizedStudyContent(study, language));
       setHasCompleted(isCompleted);
@@ -47,7 +47,7 @@ const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyComplete
       setLocalizedContent({ title: '', content: '' });
       setNextStudy(null);
     }
-  });
+  }, [study, language, isCompleted]);
   
   const handleComplete = async () => {
     if (!study) return;
@@ -58,17 +58,18 @@ const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyComplete
     
     if (success) {
       setHasCompleted(true);
-      onStudyCompleted(study.id);
+      if (onComplete) {
+        await onComplete();
+      }
     }
   };
   
   const handleContinue = () => {
-    onClose();
+    onOpenChange(false);
     
     if (nextStudy) {
       // Re-open with next study
       setTimeout(() => {
-        onClose(); // Make sure to close the current dialog
         navigate(`/search?study=${nextStudy.id}`);
       }, 300);
     }
@@ -91,7 +92,7 @@ const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyComplete
   }
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-oldstyle text-xl text-ancient-brown">
@@ -135,7 +136,7 @@ const BibleStudyDialog = ({ study, isOpen, isCompleted, onClose, onStudyComplete
           ) : (
             <Button 
               variant="outline" 
-              onClick={onClose}
+              onClick={() => onOpenChange(false)}
               className="w-full sm:w-auto"
             >
               Fechar

@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { BookContent, BibleChapter as BibleChapterType, BibleVerse } from '@/types/bible.types';
+import { BookContent, BibleChapter as BibleChapterType, BibleVerse as BibleVerseType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
-import BibleVerse from './BibleVerse';
+import BibleVerseComponent from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -77,12 +77,12 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     return <div>{t('common.loading')}...</div>;
   }
 
-  const renderVerse = (verse: BibleVerse) => {
+  const renderVerse = (verse: BibleVerseType) => {
     const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
     
     return (
       <div key={verse.id} className="mb-2">
-        <BibleVerse 
+        <BibleVerseComponent 
           verse={verse}
           isHighlighted={isSelected}
           onVerseClick={() => handleVerseClick(verse.verse_number)}

@@ -40,6 +40,29 @@ export const getAllBibleStudies = async (language = 'en'): Promise<BibleStudy[]>
 };
 
 /**
+ * Search Bible studies by keyword
+ * @param query Search query
+ * @param language Language code for the content (defaults to 'en')
+ * @returns Array of matching Bible studies
+ */
+export const searchBibleStudies = async (query: string, language = 'en'): Promise<BibleStudy[]> => {
+  try {
+    // For now, we'll just filter the studies by title since we don't have a full-text search
+    const allStudies = await getAllBibleStudies(language);
+    const lowerQuery = query.toLowerCase();
+    
+    return allStudies.filter(study => {
+      const titleContent = Object.values(study.title).join(' ').toLowerCase();
+      const textContent = Object.values(study.content).join(' ').toLowerCase();
+      return titleContent.includes(lowerQuery) || textContent.includes(lowerQuery);
+    });
+  } catch (error) {
+    console.error('Error searching Bible studies:', error);
+    return [];
+  }
+};
+
+/**
  * Fetches a specific Bible study by ID
  * @param id Bible study ID
  * @returns Bible study object or null if not found
@@ -144,7 +167,7 @@ export const completeStudy = async (studyId: string): Promise<boolean> => {
  * Retrieves completed studies for the current user
  * @returns Array of completed study progress objects
  */
-export const getUserCompletedStudies = async (): Promise<UserStudyProgress[]> => {
+export const getUserStudyProgress = async (): Promise<UserStudyProgress[]> => {
   try {
     const { data, error } = await supabase
       .from('user_study_progress')
@@ -152,13 +175,13 @@ export const getUserCompletedStudies = async (): Promise<UserStudyProgress[]> =>
       .order('completed_at', { ascending: false });
     
     if (error) {
-      console.error('Error fetching completed studies:', error);
+      console.error('Error fetching study progress:', error);
       return [];
     }
     
     return data || [];
   } catch (error) {
-    console.error('Error in getUserCompletedStudies:', error);
+    console.error('Error in getUserStudyProgress:', error);
     return [];
   }
 };

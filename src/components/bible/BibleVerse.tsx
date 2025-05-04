@@ -49,12 +49,12 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
   };
   
   // Word definition handler for original language study
-  const WordDefinition = ({ word }: { word: WordDefinition }) => {
+  const WordDefinitionDisplay = ({ word }: { word: WordDefinition }) => {
     return (
       <div className="p-2 max-w-xs">
         <div className="mb-2">
           <span className="text-sm font-semibold">Original:</span>{' '}
-          <span className="text-sm font-serif">{word.original_word || '---'}</span>
+          <span className="text-sm font-serif">{word.original || '---'}</span>
         </div>
         <div className="mb-2">
           <span className="text-sm font-semibold">Transliteração:</span>{' '}

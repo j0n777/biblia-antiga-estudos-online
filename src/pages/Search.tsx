@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchBibleVerses } from '@/services/BibleDataService';
 import { searchBibleStudies, getUserStudyProgress } from '@/services/BibleStudyService';
-import { BibleVerse, BibleStudy, UserStudyProgress } from '@/types/bible.types';
+import { BibleVerse as BibleVerseType, BibleStudy, UserStudyProgress } from '@/types/bible.types';
 import PageLayout from '@/components/layout/PageLayout';
-import BibleVerse from '@/components/bible/BibleVerse';
+import BibleVerseComponent from '@/components/bible/BibleVerse';
 import BibleStudyCard from '@/components/studies/BibleStudyCard';
 import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,7 +21,7 @@ const Search = () => {
   
   const [query, setQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
+  const [searchResults, setSearchResults] = useState<BibleVerseType[]>([]);
   const [studyResults, setStudyResults] = useState<BibleStudy[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
@@ -91,7 +91,7 @@ const Search = () => {
   
   const isStudyCompleted = (studyId: string) => {
     return userProgress.some(progress => 
-      progress.study_id === studyId && progress.completed
+      progress.study_id === studyId && progress.completed_at
     );
   };
 
@@ -153,7 +153,7 @@ const Search = () => {
                     <div className="text-xs text-muted-foreground mb-1">
                       {verse.book_id} {verse.chapter_number}:{verse.verse_number}
                     </div>
-                    <BibleVerse verse={verse} />
+                    <BibleVerseComponent verse={verse} />
                   </div>
                 ))}
               </div>
@@ -194,6 +194,7 @@ const Search = () => {
             open={!!selectedStudy}
             onOpenChange={() => setSelectedStudy(null)}
             onComplete={loadUserProgress}
+            isCompleted={isStudyCompleted(selectedStudy.id)}
           />
         )}
       </div>

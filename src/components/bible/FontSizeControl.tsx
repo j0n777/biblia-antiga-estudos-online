@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Minus, Plus, Type } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUserProfile, updateUserProfile } from '@/services/AchievementService';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -52,17 +52,16 @@ const FontSizeControl = ({ onFontSizeChange }: FontSizeControlProps) => {
   };
   
   return (
-    <div className="flex items-center border rounded-lg bg-parchment-light px-2 py-1 shadow-sm">
-      <Type size={16} className="text-muted-foreground mr-1" />
-      
+    <div className="flex items-center border rounded-lg bg-parchment-light px-1 py-1 shadow-sm">      
       <Button 
         variant="ghost" 
         size="icon" 
-        className="h-8 w-8" 
+        className="h-7 w-7" 
         onClick={handleDecreaseFontSize} 
         disabled={fontSize === 'small'}
+        title={t('read.decreaseFontSize')}
       >
-        <Minus size={16} />
+        <Minus size={14} />
       </Button>
       
       <span className="px-1 text-sm font-serif">
@@ -72,11 +71,12 @@ const FontSizeControl = ({ onFontSizeChange }: FontSizeControlProps) => {
       <Button 
         variant="ghost" 
         size="icon" 
-        className="h-8 w-8" 
+        className="h-7 w-7" 
         onClick={handleIncreaseFontSize}
         disabled={fontSize === 'large'}
+        title={t('read.increaseFontSize')}
       >
-        <Plus size={16} />
+        <Plus size={14} />
       </Button>
     </div>
   );

@@ -89,7 +89,7 @@ export interface WordDefinition {
   language: string;
   transliteration?: string;
   strongs_number?: string;
-  original?: string; // Added for BibleVerse.tsx
+  original?: string;
 }
 
 export interface ReadingPosition {
@@ -98,6 +98,7 @@ export interface ReadingPosition {
   chapter: number;
   verse: number;
   timestamp: string;
+  chapter_number?: number; // Added for ReadingService.ts
 }
 
 export interface Achievement {
@@ -110,10 +111,12 @@ export interface Achievement {
   earned: boolean;
   earned_at?: string;
   category: string;
-  unlocked: boolean; // Added for AchievementList.tsx
-  maxProgress?: number; // Added for AchievementList.tsx
-  unlockedAt?: string; // Added for AchievementList.tsx
-  points: number; // Added for AchievementList.tsx
+  // Added for AchievementList.tsx
+  unlocked: boolean;
+  maxProgress?: number;
+  unlockedAt?: string;
+  points: number;
+  target?: number;
 }
 
 export interface DailyChallenge {
@@ -124,10 +127,14 @@ export interface DailyChallenge {
   completed: boolean;
   icon: string;
   expiry: string;
-  name: string; // Added for DailyChallenges.tsx
-  progress?: number; // Added for DailyChallenges.tsx
-  chapters_required: number; // Added for DailyChallenges.tsx
-  book_category?: string; // Added for DailyChallenges.tsx
+  // Added for DailyChallenges.tsx
+  name: string;
+  progress?: number;
+  chapters_required: number;
+  book_category?: string;
+  target_book_id?: string;
+  target_chapter?: number;
+  expires_at?: string;
 }
 
 export interface UserProfile {
@@ -148,7 +155,9 @@ export interface UserProfile {
   font_size?: 'small' | 'medium' | 'large';
   created_at?: string;
   updated_at?: string;
-  username?: string; // Added for AchievementService.ts
+  username?: string;
+  reading_position?: ReadingPosition | null;
+  streak_record?: number; // Added for AchievementService.ts
 }
 
 export interface LeaderboardEntry {
@@ -157,7 +166,9 @@ export interface LeaderboardEntry {
   avatar_url?: string;
   experience_points: number;
   rank: number;
-  nickname?: string; // Added for Leaderboard.tsx
-  streak_count?: number; // Added for Leaderboard.tsx
-  achievements_count?: number; // Added for Leaderboard.tsx
+  // Added for Leaderboard.tsx
+  nickname?: string;
+  streak_count?: number;
+  achievements_count?: number;
+  user_id?: string; // Added for AchievementService.ts
 }
