@@ -5,10 +5,11 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import AchievementList from '../achievements/AchievementList';
 
 interface ViewAllAchievementsProps {
-  // Add any props if needed
+  // Add the showAll prop
+  showAll?: boolean;
 }
 
-const ViewAllAchievements = ({}: ViewAllAchievementsProps) => {
+const ViewAllAchievements = ({ showAll = true }: ViewAllAchievementsProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -29,7 +30,7 @@ const ViewAllAchievements = ({}: ViewAllAchievementsProps) => {
         
         <div className="py-4">
           <TooltipProvider>
-            <AchievementList showAll={true} />
+            <AchievementList showAll={showAll} />
           </TooltipProvider>
         </div>
       </DialogContent>

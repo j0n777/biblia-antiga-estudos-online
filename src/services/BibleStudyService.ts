@@ -21,7 +21,18 @@ export const getAllBibleStudies = async (language = 'en'): Promise<BibleStudy[]>
       return [];
     }
     
-    return data || [];
+    // Convert generic data to BibleStudy type
+    return (data || []).map(study => ({
+      id: study.id,
+      title_key: study.title_key,
+      title: study.title as { [key: string]: string },
+      content: study.content as { [key: string]: string },
+      category: study.category,
+      points: study.points || 10,
+      next_study_id: study.next_study_id,
+      created_at: study.created_at,
+      icon: study.icon || '📖'
+    }));
   } catch (error) {
     console.error('Error in getAllBibleStudies:', error);
     return [];
@@ -46,11 +57,42 @@ export const getBibleStudyById = async (id: string): Promise<BibleStudy | null> 
       return null;
     }
     
-    return data;
+    if (!data) return null;
+    
+    // Convert to BibleStudy type
+    return {
+      id: data.id,
+      title_key: data.title_key,
+      title: data.title as { [key: string]: string },
+      content: data.content as { [key: string]: string },
+      category: data.category,
+      points: data.points || 10,
+      next_study_id: data.next_study_id,
+      created_at: data.created_at,
+      icon: data.icon || '📖'
+    };
   } catch (error) {
     console.error('Error in getBibleStudyById:', error);
     return null;
   }
+};
+
+/**
+ * Gets localized content from a Bible study based on language preference
+ * @param study Bible study object
+ * @param language Preferred language code
+ * @param fallbackLanguage Fallback language if preferred is not available
+ * @returns Object with localized title and content
+ */
+export const getLocalizedStudyContent = (
+  study: BibleStudy,
+  language: string = 'en',
+  fallbackLanguage: string = 'en'
+): { title: string, content: string } => {
+  const title = study.title[language] || study.title[fallbackLanguage] || Object.values(study.title)[0] || '';
+  const content = study.content[language] || study.content[fallbackLanguage] || Object.values(study.content)[0] || '';
+  
+  return { title, content };
 };
 
 /**

@@ -1,130 +1,114 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ReadingPosition } from '../types/bible.types';
-import { useLanguage } from '@/contexts/LanguageContext';
 
-// Save reading position (both locally and in DB if user is logged in)
 export const saveReadingPosition = async (
-  versionId: string, 
-  bookId: string, 
-  chapterNumber: number, 
-  verseNumber?: number
-): Promise<void> => {
+  versionId: string,
+  bookId: string,
+  chapter: number, 
+  verse: number
+): Promise<boolean> => {
   try {
-    // First save to local storage so it's always available
+    const timestamp = new Date().toISOString();
+    
+    // Save in user profile if user is authenticated
+    // Otherwise save in localStorage
+    const { data: sessionData } = await supabase.auth.getSession();
+    
+    if (sessionData?.session?.user) {
+      // User is authenticated, save to their profile
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          last_reading_position: { versionId, bookId, chapter, verse, timestamp }
+        })
+        .eq('id', sessionData.session.user.id);
+        
+      if (error) {
+        console.error('Error saving reading position to profile:', error);
+        // Fall back to localStorage if server update fails
+        saveLocalReadingPosition(versionId, bookId, chapter, verse);
+        return false;
+      }
+      return true;
+    } else {
+      // No authenticated user, save to localStorage
+      saveLocalReadingPosition(versionId, bookId, chapter, verse);
+      return true;
+    }
+  } catch (error) {
+    console.error('Error in saveReadingPosition:', error);
+    // Fall back to localStorage
+    saveLocalReadingPosition(versionId, bookId, chapter, verse);
+    return false;
+  }
+};
+
+export const getLastReadingPosition = async (): Promise<ReadingPosition | null> => {
+  try {
+    // Check if there's an authenticated user
+    const { data: sessionData } = await supabase.auth.getSession();
+    
+    if (sessionData?.session?.user) {
+      // User is authenticated, get from their profile
+      const { data: profileData, error } = await supabase
+        .from('user_profiles')
+        .select('last_reading_position')
+        .eq('id', sessionData.session.user.id)
+        .single();
+        
+      if (error || !profileData?.last_reading_position) {
+        // Fall back to localStorage if no server data
+        return getLocalReadingPosition();
+      }
+      
+      return profileData.last_reading_position as ReadingPosition;
+    } else {
+      // No authenticated user, get from localStorage
+      return getLocalReadingPosition();
+    }
+  } catch (error) {
+    console.error('Error in getLastReadingPosition:', error);
+    // Fall back to localStorage
+    return getLocalReadingPosition();
+  }
+};
+
+export const clearReadingPosition = (): void => {
+  try {
+    localStorage.removeItem('bible_reading_position');
+  } catch (error) {
+    console.error('Error in clearReadingPosition:', error);
+  }
+};
+
+// Helper functions for localStorage
+const saveLocalReadingPosition = (
+  versionId: string,
+  bookId: string,
+  chapter: number,
+  verse: number
+): void => {
+  try {
     const position: ReadingPosition = {
       version_id: versionId,
       book_id: bookId,
-      chapter_number: chapterNumber,
-      verse_number: verseNumber,
-      timestamp: new Date()
+      chapter,
+      verse,
+      timestamp: new Date().toISOString()
     };
-    
-    localStorage.setItem('lastReadingPosition', JSON.stringify(position));
-    
-    // If user is logged in, also save to database
-    const { data: session } = await supabase.auth.getSession();
-    if (session?.session?.user) {
-      // Mock database saving for now
-      console.log('Saved reading position to mock database:', position);
-    }
+    localStorage.setItem('bible_reading_position', JSON.stringify(position));
   } catch (error) {
-    console.error('Error saving reading position:', error);
+    console.error('Error saving to localStorage:', error);
   }
 };
 
-// Get the default reading position based on language
-export const getDefaultReadingPosition = (language: string = 'pt-BR'): ReadingPosition => {
-  // Matthew 1:1 is the default verse for all languages
-  const bookId = 'mt';
-  const chapterNumber = 1;
-  
-  // Map language to version ID
-  let versionId: string;
-  switch (language) {
-    case 'pt-BR':
-      versionId = 'nvi';
-      break;
-    case 'en':
-      versionId = 'kjv';
-      break;
-    case 'es':
-      versionId = 'rv1960';
-      break;
-    case 'fr':
-      versionId = 'lsg';
-      break;
-    case 'ar':
-      versionId = 'svd';
-      break;
-    default:
-      versionId = 'kjv';
-  }
-  
-  return {
-    version_id: versionId,
-    book_id: bookId,
-    chapter_number: chapterNumber,
-    verse_number: 1,
-    timestamp: new Date()
-  };
-};
-
-// Get the last reading position
-export const getLastReadingPosition = (language: string = 'pt-BR'): ReadingPosition => {
+const getLocalReadingPosition = (): ReadingPosition | null => {
   try {
-    const savedPosition = localStorage.getItem('lastReadingPosition');
-    if (!savedPosition) {
-      return getDefaultReadingPosition(language);
-    }
-    
-    const position = JSON.parse(savedPosition) as ReadingPosition;
-    position.timestamp = new Date(position.timestamp);
-    
-    return position;
+    const saved = localStorage.getItem('bible_reading_position');
+    if (!saved) return null;
+    return JSON.parse(saved) as ReadingPosition;
   } catch (error) {
-    console.error('Error getting reading position:', error);
-    return getDefaultReadingPosition(language);
-  }
-};
-
-// Clear reading position
-export const clearReadingPosition = (): void => {
-  localStorage.removeItem('lastReadingPosition');
-};
-
-// Track verses read
-export const trackVersesRead = async (
-  bookId: string, 
-  chapterNumber: number, 
-  verses: number[]
-): Promise<void> => {
-  try {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) {
-      return; // Only track for logged in users
-    }
-    
-    // Mock implementation
-    console.log(`Tracked ${verses.length} verses read`);
-  } catch (error) {
-    console.error('Error tracking verses read:', error);
-  }
-};
-
-// Check if user has a streak and update it
-export const checkAndUpdateStreak = async (): Promise<number> => {
-  try {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) {
-      // Return mock streak for guest users
-      return 0;
-    }
-    
-    // Mock functionality for now
-    return 5; // Mock streak count
-  } catch (error) {
-    console.error('Error updating streak:', error);
-    return 0;
+    console.error('Error reading from localStorage:', error);
+    return null;
   }
 };

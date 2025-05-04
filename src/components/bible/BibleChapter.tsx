@@ -1,40 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { BookContent } from '@/types/bible.types';
+
+import React, { useState } from 'react';
+import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
 import BibleVerse from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
-import FontSizeControl from './FontSizeControl';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface BibleChapterProps {
-  bookId: string;
-  chapterNumber: number;
+  bookId?: string;
+  chapterNumber?: number;
+  chapter?: BibleChapterType;
+  scrollToVerse?: number | null;
+  onVerseAction?: (verseNumber: number) => Promise<void> | void;
+  isVerseSelected?: (verseNumber: number) => boolean;
+  fontSize?: 'small' | 'medium' | 'large';
 }
 
-const BibleChapter: React.FC<BibleChapterProps> = ({ bookId, chapterNumber }) => {
+const BibleChapter: React.FC<BibleChapterProps> = ({ 
+  bookId, 
+  chapterNumber, 
+  chapter,
+  scrollToVerse,
+  onVerseAction,
+  isVerseSelected,
+  fontSize = 'medium'
+}) => {
   const [chapterContent, setChapterContent] = useState<BookContent | null>(null);
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
   const { t } = useLanguage();
   const { theme } = useTheme();
-  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchChapterContent = async () => {
-      const content = await getBookContent(bookId, chapterNumber);
-      setChapterContent(content);
+      if (bookId && chapterNumber) {
+        const content = await getBookContent(bookId, chapterNumber);
+        setChapterContent(content);
+      } else if (chapter) {
+        // If we have a chapter object directly, format it as BookContent
+        setChapterContent({
+          book_id: chapter.book_id,
+          book_name: chapter.book_name,
+          chapter_number: chapter.chapter_number,
+          verses: chapter.verses
+        });
+      }
     };
     
     fetchChapterContent();
-  }, [bookId, chapterNumber]);
+  }, [bookId, chapterNumber, chapter]);
   
   const handleVerseSelect = (verseId: string) => {
     setSelectedVerseId(verseId === selectedVerseId ? null : verseId);
   };
   
-  const handleFontSizeChange = (size: 'small' | 'medium' | 'large') => {
-    setFontSize(size);
+  const handleVerseClick = async (verseNumber: number) => {
+    if (onVerseAction) {
+      await onVerseAction(verseNumber);
+    }
   };
 
   const getFontSizeClass = () => {
@@ -55,13 +78,14 @@ const BibleChapter: React.FC<BibleChapterProps> = ({ bookId, chapterNumber }) =>
   }
 
   const renderVerse = (verse: any) => {
-    const isSelected = selectedVerseId === verse.id;
+    const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
     
     return (
       <div key={verse.id} className="mb-2">
         <BibleVerse 
           verse={verse} 
-          isSelected={isSelected} 
+          onVerseClick={() => handleVerseClick(verse.verse_number)}
+          isHighlighted={isSelected}
         />
       </div>
     );
@@ -71,10 +95,8 @@ const BibleChapter: React.FC<BibleChapterProps> = ({ bookId, chapterNumber }) =>
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold font-oldstyle text-scripture-heading dark:text-scripture-heading-dark">
-          {chapterContent.book_name} {chapterNumber}
+          {chapterContent.book_name} {chapterContent.chapter_number}
         </h1>
-        
-        <FontSizeControl onFontSizeChange={handleFontSizeChange} />
       </div>
       
       <ScrollArea className="h-[calc(100vh-200px)] w-full rounded-md border">

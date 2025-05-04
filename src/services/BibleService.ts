@@ -7,7 +7,8 @@ import {
   getAllBooks, 
   getAllVersions,
   getChapter,
-  searchBibleVerses
+  searchBibleVerses,
+  getBookContent
 } from './BibleDataService';
 import {
   importInitialVersions,
@@ -19,14 +20,18 @@ import {
   clearReadingPosition
 } from './ReadingService';
 
-// Types need to be exported with 'export type' when isolatedModules is enabled
-export type { BibleBook } from '../types/bible.types';
-export type { BibleVersion } from '../types/bible.types';
-export type { BibleChapter } from '../types/bible.types';
-export type { BibleVerse } from '../types/bible.types';
-export type { WordDefinition } from '../types/bible.types';
-export type { ReadingPosition } from '../types/bible.types';
-export type { Achievement } from '../types/bible.types';
+// Export all types
+export type {
+  BibleBook,
+  BibleVersion,
+  BibleChapter,
+  BibleVerse,
+  WordDefinition,
+  ReadingPosition,
+  Achievement,
+  UserStudyProgress,
+  SavedVerse
+} from '../types/bible.types';
   
 // Mappings
 export {
@@ -45,6 +50,7 @@ export {
   getAllVersions,
   getChapter,
   searchBibleVerses,
+  getBookContent,
   
   // Import services
   importInitialVersions,

@@ -1,5 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { BibleChapter, BibleBook, BibleVersion, BibleVerse } from '../types/bible.types';
+import { BibleChapter, BibleBook, BibleVersion, BibleVerse, BookContent } from '../types/bible.types';
 import { getChapterMock } from '../utils/bible-mocks';
 
 export async function getAllBooks(versionId: string = 'kja'): Promise<BibleBook[]> {
@@ -175,3 +176,55 @@ export const getBibleBooks = async () => {
     return [];
   }
 };
+
+// Add the missing getBookContent function
+export async function getBookContent(bookId: string, chapterNumber: number): Promise<BookContent | null> {
+  try {
+    // Get book name
+    const { data: bookData, error: bookError } = await supabase
+      .from('bible_books')
+      .select('name')
+      .eq('book_id', bookId)
+      .single();
+    
+    if (bookError || !bookData) {
+      console.error(`Error fetching book data: ${bookError?.message || 'Book not found'}`);
+      return null;
+    }
+    
+    // Get chapter data
+    const { data: chapterData, error: chapterError } = await supabase
+      .from('bible_chapters')
+      .select('id')
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapterNumber)
+      .single();
+    
+    if (chapterError || !chapterData) {
+      console.error(`Error fetching chapter data: ${chapterError?.message || 'Chapter not found'}`);
+      return null;
+    }
+    
+    // Get verses
+    const { data: versesData, error: versesError } = await supabase
+      .from('bible_verses')
+      .select('id, verse_number, text')
+      .eq('chapter_id', chapterData.id)
+      .order('verse_number');
+    
+    if (versesError) {
+      console.error(`Error fetching verses: ${versesError.message}`);
+      return null;
+    }
+    
+    return {
+      book_id: bookId,
+      book_name: bookData.name,
+      chapter_number: chapterNumber,
+      verses: versesData || [],
+    };
+  } catch (error) {
+    console.error('Error in getBookContent:', error);
+    return null;
+  }
+}
