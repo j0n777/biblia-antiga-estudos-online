@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "next-themes";
 import HomePage from './pages/Index';
 import ReadPage from './pages/Read';
@@ -51,17 +51,15 @@ function App() {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/read" element={<ReadPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/ranking" element={<RankingPage />} />
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/read" element={<ReadPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/ranking" element={<RankingPage />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
       <Toaster />
     </ThemeProvider>
   );
