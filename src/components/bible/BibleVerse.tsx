@@ -1,110 +1,129 @@
 
-import { useEffect } from 'react';
+import { useState } from 'react';
+import { BibleVerse as BibleVerseType, WordDefinition } from '@/types/bible.types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { WordDefinition } from '@/services/BibleService';
-import { useInView } from 'react-intersection-observer';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal, Star, Languages, Share2, Info, Copy, Highlighter } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
-export type BibleVerseProps = {
-  verse: {
-    id: string;
-    verse_number: number;
-    text: string;
+export interface BibleVerseProps {
+  verse: BibleVerseType;
+  isHighlighted?: boolean;
+  onVerseClick?: () => Promise<void> | void;
+}
+
+const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVerseProps) => {
+  const [isActionsOpen, setIsActionsOpen] = useState(false);
+  
+  const handleCopyVerse = () => {
+    navigator.clipboard.writeText(`${verse.verse_number}. ${verse.text}`);
+    toast({
+      description: 'Versículo copiado para a área de transferência.',
+    });
+    setIsActionsOpen(false);
   };
-  originalText?: {
-    text: string;
-    transliteration?: string;
-    language: string;
-  };
-  wordDefinitions?: Record<string, WordDefinition>;
-  className?: string;
-  displayVerseNumber?: boolean;
-  onInView?: () => void;
-  onVerseClick?: () => Promise<void> | void; // Added to match usage in BibleChapter
-  isHighlighted?: boolean; // Added to match usage in BibleChapter
-};
-
-const BibleVerse = ({ 
-  verse, 
-  originalText, 
-  wordDefinitions, 
-  className,
-  displayVerseNumber = true,
-  onInView,
-  onVerseClick,
-  isHighlighted
-}: BibleVerseProps) => {
-  // Set up intersection observer to detect when verse is visible
-  const { ref, inView } = useInView({
-    threshold: 0.5,
-    triggerOnce: true
-  });
-
-  // Call onInView callback when verse comes into view
-  useEffect(() => {
-    if (inView && onInView) {
-      onInView();
+  
+  const handleHighlightVerse = async () => {
+    if (onVerseClick) {
+      await onVerseClick();
     }
-  }, [inView, onInView]);
-
-  // Split the verse text into words to make them individually selectable
-  const words = verse.text.split(' ');
-
+    setIsActionsOpen(false);
+  };
+  
+  const handleShareVerse = () => {
+    const shareText = `${verse.verse_number}. ${verse.text}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Compartilhar versículo',
+        text: shareText,
+      });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast({
+        description: 'Versículo copiado para a área de transferência.',
+      });
+    }
+    
+    setIsActionsOpen(false);
+  };
+  
+  // Word definition handler for original language study
+  const WordDefinition = ({ word }: { word: WordDefinition }) => {
+    return (
+      <div className="p-2 max-w-xs">
+        <div className="mb-2">
+          <span className="text-sm font-semibold">Original:</span>{' '}
+          <span className="text-sm font-serif">{word.original_word || '---'}</span>
+        </div>
+        <div className="mb-2">
+          <span className="text-sm font-semibold">Transliteração:</span>{' '}
+          <span className="text-sm">{word.transliteration || '---'}</span>
+        </div>
+        <div className="mb-2">
+          <span className="text-sm font-semibold">Strong:</span>{' '}
+          <span className="text-sm">{word.strongs_number || '---'}</span>
+        </div>
+        <div>
+          <span className="text-sm font-semibold">Definição:</span>
+          <p className="text-sm">{word.definition || '---'}</p>
+        </div>
+      </div>
+    );
+  };
+  
   return (
     <div 
-      className={cn("my-2 flex", className, isHighlighted ? "bg-amber-100/50 -mx-2 px-2 rounded" : "")} 
-      ref={ref}
-      onClick={onVerseClick}
+      className={`group relative py-1 px-2 rounded transition-colors ${
+        isHighlighted ? 'bg-amber-100/80 dark:bg-amber-900/30' : 'hover:bg-gray-100/50 dark:hover:bg-gray-800/20'
+      }`}
     >
-      {displayVerseNumber && (
-        <span className="verse-number mr-2 text-ancient-red font-oldstyle">{verse.verse_number}</span>
-      )}
-      <span className="scripture-text">
-        {words.map((word, index) => {
-          // Remove punctuation for word lookup but keep it for display
-          const cleanWord = word.replace(/[.,;:!?()\[\]{}""''-]/g, '').toLowerCase();
-          const hasPunctuation = word !== cleanWord + (word.match(/[.,;:!?()\[\]{}""''-]$/)?.[0] || '');
-          const wordDefinition = wordDefinitions?.[cleanWord];
-
-          // For words that have definitions available, wrap them in Popover
-          if (wordDefinition) {
-            return (
-              <Popover key={`${verse.verse_number}-word-${index}`}>
-                <PopoverTrigger asChild>
-                  <span className="cursor-pointer hover:text-ancient-brown hover:underline hover:underline-offset-2">
-                    {word}{" "}
-                  </span>
-                </PopoverTrigger>
-                <PopoverContent className="parchment-container w-72 max-w-screen-sm">
-                  <div className="space-y-2">
-                    <h4 className="font-oldstyle text-lg font-semibold text-ancient-brown">
-                      {wordDefinition.original || wordDefinition.word}
-                    </h4>
-                    {wordDefinition.transliteration && (
-                      <p className="text-sm italic text-muted-foreground">
-                        {wordDefinition.transliteration}
-                      </p>
-                    )}
-                    <div className="h-px bg-parchment-darker/30 my-2" />
-                    <p className="text-sm">{wordDefinition.definition}</p>
-                    {wordDefinition.strongs_number && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Strong's: #{wordDefinition.strongs_number}
-                      </p>
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            );
-          }
-          
-          return (
-            <span key={`${verse.verse_number}-word-${index}`}>
-              {word}{" "}
-            </span>
-          );
-        })}
-      </span>
+      <div className="flex">
+        <span className="text-scripture-verse-number font-semibold mr-2 mt-0.5 text-xs">
+          {verse.verse_number}
+        </span>
+        <div className="flex-grow">{verse.text}</div>
+        <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Popover open={isActionsOpen} onOpenChange={setIsActionsOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-48 p-2">
+              <div className="flex flex-col space-y-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start"
+                  onClick={handleCopyVerse}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  <span>Copiar</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`justify-start ${isHighlighted ? 'text-amber-600' : ''}`}
+                  onClick={handleHighlightVerse}
+                >
+                  <Highlighter className="mr-2 h-4 w-4" />
+                  <span>{isHighlighted ? 'Destacado' : 'Destacar'}</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start"
+                  onClick={handleShareVerse}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  <span>Compartilhar</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
     </div>
   );
 };

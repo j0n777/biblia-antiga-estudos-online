@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
-import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
+import React, { useState, useEffect } from 'react';
+import { BookContent, BibleChapter as BibleChapterType, BibleVerse } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
 import BibleVerse from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface BibleChapterProps {
   bookId?: string;
@@ -31,7 +31,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   const { t } = useLanguage();
   const { theme } = useTheme();
   
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchChapterContent = async () => {
       if (bookId && chapterNumber) {
         const content = await getBookContent(bookId, chapterNumber);
@@ -74,16 +74,16 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   };
   
   if (!chapterContent) {
-    return <div>{t('loading')}...</div>;
+    return <div>{t('common.loading')}...</div>;
   }
 
-  const renderVerse = (verse: any) => {
+  const renderVerse = (verse: BibleVerse) => {
     const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
     
     return (
       <div key={verse.id} className="mb-2">
         <BibleVerse 
-          verse={verse} 
+          verse={verse}
           isHighlighted={isSelected}
           onVerseClick={() => handleVerseClick(verse.verse_number)}
         />

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Minus, Plus, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUserProfile, updateUserProfile } from '@/services/AchievementService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FontSizeControlProps {
   onFontSizeChange: (size: 'small' | 'medium' | 'large') => void;
@@ -10,14 +11,15 @@ interface FontSizeControlProps {
 
 const FontSizeControl = ({ onFontSizeChange }: FontSizeControlProps) => {
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const { t } = useLanguage();
   
   // Get user's preferred font size from profile
   useEffect(() => {
     const loadPreferredFontSize = async () => {
       const profile = await getUserProfile();
       if (profile?.font_size) {
-        setFontSize(profile.font_size);
-        onFontSizeChange(profile.font_size);
+        setFontSize(profile.font_size as 'small' | 'medium' | 'large');
+        onFontSizeChange(profile.font_size as 'small' | 'medium' | 'large');
       }
     };
     
@@ -51,7 +53,7 @@ const FontSizeControl = ({ onFontSizeChange }: FontSizeControlProps) => {
   
   return (
     <div className="flex items-center border rounded-lg bg-parchment-light px-2 py-1 shadow-sm">
-      <Type size={16} className="text-muted-foreground mr-2" />
+      <Type size={16} className="text-muted-foreground mr-1" />
       
       <Button 
         variant="ghost" 
@@ -63,8 +65,8 @@ const FontSizeControl = ({ onFontSizeChange }: FontSizeControlProps) => {
         <Minus size={16} />
       </Button>
       
-      <span className="px-1 text-sm">
-        {fontSize === 'small' ? 'A' : fontSize === 'medium' ? 'AA' : 'AAA'}
+      <span className="px-1 text-sm font-serif">
+        AA
       </span>
       
       <Button 

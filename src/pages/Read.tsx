@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
-import { ChevronLeft, ChevronRight, Menu, Check, Loader2, Save, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BibleChapter from '@/components/bible/BibleChapter';
@@ -38,12 +38,13 @@ const Read = () => {
   const initialBookId = searchParams.get('book') || 'JHN';
   const initialChapter = parseInt(searchParams.get('chapter') || '1');
   const initialVerse = parseInt(searchParams.get('verse') || '0');
+  const initialVersion = searchParams.get('version') || 'kja';
   
   const [bookId, setBookId] = useState(initialBookId);
   const [chapterNumber, setChapterNumber] = useState(initialChapter);
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [versionId, setVersionId] = useState('kja');
+  const [versionId, setVersionId] = useState(initialVersion);
   const [chapter, setChapter] = useState<BibleChapterType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [scrollToVerse, setScrollToVerse] = useState<number | null>(initialVerse || null);
@@ -68,7 +69,11 @@ const Read = () => {
       setChapter(chapterData);
       
       // Update URL without causing navigation
-      setSearchParams({ book: bookId, chapter: chapterNumber.toString() }, { replace: true });
+      setSearchParams({ 
+        book: bookId, 
+        chapter: chapterNumber.toString(),
+        version: versionId 
+      }, { replace: true });
       
       // Track reading progress
       await trackReading(versionId, bookId, chapterNumber, 1);
@@ -263,12 +268,30 @@ const Read = () => {
           </Sheet>
           
           <div className="flex items-center gap-2 flex-1 justify-center">
+            <Select value={versionId} onValueChange={value => {
+              setVersionId(value);
+              setScrollToVerse(null);
+            }}>
+              <SelectTrigger className="w-[110px]" aria-label="Select version">
+                <SelectValue>
+                  {versions.find(v => v.id === versionId)?.name || versionId}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {versions.map((version) => (
+                  <SelectItem key={version.id} value={version.id}>
+                    {version.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
             <Select value={bookId} onValueChange={value => {
               setBookId(value);
               setChapterNumber(1);
               setScrollToVerse(null);
             }}>
-              <SelectTrigger className="w-[140px]" aria-label="Select book">
+              <SelectTrigger className="w-[110px]" aria-label="Select book">
                 <SelectValue>
                   {books.find(b => b.book_id === bookId)?.name || bookId}
                 </SelectValue>
@@ -291,7 +314,7 @@ const Read = () => {
             >
               <SelectTrigger className="w-[80px]" aria-label="Select chapter">
                 <SelectValue>
-                  {t('bible.chapter')} {chapterNumber}
+                  {chapterNumber}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -300,7 +323,7 @@ const Read = () => {
                   (_, i) => i + 1
                 ).map(num => (
                   <SelectItem key={num} value={num.toString()}>
-                    {t('bible.chapter')} {num}
+                    {num}
                   </SelectItem>
                 ))}
               </SelectContent>
