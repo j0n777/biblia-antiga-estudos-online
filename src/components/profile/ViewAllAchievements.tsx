@@ -4,7 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AchievementList from '../achievements/AchievementList';
 
-const ViewAllAchievements = () => {
+interface ViewAllAchievementsProps {
+  // Add any props if needed
+}
+
+const ViewAllAchievements = ({}: ViewAllAchievementsProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>

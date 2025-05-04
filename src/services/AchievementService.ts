@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '../types/bible.types';
 import { toast } from '@/hooks/use-toast';
@@ -305,49 +304,25 @@ export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
 };
 
 // Update user profile
-export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<boolean> => {
-  const { data: sessionData } = await supabase.auth.getSession();
-  const session = sessionData?.session;
-  
-  if (!session?.user) {
-    // If not logged in but we have a temporary profile, update it in localStorage
-    const storedProfile = localStorage.getItem('guestProfile');
-    if (storedProfile) {
-      const guestProfile = JSON.parse(storedProfile);
-      const updatedProfile = { ...guestProfile, ...profile };
-      localStorage.setItem('guestProfile', JSON.stringify(updatedProfile));
-      
-      toast({
-        title: "Perfil atualizado localmente",
-        description: "Crie uma conta para salvar seus dados permanentemente",
-        action: getRegisterAction()
-      });
-      return true;
-    }
-    
-    toast({
-      title: "Faça login para salvar seu perfil",
-      description: "Crie uma conta para salvar suas preferências",
-      action: getRegisterAction()
-    });
-    return false;
-  }
-
+export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<UserProfile | null> => {
   try {
-    const { error } = await supabase
-      .from('user_profiles')
-      .update(profile)
-      .eq('id', session.user.id);
+    // Convert Date objects to strings for Supabase
+    const profileToSave = { ...profile };
+    if (profileToSave.last_streak_date && profileToSave.last_streak_date instanceof Date) {
+      profileToSave.last_streak_date = profileToSave.last_streak_date.toISOString();
+    }
+
+    const { data, error } = await supabase.from('user_profiles').upsert(profileToSave).select().single();
 
     if (error) {
       console.error('Error updating user profile:', error);
-      return false;
+      return null;
     }
 
-    return true;
+    return data;
   } catch (error) {
     console.error('Error in updateUserProfile:', error);
-    return false;
+    return null;
   }
 };
 

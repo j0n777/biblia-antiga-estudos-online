@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleChapter, BibleBook, BibleVersion, BibleVerse } from '../types/bible.types';
 import { getChapterMock } from '../utils/bible-mocks';
@@ -157,3 +156,22 @@ export async function searchBibleVerses(
     return [];
   }
 }
+
+export const getBibleBooks = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('bible_books')
+      .select('*')
+      .order('book_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching Bible books:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getBibleBooks:', error);
+    return [];
+  }
+};

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from "@/components/ThemeProvider"
+import { ThemeProvider } from "next-themes";
 import HomePage from './pages/Index';
 import ReadPage from './pages/Read';
 import SearchPage from './pages/Search';
@@ -50,7 +50,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
