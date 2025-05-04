@@ -8,7 +8,11 @@ import { Skeleton } from '../ui/skeleton';
 import { Progress } from '../ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const AchievementList = () => {
+interface AchievementListProps {
+  showAll?: boolean;
+}
+
+const AchievementList = ({ showAll = true }: AchievementListProps) => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'books' | 'testaments' | 'streaks' | 'milestones' | 'challenges'>('all');
@@ -121,13 +125,13 @@ const AchievementList = () => {
                   {achievement.description}
                 </p>
                 
-                {(achievement.progress !== undefined && achievement.maxProgress !== undefined) && (
+                {(achievement.progress !== undefined && achievement.total !== undefined) && (
                   <div className="w-full mt-3">
                     <div className="flex justify-between text-xs mb-1">
-                      <span>{achievement.progress} / {achievement.maxProgress}</span>
-                      <span>{Math.round((achievement.progress / achievement.maxProgress) * 100)}%</span>
+                      <span>{achievement.progress} / {achievement.total}</span>
+                      <span>{Math.round((achievement.progress / achievement.total) * 100)}%</span>
                     </div>
-                    <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="h-1.5" />
+                    <Progress value={(achievement.progress / achievement.total) * 100} className="h-1.5" />
                   </div>
                 )}
                 

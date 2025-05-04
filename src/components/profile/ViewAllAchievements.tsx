@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AchievementList from '../achievements/AchievementList';
 
+// Define the interface for the component props
 interface ViewAllAchievementsProps {
-  // Add the showAll prop
   showAll?: boolean;
 }
 

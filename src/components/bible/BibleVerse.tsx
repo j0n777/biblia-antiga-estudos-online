@@ -20,6 +20,8 @@ export type BibleVerseProps = {
   className?: string;
   displayVerseNumber?: boolean;
   onInView?: () => void;
+  onVerseClick?: () => Promise<void> | void; // Added to match usage in BibleChapter
+  isHighlighted?: boolean; // Added to match usage in BibleChapter
 };
 
 const BibleVerse = ({ 
@@ -28,7 +30,9 @@ const BibleVerse = ({
   wordDefinitions, 
   className,
   displayVerseNumber = true,
-  onInView
+  onInView,
+  onVerseClick,
+  isHighlighted
 }: BibleVerseProps) => {
   // Set up intersection observer to detect when verse is visible
   const { ref, inView } = useInView({
@@ -47,7 +51,11 @@ const BibleVerse = ({
   const words = verse.text.split(' ');
 
   return (
-    <div className={cn("my-2 flex", className)} ref={ref}>
+    <div 
+      className={cn("my-2 flex", className, isHighlighted ? "bg-amber-100/50 -mx-2 px-2 rounded" : "")} 
+      ref={ref}
+      onClick={onVerseClick}
+    >
       {displayVerseNumber && (
         <span className="verse-number mr-2 text-ancient-red font-oldstyle">{verse.verse_number}</span>
       )}
@@ -70,7 +78,7 @@ const BibleVerse = ({
                 <PopoverContent className="parchment-container w-72 max-w-screen-sm">
                   <div className="space-y-2">
                     <h4 className="font-oldstyle text-lg font-semibold text-ancient-brown">
-                      {wordDefinition.original}
+                      {wordDefinition.original || wordDefinition.word}
                     </h4>
                     {wordDefinition.transliteration && (
                       <p className="text-sm italic text-muted-foreground">
@@ -79,9 +87,9 @@ const BibleVerse = ({
                     )}
                     <div className="h-px bg-parchment-darker/30 my-2" />
                     <p className="text-sm">{wordDefinition.definition}</p>
-                    {wordDefinition.strongsNumber && (
+                    {wordDefinition.strongs_number && (
                       <p className="text-xs text-muted-foreground mt-2">
-                        Strong's: #{wordDefinition.strongsNumber}
+                        Strong's: #{wordDefinition.strongs_number}
                       </p>
                     )}
                   </div>

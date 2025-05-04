@@ -84,8 +84,8 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       <div key={verse.id} className="mb-2">
         <BibleVerse 
           verse={verse} 
-          onVerseClick={() => handleVerseClick(verse.verse_number)}
           isHighlighted={isSelected}
+          onVerseClick={() => handleVerseClick(verse.verse_number)}
         />
       </div>
     );

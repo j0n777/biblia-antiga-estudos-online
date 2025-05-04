@@ -30,7 +30,12 @@ export type {
   ReadingPosition,
   Achievement,
   UserStudyProgress,
-  SavedVerse
+  SavedVerse,
+  BookContent,
+  DailyChallenge,
+  UserProfile,
+  LeaderboardEntry,
+  BibleStudy
 } from '../types/bible.types';
   
 // Mappings
