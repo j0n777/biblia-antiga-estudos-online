@@ -1,35 +1,70 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import Index from "./pages/Index";
-import Read from "./pages/Read";
-import Search from "./pages/Search";
-import Profile from "./pages/Profile";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from "@/components/ThemeProvider"
+import HomePage from './pages/Index';
+import ReadPage from './pages/Read';
+import SearchPage from './pages/Search';
+import ProfilePage from './pages/Profile';
+import AuthPage from './pages/Auth';
+import RankingPage from './pages/Ranking';
+import NotFoundPage from './pages/NotFound';
+import { Toaster } from '@/components/ui/toaster';
+import { supabase } from '@/integrations/supabase/client';
+import { importInitialVersions } from './services/BibleImportService';
 
-const queryClient = new QueryClient();
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <BrowserRouter>
-        <Toaster />
-        <Sonner />
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Check if we have Bible data already
+        const { data: versions, error } = await supabase
+          .from('bible_versions')
+          .select('id')
+          .limit(1);
+          
+        if (error) {
+          console.error('Error checking Bible versions:', error);
+        } else if (!versions?.length) {
+          console.log('No Bible versions found, initializing data...');
+          await importInitialVersions();
+        }
+      } catch (err) {
+        console.error('Error during initialization:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    initializeApp();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-lg">Carregando...</p>
+      </div>
+    );
+  }
+
+  return (
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <Router>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/read" element={<Read />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/read" element={<ReadPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/ranking" element={<RankingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </BrowserRouter>
-    </LanguageProvider>
-  </QueryClientProvider>
-);
+      </Router>
+      <Toaster />
+    </ThemeProvider>
+  );
+}
 
 export default App;

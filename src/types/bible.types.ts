@@ -1,4 +1,3 @@
-
 export type BibleBook = {
   version_id: string;
   book_id: string;
@@ -74,10 +73,10 @@ export type Achievement = {
   category: AchievementCategory;
 };
 
-export type UserProfile = {
+export interface UserProfile {
   id: string;
-  display_name?: string;
   nickname?: string;
+  display_name?: string;
   avatar_url?: string;
   country?: string;
   birth_year?: number;
@@ -91,9 +90,10 @@ export type UserProfile = {
   updated_at?: string;
   email?: string;
   phone?: string;
-};
+  font_size?: 'small' | 'medium' | 'large';
+}
 
-export type DailyChallenge = {
+export interface DailyChallenge {
   id: string;
   name: string;
   description: string;
@@ -103,9 +103,9 @@ export type DailyChallenge = {
   chapters_required: number;
   progress?: number;
   completed?: boolean;
-};
+}
 
-export type LeaderboardEntry = {
+export interface LeaderboardEntry {
   id: string;
   nickname: string | null;
   avatar_url: string | null;
@@ -113,13 +113,34 @@ export type LeaderboardEntry = {
   streak_count: number;
   achievements_count: number;
   rank: number;
-};
+}
 
-export type BiblicalStudy = {
+export interface BiblicalStudy {
   id: string;
-  title: string;
-  description: string;
-  icon: string;
-  link: string;
+  title_key: string;
+  title: Record<string, string>;
+  content: Record<string, string>;
   category: string;
-};
+  points: number;
+  next_study_id?: string;
+  created_at?: string;
+  icon?: string;
+}
+
+export interface SavedVerse {
+  id: string;
+  book_id: string;
+  chapter_number: number;
+  verse_number: number;
+  version_id: string;
+  saved_at: string;
+  note?: string;
+  highlight_color?: string;
+}
+
+export interface StudyProgress {
+  id: string;
+  study_id: string;
+  completed_at: string;
+  points_earned: number;
+}

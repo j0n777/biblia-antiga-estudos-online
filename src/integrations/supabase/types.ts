@@ -76,6 +76,42 @@ export type Database = {
           },
         ]
       }
+      bible_studies: {
+        Row: {
+          category: string
+          content: Json
+          created_at: string | null
+          icon: string | null
+          id: string
+          next_study_id: string | null
+          points: number | null
+          title: Json
+          title_key: string
+        }
+        Insert: {
+          category: string
+          content: Json
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          next_study_id?: string | null
+          points?: number | null
+          title: Json
+          title_key: string
+        }
+        Update: {
+          category?: string
+          content?: Json
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          next_study_id?: string | null
+          points?: number | null
+          title?: Json
+          title_key?: string
+        }
+        Relationships: []
+      }
       bible_verses: {
         Row: {
           book_id: string | null
@@ -255,6 +291,42 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_verses: {
+        Row: {
+          book_id: string
+          chapter_number: number
+          highlight_color: string | null
+          id: string
+          note: string | null
+          saved_at: string | null
+          user_id: string | null
+          verse_number: number
+          version_id: string
+        }
+        Insert: {
+          book_id: string
+          chapter_number: number
+          highlight_color?: string | null
+          id?: string
+          note?: string | null
+          saved_at?: string | null
+          user_id?: string | null
+          verse_number: number
+          version_id: string
+        }
+        Update: {
+          book_id?: string
+          chapter_number?: number
+          highlight_color?: string | null
+          id?: string
+          note?: string | null
+          saved_at?: string | null
+          user_id?: string | null
+          verse_number?: number
+          version_id?: string
+        }
+        Relationships: []
+      }
       share_likes: {
         Row: {
           created_at: string | null
@@ -320,29 +392,94 @@ export type Database = {
       user_profiles: {
         Row: {
           avatar_url: string | null
+          birth_year: number | null
+          country: string | null
           created_at: string | null
           display_name: string | null
+          email: string | null
+          experience_points: number | null
+          font_size: string | null
           id: string
+          last_streak_date: string | null
+          nickname: string | null
+          phone: string | null
+          preferred_bible_version: string | null
+          preferred_language: string | null
+          streak_count: number | null
           updated_at: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          birth_year?: number | null
+          country?: string | null
           created_at?: string | null
           display_name?: string | null
+          email?: string | null
+          experience_points?: number | null
+          font_size?: string | null
           id: string
+          last_streak_date?: string | null
+          nickname?: string | null
+          phone?: string | null
+          preferred_bible_version?: string | null
+          preferred_language?: string | null
+          streak_count?: number | null
           updated_at?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          birth_year?: number | null
+          country?: string | null
           created_at?: string | null
           display_name?: string | null
+          email?: string | null
+          experience_points?: number | null
+          font_size?: string | null
           id?: string
+          last_streak_date?: string | null
+          nickname?: string | null
+          phone?: string | null
+          preferred_bible_version?: string | null
+          preferred_language?: string | null
+          streak_count?: number | null
           updated_at?: string | null
           username?: string | null
         }
         Relationships: []
+      }
+      user_study_progress: {
+        Row: {
+          completed_at: string | null
+          id: string
+          points_earned: number | null
+          study_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          points_earned?: number | null
+          study_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          points_earned?: number | null
+          study_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_study_progress_study_id_fkey"
+            columns: ["study_id"]
+            isOneToOne: false
+            referencedRelation: "bible_studies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

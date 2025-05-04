@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '../types/bible.types';
 import { toast } from '@/hooks/use-toast';
@@ -137,6 +138,36 @@ export const getDailyChallenges = async (): Promise<DailyChallenge[]> => {
   ];
 };
 
+// Get saved verses for user
+export const getSavedVerses = async (limit: number = 3): Promise<any[]> => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  
+  if (!sessionData?.session?.user) {
+    // Get from local storage if not logged in
+    const savedVerses = localStorage.getItem('savedVerses');
+    return savedVerses ? JSON.parse(savedVerses).slice(0, limit) : [];
+  }
+  
+  try {
+    const { data, error } = await supabase
+      .from('saved_verses')
+      .select('*')
+      .eq('user_id', sessionData.session.user.id)
+      .order('saved_at', { ascending: false })
+      .limit(limit);
+      
+    if (error) {
+      console.error('Error fetching saved verses:', error);
+      return [];
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error in getSavedVerses:', error);
+    return [];
+  }
+};
+
 // Track reading progress
 export const trackReading = async (
   versionId: string, 
@@ -188,7 +219,8 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
       nickname: generateRandomNickname(),
       display_name: "Visitante",
       experience_points: 0,
-      streak_count: 0
+      streak_count: 0,
+      font_size: 'medium'
     };
     
     // Store in localStorage
@@ -225,7 +257,8 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
       created_at: data.created_at,
       updated_at: data.updated_at,
       email: data.email,
-      phone: data.phone
+      phone: data.phone,
+      font_size: data.font_size || 'medium'
     };
   } catch (error) {
     console.error('Error in getUserProfile:', error);
@@ -235,7 +268,33 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
 
 // Get leaderboard
 export const getLeaderboard = async (): Promise<LeaderboardEntry[]> => {
-  // Return mock leaderboard entries for now
+  // First check if the user is authenticated
+  const { data: sessionData } = await supabase.auth.getSession();
+  const isAuthenticated = !!sessionData?.session?.user;
+  
+  // If authenticated, try to get real leaderboard data
+  if (isAuthenticated) {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, nickname, avatar_url, experience_points, streak_count')
+        .order('experience_points', { ascending: false })
+        .limit(10);
+        
+      if (!error && data && data.length > 0) {
+        // Calculate achievements count (mock for now)
+        return data.map((user, index) => ({
+          ...user,
+          achievements_count: Math.floor(Math.random() * 20),
+          rank: index + 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    }
+  }
+  
+  // Return mock leaderboard entries if no real data
   return [
     { id: '1', nickname: 'BibleMaster', avatar_url: null, experience_points: 1250, streak_count: 45, achievements_count: 12, rank: 1 },
     { id: '2', nickname: 'FaithWalker', avatar_url: null, experience_points: 980, streak_count: 30, achievements_count: 8, rank: 2 },
@@ -296,4 +355,72 @@ export const updateUserProfile = async (profile: Partial<UserProfile>): Promise<
 export const isUserAuthenticated = async (): Promise<boolean> => {
   const { data } = await supabase.auth.getSession();
   return !!data.session?.user;
+};
+
+// Save a verse to user's collection
+export const saveVerse = async (
+  bookId: string,
+  chapterNumber: number,
+  verseNumber: number,
+  versionId: string,
+  highlight: string | null = null
+): Promise<boolean> => {
+  const { data: sessionData } = await supabase.auth.getSession();
+  
+  // Structure for the verse info
+  const verseInfo = {
+    book_id: bookId,
+    chapter_number: chapterNumber,
+    verse_number: verseNumber,
+    version_id: versionId,
+    highlight_color: highlight
+  };
+  
+  // If not logged in, save to localStorage
+  if (!sessionData?.session?.user) {
+    try {
+      const savedVerses = localStorage.getItem('savedVerses') || '[]';
+      const verses = JSON.parse(savedVerses);
+      verses.unshift({
+        ...verseInfo,
+        saved_at: new Date().toISOString(),
+        id: `local-${Date.now()}`
+      });
+      localStorage.setItem('savedVerses', JSON.stringify(verses));
+      
+      toast({
+        title: "Versículo salvo localmente",
+        description: "Crie uma conta para sincronizar seus versículos favoritos",
+        action: getRegisterAction()
+      });
+      return true;
+    } catch (error) {
+      console.error('Error saving verse locally:', error);
+      return false;
+    }
+  } 
+  
+  // If logged in, save to database
+  try {
+    const { error } = await supabase
+      .from('saved_verses')
+      .insert({
+        ...verseInfo,
+        user_id: sessionData.session.user.id
+      });
+      
+    if (error) {
+      console.error('Error saving verse to database:', error);
+      return false;
+    }
+    
+    toast({
+      title: "Versículo salvo!",
+      description: "Você pode encontrar seus versículos salvos no seu perfil"
+    });
+    return true;
+  } catch (error) {
+    console.error('Error in saveVerse:', error);
+    return false;
+  }
 };

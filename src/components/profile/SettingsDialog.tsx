@@ -1,16 +1,17 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings2 } from 'lucide-react';
+import { Settings2, Type } from 'lucide-react';
 import { updateUserProfile } from '@/services/AchievementService';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile } from '@/types/bible.types';
 import ProfileForm from './ProfileForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type SettingsDialogProps = {
   profile: UserProfile | null;
@@ -21,6 +22,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'profile'>('general');
   const { language, setLanguage, t } = useLanguage();
+  const [fontSize, setFontSize] = useState<string>(profile?.font_size || 'medium');
 
   const handleClose = () => {
     setOpen(false);
@@ -54,6 +56,25 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
     });
   };
 
+  const handleFontSizeChange = async (size: string) => {
+    setFontSize(size);
+    
+    try {
+      await updateUserProfile({
+        font_size: size as 'small' | 'medium' | 'large'
+      });
+      
+      toast({
+        title: t('settings.fontSize'),
+        description: `${t('settings.fontSizeChanged')}: ${getFontSizeName(size as 'small' | 'medium' | 'large')}`,
+      });
+      
+      onProfileUpdate();
+    } catch (error) {
+      console.error("Error updating font size:", error);
+    }
+  };
+
   const getLanguageName = (lang: Language) => {
     const names = {
       'pt-BR': 'Português (Brasil)',
@@ -63,6 +84,15 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
       'ar': 'العربية'
     };
     return names[lang];
+  };
+  
+  const getFontSizeName = (size: 'small' | 'medium' | 'large') => {
+    const names = {
+      'small': t('settings.fontSizeSmall') || 'Pequeno',
+      'medium': t('settings.fontSizeMedium') || 'Médio',
+      'large': t('settings.fontSizeLarge') || 'Grande'
+    };
+    return names[size];
   };
 
   return (
@@ -98,7 +128,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
           
           {activeTab === 'general' && (
             <div className="space-y-6">
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <Label htmlFor="app-language" className="text-base">{t('settings.language')}</Label>
                 <Select value={language} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="app-language" className="w-full">
@@ -112,6 +142,39 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                     <SelectItem value="ar">العربية</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base flex items-center">
+                    <Type size={18} className="mr-2" />
+                    {t('settings.fontSize') || 'Tamanho da Fonte'}
+                  </Label>
+                </div>
+                <RadioGroup 
+                  value={fontSize} 
+                  onValueChange={handleFontSizeChange} 
+                  className="flex justify-between"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="small" id="small" />
+                    <Label htmlFor="small" className="text-xs cursor-pointer">
+                      {t('settings.fontSizeSmall') || 'Pequeno'}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="medium" id="medium" />
+                    <Label htmlFor="medium" className="text-base cursor-pointer">
+                      {t('settings.fontSizeMedium') || 'Médio'}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="large" id="large" />
+                    <Label htmlFor="large" className="text-xl cursor-pointer">
+                      {t('settings.fontSizeLarge') || 'Grande'}
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
               
               <div className="flex items-center justify-between">

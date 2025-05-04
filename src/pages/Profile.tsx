@@ -2,21 +2,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Share2, BookOpen, Trophy, Medal, LineChart, BadgeCheck, AlertCircle, Lock } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Share2, BookOpen, LineChart, AlertCircle, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import ReadingStreak from '@/components/achievements/ReadingStreak';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '@/components/achievements/AchievementList';
-import DailyChallenges from '@/components/achievements/DailyChallenges';
-import Leaderboard from '@/components/achievements/Leaderboard';
 import SettingsDialog from '@/components/profile/SettingsDialog';
-import { getUserAchievements, getUserProfile } from '@/services/AchievementService';
-import { Achievement, UserProfile } from '@/types/bible.types';
+import { getUserAchievements, getUserProfile, getSavedVerses } from '@/services/AchievementService';
+import { Achievement, UserProfile, SavedVerse } from '@/types/bible.types';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getBibleBooks } from '../services/BibleDataService';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('conquistas');
@@ -24,6 +22,8 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [savedVerses, setSavedVerses] = useState<any[]>([]);
+  const [bookNames, setBookNames] = useState<Record<string, string>>({});
   
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -51,9 +51,19 @@ const ProfilePage = () => {
     const fetchUserData = async () => {
       const userAchievements = await getUserAchievements();
       const userProfile = await getUserProfile();
+      const userSavedVerses = await getSavedVerses(3);
+      const books = await getBibleBooks();
+      
+      // Create book name lookup
+      const bookNameLookup: Record<string, string> = {};
+      books.forEach(book => {
+        bookNameLookup[book.book_id] = book.name;
+      });
       
       setAchievements(userAchievements);
       setProfile(userProfile);
+      setSavedVerses(userSavedVerses);
+      setBookNames(bookNameLookup);
     };
     
     if (isLoading === false) {
@@ -74,6 +84,10 @@ const ProfilePage = () => {
 
   const handleCreateAccount = () => {
     navigate('/auth');
+  };
+  
+  const handleReadVerse = (bookId: string, chapterNumber: number, verseNumber: number) => {
+    navigate(`/read?book=${bookId}&chapter=${chapterNumber}&verse=${verseNumber}`);
   };
   
   // Loading state
@@ -133,7 +147,7 @@ const ProfilePage = () => {
           </h2>
           
           <div className="flex items-center gap-2 mt-1">
-            <Medal size={16} className="text-ancient-gold" />
+            <LineChart size={16} className="text-ancient-gold" />
             <span className="text-sm font-medium">{profile?.experience_points || 0} {t('profile.points')}</span>
           </div>
           
@@ -147,21 +161,54 @@ const ProfilePage = () => {
           </div>
         </div>
         
-        <ReadingStreak
-          currentStreak={profile?.streak_count || 0}
-          longestStreak={profile?.streak_count || 0}
-          goalProgress={75}
-        />
-        
-        <div className="mt-6">
-          <DailyChallenges />
-        </div>
+        {/* Saved Verses Section */}
+        {savedVerses.length > 0 && (
+          <div className="mb-6">
+            <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2 mb-3">
+              <Bookmark size={18} className="text-ancient-gold" />
+              {t('profile.savedVerses') || "Versículos Salvos"}
+            </h3>
+            
+            <div className="space-y-2">
+              {savedVerses.map((verse) => (
+                <Card key={verse.id} className="p-3 bg-parchment-light border-ancient-gold/20 hover:bg-parchment-light/80">
+                  <button 
+                    className="w-full text-left"
+                    onClick={() => handleReadVerse(verse.book_id, verse.chapter_number, verse.verse_number)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-ancient-brown">
+                        {bookNames[verse.book_id] || verse.book_id} {verse.chapter_number}:{verse.verse_number}
+                      </span>
+                      
+                      {verse.highlight_color && (
+                        <div 
+                          className="w-4 h-4 rounded-full" 
+                          style={{backgroundColor: verse.highlight_color}}
+                        ></div>
+                      )}
+                    </div>
+                    {verse.note && <p className="text-sm mt-1 text-gray-600">{verse.note}</p>}
+                  </button>
+                </Card>
+              ))}
+              
+              <div className="text-center pt-2">
+                <Button 
+                  variant="link" 
+                  className="text-sm text-ancient-brown"
+                >
+                  {t('profile.viewAllVerses') || "Ver Todos"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
           <TabsList className="w-full bg-parchment-light">
             <TabsTrigger value="conquistas" className="flex-1">{t('achievements.title')}</TabsTrigger>
             <TabsTrigger value="estatisticas" className="flex-1">{t('profile.stats')}</TabsTrigger>
-            <TabsTrigger value="ranking" className="flex-1">{t('profile.ranking')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="conquistas" className="mt-4 space-y-4">
@@ -212,10 +259,6 @@ const ProfilePage = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-          
-          <TabsContent value="ranking" className="mt-4">
-            <Leaderboard />
           </TabsContent>
         </Tabs>
         

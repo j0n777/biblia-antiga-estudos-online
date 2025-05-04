@@ -1,243 +1,205 @@
+
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search as SearchIcon, Book, RefreshCw, X } from 'lucide-react';
-import { BibleVerse } from '@/types/bible.types';
-import { searchBibleVerses } from '@/services/BibleDataService';
-import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
-
-// Dummy suggested topics
-const suggestedTopics = [
-  "Fé", "Amor", "Esperança", "Salvação", "Graça", 
-  "Perdão", "Casamento", "Família", "Oração", "Sabedoria",
-  "Justiça", "Misericórdia", "Ressurreição"
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search as SearchIcon, BookOpen, GraduationCap } from 'lucide-react';
+import { searchBibleVerses } from '@/services/BibleDataService';
+import { BibleVerse } from '@/types/bible.types';
+import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getAllBibleStudies, getUserCompletedStudies } from '@/services/BibleStudyService';
+import BibleStudyCard from '@/components/studies/BibleStudyCard';
+import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
+import { BibleStudy } from '@/types/bible.types';
 
 const Search = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('texto');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('verses');
+  const [studies, setStudies] = useState<BibleStudy[]>([]);
+  const [completedStudies, setCompletedStudies] = useState<string[]>([]);
+  const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
+  const [showStudyDialog, setShowStudyDialog] = useState(false);
   
-  // Load recent searches from localStorage
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+  const [searchParams] = useSearchParams();
+  
+  // Check if a study ID is provided in the URL
   useEffect(() => {
-    try {
-      const savedSearches = localStorage.getItem('recentSearches');
-      if (savedSearches) {
-        setRecentSearches(JSON.parse(savedSearches));
-      }
-    } catch (error) {
-      console.error("Error loading recent searches:", error);
+    const studyId = searchParams.get('study');
+    if (studyId) {
+      setActiveTab('estudos');
+      
+      // Find the study and show it
+      const loadStudy = async () => {
+        const allStudies = await getAllBibleStudies();
+        const study = allStudies.find(s => s.id === studyId);
+        
+        if (study) {
+          setSelectedStudy(study);
+          setShowStudyDialog(true);
+        }
+      };
+      
+      loadStudy();
     }
+  }, [searchParams]);
+  
+  // Load Bible studies
+  useEffect(() => {
+    const loadStudies = async () => {
+      const allStudies = await getAllBibleStudies();
+      setStudies(allStudies);
+      
+      // Load completed studies
+      const completed = await getUserCompletedStudies();
+      setCompletedStudies(completed);
+    };
+    
+    loadStudies();
   }, []);
   
-  // Save recent searches to localStorage
-  const saveRecentSearch = (term: string) => {
-    if (!term.trim()) return;
-    try {
-      // Add to beginning, remove duplicates, keep only 5 items
-      const updatedSearches = [
-        term, 
-        ...recentSearches.filter(item => item !== term)
-      ].slice(0, 5);
-      
-      setRecentSearches(updatedSearches);
-      localStorage.setItem('recentSearches', JSON.stringify(updatedSearches));
-    } catch (error) {
-      console.error("Error saving recent searches:", error);
-    }
-  };
-  
-  const handleSearch = async (term: string = searchTerm) => {
-    if (!term.trim()) return;
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
     
-    setIsSearching(true);
-    saveRecentSearch(term);
-    
+    setIsLoading(true);
     try {
-      // Call the actual search function from BibleDataService
-      const results = await searchBibleVerses(term);
+      const results = await searchBibleVerses(searchQuery);
       setSearchResults(results);
-      
-      if (results.length === 0) {
-        toast({
-          title: "Nenhum resultado encontrado",
-          description: `Não foram encontrados resultados para "${term}".`,
-          variant: "default",
-        });
-      }
+      setActiveTab('verses');
     } catch (error) {
-      console.error("Error searching:", error);
-      toast({
-        title: "Erro na busca",
-        description: "Ocorreu um erro durante a busca. Tente novamente.",
-        variant: "destructive",
-      });
-      setSearchResults([]);
+      console.error('Search error:', error);
     } finally {
-      setIsSearching(false);
+      setIsLoading(false);
     }
   };
   
-  const handleSuggestedTopicSearch = (topic: string) => {
-    setSearchTerm(topic);
-    handleSearch(topic);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
   
-  const handleRecentSearch = (term: string) => {
-    setSearchTerm(term);
-    handleSearch(term);
+  const handleReadVerse = (bookId: string, chapter: number, verse: number) => {
+    navigate(`/read?book=${bookId}&chapter=${chapter}&verse=${verse}`);
+  };
+  
+  const handleSelectStudy = (study: BibleStudy) => {
+    setSelectedStudy(study);
+    setShowStudyDialog(true);
+  };
+  
+  const handleStudyCompleted = (studyId: string) => {
+    if (!completedStudies.includes(studyId)) {
+      setCompletedStudies([...completedStudies, studyId]);
+    }
+  };
+  
+  const isStudyCompleted = (studyId: string) => {
+    return completedStudies.includes(studyId);
   };
 
-  const clearSearch = () => {
-    setSearchTerm('');
-    setSearchResults([]);
-  };
-  
   return (
     <PageLayout>
-      <div className="py-4">
-        <h1 className="text-xl font-oldstyle text-scripture-heading mb-4">Busca Bíblica</h1>
-        
-        <Tabs defaultValue="texto" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 bg-parchment-light">
-            <TabsTrigger value="texto">Texto</TabsTrigger>
-            <TabsTrigger value="referencia">Referência</TabsTrigger>
-            <TabsTrigger value="strongs">Strong's</TabsTrigger>
+      <div className="py-6">
+        <h1 className="text-2xl font-oldstyle text-scripture-heading mb-4 flex items-center">
+          <SearchIcon size={24} className="mr-2" />
+          {t('search.title')}
+        </h1>
+
+        <div className="flex w-full items-center space-x-2 mb-6">
+          <Input
+            type="search"
+            placeholder={t('search.placeholder') || "Buscar na Bíblia..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <Button 
+            type="submit" 
+            onClick={handleSearch} 
+            disabled={isLoading}
+          >
+            <SearchIcon className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full">
+            <TabsTrigger value="verses" className="flex-1">
+              <BookOpen className="mr-2 h-4 w-4" />
+              {t('search.verses')}
+            </TabsTrigger>
+            <TabsTrigger value="estudos" className="flex-1">
+              <GraduationCap className="mr-2 h-4 w-4" />
+              {t('search.studies') || "Estudos"}
+            </TabsTrigger>
           </TabsList>
           
-          <div className="mt-4">
-            <div className="relative">
-              <Input
-                className="pr-20 bg-parchment-light border-parchment-dark/30"
-                placeholder={
-                  activeTab === 'texto' ? "Buscar palavras ou frases..." : 
-                  activeTab === 'referencia' ? "Ex: João 3:16, Gênesis 1:1" : 
-                  "Ex: H430 (Elohim), G2316 (Theos)"
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              />
-              {searchTerm && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="absolute right-10 top-1 h-8 w-8 rounded-sm text-muted-foreground"
-                  onClick={clearSearch}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-              <Button
-                size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-sm bg-ancient-brown text-white"
-                onClick={() => handleSearch()}
-                disabled={isSearching}
-              >
-                {isSearching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <SearchIcon className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
-          
-          <TabsContent value="texto" className="mt-4">
-            {!searchResults.length && !isSearching && (
-              <div className="space-y-6">
-                {/* Recent Searches */}
-                {recentSearches.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-oldstyle text-scripture-heading mb-2">Buscas Recentes</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {recentSearches.map((term, idx) => (
-                        <Button
-                          key={idx}
-                          variant="outline"
-                          size="sm"
-                          className="bg-parchment-light border-parchment-dark/30"
-                          onClick={() => handleRecentSearch(term)}
-                        >
-                          {term}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {/* Suggested Topics */}
-                <div>
-                  <h3 className="text-lg font-oldstyle text-scripture-heading mb-2">Tópicos Sugeridos</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedTopics.map((topic, idx) => (
-                      <Button
-                        key={idx}
-                        variant="outline"
-                        size="sm"
-                        className="bg-parchment-light border-parchment-dark/30"
-                        onClick={() => handleSuggestedTopicSearch(topic)}
-                      >
-                        {topic}
-                      </Button>
-                    ))}
-                  </div>
+          <TabsContent value="verses">
+            <div className="space-y-2 mt-4">
+              {searchResults.length > 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {searchResults.length} {t('search.resultsFound')}
+                  </p>
+                  {searchResults.map((verse) => (
+                    <Card key={verse.id} className="cursor-pointer hover:bg-parchment-light/80">
+                      <CardContent className="p-3" onClick={() => handleReadVerse(verse.book_id!, verse.chapter_number!, verse.verse_number)}>
+                        <div className="font-semibold mb-1 text-ancient-brown">
+                          {verse.book_id} {verse.chapter_number}:{verse.verse_number}
+                        </div>
+                        <p className="text-sm">{verse.text}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  {searchQuery ? (
+                    <p>{t('search.noResults')}</p>
+                  ) : (
+                    <p>{t('search.enterQuery')}</p>
+                  )}
                 </div>
-              </div>
-            )}
-            
-            {/* Search Results */}
-            {isSearching && (
-              <div className="py-4 text-center text-scripture-text">
-                <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2" />
-                <p>Buscando resultados...</p>
-              </div>
-            )}
-            
-            {searchResults.length > 0 && !isSearching && (
-              <div className="mt-4 space-y-4">
-                <h3 className="text-lg font-oldstyle text-scripture-heading">Resultados para "{searchTerm}"</h3>
-                {searchResults.map((result, idx) => (
-                  <Card key={idx} className="parchment-container overflow-hidden">
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-center mb-1">
-                        <p className="font-bold text-scripture-heading">{result.book_id} {result.chapter_number}:{result.verse_number}</p>
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => 
-                          window.location.href = `/read?version=${result.version_id}&book=${result.book_id}&chapter=${result.chapter_number}&verse=${result.verse_number}`
-                        }>
-                          <Book className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <p className="mt-1 text-scripture-text">{result.text}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="referencia" className="mt-4">
-            <div className="p-4 bg-parchment-light rounded-lg">
-              <p className="text-scripture-text">Busque por referências como "João 3:16", "Gênesis 1:1", etc.</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Digite a referência bíblica no formato "Livro Capítulo:Versículo" para encontrar versículos específicos.
-              </p>
+              )}
             </div>
           </TabsContent>
           
-          <TabsContent value="strongs" className="mt-4">
-            <div className="p-4 bg-parchment-light rounded-lg">
-              <p className="text-scripture-text">Busque pelo número Strong's como "H430" (Elohim), "G2316" (Theos), etc.</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                O número Strong's é um sistema de referência para palavras em hebraico (H) e grego (G),
-                as línguas originais do texto bíblico.
-              </p>
+          <TabsContent value="estudos">
+            <div className="grid gap-4 mt-4 sm:grid-cols-2">
+              {studies.map((study) => (
+                <BibleStudyCard 
+                  key={study.id}
+                  study={study}
+                  isCompleted={isStudyCompleted(study.id)}
+                  onSelectStudy={handleSelectStudy}
+                />
+              ))}
+              
+              {studies.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground col-span-2">
+                  <p>{t('search.noStudiesAvailable') || "Nenhum estudo disponível"}</p>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
       </div>
+      
+      <BibleStudyDialog 
+        study={selectedStudy}
+        isOpen={showStudyDialog}
+        isCompleted={selectedStudy ? isStudyCompleted(selectedStudy.id) : false}
+        onClose={() => setShowStudyDialog(false)}
+        onStudyCompleted={handleStudyCompleted}
+      />
     </PageLayout>
   );
 };
