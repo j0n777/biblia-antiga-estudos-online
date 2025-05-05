@@ -64,10 +64,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Leu seu primeiro capítulo',
         icon: '📚',
         progress: 1,
+        total: 1,
         target: 1,
         unlocked: true,
         unlockedAt: new Date().toISOString(),
-        points: 10
+        points: 10,
+        earned: true,
+        category: 'reading',
+        earned_at: new Date().toISOString()
       },
       {
         id: '2',
@@ -75,10 +79,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Leu por 7 dias seguidos',
         icon: '🔥',
         progress: 5,
+        total: 7,
         target: 7,
         unlocked: false,
         unlockedAt: null,
-        points: 50
+        points: 50,
+        earned: false,
+        category: 'streak',
+        earned_at: undefined
       },
       {
         id: '3',
@@ -86,10 +94,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Leu 10 capítulos diferentes',
         icon: '🧭',
         progress: 8,
+        total: 10,
         target: 10,
         unlocked: false,
         unlockedAt: null,
-        points: 30
+        points: 30,
+        earned: false,
+        category: 'milestone',
+        earned_at: undefined
       },
       {
         id: '4',
@@ -97,10 +109,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Completou um livro do Antigo Testamento',
         icon: '📜',
         progress: 1,
+        total: 1,
         target: 1,
         unlocked: true,
         unlockedAt: new Date().toISOString(),
-        points: 100
+        points: 100,
+        earned: true,
+        category: 'testament',
+        earned_at: new Date().toISOString()
       },
       {
         id: '5',
@@ -108,10 +124,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Completou um livro do Novo Testamento',
         icon: '✝️',
         progress: 1,
+        total: 1,
         target: 1,
         unlocked: true,
         unlockedAt: new Date().toISOString(),
-        points: 100
+        points: 100,
+        earned: true,
+        category: 'testament',
+        earned_at: new Date().toISOString()
       },
       {
         id: '6',
@@ -119,10 +139,14 @@ export async function getUserAchievements(): Promise<Achievement[]> {
         description: 'Leu por 30 dias seguidos',
         icon: '🏃',
         progress: 17,
+        total: 30,
         target: 30,
         unlocked: false,
         unlockedAt: null,
-        points: 200
+        points: 200,
+        earned: false,
+        category: 'streak',
+        earned_at: undefined
       }
     ];
     
@@ -144,6 +168,7 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
         {
           id: '1',
           name: 'Desafio do Salmo',
+          title: 'Desafio do Salmo',
           description: 'Leia o Salmo 23',
           icon: '🌟',
           target_book_id: 'PSA',
@@ -151,11 +176,14 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
           chapters_required: 1,
           progress: 0,
           completed: false,
-          expires_at: new Date(Date.now() + 86400000).toISOString() // 24h from now
+          points: 20,
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
+          expiry: new Date(Date.now() + 86400000).toISOString()
         },
         {
           id: '2',
           name: 'Desafio do Novo Testamento',
+          title: 'Desafio do Novo Testamento',
           description: 'Leia 3 capítulos dos Evangelhos',
           icon: '📖',
           target_book_id: null,
@@ -163,7 +191,9 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
           chapters_required: 3,
           progress: 1,
           completed: false,
-          expires_at: new Date(Date.now() + 86400000).toISOString() // 24h from now
+          points: 30,
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
+          expiry: new Date(Date.now() + 86400000).toISOString()
         }
       ];
     }
@@ -173,6 +203,7 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
       {
         id: '1',
         name: 'Desafio do Salmo',
+        title: 'Desafio do Salmo',
         description: 'Leia o Salmo 23',
         icon: '🌟',
         target_book_id: 'PSA',
@@ -180,11 +211,14 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
         chapters_required: 1,
         progress: 0,
         completed: false,
-        expires_at: new Date(Date.now() + 86400000).toISOString() // 24h from now
+        points: 20,
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+        expiry: new Date(Date.now() + 86400000).toISOString()
       },
       {
         id: '2',
         name: 'Desafio do Novo Testamento',
+        title: 'Desafio do Novo Testamento',
         description: 'Leia 3 capítulos dos Evangelhos',
         icon: '📖',
         target_book_id: null,
@@ -192,11 +226,14 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
         chapters_required: 3,
         progress: 1,
         completed: false,
-        expires_at: new Date(Date.now() + 86400000).toISOString() // 24h from now
+        points: 30,
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+        expiry: new Date(Date.now() + 86400000).toISOString()
       },
       {
         id: '3',
         name: 'Desafio de Provérbios',
+        title: 'Desafio de Provérbios',
         description: 'Leia o Provérbios 3',
         icon: '🧠',
         target_book_id: 'PRO',
@@ -204,7 +241,9 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
         chapters_required: 1,
         progress: 1,
         completed: true,
-        expires_at: new Date(Date.now() + 86400000).toISOString() // 24h from now
+        points: 25,
+        expires_at: new Date(Date.now() + 86400000).toISOString(),
+        expiry: new Date(Date.now() + 86400000).toISOString()
       }
     ];
     
@@ -405,7 +444,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       return newProfile;
     }
     
-    return data as unknown as UserProfile;
+    return data as UserProfile;
   } catch (error) {
     console.error('Error getting user profile:', error);
     return null;
@@ -523,3 +562,4 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
     return [];
   }
 }
+

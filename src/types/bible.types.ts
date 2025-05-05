@@ -98,7 +98,7 @@ export interface ReadingPosition {
   chapter: number;
   verse: number;
   timestamp: string;
-  chapter_number?: number; // Added for ReadingService.ts
+  chapter_number?: number;
 }
 
 export interface Achievement {
@@ -111,7 +111,6 @@ export interface Achievement {
   earned: boolean;
   earned_at?: string;
   category: string;
-  // Added for AchievementList.tsx
   unlocked: boolean;
   maxProgress?: number;
   unlockedAt?: string;
@@ -127,7 +126,6 @@ export interface DailyChallenge {
   completed: boolean;
   icon: string;
   expiry: string;
-  // Added for DailyChallenges.tsx
   name: string;
   progress?: number;
   chapters_required: number;
@@ -157,7 +155,7 @@ export interface UserProfile {
   updated_at?: string;
   username?: string;
   reading_position?: ReadingPosition | null;
-  streak_record?: number; // Added for AchievementService.ts
+  streak_record?: number;
 }
 
 export interface LeaderboardEntry {
@@ -166,9 +164,8 @@ export interface LeaderboardEntry {
   avatar_url?: string;
   experience_points: number;
   rank: number;
-  // Added for Leaderboard.tsx
   nickname?: string;
   streak_count?: number;
   achievements_count?: number;
-  user_id?: string; // Added for AchievementService.ts
+  user_id?: string;
 }
