@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -29,8 +28,7 @@ const Read = () => {
   const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     const initializeReadingPosition = async () => {
@@ -39,8 +37,48 @@ const Read = () => {
         const booksData = await getAllBooks('kja');
         if (booksData && booksData.length > 0) {
           setBooks(booksData);
+          
+          // Check URL params first
+          const urlBook = searchParams.get('book');
+          const urlChapter = searchParams.get('chapter');
+          const urlVersion = searchParams.get('version');
+          const urlVerse = searchParams.get('verse');
+          
+          if (urlBook && urlChapter) {
+            // Use URL parameters if available
+            setBookId(urlBook);
+            setChapterNumber(parseInt(urlChapter, 10));
+            if (urlVersion) setVersionId(urlVersion);
+            if (urlVerse) setScrollToVerse(parseInt(urlVerse, 10));
+          } else {
+            // Otherwise try to get last reading position
+            const lastPosition = await getLastReadingPosition();
+            if (lastPosition && lastPosition.book_id) {
+              console.log("Loading last reading position:", lastPosition);
+              // Validate that the book exists in our data
+              const bookExists = booksData.some(book => book.book_id === lastPosition.book_id);
+              if (bookExists) {
+                setBookId(lastPosition.book_id);
+                setChapterNumber(lastPosition.chapter || 1);
+                setVersionId(lastPosition.version_id || 'kja');
+                setScrollToVerse(lastPosition.verse || 1);
+              } else {
+                // Fall back to Genesis 1 if book doesn't exist
+                setBookId('GEN');
+                setChapterNumber(1);
+              }
+            } else {
+              // Default to Genesis 1 if no reading position
+              console.log("No last reading position, using default");
+              setBookId('GEN');
+              setChapterNumber(1);
+            }
+          }
         } else {
           console.error("No books data available");
+          // Set reasonable defaults
+          setBookId('GEN');
+          setChapterNumber(1);
         }
         
         const versionsData = await getAllVersions();
@@ -48,35 +86,6 @@ const Read = () => {
           setVersions(versionsData);
         }
 
-        // Check URL params first
-        const urlBook = searchParams.get('book');
-        const urlChapter = searchParams.get('chapter');
-        const urlVersion = searchParams.get('version');
-        const urlVerse = searchParams.get('verse');
-        
-        if (urlBook && urlChapter) {
-          // Use URL parameters if available
-          setBookId(urlBook);
-          setChapterNumber(parseInt(urlChapter, 10));
-          if (urlVersion) setVersionId(urlVersion);
-          if (urlVerse) setScrollToVerse(parseInt(urlVerse, 10));
-        } else {
-          // Otherwise try to get last reading position
-          const lastPosition = await getLastReadingPosition();
-          if (lastPosition) {
-            console.log("Loading last reading position:", lastPosition);
-            setBookId(lastPosition.book_id || 'GEN');
-            setChapterNumber(lastPosition.chapter || 1);
-            setVersionId(lastPosition.version_id || 'kja');
-            setScrollToVerse(lastPosition.verse || 1);
-          } else {
-            // Default to Genesis 1 if no reading position
-            console.log("No last reading position, using default");
-            setBookId('GEN');
-            setChapterNumber(1);
-            setVersionId('kja');
-          }
-        }
         setIsInitialLoad(false);
       } catch (error) {
         console.error('Error initializing reading position:', error);
@@ -149,7 +158,7 @@ const Read = () => {
     // If we're not at chapter 1, go to the previous chapter of the same book
     if (chapterNumber > 1) {
       setChapterNumber(chapterNumber - 1);
-      setScrollToVerse(null);
+      setScrollToVerse(1);
       return;
     }
     
@@ -158,7 +167,7 @@ const Read = () => {
       const previousBook = books[currentBookIndex - 1];
       setBookId(previousBook.book_id);
       setChapterNumber(previousBook.chapters_count);
-      setScrollToVerse(null);
+      setScrollToVerse(1);
     }
   };
   
@@ -174,7 +183,7 @@ const Read = () => {
     // If we're not at the last chapter, go to the next chapter of the same book
     if (chapterNumber < currentBook.chapters_count) {
       setChapterNumber(chapterNumber + 1);
-      setScrollToVerse(null);
+      setScrollToVerse(1);
       return;
     }
     
@@ -183,7 +192,7 @@ const Read = () => {
       const nextBook = books[currentBookIndex + 1];
       setBookId(nextBook.book_id);
       setChapterNumber(1);
-      setScrollToVerse(null);
+      setScrollToVerse(1);
     }
   };
   
@@ -216,7 +225,7 @@ const Read = () => {
   const handleBookChange = (value: string) => {
     setBookId(value);
     setChapterNumber(1);
-    setScrollToVerse(null);
+    setScrollToVerse(1);
   };
 
   // If still initializing reading position, show loading
@@ -232,18 +241,18 @@ const Read = () => {
 
   return (
     <PageLayout>
-      <div className="py-4 max-w-4xl mx-auto">
+      <div className="py-4">
         <div className="flex flex-col space-y-4 mb-4 px-2">
           {/* Bible navigation controls */}
           <div className="flex flex-col space-y-3">
             {/* Version selector */}
             <Select value={versionId} onValueChange={value => setVersionId(value)}>
-              <SelectTrigger className="w-full border-parchment-darker/30" aria-label="Select version">
+              <SelectTrigger className="w-full border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select version">
                 <SelectValue placeholder="Select Version">
                   {versions.find(v => v.id === versionId)?.name || versionId}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 {versions.map((version) => (
                   <SelectItem key={version.id} value={version.id}>
                     {version.name}
@@ -256,7 +265,7 @@ const Read = () => {
             <div className="flex space-x-2">
               <div className="flex-1">
                 <Select value={bookId} onValueChange={handleBookChange}>
-                  <SelectTrigger className="border-parchment-darker/30" aria-label="Select book">
+                  <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select book">
                     <SelectValue placeholder={t('bible.selectBook')}>
                       {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
                     </SelectValue>
@@ -291,11 +300,11 @@ const Read = () => {
                   value={chapterNumber.toString()} 
                   onValueChange={value => {
                     setChapterNumber(parseInt(value));
-                    setScrollToVerse(null);
+                    setScrollToVerse(1);
                   }}
                   disabled={!bookId}
                 >
-                  <SelectTrigger className="border-parchment-darker/30" aria-label="Select chapter">
+                  <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select chapter">
                     <SelectValue placeholder={t('bible.selectChapter')}>
                       {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
                     </SelectValue>
@@ -319,10 +328,7 @@ const Read = () => {
           </div>
         </div>
 
-        <div 
-          ref={containerRef}
-          className="pb-16"
-        >
+        <div className="parchment-container animate-fade-in card-shadow">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -338,12 +344,13 @@ const Read = () => {
           )}
         </div>
 
-        <div className="fixed bottom-16 left-0 right-0 flex justify-center px-4 pb-4">
-          <div className="flex gap-2 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-lg border">
+        <div className="fixed bottom-20 left-0 right-0 flex justify-center px-4 pb-4">
+          <div className="flex gap-2 bg-parchment-light/90 backdrop-blur-sm p-2 rounded-full shadow-lg border border-parchment-dark/30">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={handlePreviousChapter}
+              className="hover:bg-parchment-dark/20"
             >
               <ChevronLeft className="h-6 w-6" />
             </Button>
@@ -351,7 +358,7 @@ const Read = () => {
             <Button 
               variant="ghost" 
               size="icon"
-              className="opacity-50 cursor-default"
+              className="opacity-50 cursor-default hover:bg-transparent"
             >
               {chapterNumber}
             </Button>
@@ -360,6 +367,7 @@ const Read = () => {
               variant="ghost" 
               size="icon"
               onClick={handleNextChapter}
+              className="hover:bg-parchment-dark/20"
             >
               <ChevronRight className="h-6 w-6" />
             </Button>

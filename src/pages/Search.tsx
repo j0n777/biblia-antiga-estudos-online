@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search as SearchIcon, X, Book, BookOpen } from 'lucide-react';
+import { Search as SearchIcon, X, Book, BookOpen, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchBibleVerses } from '@/services/BibleDataService';
-import { searchBibleStudies, getUserStudyProgress } from '@/services/BibleStudyService';
+import { searchBibleStudies, getUserStudyProgress, getAllBibleStudies } from '@/services/BibleStudyService';
 import { BibleVerse as BibleVerseType, BibleStudy, UserStudyProgress } from '@/types/bible.types';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
@@ -14,6 +14,7 @@ import BibleStudyCard from '@/components/studies/BibleStudyCard';
 import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,23 +25,39 @@ const Search = () => {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [searchResults, setSearchResults] = useState<BibleVerseType[]>([]);
   const [studyResults, setStudyResults] = useState<BibleStudy[]>([]);
+  const [allStudies, setAllStudies] = useState<BibleStudy[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
   const [userProgress, setUserProgress] = useState<UserStudyProgress[]>([]);
   
   const { t, language } = useLanguage();
   
   useEffect(() => {
-    if (initialQuery) {
-      performSearch(initialQuery);
-    }
-    loadUserProgress();
+    const init = async () => {
+      setIsLoading(true);
+      try {
+        // Load all studies to display by default
+        const studies = await getAllBibleStudies();
+        setAllStudies(studies);
+        
+        // Load user progress
+        const progress = await getUserStudyProgress();
+        setUserProgress(progress);
+        
+        // Perform search if there's an initial query
+        if (initialQuery) {
+          await performSearch(initialQuery);
+        }
+      } catch (error) {
+        console.error("Error initializing search:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    init();
   }, [initialQuery, language]);
-  
-  const loadUserProgress = async () => {
-    const progress = await getUserStudyProgress();
-    setUserProgress(progress);
-  };
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,20 +68,27 @@ const Search = () => {
   };
   
   const performSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      if (activeTab === 'studies') {
+        setStudyResults(allStudies); // Show all studies when no query
+      }
+      return;
+    }
     
     setIsSearching(true);
     
     try {
       if (activeTab === 'verses') {
-        // Use Supabase directly for text search with better results
+        // Use Supabase directly for text search with better results and filter by language
+        const currentLang = language || 'pt';
         const { data, error } = await supabase
           .from('bible_verses')
           .select('*')
           .textSearch('text', searchQuery, { 
             type: 'websearch',
-            config: 'english'
+            config: currentLang === 'en' ? 'english' : 'portuguese'
           })
+          .eq('version_id', currentLang === 'en' ? 'kjv' : 'kja')
           .limit(20);
 
         if (error) throw error;
@@ -78,6 +102,7 @@ const Search = () => {
     } catch (error) {
       console.error('Search error:', error);
       setSearchResults([]);
+      setStudyResults([]);
     } finally {
       setIsSearching(false);
     }
@@ -89,13 +114,18 @@ const Search = () => {
     
     if (query.trim()) {
       performSearch(query);
+    } else if (value === 'studies') {
+      // Show all studies when switching to studies tab with no query
+      setStudyResults(allStudies);
     }
   };
   
   const clearSearch = () => {
     setQuery('');
     setSearchResults([]);
-    setStudyResults([]);
+    
+    // Show all studies when search is cleared
+    setStudyResults(allStudies);
     setSearchParams({});
   };
   
@@ -108,63 +138,67 @@ const Search = () => {
       progress.study_id === studyId && progress.completed_at
     );
   };
+  
+  // Should display studies even if no search
+  const displayStudies = activeTab === 'studies' ? (query ? studyResults : allStudies) : [];
 
   return (
     <PageLayout>
-      <div className="container mx-auto py-6 px-4">
-        <h1 className="text-2xl font-bold mb-6">{t('nav.search')}</h1>
+      <div className="py-6 px-2">
+        <h1 className="text-2xl font-bold mb-6 font-oldstyle text-scripture-heading">{t('nav.search')}</h1>
         
         <form onSubmit={handleSearch} className="mb-6">
           <div className="flex">
             <div className="relative flex-grow">
-              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder={t('common.search')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="pl-9 pr-10"
+                className="pl-10 pr-10 h-12 rounded-xl border-parchment-darker/30 bg-parchment-light/80"
               />
               {query && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-full"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-10 w-10"
                   onClick={clearSearch}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               )}
             </div>
-            <Button type="submit" className="ml-2">
+            <Button type="submit" className="ml-2 bg-ancient-brown hover:bg-ancient-brown/90 rounded-xl h-12 px-5">
               {t('common.search')}
             </Button>
           </div>
         </form>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="verses" className="flex items-center">
+          <TabsList className="grid grid-cols-2 bg-parchment-light/80 p-1 rounded-lg">
+            <TabsTrigger value="verses" className="flex items-center rounded-md data-[state=active]:bg-parchment">
               <Book className="mr-2 h-4 w-4" />
               <span>{t('bible.verses')}</span>
             </TabsTrigger>
-            <TabsTrigger value="studies" className="flex items-center">
+            <TabsTrigger value="studies" className="flex items-center rounded-md data-[state=active]:bg-parchment">
               <BookOpen className="mr-2 h-4 w-4" />
               <span>{t('studies.title')}</span>
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="verses" className="mt-4">
+          <TabsContent value="verses" className="mt-4 animate-fade-in">
             {isSearching ? (
-              <div className="text-center py-8">
-                {t('common.loading')}...
+              <div className="flex flex-col items-center justify-center py-8">
+                <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
+                <p className="text-muted-foreground">{t('common.loading')}</p>
               </div>
             ) : searchResults.length > 0 ? (
               <div className="space-y-4">
                 {searchResults.map((verse) => (
-                  <div key={verse.id} className="border rounded-md p-3">
-                    <div className="text-xs text-muted-foreground mb-1">
+                  <div key={verse.id} className="parchment-container rounded-xl overflow-hidden animate-slide-up elevated-card">
+                    <div className="text-xs text-ancient-brown font-medium mb-1">
                       {verse.book_id} {verse.chapter_number}:{verse.verse_number}
                     </div>
                     <BibleVerseComponent verse={verse} />
@@ -172,33 +206,58 @@ const Search = () => {
                 ))}
               </div>
             ) : query ? (
-              <div className="text-center py-8">
-                {t('search.noResults')}
+              <div className="parchment-container py-12 rounded-xl text-center">
+                <div className="mb-4">🔍</div>
+                <p className="text-lg text-ancient-brown font-medium mb-1">{t('search.noResults')}</p>
+                <p className="text-sm text-muted-foreground">{t('search.tryDifferentKeywords')}</p>
               </div>
             ) : null}
           </TabsContent>
           
-          <TabsContent value="studies" className="mt-4">
-            {isSearching ? (
-              <div className="text-center py-8">
-                {t('common.loading')}...
+          <TabsContent value="studies" className="mt-4 animate-fade-in">
+            {isSearching || isLoading ? (
+              <div className="flex flex-col items-center justify-center py-8">
+                <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
+                <p className="text-muted-foreground">{t('common.loading')}</p>
               </div>
-            ) : studyResults.length > 0 ? (
+            ) : displayStudies.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {studyResults.map((study) => (
-                  <BibleStudyCard
-                    key={study.id} 
-                    study={study} 
-                    isCompleted={isStudyCompleted(study.id)}
-                    onSelectStudy={() => handleStudySelect(study)}
-                  />
+                {displayStudies.map((study, index) => (
+                  <Card key={study.id} className="parchment-container hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer elevated-card animate-fade-in" style={{ animationDelay: `${index * 50}ms` }} onClick={() => handleStudySelect(study)}>
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded">
+                        {study.icon}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-oldstyle text-scripture-heading">
+                          {typeof study.title === 'string' ? study.title : study.title[language] || study.title_key}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {typeof study.content === 'object' && study.content.description ? 
+                            (typeof study.content.description === 'string' ? 
+                              study.content.description : 
+                              study.content.description[language] || '') : ''}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="icon" className="shrink-0">
+                        <ExternalLink className="h-5 w-5 text-ancient-brown" />
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             ) : query ? (
-              <div className="text-center py-8">
-                {t('search.noStudiesFound')}
+              <div className="parchment-container py-12 rounded-xl text-center">
+                <div className="mb-4">📚</div>
+                <p className="text-lg text-ancient-brown font-medium mb-1">{t('search.noStudiesFound')}</p>
+                <p className="text-sm text-muted-foreground">{t('search.tryDifferentKeywords')}</p>
               </div>
-            ) : null}
+            ) : (
+              <div className="parchment-container py-12 rounded-xl text-center">
+                <div className="mb-4">🔍</div>
+                <p className="text-lg text-ancient-brown font-medium mb-1">{t('search.noStudiesAvailable')}</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
         
@@ -215,5 +274,11 @@ const Search = () => {
     </PageLayout>
   );
 };
+
+export default Search;
+
+function loadUserProgress() {
+  return getUserStudyProgress().then(setUserProgress);
+}
 
 export default Search;

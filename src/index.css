@@ -1,6 +1,4 @@
 
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,7 +33,7 @@
     --input: 30 30% 80%;
     --ring: 30 30% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
     --sidebar-background: 43 43% 96%;
     --sidebar-foreground: 30 36% 12%;
@@ -112,7 +110,7 @@
   }
 
   body {
-    @apply bg-parchment bg-opacity-80 text-scripture-text font-ancient;
+    @apply bg-parchment bg-opacity-80 text-scripture-text font-dmsans antialiased tracking-modern leading-relaxed;
     background-image: url('/parchment-texture.jpg');
     background-size: cover;
     background-attachment: fixed;
@@ -123,7 +121,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-oldstyle text-scripture-heading;
+    @apply font-oldstyle text-scripture-heading tracking-tighter;
   }
 
   .verse-number {
@@ -149,7 +147,7 @@
 
 @layer components {
   .parchment-container {
-    @apply bg-parchment/90 border border-parchment-dark/20 rounded-lg shadow-md backdrop-blur-sm p-4 my-2 text-scripture-text;
+    @apply bg-parchment/90 border border-parchment-dark/20 rounded-xl shadow-md backdrop-blur-sm p-4 my-2 text-scripture-text;
     box-shadow: 0 2px 10px rgba(92, 63, 23, 0.15);
     background-image: url('/parchment-texture.jpg');
     background-size: cover;
@@ -193,6 +191,23 @@
   .achievement-badge {
     @apply flex items-center justify-center w-16 h-16 rounded-full bg-ancient-gold text-white text-xl font-bold shadow-md;
   }
+
+  .card-shadow {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+    box-shadow: 0 4px 20px rgba(92, 63, 23, 0.1);
+  }
+
+  .dark .card-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .bible-button {
+    @apply bg-parchment-light hover:bg-parchment rounded-lg p-3 border border-parchment-dark/20 shadow-sm transition-all duration-200;
+  }
+
+  .dark .bible-button {
+    @apply bg-parchment-dark/80 hover:bg-parchment-dark border-parchment-darker/40;
+  }
 }
 
 @layer utilities {
@@ -206,16 +221,16 @@
   }
   
   .ancient-scroll::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   .ancient-scroll::-webkit-scrollbar-track {
-    @apply bg-parchment;
+    @apply bg-parchment rounded-full;
   }
   
   .dark .ancient-scroll::-webkit-scrollbar-track {
-    @apply bg-parchment-dark;
+    @apply bg-parchment-dark rounded-full;
   }
   
   .ancient-scroll::-webkit-scrollbar-thumb {
@@ -224,5 +239,31 @@
   
   .first-letter-drop-cap:first-letter {
     @apply float-left text-5xl font-bold mr-1 text-ancient-red leading-3 mt-2;
+  }
+
+  .elevated-card {
+    @apply transition-all duration-300;
+    transform: translateY(0);
+  }
+
+  .elevated-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .verse-highlight {
+    @apply transition-all duration-300 bg-parchment-light/50;
+  }
+
+  .dark .verse-highlight {
+    @apply bg-parchment-dark/50;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }

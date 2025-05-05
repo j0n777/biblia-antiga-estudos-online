@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Award, Users } from 'lucide-react';
+import { Trophy, Award, Users, Medal } from 'lucide-react';
 import DailyChallenges from '@/components/achievements/DailyChallenges';
 import Leaderboard from '@/components/achievements/Leaderboard';
 import { getUserProfile } from '@/services';
@@ -10,15 +9,11 @@ import { UserProfile } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Medal } from 'lucide-react';
 
 const RankingPage = () => {
-  const [activeTab, setActiveTab] = useState('desafios');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   
   const { t } = useLanguage();
   
@@ -41,9 +36,9 @@ const RankingPage = () => {
   if (isLoading) {
     return (
       <PageLayout>
-        <div className="py-6">
+        <div className="py-6 px-2">
           <div className="h-96 flex items-center justify-center">
-            <p>{t('common.loading')}</p>
+            <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
           </div>
         </div>
       </PageLayout>
@@ -52,16 +47,16 @@ const RankingPage = () => {
 
   return (
     <PageLayout>
-      <div className="py-6">
+      <div className="py-6 px-2">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Trophy size={24} className="text-ancient-gold" />
-            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('ranking.title')}</h1>
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('nav.ranking')}</h1>
           </div>
         </div>
 
         {!isAuthenticated && (
-          <Alert className="mb-6 bg-ancient-gold/10 border-ancient-gold/40">
+          <Alert className="mb-6 bg-ancient-gold/10 border-ancient-gold/40 rounded-xl">
             <div className="flex items-start">
               <Medal className="h-5 w-5 text-ancient-gold mt-1" />
               <div className="ml-3">
@@ -82,35 +77,28 @@ const RankingPage = () => {
           </Alert>
         )}
 
-        <div className="mt-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full bg-parchment-light">
-              <TabsTrigger value="desafios" className="flex-1">
-                <Award size={16} className="mr-2" />
-                {t('ranking.challenges')}
-              </TabsTrigger>
-              <TabsTrigger value="ranking" className="flex-1">
-                <Users size={16} className="mr-2" />
-                {t('ranking.leaderboard')}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="desafios" className="mt-4">
+        <div className="space-y-6">
+          {/* Daily Challenges Section */}
+          <div className="animate-slide-up">
+            <div className="flex items-center gap-2 mb-4">
+              <Award size={20} className="text-ancient-gold" />
+              <h2 className="text-xl font-oldstyle text-scripture-heading">{t('ranking.challenges')}</h2>
+            </div>
+            <div className="parchment-container rounded-xl">
               <DailyChallenges />
-            </TabsContent>
-
-            <TabsContent value="ranking" className="mt-4">
-              <div className="mb-4">
-                <Input
-                  placeholder={t('ranking.searchPlayers')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="border-parchment-darker/30"
-                />
-              </div>
-              <Leaderboard searchQuery={searchQuery} />
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
+          
+          {/* Leaderboard Section */}
+          <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
+            <div className="flex items-center gap-2 mb-4">
+              <Users size={20} className="text-ancient-gold" />
+              <h2 className="text-xl font-oldstyle text-scripture-heading">{t('ranking.leaderboard')}</h2>
+            </div>
+            <div className="parchment-container rounded-xl p-4">
+              <Leaderboard />
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>

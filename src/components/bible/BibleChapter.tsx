@@ -5,7 +5,6 @@ import { getBookContent } from '@/services/BibleDataService';
 import BibleVerseComponent from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface BibleChapterProps {
   bookId?: string;
@@ -91,7 +90,13 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   };
   
   if (!chapterContent) {
-    return <div className="text-center py-12">{t('bible.chapterNotFound')}</div>;
+    return (
+      <div className="animate-pulse flex flex-col items-center justify-center h-[50vh]">
+        <div className="w-12 h-12 rounded-full bg-parchment-dark/40 mb-4"></div>
+        <div className="h-4 w-36 bg-parchment-dark/40 rounded mb-2"></div>
+        <div className="h-3 w-24 bg-parchment-dark/30 rounded"></div>
+      </div>
+    );
   }
 
   const renderVerse = (verse: BibleVerseType) => {
@@ -102,7 +107,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       <div 
         id={`verse-${verse.verse_number}`} 
         key={verse.id} 
-        className={`mb-2 ${isHighlighted ? 'bg-amber-100 dark:bg-amber-900/20 p-1 rounded' : ''}`}
+        className={`mb-3 p-2 rounded-lg transition-all ${isHighlighted ? 'bg-amber-100/50 dark:bg-amber-900/20' : ''}`}
       >
         <BibleVerseComponent 
           verse={verse}
@@ -114,22 +119,29 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   };
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold font-oldstyle text-scripture-heading dark:text-scripture-heading-dark">
+    <div className="px-2 py-4 md:px-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold font-oldstyle text-scripture-heading">
           {chapterContent.book_name} {chapterContent.chapter_number}
         </h1>
       </div>
       
-      <ScrollArea className="h-[calc(100vh-220px)] w-full rounded-md border">
-        <div className={`font-garamond text-scripture-text dark:text-scripture-text-dark ${getFontSizeClass()} py-2 px-4`}>
+      <div className="pb-20">
+        <div className={`font-ancient ${getFontSizeClass()} text-scripture-text dark:text-scripture-text-dark px-2 py-2`}>
           {chapterContent.verses && chapterContent.verses.length > 0 ? (
-            chapterContent.verses.map(renderVerse)
+            <div className="space-y-1">
+              {chapterContent.verses.map(renderVerse)}
+            </div>
           ) : (
-            <div className="text-center py-4">{t('bible.tryAnotherChapter')}</div>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+                <span className="text-2xl">📖</span>
+              </div>
+              <p>{t('bible.tryAnotherChapter')}</p>
+            </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };
