@@ -94,8 +94,13 @@ export function getStudyContent(study: BibleStudy, language: string = 'en'): str
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
+    if (typeof contentObj === 'string') {
+      return contentObj;
+    }
+    
     if (typeof contentObj === 'object') {
-      return contentObj[language] || contentObj['en'] || '';
+      // Corrigido: adicionando verificação de null aqui
+      return contentObj && (contentObj[language] || contentObj['en'] || '');
     }
     return '';
   }

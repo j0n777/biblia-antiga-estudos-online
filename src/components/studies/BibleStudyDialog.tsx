@@ -64,6 +64,7 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
+      // Corrigido: remover o segundo argumento
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);

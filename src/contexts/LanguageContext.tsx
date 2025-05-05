@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type Language = 'pt-BR' | 'en' | 'es' | 'fr' | 'ar';
@@ -17,6 +18,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.read': 'Leitura',
     'nav.search': 'Busca',
     'nav.profile': 'Perfil',
+    'nav.ranking': 'Ranking',
     
     // Common
     'common.loading': 'Carregando...',
@@ -71,6 +73,8 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.errorMessage': 'Ocorreu um erro ao atualizar seu perfil.',
     'profile.createAccountPrompt': 'Crie uma conta para salvar seu progresso e participar do ranking!',
     'profile.guestAccount': 'Conta Temporária',
+    'profile.savedVerses': 'Versículos Salvos',
+    'profile.viewAllVerses': 'Ver Todos os Versículos',
     
     // Settings
     'settings.title': 'Configurações',
@@ -93,6 +97,18 @@ const translations: Record<Language, Record<string, string>> = {
     'bible.testament': 'Testamento',
     'bible.oldTestament': 'Antigo Testamento',
     'bible.newTestament': 'Novo Testamento',
+    'bible.verseSaved': 'Versículo Salvo',
+    'bible.verseCopied': 'Versículo copiado para a área de transferência',
+    'bible.shareVerse': 'Compartilhar versículo',
+    'bible.copy': 'Copiar',
+    'bible.highlight': 'Destacar',
+    'bible.removeHighlight': 'Remover destaque',
+    'bible.share': 'Compartilhar',
+    'bible.original': 'Original',
+    'bible.transliteration': 'Transliteração',
+    'bible.strongsNumber': 'Strong',
+    'bible.definition': 'Definição',
+    'bible.verses': 'Versículos',
     
     // Achievements
     'achievements.title': 'Conquistas',
@@ -115,6 +131,8 @@ const translations: Record<Language, Record<string, string>> = {
     'studies.alreadyCompleted': 'Estudo já concluído',
     'studies.markAsCompleted': 'Marcar como concluído',
     'studies.nextStudy': 'Próximo estudo',
+    
+    // Ranking
     'ranking.challenges': 'Desafios Diários',
     'ranking.leaderboard': 'Classificação',
     'ranking.topScholars': 'Melhores Estudiosos',
@@ -131,42 +149,6 @@ const translations: Record<Language, Record<string, string>> = {
     'search.noStudiesFound': 'Nenhum estudo encontrado',
     'search.noStudiesAvailable': 'Não há estudos disponíveis',
     
-    // Bible
-    'bible.verseSaved': 'Versículo Salvo',
-    'bible.verseCopied': 'Versículo copiado para a área de transferência',
-    'bible.shareVerse': 'Compartilhar versículo',
-    'bible.copy': 'Copiar',
-    'bible.highlight': 'Destacar',
-    'bible.removeHighlight': 'Remover destaque',
-    'bible.share': 'Compartilhar',
-    'bible.original': 'Original',
-    'bible.transliteration': 'Transliteração',
-    'bible.strongsNumber': 'Strong',
-    'bible.definition': 'Definição',
-    'bible.verses': 'Versículos',
-    
-    // Studies
-    'studies.title': 'Estudos Bíblicos',
-    'studies.viewAll': 'Ver todos',
-    'studies.searchStudies': 'Buscar estudos',
-    'studies.readAndLearn': 'Leia e aprenda com estudos bíblicos',
-    'studies.completedTitle': 'Estudo Concluído',
-    'studies.earnedPoints': 'Você ganhou {points} pontos!',
-    'studies.errorCompleting': 'Erro ao completar o estudo',
-    'studies.errorLoadingProgress': 'Erro ao carregar progresso',
-    'studies.alreadyCompleted': 'Estudo já concluído',
-    'studies.markAsCompleted': 'Marcar como concluído',
-    'studies.nextStudy': 'Próximo estudo',
-    'ranking.challenges': 'Desafios Diários',
-    'ranking.leaderboard': 'Classificação',
-    'ranking.topScholars': 'Melhores Estudiosos',
-    'ranking.topDescription': 'Usuários com mais pontos',
-    'ranking.noRankings': 'Ainda não há classificações',
-    'ranking.startReading': 'Comece a ler e ganhe pontos para aparecer aqui!',
-    'ranking.guestModeTitle': 'Modo Visitante',
-    'ranking.guestModeDescription': 'Você está navegando como visitante. Crie uma conta para salvar seu progresso, conquistas e participar no ranking.',
-    'challenges.complete': 'Concluído',
-    
     // Validation
     'validation.nicknameRequired': 'Apelido é obrigatório',
     'validation.minCharacters': 'Mínimo de 3 caracteres',
@@ -180,6 +162,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.read': 'Read',
     'nav.search': 'Search',
     'nav.profile': 'Profile',
+    'nav.ranking': 'Ranking',
     
     // Common
     'common.loading': 'Loading...',
@@ -234,6 +217,8 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.errorMessage': 'An error occurred while updating your profile.',
     'profile.createAccountPrompt': 'Create an account to save your progress and participate in the ranking!',
     'profile.guestAccount': 'Temporary Account',
+    'profile.savedVerses': 'Saved Verses',
+    'profile.viewAllVerses': 'View All Verses',
     
     // Settings
     'settings.title': 'Settings',
@@ -256,6 +241,18 @@ const translations: Record<Language, Record<string, string>> = {
     'bible.testament': 'Testament',
     'bible.oldTestament': 'Old Testament',
     'bible.newTestament': 'New Testament',
+    'bible.verseSaved': 'Verse Saved',
+    'bible.verseCopied': 'Verse copied to clipboard',
+    'bible.shareVerse': 'Share verse',
+    'bible.copy': 'Copy',
+    'bible.highlight': 'Highlight',
+    'bible.removeHighlight': 'Remove highlight',
+    'bible.share': 'Share',
+    'bible.original': 'Original',
+    'bible.transliteration': 'Transliteration',
+    'bible.strongsNumber': 'Strong',
+    'bible.definition': 'Definition',
+    'bible.verses': 'Verses',
     
     // Achievements
     'achievements.title': 'Achievements',
@@ -278,6 +275,8 @@ const translations: Record<Language, Record<string, string>> = {
     'studies.alreadyCompleted': 'Study already completed',
     'studies.markAsCompleted': 'Mark as completed',
     'studies.nextStudy': 'Next study',
+    
+    // Ranking
     'ranking.challenges': 'Daily Challenges',
     'ranking.leaderboard': 'Leaderboard',
     'ranking.topScholars': 'Top Scholars',
@@ -294,42 +293,6 @@ const translations: Record<Language, Record<string, string>> = {
     'search.noStudiesFound': 'No studies found',
     'search.noStudiesAvailable': 'No studies available',
     
-    // Bible
-    'bible.verseSaved': 'Verse Saved',
-    'bible.verseCopied': 'Verse copied to clipboard',
-    'bible.shareVerse': 'Share verse',
-    'bible.copy': 'Copy',
-    'bible.highlight': 'Highlight',
-    'bible.removeHighlight': 'Remove highlight',
-    'bible.share': 'Share',
-    'bible.original': 'Original',
-    'bible.transliteration': 'Transliteration',
-    'bible.strongsNumber': 'Strong',
-    'bible.definition': 'Definition',
-    'bible.verses': 'Verses',
-    
-    // Studies
-    'studies.title': 'Bible Studies',
-    'studies.viewAll': 'View all',
-    'studies.searchStudies': 'Search studies',
-    'studies.readAndLearn': 'Read and learn from Bible studies',
-    'studies.completedTitle': 'Study Completed',
-    'studies.earnedPoints': 'You earned {points} points!',
-    'studies.errorCompleting': 'Error completing study',
-    'studies.errorLoadingProgress': 'Error loading progress',
-    'studies.alreadyCompleted': 'Study already completed',
-    'studies.markAsCompleted': 'Mark as completed',
-    'studies.nextStudy': 'Next study',
-    'ranking.challenges': 'Daily Challenges',
-    'ranking.leaderboard': 'Leaderboard',
-    'ranking.topScholars': 'Top Scholars',
-    'ranking.topDescription': 'Users with most points',
-    'ranking.noRankings': 'No rankings available yet',
-    'ranking.startReading': 'Start reading and earn points to appear here!',
-    'ranking.guestModeTitle': 'Guest Mode',
-    'ranking.guestModeDescription': 'You are browsing as a guest. Create an account to save your progress and participate in the ranking.',
-    'challenges.complete': 'Completed',
-    
     // Validation
     'validation.nicknameRequired': 'Nickname is required',
     'validation.minCharacters': 'Minimum 3 characters',
@@ -343,6 +306,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.read': 'Lectura',
     'nav.search': 'Búsqueda',
     'nav.profile': 'Perfil',
+    'nav.ranking': 'Clasificación',
     
     // Common
     'common.loading': 'Cargando...',
@@ -397,6 +361,8 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.errorMessage': 'Ocurrió un error al actualizar tu perfil.',
     'profile.createAccountPrompt': '¡Crea una cuenta para guardar tu progreso y participar en el ranking!',
     'profile.guestAccount': 'Cuenta Temporal',
+    'profile.savedVerses': 'Versículos Guardados',
+    'profile.viewAllVerses': 'Ver Todos los Versículos',
     
     // Settings
     'settings.title': 'Configuración',
@@ -419,6 +385,18 @@ const translations: Record<Language, Record<string, string>> = {
     'bible.testament': 'Testamento',
     'bible.oldTestament': 'Antiguo Testamento',
     'bible.newTestament': 'Nuevo Testamento',
+    'bible.verseSaved': 'Versículo Guardado',
+    'bible.verseCopied': 'Versículo copiado al portapapeles',
+    'bible.shareVerse': 'Compartir versículo',
+    'bible.copy': 'Copiar',
+    'bible.highlight': 'Destacar',
+    'bible.removeHighlight': 'Quitar destacado',
+    'bible.share': 'Compartir',
+    'bible.original': 'Original',
+    'bible.transliteration': 'Transliteración',
+    'bible.strongsNumber': 'Strong',
+    'bible.definition': 'Definición',
+    'bible.verses': 'Versículos',
     
     // Achievements
     'achievements.title': 'Logros',
@@ -441,6 +419,8 @@ const translations: Record<Language, Record<string, string>> = {
     'studies.alreadyCompleted': 'Estudio ya completado',
     'studies.markAsCompleted': 'Marcar como completado',
     'studies.nextStudy': 'Siguiente estudio',
+    
+    // Ranking
     'ranking.challenges': 'Desafíos Diarios',
     'ranking.leaderboard': 'Clasificación',
     'ranking.topScholars': 'Mejores Estudiosos',
@@ -457,42 +437,6 @@ const translations: Record<Language, Record<string, string>> = {
     'search.noStudiesFound': 'No se encontraron estudios',
     'search.noStudiesAvailable': 'No hay estudios disponibles',
     
-    // Bible
-    'bible.verseSaved': 'Versículo Guardado',
-    'bible.verseCopied': 'Versículo copiado al portapapeles',
-    'bible.shareVerse': 'Compartir versículo',
-    'bible.copy': 'Copiar',
-    'bible.highlight': 'Destacar',
-    'bible.removeHighlight': 'Quitar destacado',
-    'bible.share': 'Compartir',
-    'bible.original': 'Original',
-    'bible.transliteration': 'Transliteración',
-    'bible.strongsNumber': 'Strong',
-    'bible.definition': 'Definición',
-    'bible.verses': 'Versículos',
-    
-    // Studies
-    'studies.title': 'Estudios Bíblicos',
-    'studies.viewAll': 'Ver todos',
-    'studies.searchStudies': 'Buscar estudios',
-    'studies.readAndLearn': 'Lee y aprende de estudios bíblicos',
-    'studies.completedTitle': 'Estudio Completado',
-    'studies.earnedPoints': '¡Ganaste {points} puntos!',
-    'studies.errorCompleting': 'Error al completar el estudio',
-    'studies.errorLoadingProgress': 'Error al cargar el progreso',
-    'studies.alreadyCompleted': 'Estudio ya completado',
-    'studies.markAsCompleted': 'Marcar como completado',
-    'studies.nextStudy': 'Siguiente estudio',
-    'ranking.challenges': 'Desafíos Diarios',
-    'ranking.leaderboard': 'Clasificación',
-    'ranking.topScholars': 'Mejores Estudiosos',
-    'ranking.topDescription': 'Usuarios con más puntos',
-    'ranking.noRankings': 'Aún no hay clasificaciones',
-    'ranking.startReading': '¡Empieza a leer y gana puntos para aparecer aquí!',
-    'ranking.guestModeTitle': 'Modo Invitado',
-    'ranking.guestModeDescription': 'Estás navegando como invitado. Crea una cuenta para guardar tu progreso y participar en el ranking.',
-    'challenges.complete': 'Completado',
-    
     // Validation
     'validation.nicknameRequired': 'El apodo es obligatorio',
     'validation.minCharacters': 'Mínimo 3 caracteres',
@@ -506,6 +450,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.read': 'Lecture',
     'nav.search': 'Recherche',
     'nav.profile': 'Profil',
+    'nav.ranking': 'Classement',
     
     // Common
     'common.loading': 'Chargement...',
@@ -560,6 +505,8 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.errorMessage': "Une erreur s'est produite lors de la mise à jour de votre profil.",
     'profile.createAccountPrompt': 'Créez un compte pour sauvegarder votre progression et participer au classement !',
     'profile.guestAccount': 'Compte Temporaire',
+    'profile.savedVerses': 'Versets Sauvegardés',
+    'profile.viewAllVerses': 'Voir Tous les Versets',
     
     // Settings
     'settings.title': 'Paramètres',
@@ -582,6 +529,18 @@ const translations: Record<Language, Record<string, string>> = {
     'bible.testament': 'Testament',
     'bible.oldTestament': 'Ancien Testament',
     'bible.newTestament': 'Nouveau Testament',
+    'bible.verseSaved': 'Verset Enregistré',
+    'bible.verseCopied': 'Verset copié dans le presse-papiers',
+    'bible.shareVerse': 'Partager le verset',
+    'bible.copy': 'Copier',
+    'bible.highlight': 'Surligner',
+    'bible.removeHighlight': 'Supprimer le surlignage',
+    'bible.share': 'Partager',
+    'bible.original': 'Original',
+    'bible.transliteration': 'Translittération',
+    'bible.strongsNumber': 'Strong',
+    'bible.definition': 'Définition',
+    'bible.verses': 'Versets',
     
     // Achievements
     'achievements.title': 'Succès',
@@ -604,6 +563,8 @@ const translations: Record<Language, Record<string, string>> = {
     'studies.alreadyCompleted': 'Étude déjà terminée',
     'studies.markAsCompleted': 'Marquer comme terminée',
     'studies.nextStudy': 'Étude suivante',
+    
+    // Ranking
     'ranking.challenges': 'Défis Quotidiens',
     'ranking.leaderboard': 'Classement',
     'ranking.topScholars': 'Meilleurs Érudits',
@@ -620,42 +581,6 @@ const translations: Record<Language, Record<string, string>> = {
     'search.noStudiesFound': 'Aucune étude trouvée',
     'search.noStudiesAvailable': 'Aucune étude disponible',
     
-    // Bible
-    'bible.verseSaved': 'Verset Enregistré',
-    'bible.verseCopied': 'Verset copié dans le presse-papiers',
-    'bible.shareVerse': 'Partager le verset',
-    'bible.copy': 'Copier',
-    'bible.highlight': 'Surligner',
-    'bible.removeHighlight': 'Supprimer le surlignage',
-    'bible.share': 'Partager',
-    'bible.original': 'Original',
-    'bible.transliteration': 'Translittération',
-    'bible.strongsNumber': 'Strong',
-    'bible.definition': 'Définition',
-    'bible.verses': 'Versets',
-    
-    // Studies
-    'studies.title': 'Études Bibliques',
-    'studies.viewAll': 'Voir tout',
-    'studies.searchStudies': 'Rechercher des études',
-    'studies.readAndLearn': 'Lisez et apprenez à partir d\'études bibliques',
-    'studies.completedTitle': 'Étude Terminée',
-    'studies.earnedPoints': 'Vous avez gagné {points} points !',
-    'studies.errorCompleting': 'Erreur lors de la complétion de l\'étude',
-    'studies.errorLoadingProgress': 'Erreur lors du chargement de la progression',
-    'studies.alreadyCompleted': 'Étude déjà terminée',
-    'studies.markAsCompleted': 'Marquer comme terminée',
-    'studies.nextStudy': 'Étude suivante',
-    'ranking.challenges': 'Défis Quotidiens',
-    'ranking.leaderboard': 'Classement',
-    'ranking.topScholars': 'Meilleurs Érudits',
-    'ranking.topDescription': 'Utilisateurs avec le plus de points',
-    'ranking.noRankings': 'Pas encore de classement disponible',
-    'ranking.startReading': 'Commencez à lire et gagnez des points pour apparaître ici !',
-    'ranking.guestModeTitle': 'Mode Invité',
-    'ranking.guestModeDescription': 'Vous naviguez en tant qu\'invité. Créez un compte pour sauvegarder votre progression et participer au classement.',
-    'challenges.complete': 'Terminé',
-    
     // Validation
     'validation.nicknameRequired': 'Le pseudo est obligatoire',
     'validation.minCharacters': 'Minimum 3 caractères',
@@ -669,6 +594,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.read': 'قراءة',
     'nav.search': 'بحث',
     'nav.profile': 'الملف الشخصي',
+    'nav.ranking': 'التصنيف',
     
     // Common
     'common.loading': 'جار التحميل...',
@@ -723,6 +649,8 @@ const translations: Record<Language, Record<string, string>> = {
     'profile.errorMessage': 'حدث خطأ أثناء تحديث ملفك الشخصي.',
     'profile.createAccountPrompt': 'أنشئ حسابًا لحفظ تقدمك والمشاركة في التصنيف!',
     'profile.guestAccount': 'حساب مؤقت',
+    'profile.savedVerses': 'الآيات المحفوظة',
+    'profile.viewAllVerses': 'عرض كل الآيات',
     
     // Settings
     'settings.title': 'الإعدادات',
@@ -745,6 +673,18 @@ const translations: Record<Language, Record<string, string>> = {
     'bible.testament': 'عهد',
     'bible.oldTestament': 'العهد القديم',
     'bible.newTestament': 'العهد الجديد',
+    'bible.verseSaved': 'تم حفظ الآية',
+    'bible.verseCopied': 'تم نسخ الآية إلى الحافظة',
+    'bible.shareVerse': 'مشاركة الآية',
+    'bible.copy': 'نسخ',
+    'bible.highlight': 'تظليل',
+    'bible.removeHighlight': 'إزالة التظليل',
+    'bible.share': 'مشاركة',
+    'bible.original': 'الأصلي',
+    'bible.transliteration': 'النقل الحرفي',
+    'bible.strongsNumber': 'سترونغ',
+    'bible.definition': 'التعريف',
+    'bible.verses': 'آيات',
     
     // Achievements
     'achievements.title': 'الإنجازات',
@@ -767,6 +707,8 @@ const translations: Record<Language, Record<string, string>> = {
     'studies.alreadyCompleted': 'الدراسة مكتملة بالفعل',
     'studies.markAsCompleted': 'وضع علامة كمكتمل',
     'studies.nextStudy': 'الدراسة التالية',
+    
+    // Ranking
     'ranking.challenges': 'التحديات اليومية',
     'ranking.leaderboard': 'لوحة المتصدرين',
     'ranking.topScholars': 'أفضل الدارسين',
@@ -782,42 +724,6 @@ const translations: Record<Language, Record<string, string>> = {
     'search.tryDifferentKeywords': 'جرب كلمات مفتاحية مختلفة',
     'search.noStudiesFound': 'لم يتم العثور على دراسات',
     'search.noStudiesAvailable': 'لا توجد دراسات متاحة',
-    
-    // Bible
-    'bible.verseSaved': 'تم حفظ الآية',
-    'bible.verseCopied': 'تم نسخ الآية إلى الحافظة',
-    'bible.shareVerse': 'مشاركة الآية',
-    'bible.copy': 'نسخ',
-    'bible.highlight': 'تظليل',
-    'bible.removeHighlight': 'إزالة التظليل',
-    'bible.share': 'مشاركة',
-    'bible.original': 'الأصلي',
-    'bible.transliteration': 'النقل الحرفي',
-    'bible.strongsNumber': 'سترونغ',
-    'bible.definition': 'التعريف',
-    'bible.verses': 'آيات',
-    
-    // Studies
-    'studies.title': 'دراسات الكتاب المقدس',
-    'studies.viewAll': 'عرض الكل',
-    'studies.searchStudies': 'بحث في الدراسات',
-    'studies.readAndLearn': 'اقرأ وتعلم من دراسات الكتاب المقدس',
-    'studies.completedTitle': 'تمت الدراسة',
-    'studies.earnedPoints': 'لقد ربحت {points} نقطة!',
-    'studies.errorCompleting': 'خطأ في إكمال الدراسة',
-    'studies.errorLoadingProgress': 'خطأ في تحميل التقدم',
-    'studies.alreadyCompleted': 'الدراسة مكتملة بالفعل',
-    'studies.markAsCompleted': 'وضع علامة كمكتمل',
-    'studies.nextStudy': 'الدراسة التالية',
-    'ranking.challenges': 'التحديات اليومية',
-    'ranking.leaderboard': 'لوحة المتصدرين',
-    'ranking.topScholars': 'أفضل الدارسين',
-    'ranking.topDescription': 'المستخدمون الذين لديهم أكثر النقاط',
-    'ranking.noRankings': 'لا يوجد تصنيف متاح حتى الآن',
-    'ranking.startReading': 'ابدأ القراءة واكسب النقاط للظهور هنا!',
-    'ranking.guestModeTitle': 'وضع الزائر',
-    'ranking.guestModeDescription': 'أنت تتصفح كزائر. قم بإنشاء حساب لحفظ تقدمك والمشاركة في التصنيف.',
-    'challenges.complete': 'مكتمل',
     
     // Validation
     'validation.nicknameRequired': 'اللقب مطلوب',

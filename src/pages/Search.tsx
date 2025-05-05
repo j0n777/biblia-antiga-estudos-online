@@ -81,18 +81,42 @@ const Search = () => {
     
     try {
       if (activeTab === 'verses') {
-        // Fixed: Use simple text search instead of websearch which was causing issues
-        const { data, error } = await supabase
-          .from('bible_verses')
-          .select('*')
-          .ilike('text', `%${searchQuery}%`)
-          .eq('version_id', language === 'en' ? 'kjv' : 'kja')
-          .limit(20);
-
-        if (error) throw error;
+        // Método aprimorado para busca de versículos
+        // Verificar se é uma busca direta por referência bíblica (e.g. "joão 3:16")
+        const referenceMatch = searchQuery.match(/([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+)\s*(\d+)(?::(\d+))?/i);
         
-        console.log("Search results:", data);
-        setSearchResults(data as BibleVerseType[]);
+        let results: BibleVerseType[] = [];
+        
+        if (referenceMatch) {
+          // Busca por referência específica
+          const [, book, chapter, verse] = referenceMatch;
+          const { data, error } = await supabase
+            .from('bible_verses')
+            .select('*')
+            .ilike('book_name', `%${book.trim()}%`)
+            .eq('chapter_number', chapter)
+            .eq('version_id', language === 'en' ? 'kjv' : 'kja');
+            
+          if (verse) {
+            // Se tiver versículo específico, filtrar
+            results = (data || []).filter(v => v.verse_number === parseInt(verse)) as BibleVerseType[];
+          } else {
+            results = (data || []) as BibleVerseType[];
+          }
+        } else {
+          // Busca por texto
+          const { data, error } = await supabase
+            .from('bible_verses')
+            .select('*')
+            .ilike('text', `%${searchQuery}%`)
+            .eq('version_id', language === 'en' ? 'kjv' : 'kja')
+            .limit(20);
+    
+          results = (data || []) as BibleVerseType[];
+        }
+        
+        console.log("Search results:", results);
+        setSearchResults(results);
       } else if (activeTab === 'studies') {
         const results = await searchBibleStudies(searchQuery);
         setStudyResults(results);
@@ -210,7 +234,7 @@ const Search = () => {
                 {searchResults.map((verse) => (
                   <div key={verse.id} className="parchment-container rounded-xl overflow-hidden animate-slide-up elevated-card">
                     <div className="text-xs text-ancient-brown font-medium mb-1">
-                      {verse.book_id} {verse.chapter_number}:{verse.verse_number}
+                      {verse.book_name || verse.book_id} {verse.chapter_number}:{verse.verse_number}
                     </div>
                     <BibleVerseComponent verse={verse} />
                   </div>

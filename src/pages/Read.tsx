@@ -75,7 +75,8 @@ const Read = () => {
           />
         </div>
 
-        <div className="parchment-container animate-fade-in card-shadow px-3 sm:px-6">
+        {/* Reduzindo as margens laterais para o conteúdo da Bíblia */}
+        <div className="parchment-container animate-fade-in card-shadow px-2 sm:px-4">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
