@@ -1,145 +1,161 @@
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { BibleStudy } from '@/types/bible.types';
-import { getLocalizedStudyContent, completeStudy, getBibleStudyById } from '@/services/BibleStudyService';
+import { CheckCircle, Award } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { CheckCircle, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { BibleStudy } from '@/types/bible.types';
+import { completeStudy, getBibleStudy } from '@/services/BibleStudyService';
+
+// Helper function to get localized study content
+function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
+  if (!study || !study.content) return '';
+  
+  if (typeof study.content === 'string') {
+    return study.content;
+  }
+  
+  // If content is an object with direct language keys
+  if (typeof study.content === 'object' && study.content[language]) {
+    return study.content[language];
+  }
+  
+  // If content has a content field which is language-specific
+  if (typeof study.content === 'object' && 
+      study.content.content && 
+      typeof study.content.content === 'object') {
+    return study.content.content[language] || study.content.content.en || '';
+  }
+  
+  return '';
+}
 
 interface BibleStudyDialogProps {
-  study: BibleStudy | null;
+  study: BibleStudy;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComplete?: () => Promise<void> | void;
+  onComplete?: () => void;
   isCompleted?: boolean;
 }
 
-const BibleStudyDialog = ({ study, open, onOpenChange, onComplete, isCompleted = false }: BibleStudyDialogProps) => {
-  const { language } = useLanguage();
-  const [localizedContent, setLocalizedContent] = useState<{title: string; content: string}>({ title: '', content: '' });
-  const [isLoading, setIsLoading] = useState(false);
+const BibleStudyDialog = ({ 
+  study, 
+  open, 
+  onOpenChange,
+  onComplete,
+  isCompleted = false,
+}: BibleStudyDialogProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(isCompleted);
   const [nextStudy, setNextStudy] = useState<BibleStudy | null>(null);
   
-  const navigate = useNavigate();
+  const { t, language } = useLanguage();
   
-  // When study changes, get localized content and check for next study
+  // Get the localized title
+  const title = typeof study.title === 'string' ? 
+    study.title : 
+    (study.title[language] || study.title_key || 'Bible Study');
+    
+  // Get content
+  const content = getLocalizedStudyContent(study, language);
+  
   useEffect(() => {
-    if (study) {
-      setLocalizedContent(getLocalizedStudyContent(study, language));
-      setHasCompleted(isCompleted);
-      
-      // Check for next study
-      const fetchNextStudy = async () => {
-        if (study.next_study_id) {
-          const nextStudyData = await getBibleStudyById(study.next_study_id);
-          setNextStudy(nextStudyData);
-        } else {
-          setNextStudy(null);
+    const loadNextStudy = async () => {
+      if (study?.next_study_id) {
+        try {
+          const nextStudyData = await getBibleStudy(study.next_study_id);
+          if (nextStudyData) {
+            setNextStudy(nextStudyData);
+          }
+        } catch (error) {
+          console.error('Error loading next study:', error);
         }
-      };
-      
-      fetchNextStudy();
-    } else {
-      setLocalizedContent({ title: '', content: '' });
-      setNextStudy(null);
-    }
-  }, [study, language, isCompleted]);
-  
-  const handleComplete = async () => {
-    if (!study) return;
-    
-    setIsLoading(true);
-    const success = await completeStudy(study.id);
-    setIsLoading(false);
-    
-    if (success) {
-      setHasCompleted(true);
-      if (onComplete) {
-        await onComplete();
       }
-    }
-  };
-  
-  const handleContinue = () => {
-    onOpenChange(false);
+    };
     
-    if (nextStudy) {
-      // Re-open with next study
-      setTimeout(() => {
-        navigate(`/search?study=${nextStudy.id}`);
-      }, 300);
+    if (open && study) {
+      loadNextStudy();
+      setHasCompleted(isCompleted);
+    }
+  }, [study, open, isCompleted]);
+  
+  const handleCompleteStudy = async () => {
+    if (hasCompleted) return;
+    
+    setIsSubmitting(true);
+    try {
+      const success = await completeStudy(study.id);
+      if (success) {
+        setHasCompleted(true);
+        toast({
+          title: t('studies.completedTitle'),
+          description: t('studies.earnedPoints', { points: study.points }),
+        });
+        
+        if (onComplete) {
+          onComplete();
+        }
+      }
+    } catch (error) {
+      console.error('Error completing study:', error);
+      toast({
+        variant: 'destructive',
+        title: t('common.error'),
+        description: t('studies.errorCompleting'),
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
-  const handleReadBibleReference = (bookId: string, chapter: number, verse: number) => {
-    // This is a placeholder - would need to implement text parsing to extract Bible references
-    navigate(`/read?book=${bookId}&chapter=${chapter}&verse=${verse}`);
-  };
-  
-  // Process content to extract and make Bible references clickable
-  const processContent = (content: string) => {
-    // This would need a more sophisticated parser to detect Bible references
-    // For now, just return the raw content
-    return content;
-  };
-  
-  if (!study) {
-    return null;
-  }
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-h-[90vh] overflow-y-auto bg-parchment p-6 rounded-xl border-parchment-dark/30 sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle className="font-oldstyle text-xl text-ancient-brown">
-            {localizedContent.title}
+          <DialogTitle className="text-2xl font-oldstyle text-scripture-heading">
+            {title}
           </DialogTitle>
-          <DialogDescription className="flex items-center">
-            {study.icon || '📖'} Estudo Bíblico • {study.points} pontos
-            {hasCompleted && (
-              <span className="ml-2 flex items-center text-green-600">
-                <CheckCircle size={14} className="mr-1" />
-                Concluído
-              </span>
-            )}
+          <DialogDescription className="text-sm text-muted-foreground">
+            {t('studies.readAndLearn')}
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-grow pr-4 my-4">
-          <div 
-            className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: processContent(localizedContent.content) }}
-          />
-        </ScrollArea>
+        <div className="my-4 prose prose-scripture prose-p:my-3 prose-h1:text-xl prose-h2:text-lg prose-h3:text-base max-w-none">
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        </div>
         
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          {!hasCompleted ? (
-            <Button 
-              onClick={handleComplete} 
-              disabled={isLoading}
-              className="w-full sm:w-auto"
-            >
-              {isLoading ? 'Marcando...' : 'Marcar como concluído'}
-            </Button>
-          ) : nextStudy ? (
-            <Button 
-              onClick={handleContinue}
-              className="w-full sm:w-auto flex items-center"
-            >
-              Continuar para próximo estudo
-              <ChevronRight size={16} className="ml-2" />
-            </Button>
+        <DialogFooter className="flex-col sm:flex-row gap-3">
+          {hasCompleted ? (
+            <div className="w-full flex items-center gap-2 text-ancient-gold bg-parchment-dark/20 p-3 rounded-lg">
+              <CheckCircle className="h-5 w-5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">{t('studies.alreadyCompleted')}</p>
+              </div>
+            </div>
           ) : (
             <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto"
+              onClick={handleCompleteStudy}
+              className="flex-1 bg-ancient-gold hover:bg-ancient-gold/90"
+              disabled={isSubmitting}
             >
-              Fechar
+              <Award className="mr-2 h-4 w-4" />
+              {isSubmitting ? t('common.loading') : t('studies.markAsCompleted')}
+            </Button>
+          )}
+          
+          {nextStudy && (
+            <Button 
+              variant="outline"
+              className="flex-1 border-ancient-brown/30 text-ancient-brown"
+              onClick={() => {
+                onOpenChange(false);
+                setTimeout(() => {
+                  onOpenChange(true);
+                }, 100);
+              }}
+            >
+              {t('studies.nextStudy')}
             </Button>
           )}
         </DialogFooter>

@@ -1,4 +1,3 @@
-
 export interface BibleStudy {
   id: string;
   title_key: string;
@@ -116,6 +115,20 @@ export interface Achievement {
   points: number;
   target?: number;
   maxProgress?: number;
+}
+
+// Adding the missing Challenge interface
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  completed: boolean;
+  progress: number;
+  target: number;
+  icon: string;
+  category: string;
+  expires_at?: string;
 }
 
 export interface DailyChallenge {

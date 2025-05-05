@@ -1,80 +1,83 @@
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { ExternalLink, CheckCircle } from 'lucide-react';
 import { BibleStudy } from '@/types/bible.types';
-import { getLocalizedStudyContent } from '@/services/BibleStudyService';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { CheckCircle } from 'lucide-react';
+
+// Helper function to get localized study content
+function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
+  if (!study || !study.content) return '';
+  
+  if (typeof study.content === 'string') {
+    return study.content;
+  }
+  
+  // If content is an object with direct language keys
+  if (typeof study.content === 'object' && study.content[language]) {
+    return study.content[language];
+  }
+  
+  // If content has a content field which is language-specific
+  if (typeof study.content === 'object' && 
+      study.content.content && 
+      typeof study.content.content === 'object') {
+    return study.content.content[language] || study.content.content.en || '';
+  }
+  
+  return '';
+}
 
 interface BibleStudyCardProps {
   study: BibleStudy;
-  isCompleted: boolean;
-  onSelectStudy: (study: BibleStudy) => void;
+  isCompleted?: boolean;
+  onClick?: () => void;
 }
 
-const BibleStudyCard = ({ study, isCompleted, onSelectStudy }: BibleStudyCardProps) => {
+const BibleStudyCard = ({ study, isCompleted = false, onClick }: BibleStudyCardProps) => {
   const { language } = useLanguage();
-  const { title } = getLocalizedStudyContent(study, language);
+  const [isHovered, setIsHovered] = useState(false);
   
-  // Get icon based on category
-  const getCategoryIcon = (category: string) => {
-    switch(category) {
-      case 'basics':
-        return '🔤';
-      case 'beginner':
-        return '🌱';
-      case 'intermediate':
-        return '📘';
-      case 'advanced':
-        return '🎓';
-      default:
-        return study.icon || '📖';
-    }
-  };
-
+  // Get the localized title
+  const title = typeof study.title === 'string' ? 
+    study.title : 
+    (study.title[language] || study.title_key || 'Bible Study');
+    
+  // Get description from content
+  let description = '';
+  if (typeof study.content === 'object' && study.content.description) {
+    description = typeof study.content.description === 'string' ?
+      study.content.description :
+      (study.content.description[language] || '');
+  }
+  
   return (
-    <Card className="overflow-hidden border-ancient-gold/30 hover:border-ancient-gold/60 transition-colors">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div className="mr-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{study.icon || getCategoryIcon(study.category)}</span>
-              <CardTitle className="font-oldstyle text-ancient-brown">{title}</CardTitle>
-            </div>
-            <CardDescription className="text-xs mt-1">
-              {isCompleted ? (
-                <span className="flex items-center text-green-600">
-                  <CheckCircle size={14} className="mr-1" />
-                  Concluído • {study.points} pontos
-                </span>
-              ) : (
-                <span>Estudo Bíblico • {study.points} pontos</span>
-              )}
-            </CardDescription>
+    <Card 
+      className={`overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer border-parchment-dark/20 ${isHovered ? 'shadow-lg' : ''} ${isCompleted ? 'bg-parchment-light/90 border-ancient-gold/30' : 'bg-parchment-light/60'}`}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <CardContent className="p-0">
+        <div className="flex items-center gap-3 p-4">
+          <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded">
+            {study.icon}
           </div>
-          {isCompleted && (
-            <div className="bg-green-500/10 rounded-full p-1">
-              <CheckCircle size={16} className="text-green-600" />
-            </div>
-          )}
+          <div className="flex-1">
+            <h3 className="font-oldstyle text-scripture-heading flex items-center gap-2">
+              {title}
+              {isCompleted && <CheckCircle className="h-4 w-4 text-ancient-gold" />}
+            </h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {description}
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" className="shrink-0">
+            <ExternalLink className="h-5 w-5 text-ancient-brown" />
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="pb-2">
-        <p className="text-sm line-clamp-2">
-          {/* Just show a preview of the first few characters */}
-          {getLocalizedStudyContent(study, language).content.slice(0, 100)}...
-        </p>
       </CardContent>
-      <CardFooter>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full"
-          onClick={() => onSelectStudy(study)}
-        >
-          {isCompleted ? 'Ler Novamente' : 'Ler Estudo'}
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

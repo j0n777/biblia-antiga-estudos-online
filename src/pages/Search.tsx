@@ -142,6 +142,12 @@ const Search = () => {
   // Should display studies even if no search
   const displayStudies = activeTab === 'studies' ? (query ? studyResults : allStudies) : [];
 
+  // Helper function to update user progress
+  const loadUserProgress = async () => {
+    const progress = await getUserStudyProgress();
+    setUserProgress(progress);
+  };
+
   return (
     <PageLayout>
       <div className="py-6 px-2">
@@ -274,11 +280,5 @@ const Search = () => {
     </PageLayout>
   );
 };
-
-export default Search;
-
-function loadUserProgress() {
-  return getUserStudyProgress().then(setUserProgress);
-}
 
 export default Search;

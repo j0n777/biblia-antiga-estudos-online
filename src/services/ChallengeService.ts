@@ -1,105 +1,178 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { DailyChallenge } from '@/types/bible.types';
+import { getUserProfile } from '@/services/ProfileService';
+import { updateUserProfile } from '@/services/ProfileService';
 
 /**
- * Get user's daily challenges
+ * Get daily challenges for the user
  * @returns Promise resolving to array of daily challenges
  */
 export async function getDailyChallenges(): Promise<DailyChallenge[]> {
   try {
-    const { data: session } = await supabase.auth.getSession();
-    const userId = session?.session?.user?.id;
+    const userProfile = await getUserProfile();
     
-    if (!userId) {
-      // Return mock challenges for non-authenticated users
-      return [
-        {
-          id: '1',
-          name: 'Desafio do Salmo',
-          title: 'Desafio do Salmo',
-          description: 'Leia o Salmo 23',
-          icon: '🌟',
-          target_book_id: 'PSA',
-          target_chapter: 23,
-          chapters_required: 1,
-          progress: 0,
-          completed: false,
-          points: 20,
-          expires_at: new Date(Date.now() + 86400000).toISOString(),
-          expiry: new Date(Date.now() + 86400000).toISOString()
-        },
-        {
-          id: '2',
-          name: 'Desafio do Novo Testamento',
-          title: 'Desafio do Novo Testamento',
-          description: 'Leia 3 capítulos dos Evangelhos',
-          icon: '📖',
-          target_book_id: null,
-          target_chapter: null,
-          book_category: 'gospels',
-          chapters_required: 3,
-          progress: 1,
-          completed: false,
-          points: 30,
-          expires_at: new Date(Date.now() + 86400000).toISOString(),
-          expiry: new Date(Date.now() + 86400000).toISOString()
-        }
-      ];
+    if (!userProfile?.id) {
+      return [];
     }
     
-    // TODO: Replace with actual database calls
-    return [
-      {
-        id: '1',
-        name: 'Desafio do Salmo',
-        title: 'Desafio do Salmo',
-        description: 'Leia o Salmo 23',
-        icon: '🌟',
-        target_book_id: 'PSA',
-        target_chapter: 23,
-        chapters_required: 1,
-        progress: 0,
-        completed: false,
-        points: 20,
-        expires_at: new Date(Date.now() + 86400000).toISOString(),
-        expiry: new Date(Date.now() + 86400000).toISOString()
-      },
-      {
-        id: '2',
-        name: 'Desafio do Novo Testamento',
-        title: 'Desafio do Novo Testamento',
-        description: 'Leia 3 capítulos dos Evangelhos',
-        icon: '📖',
-        target_book_id: null,
-        target_chapter: null,
-        book_category: 'gospels',
-        chapters_required: 3,
-        progress: 1,
-        completed: false,
-        points: 30,
-        expires_at: new Date(Date.now() + 86400000).toISOString(),
-        expiry: new Date(Date.now() + 86400000).toISOString()
-      },
-      {
-        id: '3',
-        name: 'Desafio de Provérbios',
-        title: 'Desafio de Provérbios',
-        description: 'Leia o Provérbios 3',
-        icon: '🧠',
-        target_book_id: 'PRO',
-        target_chapter: 3,
-        chapters_required: 1,
-        progress: 1,
-        completed: true,
-        points: 25,
-        expires_at: new Date(Date.now() + 86400000).toISOString(),
-        expiry: new Date(Date.now() + 86400000).toISOString()
-      }
-    ];
+    const { data, error } = await supabase
+      .from('daily_challenges')
+      .select('*')
+      .gt('expires_at', new Date().toISOString()) // Only get unexpired challenges
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      throw error;
+    }
     
+    // Get user completed challenges to mark them
+    const { data: userChallenges, error: userError } = await supabase
+      .from('user_challenge_progress')
+      .select('*')
+      .eq('user_id', userProfile.id);
+      
+    if (userError) {
+      throw userError;
+    }
+    
+    // Mark challenges as completed if the user has completed them
+    const challenges = data.map((challenge) => {
+      const completed = userChallenges?.some(
+        (uc) => uc.challenge_id === challenge.id && uc.completed_at
+      ) || false;
+      
+      // Calculate progress if available
+      const userProgress = userChallenges?.find(
+        (uc) => uc.challenge_id === challenge.id
+      );
+      
+      const progress = userProgress?.progress || 0;
+      
+      return {
+        ...challenge,
+        completed,
+        progress
+      } as DailyChallenge;
+    });
+    
+    return challenges;
   } catch (error) {
     console.error('Error getting daily challenges:', error);
     return [];
+  }
+}
+
+/**
+ * Mark a challenge as complete
+ * @param challengeId Challenge ID
+ * @param userId User ID (optional, will use current user if not provided)
+ * @returns Promise resolving to true if successful
+ */
+export async function markChallengeComplete(challengeId: string, points: number = 10): Promise<boolean> {
+  try {
+    const userProfile = await getUserProfile();
+    
+    if (!userProfile?.id) {
+      return false;
+    }
+    
+    // Update or insert the challenge completion
+    const { error } = await supabase
+      .from('user_challenge_progress')
+      .upsert({
+        user_id: userProfile.id,
+        challenge_id: challengeId,
+        completed_at: new Date().toISOString(),
+        progress: 100 // Full completion
+      });
+      
+    if (error) {
+      throw error;
+    }
+    
+    // Award points to the user
+    if (points > 0) {
+      const currentXP = userProfile.experience_points || 0;
+      await updateUserProfile({
+        experience_points: currentXP + points
+      });
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error marking challenge complete:', error);
+    return false;
+  }
+}
+
+/**
+ * Update challenge progress
+ * @param challengeId Challenge ID
+ * @param progress Progress amount (0-100)
+ * @returns Promise resolving to true if successful
+ */
+export async function updateChallengeProgress(challengeId: string, progress: number): Promise<boolean> {
+  try {
+    const userProfile = await getUserProfile();
+    
+    if (!userProfile?.id) {
+      return false;
+    }
+    
+    // Ensure progress is between 0 and 100
+    const validProgress = Math.max(0, Math.min(100, progress));
+    
+    // Get current progress
+    const { data: currentData, error: fetchError } = await supabase
+      .from('user_challenge_progress')
+      .select('*')
+      .eq('user_id', userProfile.id)
+      .eq('challenge_id', challengeId)
+      .maybeSingle();
+      
+    if (fetchError) {
+      throw fetchError;
+    }
+    
+    // Determine if this update completes the challenge
+    const isCompleted = validProgress >= 100;
+    const completedAt = isCompleted ? new Date().toISOString() : null;
+    
+    // Update or insert the challenge progress
+    const { error } = await supabase
+      .from('user_challenge_progress')
+      .upsert({
+        user_id: userProfile.id,
+        challenge_id: challengeId,
+        progress: validProgress,
+        completed_at: completedAt
+      });
+      
+    if (error) {
+      throw error;
+    }
+    
+    // If this update completes the challenge and it wasn't complete before, award points
+    if (isCompleted && (!currentData || !currentData.completed_at)) {
+      // Get the challenge to determine how many points to award
+      const { data: challengeData } = await supabase
+        .from('daily_challenges')
+        .select('points')
+        .eq('id', challengeId)
+        .single();
+        
+      if (challengeData && challengeData.points) {
+        const currentXP = userProfile.experience_points || 0;
+        await updateUserProfile({
+          experience_points: currentXP + challengeData.points
+        });
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating challenge progress:', error);
+    return false;
   }
 }
