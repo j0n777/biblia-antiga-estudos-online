@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink } from 'lucide-react';
@@ -282,3 +281,7 @@ const Search = () => {
 };
 
 export default Search;
+
+function loadUserProgress() {
+  return getUserStudyProgress().then(setUserProgress);
+}

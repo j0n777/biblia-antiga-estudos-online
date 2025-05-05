@@ -6,7 +6,7 @@ import { CheckCircle, Award } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BibleStudy } from '@/types/bible.types';
-import { completeStudy, getBibleStudy } from '@/services/BibleStudyService';
+import { completeStudy, getBibleStudyById } from '@/services/BibleStudyService';
 
 // Helper function to get localized study content
 function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
@@ -24,7 +24,8 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
   // If content has a content field which is language-specific
   if (typeof study.content === 'object' && 
       study.content.content && 
-      typeof study.content.content === 'object') {
+      typeof study.content.content === 'object' &&
+      study.content.content[language]) {
     return study.content.content[language] || study.content.content.en || '';
   }
   
@@ -64,7 +65,7 @@ const BibleStudyDialog = ({
     const loadNextStudy = async () => {
       if (study?.next_study_id) {
         try {
-          const nextStudyData = await getBibleStudy(study.next_study_id);
+          const nextStudyData = await getBibleStudyById(study.next_study_id);
           if (nextStudyData) {
             setNextStudy(nextStudyData);
           }

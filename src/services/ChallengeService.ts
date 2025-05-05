@@ -1,8 +1,37 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { DailyChallenge } from '@/types/bible.types';
-import { getUserProfile } from '@/services/ProfileService';
-import { updateUserProfile } from '@/services/ProfileService';
+import { getUserProfile, updateUserProfile } from '@/services/ProfileService';
+
+// Mock data for daily challenges until we have the actual tables
+const mockChallenges: DailyChallenge[] = [
+  {
+    id: 'challenge-1',
+    title: 'Read 3 Chapters',
+    description: 'Read any 3 chapters from the Bible today',
+    points: 15,
+    completed: false,
+    icon: '📖',
+    expiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    name: 'daily-reading',
+    chapters_required: 3,
+    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    progress: 0
+  },
+  {
+    id: 'challenge-2',
+    title: 'Complete a Study',
+    description: 'Complete any Bible study today',
+    points: 20,
+    completed: false,
+    icon: '🔍',
+    expiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    name: 'daily-study',
+    chapters_required: 1,
+    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    progress: 0
+  }
+];
 
 /**
  * Get daily challenges for the user
@@ -10,6 +39,11 @@ import { updateUserProfile } from '@/services/ProfileService';
  */
 export async function getDailyChallenges(): Promise<DailyChallenge[]> {
   try {
+    // For now, return mock data as the tables don't exist yet
+    return mockChallenges;
+    
+    // Once we add the tables, we can use this code:
+    /*
     const userProfile = await getUserProfile();
     
     if (!userProfile?.id) {
@@ -19,7 +53,7 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
     const { data, error } = await supabase
       .from('daily_challenges')
       .select('*')
-      .gt('expires_at', new Date().toISOString()) // Only get unexpired challenges
+      .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false });
       
     if (error) {
@@ -57,19 +91,20 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
     });
     
     return challenges;
+    */
   } catch (error) {
     console.error('Error getting daily challenges:', error);
-    return [];
+    return mockChallenges; // Return mock data on error for now
   }
 }
 
 /**
  * Mark a challenge as complete
  * @param challengeId Challenge ID
- * @param userId User ID (optional, will use current user if not provided)
+ * @param points Points to award (defaults to 10)
  * @returns Promise resolving to true if successful
  */
-export async function markChallengeComplete(challengeId: string, points: number = 10): Promise<boolean> {
+export async function markChallengeComplete(challengeId: string): Promise<boolean> {
   try {
     const userProfile = await getUserProfile();
     
@@ -77,6 +112,23 @@ export async function markChallengeComplete(challengeId: string, points: number 
       return false;
     }
     
+    // Find the mock challenge and mark it complete for now
+    const challenge = mockChallenges.find(c => c.id === challengeId);
+    if (challenge) {
+      challenge.completed = true;
+      challenge.progress = 100;
+      
+      // Award points to the user
+      const currentXP = userProfile.experience_points || 0;
+      await updateUserProfile({
+        experience_points: currentXP + (challenge.points || 10)
+      });
+    }
+    
+    return true;
+    
+    // Once we add the tables, we can use this code:
+    /*
     // Update or insert the challenge completion
     const { error } = await supabase
       .from('user_challenge_progress')
@@ -100,6 +152,7 @@ export async function markChallengeComplete(challengeId: string, points: number 
     }
     
     return true;
+    */
   } catch (error) {
     console.error('Error marking challenge complete:', error);
     return false;
@@ -120,6 +173,29 @@ export async function updateChallengeProgress(challengeId: string, progress: num
       return false;
     }
     
+    // Find the mock challenge and update its progress
+    const challenge = mockChallenges.find(c => c.id === challengeId);
+    if (challenge) {
+      // Ensure progress is between 0 and 100
+      const validProgress = Math.max(0, Math.min(100, progress));
+      challenge.progress = validProgress;
+      
+      // If this completes the challenge, mark it as complete
+      if (validProgress >= 100 && !challenge.completed) {
+        challenge.completed = true;
+        
+        // Award points to the user
+        const currentXP = userProfile.experience_points || 0;
+        await updateUserProfile({
+          experience_points: currentXP + (challenge.points || 10)
+        });
+      }
+    }
+    
+    return true;
+    
+    // Once we have the tables, we can use this code:
+    /*
     // Ensure progress is between 0 and 100
     const validProgress = Math.max(0, Math.min(100, progress));
     
@@ -169,6 +245,7 @@ export async function updateChallengeProgress(challengeId: string, progress: num
         });
       }
     }
+    */
     
     return true;
   } catch (error) {

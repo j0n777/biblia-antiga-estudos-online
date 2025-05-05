@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleStudy, UserStudyProgress } from '@/types/bible.types';
 import { getUserProfile, updateUserProfile } from '@/services';
@@ -136,7 +135,8 @@ export function getLocalizedStudyContent(study: BibleStudy, language: string = '
   // If content has a content field which is language-specific
   if (typeof study.content === 'object' && 
       study.content.content && 
-      typeof study.content.content === 'object') {
+      typeof study.content.content === 'object' &&
+      study.content.content[language]) {
     return study.content.content[language] || study.content.content.en || '';
   }
   
