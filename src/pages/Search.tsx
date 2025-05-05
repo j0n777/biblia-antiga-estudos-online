@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink } from 'lucide-react';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchBibleVerses } from '@/services/BibleDataService';
-import { searchBibleStudies, getCompletedStudies, getAllBibleStudies } from '@/services/BibleStudyService';
+import { searchBibleStudies, getAllBibleStudies, getCompletedStudies } from '@/services/BibleStudyService';
 import { BibleVerse as BibleVerseType, BibleStudy } from '@/types/bible.types';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleVerseComponent from '@/components/bible/BibleVerse';

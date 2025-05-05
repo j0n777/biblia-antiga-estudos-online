@@ -34,3 +34,6 @@ export { getLeaderboard } from './LeaderboardService';
 
 // Re-export from BibleService
 export * from './BibleService';
+
+// Re-export from BibleStudyService
+export * from './BibleStudyService';

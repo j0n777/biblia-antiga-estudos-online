@@ -28,8 +28,8 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    // Use optional chaining and null check for safety
-    if (typeof contentObj === 'object') {
+    // Use null check before accessing properties
+    if (contentObj && typeof contentObj === 'object') {
       return contentObj[language] || contentObj['en'] || '';
     }
     return '';
