@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { getDailyChallenges } from '@/services/AchievementService';
+import { getDailyChallenges } from '@/services/ChallengeService';
 import { DailyChallenge } from '@/types/bible.types';
 import { Target, CheckCircle2 } from 'lucide-react';
 

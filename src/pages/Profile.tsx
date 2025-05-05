@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -9,7 +10,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '@/components/achievements/AchievementList';
 import SettingsDialog from '@/components/profile/SettingsDialog';
-import { getUserAchievements, getUserProfile, getSavedVerses } from '@/services/AchievementService';
+import { getUserAchievements } from '@/services/AchievementService';
+import { getUserProfile } from '@/services/ProfileService';
+import { getSavedVerses } from '@/services/VersesService';
 import { Achievement, UserProfile, SavedVerse } from '@/types/bible.types';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';

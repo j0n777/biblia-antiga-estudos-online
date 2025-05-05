@@ -1,7 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { ReadingPosition, UserProfile } from '@/types/bible.types';
-import { getUserProfile, updateUserProfile } from './AchievementService';
+import { ReadingPosition } from '@/types/bible.types';
+import { getUserProfile } from './ProfileService';
+import { updateUserProfile } from './ProfileService';
 
 /**
  * Save user's current reading position

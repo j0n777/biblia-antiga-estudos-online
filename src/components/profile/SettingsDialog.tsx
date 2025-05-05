@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Settings2, Type } from 'lucide-react';
-import { updateUserProfile } from '@/services/AchievementService';
+import { updateUserProfile } from '@/services/ProfileService';
 import { toast } from '@/hooks/use-toast';
 import { UserProfile } from '@/types/bible.types';
 import ProfileForm from './ProfileForm';
