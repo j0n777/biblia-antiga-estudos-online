@@ -1,6 +1,8 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { SavedVerse } from '@/types/bible.types';
+import { getBibleBooks } from './BibleDataService';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * Get saved verses
@@ -19,8 +21,19 @@ export async function getSavedVerses(): Promise<SavedVerse[]> {
       return JSON.parse(savedVerses);
     }
     
-    // TODO: Replace with actual database calls
-    return [];
+    // For authenticated users, get from database
+    const { data, error } = await supabase
+      .from('saved_verses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('saved_at', { ascending: false });
+      
+    if (error) {
+      console.error('Error fetching saved verses:', error);
+      return [];
+    }
+    
+    return data as SavedVerse[];
   } catch (error) {
     console.error('Error getting saved verses:', error);
     return [];
@@ -67,11 +80,12 @@ export async function saveVerse(
       } else {
         // Add new saved verse
         savedVerses.push({
+          id: 'local-' + Date.now(),
           book_id: bookId,
           chapter_number: chapterNumber,
           verse_number: verseNumber,
           version_id: versionId,
-          color,
+          highlight_color: color,
           saved_at: new Date().toISOString()
         });
       }
@@ -80,7 +94,23 @@ export async function saveVerse(
       return true;
     }
     
-    // TODO: Save verse in the database for logged in users
+    // For authenticated users, save in database
+    const { data, error } = await supabase
+      .from('saved_verses')
+      .upsert({
+        user_id: session.session.user.id,
+        book_id: bookId,
+        chapter_number: chapterNumber,
+        verse_number: verseNumber,
+        version_id: versionId,
+        highlight_color: color,
+        saved_at: new Date().toISOString()
+      }, { onConflict: 'user_id, book_id, chapter_number, verse_number' });
+      
+    if (error) {
+      console.error('Error saving verse:', error);
+      return false;
+    }
     
     return true;
   } catch (error) {

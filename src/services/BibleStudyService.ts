@@ -1,17 +1,17 @@
 
-// This file contains functions for interacting with Bible studies data
 import { supabase } from '@/integrations/supabase/client';
-import { BibleStudy, UserStudyProgress } from '@/types/bible.types';
+import { BibleStudy } from '@/types/bible.types';
 
 /**
- * Get all available Bible studies
+ * Get all Bible studies
+ * @returns Promise resolving to array of BibleStudy objects
  */
 export async function getAllBibleStudies(): Promise<BibleStudy[]> {
   try {
     const { data, error } = await supabase
       .from('bible_studies')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
       
     if (error) throw error;
     
@@ -24,14 +24,16 @@ export async function getAllBibleStudies(): Promise<BibleStudy[]> {
 }
 
 /**
- * Get a specific Bible study by ID
+ * Get a Bible study by ID
+ * @param id Bible study ID
+ * @returns Promise resolving to BibleStudy object or null if not found
  */
-export async function getBibleStudyById(studyId: string): Promise<BibleStudy | null> {
+export async function getBibleStudyById(id: string): Promise<BibleStudy | null> {
   try {
     const { data, error } = await supabase
       .from('bible_studies')
       .select('*')
-      .eq('id', studyId)
+      .eq('id', id)
       .single();
       
     if (error) throw error;
@@ -45,17 +47,17 @@ export async function getBibleStudyById(studyId: string): Promise<BibleStudy | n
 }
 
 /**
- * Search for Bible studies by query
+ * Search Bible studies
+ * @param query Search query
+ * @returns Promise resolving to array of BibleStudy objects
  */
 export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
-  if (!query.trim()) return [];
-
   try {
-    // Search in both title and content
     const { data, error } = await supabase
       .from('bible_studies')
       .select('*')
-      .or(`title.en.ilike.%${query}%,title.pt.ilike.%${query}%,content.content.en.ilike.%${query}%,content.content.pt.ilike.%${query}%`)
+      .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+      .order('created_at', { ascending: true });
       
     if (error) throw error;
     
@@ -68,23 +70,24 @@ export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
 }
 
 /**
- * Get user's progress on Bible studies
+ * Get completed Bible studies for the current user
+ * @returns Promise resolving to array of study IDs that have been completed
  */
-export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
+export async function getCompletedStudies(): Promise<string[]> {
   try {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) return [];
     
     const { data, error } = await supabase
       .from('user_study_progress')
-      .select('*')
+      .select('study_id')
       .eq('user_id', session.session.user.id);
       
     if (error) throw error;
     
-    return data || [];
+    return data?.map(p => p.study_id) || [];
   } catch (error) {
-    console.error('Error fetching user study progress:', error);
+    console.error('Error fetching completed studies:', error);
     return [];
   }
 }
@@ -97,86 +100,96 @@ export async function completeStudy(studyId: string): Promise<boolean> {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) return false;
     
-    // Get the study details
-    const study = await getBibleStudyById(studyId);
-    if (!study) return false;
+    // Get study to get points information
+    const { data: studyData, error: studyError } = await supabase
+      .from('bible_studies')
+      .select('points')
+      .eq('id', studyId)
+      .single();
     
-    // Check if this study is already completed
-    const { data: existing } = await supabase
+    if (studyError) throw studyError;
+    
+    const points = studyData?.points || 10;
+    
+    // Check if already completed
+    const { data: existingProgress, error: checkError } = await supabase
+      .from('user_study_progress')
+      .select('id')
+      .eq('user_id', session.session.user.id)
+      .eq('study_id', studyId);
+      
+    if (checkError) throw checkError;
+    
+    if (existingProgress && existingProgress.length > 0) {
+      // Already completed
+      return true;
+    }
+    
+    // Insert progress record
+    const { error: insertError } = await supabase
+      .from('user_study_progress')
+      .insert({
+        user_id: session.session.user.id,
+        study_id: studyId,
+        points_earned: points
+      });
+      
+    if (insertError) throw insertError;
+    
+    // Update user XP
+    const { error: updateError } = await supabase
+      .from('user_profiles')
+      .update({
+        experience_points: supabase.rpc('increment', { points })
+      })
+      .eq('id', session.session.user.id);
+      
+    if (updateError) throw updateError;
+    
+    return true;
+  } catch (error) {
+    console.error('Error completing Bible study:', error);
+    return false;
+  }
+}
+
+/**
+ * Check if a Bible study has been completed by the current user
+ * @param studyId Bible study ID
+ * @returns Promise resolving to boolean indicating completion status
+ */
+export async function isStudyCompleted(studyId: string): Promise<boolean> {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) return false;
+    
+    const { data, error } = await supabase
       .from('user_study_progress')
       .select('id')
       .eq('user_id', session.session.user.id)
       .eq('study_id', studyId)
       .single();
       
-    if (existing) {
-      // Update existing record
-      const { error } = await supabase
-        .from('user_study_progress')
-        .update({
-          completed_at: new Date().toISOString(),
-          points_earned: study.points || 10
-        })
-        .eq('id', existing.id);
-        
-      if (error) throw error;
-    } else {
-      // Insert new record
-      const { error } = await supabase
-        .from('user_study_progress')
-        .insert({
-          user_id: session.session.user.id,
-          study_id: studyId,
-          completed_at: new Date().toISOString(),
-          points_earned: study.points || 10
-        });
-        
-      if (error) throw error;
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 is "no rows returned" which is expected if not completed
+      throw error;
     }
     
-    // Update the user's experience points
-    await updateUserExperiencePoints(study.points || 10);
-    
-    return true;
+    return !!data;
   } catch (error) {
-    console.error('Error marking study as completed:', error);
+    console.error('Error checking study completion status:', error);
     return false;
   }
 }
 
 /**
- * Update user's experience points
+ * Get localized study content
+ * Helper function to get properly localized content from a study
+ * @param study Bible study object
+ * @param language Language code
+ * @returns Localized content string
  */
-async function updateUserExperiencePoints(points: number): Promise<void> {
-  try {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return;
-    
-    // Get current user profile
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('experience_points')
-      .eq('id', session.session.user.id)
-      .single();
-      
-    if (!profile) return;
-    
-    // Update profile with new points
-    await supabase
-      .from('user_profiles')
-      .update({
-        experience_points: (profile.experience_points || 0) + points
-      })
-      .eq('id', session.session.user.id);
-  } catch (error) {
-    console.error('Error updating user experience points:', error);
-  }
-}
-
-/**
- * Helper function to get localized study content
- */
-export function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
+export function getStudyContent(study: BibleStudy, language: string = 'en'): string {
   if (!study || !study.content) return '';
   
   if (typeof study.content === 'string') {
@@ -192,8 +205,11 @@ export function getLocalizedStudyContent(study: BibleStudy, language: string = '
   if (typeof study.content === 'object' && 
       study.content.content && 
       typeof study.content.content === 'object') {
-    // Add null checks using optional chaining
-    return study.content.content?.[language] || study.content.content?.['en'] || '';
+    // Verificar se study.content.content é null antes de acessar propriedades
+    const contentObj = study.content.content;
+    if (!contentObj) return '';
+    
+    return contentObj[language] || contentObj['en'] || '';
   }
   
   return '';

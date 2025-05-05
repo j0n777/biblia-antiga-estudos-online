@@ -9,6 +9,7 @@ import { UserProfile } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const RankingPage = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -16,6 +17,7 @@ const RankingPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   
   const { t } = useLanguage();
+  const navigate = useNavigate();
   
   // Fetch user profile
   useEffect(() => {
@@ -30,7 +32,7 @@ const RankingPage = () => {
   }, []);
 
   const handleCreateAccount = () => {
-    window.location.href = "/auth";
+    navigate("/auth");
   };
 
   if (isLoading) {

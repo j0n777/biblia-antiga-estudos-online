@@ -24,11 +24,11 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [savedVerses, setSavedVerses] = useState<any[]>([]);
+  const [savedVerses, setSavedVerses] = useState<SavedVerse[]>([]);
   const [bookNames, setBookNames] = useState<Record<string, string>>({});
   
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   // Check authentication
   useEffect(() => {
@@ -54,7 +54,7 @@ const ProfilePage = () => {
       const userAchievements = await getUserAchievements();
       const userProfile = await getUserProfile();
       const userSavedVerses = await getSavedVerses();
-      const books = await getBibleBooks();
+      const books = await getBibleBooks(language); // Passar o idioma atual para obter nomes dos livros corretos
       
       // Create book name lookup
       const bookNameLookup: Record<string, string> = {};
@@ -71,7 +71,7 @@ const ProfilePage = () => {
     if (isLoading === false) {
       fetchUserData();
     }
-  }, [isLoading]);
+  }, [isLoading, language]); // Adicionar language como dependência para recarregar quando o idioma mudar
   
   const handleProfileUpdate = async () => {
     const userProfile = await getUserProfile();
@@ -168,7 +168,7 @@ const ProfilePage = () => {
           <div className="mb-6">
             <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2 mb-3">
               <Bookmark size={18} className="text-ancient-gold" />
-              {t('profile.savedVerses') || "Versículos Salvos"}
+              {t('profile.savedVerses')}
             </h3>
             
             <div className="space-y-2">
@@ -200,7 +200,7 @@ const ProfilePage = () => {
                   variant="link" 
                   className="text-sm text-ancient-brown"
                 >
-                  {t('profile.viewAllVerses') || "Ver Todos"}
+                  {t('profile.viewAllVerses')}
                 </Button>
               </div>
             </div>
