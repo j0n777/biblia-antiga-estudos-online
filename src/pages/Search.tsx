@@ -13,6 +13,7 @@ import BibleVerseComponent from '@/components/bible/BibleVerse';
 import BibleStudyCard from '@/components/studies/BibleStudyCard';
 import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,15 +57,27 @@ const Search = () => {
     
     try {
       if (activeTab === 'verses') {
-        const results = await searchBibleVerses(searchQuery);
-        console.log("Search results:", results);
-        setSearchResults(results);
+        // Use Supabase directly for text search with better results
+        const { data, error } = await supabase
+          .from('bible_verses')
+          .select('*')
+          .textSearch('text', searchQuery, { 
+            type: 'websearch',
+            config: 'english'
+          })
+          .limit(20);
+
+        if (error) throw error;
+        
+        console.log("Search results:", data);
+        setSearchResults(data as BibleVerseType[]);
       } else if (activeTab === 'studies') {
         const results = await searchBibleStudies(searchQuery);
         setStudyResults(results);
       }
     } catch (error) {
       console.error('Search error:', error);
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
     }

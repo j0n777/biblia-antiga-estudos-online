@@ -34,8 +34,13 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   useEffect(() => {
     const fetchChapterContent = async () => {
       if (bookId && chapterNumber) {
-        const content = await getBookContent(bookId, chapterNumber);
-        setChapterContent(content);
+        try {
+          const content = await getBookContent(bookId, chapterNumber);
+          setChapterContent(content);
+        } catch (error) {
+          console.error("Error fetching chapter content:", error);
+          setChapterContent(null);
+        }
       } else if (chapter) {
         // If we have a chapter object directly, format it as BookContent
         setChapterContent({
@@ -86,7 +91,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   };
   
   if (!chapterContent) {
-    return <div>{t('common.loading')}...</div>;
+    return <div className="text-center py-12">{t('bible.chapterNotFound')}</div>;
   }
 
   const renderVerse = (verse: BibleVerseType) => {
@@ -118,7 +123,11 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       
       <ScrollArea className="h-[calc(100vh-220px)] w-full rounded-md border">
         <div className={`font-garamond text-scripture-text dark:text-scripture-text-dark ${getFontSizeClass()} py-2 px-4`}>
-          {chapterContent.verses.map(renderVerse)}
+          {chapterContent.verses && chapterContent.verses.length > 0 ? (
+            chapterContent.verses.map(renderVerse)
+          ) : (
+            <div className="text-center py-4">{t('bible.tryAnotherChapter')}</div>
+          )}
         </div>
       </ScrollArea>
     </div>

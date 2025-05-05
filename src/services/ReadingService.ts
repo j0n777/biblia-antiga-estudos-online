@@ -24,15 +24,14 @@ export const saveReadingPosition = async (
       book_id: bookId,
       chapter: chapter,
       verse: verse,
-      timestamp: new Date().toISOString(),
-      chapter_number: chapter
+      timestamp: new Date().toISOString()
     };
 
     // Get user profile
     const profile = await getUserProfile();
     
     // For non-authenticated users, save to localStorage
-    if (!profile?.id || profile.id === 'local') {
+    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
       localStorage.setItem('reading_position', JSON.stringify(readingPosition));
       return true;
     }
@@ -59,7 +58,7 @@ export const getLastReadingPosition = async (): Promise<ReadingPosition | null> 
     const profile = await getUserProfile();
     
     // For non-authenticated users, get from localStorage
-    if (!profile?.id || profile.id === 'local') {
+    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
       const storedPosition = localStorage.getItem('reading_position');
       return storedPosition ? JSON.parse(storedPosition) : null;
     }
@@ -86,7 +85,7 @@ export const clearReadingPosition = async (): Promise<boolean> => {
     const profile = await getUserProfile();
     
     // For non-authenticated users, remove from localStorage
-    if (!profile?.id || profile.id === 'local') {
+    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
       localStorage.removeItem('reading_position');
       return true;
     }

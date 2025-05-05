@@ -15,14 +15,14 @@ import FontSizeControl from '@/components/bible/FontSizeControl';
 
 const Read = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [bookId, setBookId] = useState('');
-  const [chapterNumber, setChapterNumber] = useState(1);
+  const [bookId, setBookId] = useState<string>('');
+  const [chapterNumber, setChapterNumber] = useState<number>(1);
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [versionId, setVersionId] = useState('kja');
+  const [versionId, setVersionId] = useState<string>('kja');
   const [chapter, setChapter] = useState<BibleChapterType | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
   const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
   const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
@@ -35,10 +35,16 @@ const Read = () => {
       try {
         // First load all books and versions to ensure they're available
         const booksData = await getAllBooks('kja');
-        setBooks(booksData);
+        if (booksData && booksData.length > 0) {
+          setBooks(booksData);
+        } else {
+          console.error("No books data available");
+        }
         
         const versionsData = await getAllVersions();
-        setVersions(versionsData);
+        if (versionsData && versionsData.length > 0) {
+          setVersions(versionsData);
+        }
 
         // Check URL params first
         const urlBook = searchParams.get('book');
@@ -57,14 +63,14 @@ const Read = () => {
           const lastPosition = await getLastReadingPosition();
           if (lastPosition) {
             console.log("Loading last reading position:", lastPosition);
-            setBookId(lastPosition.book_id);
-            setChapterNumber(lastPosition.chapter);
-            setVersionId(lastPosition.version_id);
-            setScrollToVerse(lastPosition.verse);
+            setBookId(lastPosition.book_id || 'GEN');
+            setChapterNumber(lastPosition.chapter || 1);
+            setVersionId(lastPosition.version_id || 'kja');
+            setScrollToVerse(lastPosition.verse || 1);
           } else {
-            // Default to Matthew 1
+            // Default to Genesis 1 if no reading position
             console.log("No last reading position, using default");
-            setBookId('MAT');
+            setBookId('GEN');
             setChapterNumber(1);
             setVersionId('kja');
           }
@@ -72,7 +78,8 @@ const Read = () => {
         setIsInitialLoad(false);
       } catch (error) {
         console.error('Error initializing reading position:', error);
-        setBookId('MAT');
+        // Set reasonable defaults
+        setBookId('GEN');
         setChapterNumber(1);
         setVersionId('kja');
         setIsInitialLoad(false);
@@ -117,6 +124,7 @@ const Read = () => {
       
     } catch (error) {
       console.error('Error loading data:', error);
+      setChapter(null);
       toast({
         title: t('common.error'),
         description: t('bible.errorLoadingChapter'),
@@ -128,6 +136,8 @@ const Read = () => {
   };
   
   const handlePreviousChapter = () => {
+    if (!books || books.length === 0) return;
+    
     // Find the current book in the list
     const currentBookIndex = books.findIndex(book => book.book_id === bookId);
     if (currentBookIndex === -1) return;
@@ -151,6 +161,8 @@ const Read = () => {
   };
   
   const handleNextChapter = () => {
+    if (!books || books.length === 0) return;
+    
     // Find the current book in the list
     const currentBookIndex = books.findIndex(book => book.book_id === bookId);
     if (currentBookIndex === -1) return;
@@ -287,7 +299,7 @@ const Read = () => {
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {books.find(b => b.book_id === bookId)?.chapters_count && 
+                    {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
                       Array.from(
                         { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
                         (_, i) => i + 1
@@ -313,7 +325,7 @@ const Read = () => {
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
             </div>
-          ) : chapter ? (
+          ) : (
             <BibleChapter 
               chapter={chapter} 
               scrollToVerse={scrollToVerse} 
@@ -321,13 +333,6 @@ const Read = () => {
               isVerseSelected={isVerseSelected}
               fontSize={fontSize}
             />
-          ) : (
-            <div className="text-center py-12">
-              <p>{t('bible.chapterNotFound')}</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                {t('bible.tryAnotherChapter')}
-              </p>
-            </div>
           )}
         </div>
 
