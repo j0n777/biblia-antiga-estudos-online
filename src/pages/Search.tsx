@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchBibleVerses } from '@/services/BibleDataService';
-import { searchBibleStudies, getUserStudyProgress, getAllBibleStudies } from '@/services/BibleStudyService';
-import { BibleVerse as BibleVerseType, BibleStudy, UserStudyProgress } from '@/types/bible.types';
+import { searchBibleStudies, getCompletedStudies, getAllBibleStudies } from '@/services/BibleStudyService';
+import { BibleVerse as BibleVerseType, BibleStudy } from '@/types/bible.types';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
 import BibleStudyCard from '@/components/studies/BibleStudyCard';
@@ -30,7 +30,7 @@ const Search = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
-  const [userProgress, setUserProgress] = useState<UserStudyProgress[]>([]);
+  const [completedStudyIds, setCompletedStudyIds] = useState<string[]>([]);
   
   const { t, language } = useLanguage();
   
@@ -42,9 +42,9 @@ const Search = () => {
         const studies = await getAllBibleStudies();
         setAllStudies(studies);
         
-        // Load user progress
-        const progress = await getUserStudyProgress();
-        setUserProgress(progress);
+        // Load user completed studies
+        const completed = await getCompletedStudies();
+        setCompletedStudyIds(completed);
         
         // Perform search if there's an initial query
         if (initialQuery) {
@@ -135,21 +135,19 @@ const Search = () => {
   };
   
   const isStudyCompleted = (studyId: string) => {
-    return userProgress.some(progress => 
-      progress.study_id === studyId && progress.completed_at
-    );
+    return completedStudyIds.includes(studyId);
   };
   
   // Should display studies even if no search
   const displayStudies = activeTab === 'studies' ? (query ? studyResults : allStudies) : [];
 
   // Function to reload user progress after completing a study
-  const loadUserProgress = async () => {
+  const loadCompletedStudies = async () => {
     try {
-      const progress = await getUserStudyProgress();
-      setUserProgress(progress);
+      const completed = await getCompletedStudies();
+      setCompletedStudyIds(completed);
     } catch (error) {
-      console.error("Error loading user progress:", error);
+      console.error("Error loading completed studies:", error);
       toast({
         title: t('common.error'),
         description: t('studies.errorLoadingProgress'),
@@ -239,27 +237,12 @@ const Search = () => {
             ) : displayStudies.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {displayStudies.map((study, index) => (
-                  <Card key={study.id} className="parchment-container hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer elevated-card animate-fade-in" style={{ animationDelay: `${index * 50}ms` }} onClick={() => handleStudySelect(study)}>
-                    <CardContent className="p-4 flex items-center gap-3">
-                      <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded">
-                        {study.icon}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-oldstyle text-scripture-heading">
-                          {typeof study.title === 'string' ? study.title : study.title[language] || study.title_key}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {typeof study.content === 'object' && study.content.description ? 
-                            (typeof study.content.description === 'string' ? 
-                              study.content.description : 
-                              study.content.description[language] || '') : ''}
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="icon" className="shrink-0">
-                        <ExternalLink className="h-5 w-5 text-ancient-brown" />
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <BibleStudyCard
+                    key={study.id}
+                    study={study}
+                    isCompleted={isStudyCompleted(study.id)}
+                    onClick={() => handleStudySelect(study)}
+                  />
                 ))}
               </div>
             ) : query ? (
@@ -282,7 +265,7 @@ const Search = () => {
             study={selectedStudy} 
             open={!!selectedStudy}
             onOpenChange={() => setSelectedStudy(null)}
-            onComplete={loadUserProgress}
+            onComplete={loadCompletedStudies}
             isCompleted={isStudyCompleted(selectedStudy.id)}
           />
         )}

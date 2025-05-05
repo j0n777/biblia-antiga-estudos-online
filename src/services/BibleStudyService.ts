@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { BibleStudy } from '@/types/bible.types';
+import { BibleStudy, UserStudyProgress } from '@/types/bible.types';
 
 /**
  * Get all Bible studies
@@ -93,7 +93,32 @@ export async function getCompletedStudies(): Promise<string[]> {
 }
 
 /**
- * Mark a Bible study as completed (renamed from markStudyCompleted to completeStudy)
+ * Get progress for user's studies
+ * @returns Promise resolving to array of UserStudyProgress objects
+ */
+export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) return [];
+    
+    const { data, error } = await supabase
+      .from('user_study_progress')
+      .select('*')
+      .eq('user_id', session.session.user.id);
+      
+    if (error) throw error;
+    
+    return data as UserStudyProgress[];
+  } catch (error) {
+    console.error('Error fetching user study progress:', error);
+    return [];
+  }
+}
+
+/**
+ * Mark a Bible study as completed
+ * @param studyId Bible study ID to mark as completed
+ * @returns Promise resolving to boolean indicating success
  */
 export async function completeStudy(studyId: string): Promise<boolean> {
   try {
@@ -137,12 +162,9 @@ export async function completeStudy(studyId: string): Promise<boolean> {
     if (insertError) throw insertError;
     
     // Update user XP
-    const { error: updateError } = await supabase
-      .from('user_profiles')
-      .update({
-        experience_points: supabase.rpc('increment', { points })
-      })
-      .eq('id', session.session.user.id);
+    const { error: updateError } = await supabase.rpc('increment', { 
+      points 
+    });
       
     if (updateError) throw updateError;
     
@@ -203,13 +225,13 @@ export function getStudyContent(study: BibleStudy, language: string = 'en'): str
   
   // If content has a content field which is language-specific
   if (typeof study.content === 'object' && 
-      study.content.content && 
-      typeof study.content.content === 'object') {
-    // Verificar se study.content.content é null antes de acessar propriedades
+      study.content.content) {
+    // Safely check if content exists and is an object
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    return contentObj[language] || contentObj['en'] || '';
+    // Use optional chaining to safely access properties
+    return typeof contentObj === 'object' ? (contentObj[language] || contentObj['en'] || '') : '';
   }
   
   return '';

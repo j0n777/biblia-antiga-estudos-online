@@ -54,7 +54,8 @@ const ProfilePage = () => {
       const userAchievements = await getUserAchievements();
       const userProfile = await getUserProfile();
       const userSavedVerses = await getSavedVerses();
-      const books = await getBibleBooks(language); // Passar o idioma atual para obter nomes dos livros corretos
+      // Corrigindo a chamada para não passar o idioma como argumento
+      const books = await getBibleBooks();
       
       // Create book name lookup
       const bookNameLookup: Record<string, string> = {};
@@ -71,7 +72,7 @@ const ProfilePage = () => {
     if (isLoading === false) {
       fetchUserData();
     }
-  }, [isLoading, language]); // Adicionar language como dependência para recarregar quando o idioma mudar
+  }, [isLoading, language]); // Manter language como dependência para recarregar quando o idioma mudar
   
   const handleProfileUpdate = async () => {
     const userProfile = await getUserProfile();
