@@ -42,7 +42,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
-      .eq('user_id', session.session.user.id)
+      .eq('id', session.session.user.id)
       .single();
       
     if (error) {
@@ -113,7 +113,7 @@ export async function updateUserProfile(updates: Partial<UserProfile>): Promise<
         ...updates,
         updated_at: new Date().toISOString()
       })
-      .eq('user_id', session.session.user.id);
+      .eq('id', session.session.user.id);
       
     if (error) {
       throw new Error(`Profile update error: ${error.message}`);

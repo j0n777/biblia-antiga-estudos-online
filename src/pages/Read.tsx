@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -6,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
-import { saveReadingPosition, getLastReadingPosition } from '@/services/ReadingService';
-import { trackReading, saveVerse } from '@/services/AchievementService';
+import { saveReadingPosition, getLastReadingPosition } from '@/services';
+import { trackReading } from '@/services';
+import { saveVerse } from '@/services';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';

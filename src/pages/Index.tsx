@@ -9,7 +9,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Trophy, ExternalLink } from 'lucide-react';
-import { getUserProfile } from '@/services/AchievementService';
+import { getUserProfile } from '@/services';
 import { UserProfile } from '@/types/bible.types';
 
 const bibleStudies = [

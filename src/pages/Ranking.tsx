@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Award, Users } from 'lucide-react';
 import DailyChallenges from '@/components/achievements/DailyChallenges';
 import Leaderboard from '@/components/achievements/Leaderboard';
-import { getUserProfile } from '@/services/AchievementService';
+import { getUserProfile } from '@/services';
 import { UserProfile } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';

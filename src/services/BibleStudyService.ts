@@ -1,7 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleStudy, UserStudyProgress } from '@/types/bible.types';
-import { getUserProfile, updateUserProfile } from './AchievementService';
+import { getUserProfile, updateUserProfile } from '@/services';
 
 /**
  * Fetches all available Bible studies
