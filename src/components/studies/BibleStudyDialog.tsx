@@ -28,7 +28,7 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    // Use null check before accessing properties
+    // Fix TypeScript null check by adding additional guards
     if (contentObj && typeof contentObj === 'object') {
       return contentObj[language] || contentObj['en'] || '';
     }

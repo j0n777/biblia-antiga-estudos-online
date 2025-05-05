@@ -95,9 +95,9 @@ export async function completeStudy(studyId: string): Promise<boolean> {
     if (insertError) throw insertError;
     
     // Update user XP
-    // Fix the type error by using a properly named parameter
+    // Fix the type error by using a properly typed parameter
     const { error: updateError } = await supabase.rpc('increment', { 
-      points: points 
+      points // Make sure this matches the expected parameter name in the RPC function
     });
       
     if (updateError) throw updateError;
