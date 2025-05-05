@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
-import { saveReadingPosition } from '@/services/ReadingService';
-import { trackReading, saveVerse, getLastReadingPosition } from '@/services/AchievementService';
+import { saveReadingPosition, getLastReadingPosition } from '@/services/ReadingService';
+import { trackReading, saveVerse } from '@/services/AchievementService';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
@@ -30,20 +30,44 @@ const Read = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
-  // Get last reading position on initial load
   useEffect(() => {
     const initializeReadingPosition = async () => {
       try {
-        const lastPosition = await getLastReadingPosition();
-        if (lastPosition) {
-          setBookId(lastPosition.book_id);
-          setChapterNumber(lastPosition.chapter);
-          setVersionId(lastPosition.version_id);
-          setScrollToVerse(lastPosition.verse);
+        // First load all books and versions to ensure they're available
+        const booksData = await getAllBooks('kja');
+        setBooks(booksData);
+        
+        const versionsData = await getAllVersions();
+        setVersions(versionsData);
+
+        // Check URL params first
+        const urlBook = searchParams.get('book');
+        const urlChapter = searchParams.get('chapter');
+        const urlVersion = searchParams.get('version');
+        const urlVerse = searchParams.get('verse');
+        
+        if (urlBook && urlChapter) {
+          // Use URL parameters if available
+          setBookId(urlBook);
+          setChapterNumber(parseInt(urlChapter, 10));
+          if (urlVersion) setVersionId(urlVersion);
+          if (urlVerse) setScrollToVerse(parseInt(urlVerse, 10));
         } else {
-          setBookId('MAT');
-          setChapterNumber(1);
-          setVersionId('kja');
+          // Otherwise try to get last reading position
+          const lastPosition = await getLastReadingPosition();
+          if (lastPosition) {
+            console.log("Loading last reading position:", lastPosition);
+            setBookId(lastPosition.book_id);
+            setChapterNumber(lastPosition.chapter);
+            setVersionId(lastPosition.version_id);
+            setScrollToVerse(lastPosition.verse);
+          } else {
+            // Default to Matthew 1
+            console.log("No last reading position, using default");
+            setBookId('MAT');
+            setChapterNumber(1);
+            setVersionId('kja');
+          }
         }
         setIsInitialLoad(false);
       } catch (error) {
@@ -56,11 +80,11 @@ const Read = () => {
     };
 
     initializeReadingPosition();
-  }, []);
+  }, [searchParams]);
   
   useEffect(() => {
-    // Only load data after we've initialized the reading position
-    if (!isInitialLoad) {
+    // Only load chapter after we've initialized the reading position
+    if (!isInitialLoad && bookId) {
       loadData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,15 +105,10 @@ const Read = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load books, versions, and chapter
-      const [booksData, versionsData, chapterData] = await Promise.all([
-        getAllBooks(versionId),
-        getAllVersions(),
-        getChapter(bookId, chapterNumber, versionId)
-      ]);
+      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
       
-      setBooks(booksData);
-      setVersions(versionsData);
+      // Load chapter
+      const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
       // Track reading progress
@@ -206,7 +225,7 @@ const Read = () => {
             {/* Version selector */}
             <Select value={versionId} onValueChange={value => setVersionId(value)}>
               <SelectTrigger className="w-full border-parchment-darker/30" aria-label="Select version">
-                <SelectValue>
+                <SelectValue placeholder="Select Version">
                   {versions.find(v => v.id === versionId)?.name || versionId}
                 </SelectValue>
               </SelectTrigger>
@@ -224,7 +243,7 @@ const Read = () => {
               <div className="flex-1">
                 <Select value={bookId} onValueChange={handleBookChange}>
                   <SelectTrigger className="border-parchment-darker/30" aria-label="Select book">
-                    <SelectValue>
+                    <SelectValue placeholder={t('bible.selectBook')}>
                       {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
                     </SelectValue>
                   </SelectTrigger>
@@ -263,7 +282,7 @@ const Read = () => {
                   disabled={!bookId}
                 >
                   <SelectTrigger className="border-parchment-darker/30" aria-label="Select chapter">
-                    <SelectValue>
+                    <SelectValue placeholder={t('bible.selectChapter')}>
                       {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
                     </SelectValue>
                   </SelectTrigger>

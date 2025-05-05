@@ -56,7 +56,7 @@ const RankingPage = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Trophy size={24} className="text-ancient-gold" />
-            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('ranking.title') || 'Ranking'}</h1>
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('ranking.title')}</h1>
           </div>
         </div>
 
@@ -65,15 +65,15 @@ const RankingPage = () => {
             <div className="flex items-start">
               <Medal className="h-5 w-5 text-ancient-gold mt-1" />
               <div className="ml-3">
-                <AlertTitle className="text-ancient-brown text-base">{t('ranking.guestModeTitle') || 'Modo Visitante'}</AlertTitle>
+                <AlertTitle className="text-ancient-brown text-base">{t('ranking.guestModeTitle')}</AlertTitle>
                 <AlertDescription className="text-sm">
-                  {t('ranking.guestModeDescription') || 'Crie uma conta para salvar seu progresso e participar do ranking de leitores.'}
+                  {t('ranking.guestModeDescription')}
                   <div className="mt-2">
                     <Button
                       onClick={handleCreateAccount}
                       className="bg-ancient-gold hover:bg-ancient-gold/90 text-white"
                     >
-                      {t('auth.createAccount') || 'Criar Conta'}
+                      {t('auth.createAccount')}
                     </Button>
                   </div>
                 </AlertDescription>
@@ -87,11 +87,11 @@ const RankingPage = () => {
             <TabsList className="w-full bg-parchment-light">
               <TabsTrigger value="desafios" className="flex-1">
                 <Award size={16} className="mr-2" />
-                {t('ranking.challenges') || 'Desafios'}
+                {t('ranking.challenges')}
               </TabsTrigger>
               <TabsTrigger value="ranking" className="flex-1">
                 <Users size={16} className="mr-2" />
-                {t('ranking.leaderboard') || 'Classificação'}
+                {t('ranking.leaderboard')}
               </TabsTrigger>
             </TabsList>
 
@@ -102,7 +102,7 @@ const RankingPage = () => {
             <TabsContent value="ranking" className="mt-4">
               <div className="mb-4">
                 <Input
-                  placeholder={t('ranking.searchPlayers') || 'Buscar jogadores...'}
+                  placeholder={t('ranking.searchPlayers')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="border-parchment-darker/30"

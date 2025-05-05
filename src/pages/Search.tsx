@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search as SearchIcon, X, Book, Users, BookOpen } from 'lucide-react';
+import { Search as SearchIcon, X, Book, BookOpen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -57,6 +57,7 @@ const Search = () => {
     try {
       if (activeTab === 'verses') {
         const results = await searchBibleVerses(searchQuery);
+        console.log("Search results:", results);
         setSearchResults(results);
       } else if (activeTab === 'studies') {
         const results = await searchBibleStudies(searchQuery);
@@ -133,7 +134,7 @@ const Search = () => {
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="verses" className="flex items-center">
               <Book className="mr-2 h-4 w-4" />
-              <span>{t('bible.verse')}</span>
+              <span>{t('bible.verses')}</span>
             </TabsTrigger>
             <TabsTrigger value="studies" className="flex items-center">
               <BookOpen className="mr-2 h-4 w-4" />
@@ -159,7 +160,7 @@ const Search = () => {
               </div>
             ) : query ? (
               <div className="text-center py-8">
-                Nenhum resultado encontrado.
+                {t('search.noResults')}
               </div>
             ) : null}
           </TabsContent>
@@ -182,7 +183,7 @@ const Search = () => {
               </div>
             ) : query ? (
               <div className="text-center py-8">
-                Nenhum estudo encontrado.
+                {t('search.noStudiesFound')}
               </div>
             ) : null}
           </TabsContent>

@@ -50,6 +50,18 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     fetchChapterContent();
   }, [bookId, chapterNumber, chapter]);
   
+  useEffect(() => {
+    // Scroll to verse if specified
+    if (scrollToVerse && chapterContent) {
+      setTimeout(() => {
+        const verseElement = document.getElementById(`verse-${scrollToVerse}`);
+        if (verseElement) {
+          verseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300); // Small delay to ensure rendering is complete
+    }
+  }, [scrollToVerse, chapterContent]);
+
   const handleVerseSelect = (verseId: string) => {
     setSelectedVerseId(verseId === selectedVerseId ? null : verseId);
   };
@@ -79,9 +91,14 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
 
   const renderVerse = (verse: BibleVerseType) => {
     const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
+    const isHighlighted = scrollToVerse === verse.verse_number;
     
     return (
-      <div key={verse.id} className="mb-2">
+      <div 
+        id={`verse-${verse.verse_number}`} 
+        key={verse.id} 
+        className={`mb-2 ${isHighlighted ? 'bg-amber-100 dark:bg-amber-900/20 p-1 rounded' : ''}`}
+      >
         <BibleVerseComponent 
           verse={verse}
           isHighlighted={isSelected}
@@ -99,7 +116,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         </h1>
       </div>
       
-      <ScrollArea className="h-[calc(100vh-200px)] w-full rounded-md border">
+      <ScrollArea className="h-[calc(100vh-220px)] w-full rounded-md border">
         <div className={`font-garamond text-scripture-text dark:text-scripture-text-dark ${getFontSizeClass()} py-2 px-4`}>
           {chapterContent.verses.map(renderVerse)}
         </div>

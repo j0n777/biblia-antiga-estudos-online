@@ -141,17 +141,22 @@ export async function searchBibleVerses(
       return [];
     }
     
+    console.log(`Searching for verses: "${query}" in version ${versionId}`);
+    
+    // Use text search for more accurate results
     const { data, error } = await supabase
       .from('bible_verses')
       .select('id, chapter_id, version_id, book_id, chapter_number, verse_number, text')
       .eq('version_id', versionId)
       .textSearch('text', query)
       .limit(limit);
-      
+    
     if (error) {
+      console.error(`Error searching Bible verses: ${error.message}`);
       throw new Error(`Error searching Bible verses: ${error.message}`);
     }
     
+    console.log(`Found ${data?.length || 0} verses matching "${query}"`);
     return data || [];
   } catch (error) {
     console.error('Error in searchBibleVerses:', error);
@@ -178,7 +183,6 @@ export const getBibleBooks = async () => {
   }
 };
 
-// Add the missing getBookContent function
 export async function getBookContent(bookId: string, chapterNumber: number): Promise<BookContent | null> {
   try {
     // Get book name
@@ -229,3 +233,4 @@ export async function getBookContent(bookId: string, chapterNumber: number): Pro
     return null;
   }
 }
+

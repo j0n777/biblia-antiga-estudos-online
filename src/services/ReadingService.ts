@@ -25,7 +25,6 @@ export const saveReadingPosition = async (
       chapter: chapter,
       verse: verse,
       timestamp: new Date().toISOString(),
-      // Add chapter_number for compatibility
       chapter_number: chapter
     };
 
@@ -41,7 +40,7 @@ export const saveReadingPosition = async (
     // For authenticated users, update their profile
     const updateResult = await updateUserProfile({
       reading_position: readingPosition
-    } as any); // Using 'any' to bypass TypeScript checker since we've updated the interface
+    });
     
     return updateResult;
   } catch (error) {
@@ -95,7 +94,7 @@ export const clearReadingPosition = async (): Promise<boolean> => {
     // For authenticated users, update their profile to remove reading position
     const updateResult = await updateUserProfile({
       reading_position: null
-    } as any); // Using 'any' to bypass TypeScript checker since we've updated the interface
+    });
     
     return updateResult;
   } catch (error) {

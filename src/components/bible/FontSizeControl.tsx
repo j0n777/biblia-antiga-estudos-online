@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Type, AlignJustify } from "lucide-react";
+import { Type } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
