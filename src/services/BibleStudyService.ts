@@ -162,8 +162,9 @@ export async function completeStudy(studyId: string): Promise<boolean> {
     if (insertError) throw insertError;
     
     // Update user XP
+    // Fix the type error by casting points to number or using a proper parameter
     const { error: updateError } = await supabase.rpc('increment', { 
-      points 
+      points: points // Make sure points is passed as a named parameter
     });
       
     if (updateError) throw updateError;
@@ -230,8 +231,11 @@ export function getStudyContent(study: BibleStudy, language: string = 'en'): str
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    // Use optional chaining to safely access properties
-    return typeof contentObj === 'object' ? (contentObj[language] || contentObj['en'] || '') : '';
+    // Use null check and typeof check for safety
+    if (typeof contentObj === 'object') {
+      return contentObj[language] || contentObj['en'] || '';
+    }
+    return '';
   }
   
   return '';

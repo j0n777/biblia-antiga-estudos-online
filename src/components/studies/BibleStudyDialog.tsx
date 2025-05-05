@@ -28,8 +28,11 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    // Use optional chaining and type checking for safety
-    return typeof contentObj === 'object' ? (contentObj[language] || contentObj['en'] || '') : '';
+    // Use optional chaining and null check for safety
+    if (typeof contentObj === 'object') {
+      return contentObj[language] || contentObj['en'] || '';
+    }
+    return '';
   }
   
   return '';
@@ -89,7 +92,7 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Corrigindo a chamada para passar apenas o ID do estudo
+      // Fix the function call by passing only the study ID
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);
