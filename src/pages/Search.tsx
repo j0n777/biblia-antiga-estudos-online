@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink } from 'lucide-react';
@@ -5,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { searchBibleVerses } from '@/services/BibleDataService';
-import { searchBibleStudies, getAllBibleStudies, getCompletedStudies } from '@/services/BibleStudyService';
+import { searchBibleStudies, getAllBibleStudies } from '@/services/bible-studies/StudyContentService';
+import { getCompletedStudies } from '@/services/bible-studies/UserProgressService';
 import { BibleVerse as BibleVerseType, BibleStudy } from '@/types/bible.types';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
@@ -79,16 +81,12 @@ const Search = () => {
     
     try {
       if (activeTab === 'verses') {
-        // Use Supabase directly for text search with better results and filter by language
-        const currentLang = language || 'pt';
+        // Fixed: Use simple text search instead of websearch which was causing issues
         const { data, error } = await supabase
           .from('bible_verses')
           .select('*')
-          .textSearch('text', searchQuery, { 
-            type: 'websearch',
-            config: currentLang === 'en' ? 'english' : 'portuguese'
-          })
-          .eq('version_id', currentLang === 'en' ? 'kjv' : 'kja')
+          .ilike('text', `%${searchQuery}%`)
+          .eq('version_id', language === 'en' ? 'kjv' : 'kja')
           .limit(20);
 
         if (error) throw error;
@@ -247,7 +245,7 @@ const Search = () => {
             ) : query ? (
               <div className="parchment-container py-12 rounded-xl text-center">
                 <div className="mb-4">📚</div>
-                <p className="text-lg text-ancient-brown font-medium mb-1">{t('search.noStudiesFound')}</p>
+                <p className="text-lg text-ancient-brown font-medium mb-1">{t('search.noResults')}</p>
                 <p className="text-sm text-muted-foreground">{t('search.tryDifferentKeywords')}</p>
               </div>
             ) : (

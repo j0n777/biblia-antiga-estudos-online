@@ -6,37 +6,9 @@ import { CheckCircle, Award } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BibleStudy } from '@/types/bible.types';
-import { completeStudy, getBibleStudyById } from '@/services/BibleStudyService';
-
-// Helper function to get localized study content
-function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
-  if (!study || !study.content) return '';
-  
-  if (typeof study.content === 'string') {
-    return study.content;
-  }
-  
-  // If content is an object with direct language keys
-  if (typeof study.content === 'object' && study.content[language]) {
-    return study.content[language];
-  }
-  
-  // If content has a content field which is language-specific
-  if (typeof study.content === 'object' && 
-      study.content.content) {
-    // Safely check if content exists
-    const contentObj = study.content.content;
-    if (!contentObj) return '';
-    
-    // Fix TypeScript null check by adding additional guards
-    if (contentObj && typeof contentObj === 'object') {
-      return contentObj[language] || contentObj['en'] || '';
-    }
-    return '';
-  }
-  
-  return '';
-}
+import { completeStudy } from '@/services/bible-studies/UserProgressService';
+import { getBibleStudyById } from '@/services/bible-studies/StudyContentService';
+import { getStudyContent } from '@/services/bible-studies/StudyContentService';
 
 interface BibleStudyDialogProps {
   study: BibleStudy;
@@ -65,7 +37,7 @@ const BibleStudyDialog = ({
     (study.title[language] || study.title_key || 'Bible Study');
     
   // Get content
-  const content = getLocalizedStudyContent(study, language);
+  const content = getStudyContent(study, language);
   
   useEffect(() => {
     const loadNextStudy = async () => {
@@ -92,7 +64,6 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Fix the function call by passing only the study ID
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);

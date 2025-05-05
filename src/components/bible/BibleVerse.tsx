@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Star, Languages, Share2, Info, Copy, Highlighter } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface BibleVerseProps {
   verse: BibleVerseType;
@@ -14,11 +15,12 @@ export interface BibleVerseProps {
 
 const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVerseProps) => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const { t } = useLanguage();
   
   const handleCopyVerse = () => {
     navigator.clipboard.writeText(`${verse.verse_number}. ${verse.text}`);
     toast({
-      description: 'Versículo copiado para a área de transferência.',
+      description: t('bible.verseCopied'),
     });
     setIsActionsOpen(false);
   };
@@ -35,13 +37,13 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
     
     if (navigator.share) {
       navigator.share({
-        title: 'Compartilhar versículo',
+        title: t('bible.shareVerse'),
         text: shareText,
       });
     } else {
       navigator.clipboard.writeText(shareText);
       toast({
-        description: 'Versículo copiado para a área de transferência.',
+        description: t('bible.verseCopied'),
       });
     }
     
@@ -53,19 +55,19 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
     return (
       <div className="p-2 max-w-xs">
         <div className="mb-2">
-          <span className="text-sm font-semibold">Original:</span>{' '}
+          <span className="text-sm font-semibold">{t('bible.original')}:</span>{' '}
           <span className="text-sm font-serif">{word.original || '---'}</span>
         </div>
         <div className="mb-2">
-          <span className="text-sm font-semibold">Transliteração:</span>{' '}
+          <span className="text-sm font-semibold">{t('bible.transliteration')}:</span>{' '}
           <span className="text-sm">{word.transliteration || '---'}</span>
         </div>
         <div className="mb-2">
-          <span className="text-sm font-semibold">Strong:</span>{' '}
+          <span className="text-sm font-semibold">{t('bible.strongsNumber')}:</span>{' '}
           <span className="text-sm">{word.strongs_number || '---'}</span>
         </div>
         <div>
-          <span className="text-sm font-semibold">Definição:</span>
+          <span className="text-sm font-semibold">{t('bible.definition')}:</span>
           <p className="text-sm">{word.definition || '---'}</p>
         </div>
       </div>
@@ -99,7 +101,7 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
                   onClick={handleCopyVerse}
                 >
                   <Copy className="mr-2 h-4 w-4" />
-                  <span>Copiar</span>
+                  <span>{t('bible.copy')}</span>
                 </Button>
                 <Button
                   variant="ghost"
@@ -108,7 +110,7 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
                   onClick={handleHighlightVerse}
                 >
                   <Highlighter className="mr-2 h-4 w-4" />
-                  <span>{isHighlighted ? 'Destacado' : 'Destacar'}</span>
+                  <span>{isHighlighted ? t('bible.removeHighlight') : t('bible.highlight')}</span>
                 </Button>
                 <Button
                   variant="ghost"
@@ -117,7 +119,7 @@ const BibleVerse = ({ verse, isHighlighted = false, onVerseClick }: BibleVersePr
                   onClick={handleShareVerse}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
-                  <span>Compartilhar</span>
+                  <span>{t('bible.share')}</span>
                 </Button>
               </div>
             </PopoverContent>

@@ -94,8 +94,7 @@ export function getStudyContent(study: BibleStudy, language: string = 'en'): str
     const contentObj = study.content.content;
     if (!contentObj) return '';
     
-    // Fix TypeScript null check by guarding the checks
-    if (contentObj && typeof contentObj === 'object') {
+    if (typeof contentObj === 'object') {
       return contentObj[language] || contentObj['en'] || '';
     }
     return '';

@@ -1,139 +1,144 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { UserStudyProgress } from '@/types/bible.types';
+import { BibleStudy } from '@/types/bible.types';
 
 /**
- * Get completed Bible studies for the current user
- * @returns Promise resolving to array of study IDs that have been completed
+ * Get user's completed studies
+ * @returns Promise resolving to array of study IDs that the user has completed
  */
 export async function getCompletedStudies(): Promise<string[]> {
   try {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return [];
+    const userId = session?.session?.user?.id;
     
-    const { data, error } = await supabase
-      .from('user_study_progress')
-      .select('study_id')
-      .eq('user_id', session.session.user.id);
+    if (!userId) {
+      // User not logged in, get from localStorage
+      const completedStudies = localStorage.getItem('completed_studies');
+      if (!completedStudies) return [];
       
-    if (error) throw error;
+      return JSON.parse(completedStudies);
+    }
     
-    return data?.map(p => p.study_id) || [];
+    // User is logged in, get from database
+    const { data, error } = await supabase
+      .from('user_bible_studies')
+      .select('study_id')
+      .eq('user_id', userId);
+      
+    if (error) {
+      console.error('Error fetching completed studies:', error);
+      return [];
+    }
+    
+    return data.map(item => item.study_id);
   } catch (error) {
-    console.error('Error fetching completed studies:', error);
+    console.error('Error getting completed studies:', error);
     return [];
   }
 }
 
 /**
- * Get progress for user's studies
- * @returns Promise resolving to array of UserStudyProgress objects
+ * Get user's study progress
+ * @returns Promise resolving to array of BibleStudy objects with completion status
  */
-export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
+export async function getUserStudyProgress(): Promise<BibleStudy[]> {
   try {
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return [];
+    const userId = session?.session?.user?.id;
     
+    if (!userId) {
+      // User not logged in
+      return [];
+    }
+    
+    // Join bible_studies with user_bible_studies to get completion status
     const { data, error } = await supabase
-      .from('user_study_progress')
-      .select('*')
-      .eq('user_id', session.session.user.id);
+      .from('bible_studies')
+      .select(`
+        *,
+        user_bible_studies!inner(
+          completed_at,
+          user_id
+        )
+      `)
+      .eq('user_bible_studies.user_id', userId)
+      .order('created_at', { ascending: false });
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching user study progress:', error);
+      return [];
+    }
     
-    return data as UserStudyProgress[];
+    return data as unknown as BibleStudy[];
   } catch (error) {
-    console.error('Error fetching user study progress:', error);
+    console.error('Error getting user study progress:', error);
     return [];
   }
 }
 
 /**
- * Mark a Bible study as completed
- * @param studyId Bible study ID to mark as completed
- * @returns Promise resolving to boolean indicating success
+ * Mark a study as completed for the user
+ * @param studyId Study ID
+ * @returns Promise resolving to success status
  */
 export async function completeStudy(studyId: string): Promise<boolean> {
   try {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return false;
+    console.log(`Completing study: ${studyId}`);
     
-    // Get study to get points information
+    // Get the study to determine points
     const { data: studyData, error: studyError } = await supabase
       .from('bible_studies')
       .select('points')
       .eq('id', studyId)
       .single();
-    
-    if (studyError) throw studyError;
-    
-    const points = studyData?.points || 10;
-    
-    // Check if already completed
-    const { data: existingProgress, error: checkError } = await supabase
-      .from('user_study_progress')
-      .select('id')
-      .eq('user_id', session.session.user.id)
-      .eq('study_id', studyId);
       
-    if (checkError) throw checkError;
+    if (studyError) {
+      console.error('Error fetching study:', studyError);
+      return false;
+    }
     
-    if (existingProgress && existingProgress.length > 0) {
-      // Already completed
+    const points = studyData.points || 5;
+    
+    // Check if user is authenticated
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      console.log('User not authenticated, storing in localStorage');
+      
+      // Store in localStorage for non-authenticated users
+      const completedStudies = JSON.parse(localStorage.getItem('completed_studies') || '[]');
+      
+      // Check if study is already completed
+      if (!completedStudies.includes(studyId)) {
+        completedStudies.push(studyId);
+        localStorage.setItem('completed_studies', JSON.stringify(completedStudies));
+      }
+      
       return true;
     }
     
-    // Insert progress record
+    const userId = session.session.user.id;
+    
+    // Insert completion record
     const { error: insertError } = await supabase
-      .from('user_study_progress')
-      .insert({
-        user_id: session.session.user.id,
+      .from('user_bible_studies')
+      .upsert({
+        user_id: userId,
         study_id: studyId,
-        points_earned: points
+        completed_at: new Date().toISOString()
       });
       
     if (insertError) throw insertError;
     
     // Update user XP
-    // Fix the type error by using a properly typed parameter
-    const { error: updateError } = await supabase.rpc('increment', { 
-      points // Make sure this matches the expected parameter name in the RPC function
+    const { error: updateError } = await supabase.rpc('increment_user_points', { 
+      points_increment: points 
     });
       
     if (updateError) throw updateError;
     
     return true;
   } catch (error) {
-    console.error('Error completing Bible study:', error);
-    return false;
-  }
-}
-
-/**
- * Check if a Bible study has been completed by the current user
- * @param studyId Bible study ID
- * @returns Promise resolving to boolean indicating completion status
- */
-export async function isStudyCompleted(studyId: string): Promise<boolean> {
-  try {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return false;
-    
-    const { data, error } = await supabase
-      .from('user_study_progress')
-      .select('id')
-      .eq('user_id', session.session.user.id)
-      .eq('study_id', studyId)
-      .single();
-      
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 is "no rows returned" which is expected if not completed
-      throw error;
-    }
-    
-    return !!data;
-  } catch (error) {
-    console.error('Error checking study completion status:', error);
+    console.error('Error completing study:', error);
     return false;
   }
 }

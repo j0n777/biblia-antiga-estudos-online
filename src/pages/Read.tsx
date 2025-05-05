@@ -41,7 +41,7 @@ const Read = () => {
     if (success) {
       toast({
         title: t('bible.verseSaved'),
-        description: `${bookId} ${chapterNumber}:${verseNumber}`,
+        description: `${books.find(b => b.book_id === bookId)?.name || bookId} ${chapterNumber}:${verseNumber}`,
       });
     }
   };
@@ -75,7 +75,7 @@ const Read = () => {
           />
         </div>
 
-        <div className="parchment-container animate-fade-in card-shadow">
+        <div className="parchment-container animate-fade-in card-shadow px-3 sm:px-6">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
