@@ -1,231 +1,49 @@
-import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BibleChapter from '@/components/bible/BibleChapter';
-import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
-import { saveReadingPosition, getLastReadingPosition } from '@/services';
-import { trackReading } from '@/services';
-import { saveVerse } from '@/services';
-import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useBibleReading } from '@/hooks/useBibleReading';
 import { toast } from '@/hooks/use-toast';
-import FontSizeControl from '@/components/bible/FontSizeControl';
+import { useLanguage } from '@/contexts/LanguageContext';
+import ReadingControls from '@/components/bible/ReadingControls';
+import ChapterNavigation from '@/components/bible/ChapterNavigation';
 
 const Read = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [bookId, setBookId] = useState<string>('');
-  const [chapterNumber, setChapterNumber] = useState<number>(1);
-  const [books, setBooks] = useState<BibleBook[]>([]);
-  const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [versionId, setVersionId] = useState<string>('kja');
-  const [chapter, setChapter] = useState<BibleChapterType | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
-  const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
-  const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const { t } = useLanguage();
   
-  const { t, language } = useLanguage();
-
-  useEffect(() => {
-    const initializeReadingPosition = async () => {
-      try {
-        // First load all books and versions to ensure they're available
-        const booksData = await getAllBooks('kja');
-        if (booksData && booksData.length > 0) {
-          setBooks(booksData);
-          
-          // Check URL params first
-          const urlBook = searchParams.get('book');
-          const urlChapter = searchParams.get('chapter');
-          const urlVersion = searchParams.get('version');
-          const urlVerse = searchParams.get('verse');
-          
-          if (urlBook && urlChapter) {
-            // Use URL parameters if available
-            setBookId(urlBook);
-            setChapterNumber(parseInt(urlChapter, 10));
-            if (urlVersion) setVersionId(urlVersion);
-            if (urlVerse) setScrollToVerse(parseInt(urlVerse, 10));
-          } else {
-            // Otherwise try to get last reading position
-            const lastPosition = await getLastReadingPosition();
-            if (lastPosition && lastPosition.book_id) {
-              console.log("Loading last reading position:", lastPosition);
-              // Validate that the book exists in our data
-              const bookExists = booksData.some(book => book.book_id === lastPosition.book_id);
-              if (bookExists) {
-                setBookId(lastPosition.book_id);
-                setChapterNumber(lastPosition.chapter || 1);
-                setVersionId(lastPosition.version_id || 'kja');
-                setScrollToVerse(lastPosition.verse || 1);
-              } else {
-                // Fall back to Genesis 1 if book doesn't exist
-                setBookId('GEN');
-                setChapterNumber(1);
-              }
-            } else {
-              // Default to Genesis 1 if no reading position
-              console.log("No last reading position, using default");
-              setBookId('GEN');
-              setChapterNumber(1);
-            }
-          }
-        } else {
-          console.error("No books data available");
-          // Set reasonable defaults
-          setBookId('GEN');
-          setChapterNumber(1);
-        }
-        
-        const versionsData = await getAllVersions();
-        if (versionsData && versionsData.length > 0) {
-          setVersions(versionsData);
-        }
-
-        setIsInitialLoad(false);
-      } catch (error) {
-        console.error('Error initializing reading position:', error);
-        // Set reasonable defaults
-        setBookId('GEN');
-        setChapterNumber(1);
-        setVersionId('kja');
-        setIsInitialLoad(false);
-      }
-    };
-
-    initializeReadingPosition();
-  }, [searchParams]);
-  
-  useEffect(() => {
-    // Only load chapter after we've initialized the reading position
-    if (!isInitialLoad && bookId) {
-      loadData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId, chapterNumber, versionId, isInitialLoad]);
-  
-  // Update URL when reading position changes
-  useEffect(() => {
-    if (!isInitialLoad && bookId) {
-      setSearchParams({ 
-        book: bookId, 
-        chapter: chapterNumber.toString(),
-        version: versionId,
-        verse: scrollToVerse ? scrollToVerse.toString() : '1'
-      }, { replace: true });
-    }
-  }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
-
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
-      
-      // Load chapter
-      const chapterData = await getChapter(bookId, chapterNumber, versionId);
-      setChapter(chapterData);
-      
-      // Track reading progress
-      await trackReading(versionId, bookId, chapterNumber, scrollToVerse || 1);
-      await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
-      
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setChapter(null);
-      toast({
-        title: t('common.error'),
-        description: t('bible.errorLoadingChapter'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handlePreviousChapter = () => {
-    if (!books || books.length === 0) return;
-    
-    // Find the current book in the list
-    const currentBookIndex = books.findIndex(book => book.book_id === bookId);
-    if (currentBookIndex === -1) return;
-    
-    const currentBook = books[currentBookIndex];
-    
-    // If we're not at chapter 1, go to the previous chapter of the same book
-    if (chapterNumber > 1) {
-      setChapterNumber(chapterNumber - 1);
-      setScrollToVerse(1);
-      return;
-    }
-    
-    // If we're at chapter 1, go to the last chapter of the previous book
-    if (currentBookIndex > 0) {
-      const previousBook = books[currentBookIndex - 1];
-      setBookId(previousBook.book_id);
-      setChapterNumber(previousBook.chapters_count);
-      setScrollToVerse(1);
-    }
-  };
-  
-  const handleNextChapter = () => {
-    if (!books || books.length === 0) return;
-    
-    // Find the current book in the list
-    const currentBookIndex = books.findIndex(book => book.book_id === bookId);
-    if (currentBookIndex === -1) return;
-    
-    const currentBook = books[currentBookIndex];
-    
-    // If we're not at the last chapter, go to the next chapter of the same book
-    if (chapterNumber < currentBook.chapters_count) {
-      setChapterNumber(chapterNumber + 1);
-      setScrollToVerse(1);
-      return;
-    }
-    
-    // If we're at the last chapter, go to the first chapter of the next book
-    if (currentBookIndex < books.length - 1) {
-      const nextBook = books[currentBookIndex + 1];
-      setBookId(nextBook.book_id);
-      setChapterNumber(1);
-      setScrollToVerse(1);
-    }
-  };
-  
-  const handleSaveVerse = async (verseNumber: number) => {
-    const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
-    
-    const success = await saveVerse(bookId, chapterNumber, verseNumber, versionId, "yellow");
-    
-    if (success) {
-      setSavedVerses({
-        ...savedVerses,
-        [verseKey]: true
-      });
-      toast({
-        title: t('bible.verseSaved'),
-        description: `${bookId} ${chapterNumber}:${verseNumber}`,
-      });
-    }
-  };
+  const { 
+    bookId,
+    chapterNumber,
+    versionId,
+    books,
+    versions,
+    chapter,
+    isLoading,
+    isInitialLoad,
+    scrollToVerse,
+    handlePreviousChapter,
+    handleNextChapter,
+    handleBookChange,
+    handleChapterChange,
+    handleVersionChange,
+    handleSaveVerse,
+    isVerseSelected
+  } = useBibleReading();
   
   const handleFontSizeChange = (size: 'small' | 'medium' | 'large') => {
     setFontSize(size);
   };
   
-  const isVerseSelected = (verseNumber: number) => {
-    const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
-    return savedVerses[verseKey] || false;
-  };
-
-  const handleBookChange = (value: string) => {
-    setBookId(value);
-    setChapterNumber(1);
-    setScrollToVerse(1);
+  const onVerseAction = async (verseNumber: number) => {
+    const success = await handleSaveVerse(verseNumber);
+    if (success) {
+      toast({
+        title: t('bible.verseSaved'),
+        description: `${bookId} ${chapterNumber}:${verseNumber}`,
+      });
+    }
   };
 
   // If still initializing reading position, show loading
@@ -244,88 +62,17 @@ const Read = () => {
       <div className="py-4">
         <div className="flex flex-col space-y-4 mb-4 px-2">
           {/* Bible navigation controls */}
-          <div className="flex flex-col space-y-3">
-            {/* Version selector */}
-            <Select value={versionId} onValueChange={value => setVersionId(value)}>
-              <SelectTrigger className="w-full border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select version">
-                <SelectValue placeholder="Select Version">
-                  {versions.find(v => v.id === versionId)?.name || versionId}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                {versions.map((version) => (
-                  <SelectItem key={version.id} value={version.id}>
-                    {version.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Book and chapter selector */}
-            <div className="flex space-x-2">
-              <div className="flex-1">
-                <Select value={bookId} onValueChange={handleBookChange}>
-                  <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select book">
-                    <SelectValue placeholder={t('bible.selectBook')}>
-                      {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[400px]">
-                    <SelectGroup>
-                      <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.oldTestament')}</SelectLabel>
-                      {books
-                        .filter(book => book.testament === 'old')
-                        .map(book => (
-                          <SelectItem key={book.book_id} value={book.book_id}>
-                            {book.name}
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                    <SelectGroup>
-                      <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.newTestament')}</SelectLabel>
-                      {books
-                        .filter(book => book.testament === 'new')
-                        .map(book => (
-                          <SelectItem key={book.book_id} value={book.book_id}>
-                            {book.name}
-                          </SelectItem>
-                        ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="w-24">
-                <Select 
-                  value={chapterNumber.toString()} 
-                  onValueChange={value => {
-                    setChapterNumber(parseInt(value));
-                    setScrollToVerse(1);
-                  }}
-                  disabled={!bookId}
-                >
-                  <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select chapter">
-                    <SelectValue placeholder={t('bible.selectChapter')}>
-                      {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
-                      Array.from(
-                        { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
-                        (_, i) => i + 1
-                      ).map(num => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {t('bible.chapter')} {num}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <FontSizeControl onFontSizeChange={handleFontSizeChange} />
-            </div>
-          </div>
+          <ReadingControls
+            books={books}
+            versions={versions}
+            bookId={bookId}
+            chapterNumber={chapterNumber}
+            versionId={versionId}
+            onBookChange={handleBookChange}
+            onChapterChange={handleChapterChange}
+            onVersionChange={handleVersionChange}
+            onFontSizeChange={handleFontSizeChange}
+          />
         </div>
 
         <div className="parchment-container animate-fade-in card-shadow">
@@ -337,42 +84,18 @@ const Read = () => {
             <BibleChapter 
               chapter={chapter} 
               scrollToVerse={scrollToVerse} 
-              onVerseAction={handleSaveVerse}
+              onVerseAction={onVerseAction}
               isVerseSelected={isVerseSelected}
               fontSize={fontSize}
             />
           )}
         </div>
 
-        <div className="fixed bottom-20 left-0 right-0 flex justify-center px-4 pb-4">
-          <div className="flex gap-2 bg-parchment-light/90 backdrop-blur-sm p-2 rounded-full shadow-lg border border-parchment-dark/30">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={handlePreviousChapter}
-              className="hover:bg-parchment-dark/20"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="opacity-50 cursor-default hover:bg-transparent"
-            >
-              {chapterNumber}
-            </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={handleNextChapter}
-              className="hover:bg-parchment-dark/20"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-          </div>
-        </div>
+        <ChapterNavigation 
+          chapterNumber={chapterNumber}
+          onPreviousChapter={handlePreviousChapter}
+          onNextChapter={handleNextChapter}
+        />
       </div>
     </PageLayout>
   );

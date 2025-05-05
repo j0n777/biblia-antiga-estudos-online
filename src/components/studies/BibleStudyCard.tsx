@@ -22,9 +22,8 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
   // If content has a content field which is language-specific
   if (typeof study.content === 'object' && 
       study.content.content && 
-      typeof study.content.content === 'object' &&
-      study.content.content[language]) {
-    return study.content.content[language] || study.content.content.en || '';
+      typeof study.content.content === 'object') {
+    return study.content.content?.[language] || study.content.content?.['en'] || '';
   }
   
   return '';

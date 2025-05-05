@@ -1,10 +1,10 @@
+
+// This file contains functions for interacting with Bible studies data
 import { supabase } from '@/integrations/supabase/client';
 import { BibleStudy, UserStudyProgress } from '@/types/bible.types';
-import { getUserProfile, updateUserProfile } from '@/services';
 
 /**
- * Fetches all available Bible studies
- * @returns Promise resolving to array of Bible studies
+ * Get all available Bible studies
  */
 export async function getAllBibleStudies(): Promise<BibleStudy[]> {
   try {
@@ -13,11 +13,9 @@ export async function getAllBibleStudies(): Promise<BibleStudy[]> {
       .select('*')
       .order('created_at', { ascending: false });
       
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     
-    return data as BibleStudy[];
+    return data || [];
   } catch (error) {
     console.error('Error fetching Bible studies:', error);
     return [];
@@ -25,42 +23,9 @@ export async function getAllBibleStudies(): Promise<BibleStudy[]> {
 }
 
 /**
- * Searches for Bible studies
- * @param query Search query
- * @returns Promise resolving to array of Bible studies
+ * Get a specific Bible study by ID
  */
-export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
-  try {
-    if (!query || query.trim().length < 2) {
-      return getAllBibleStudies(); // Return all studies when no query
-    }
-    
-    // Since Bible studies might have complex JSON structure and textSearch might not work,
-    // we'll do a simple SQL ILIKE search instead on title_key
-    const { data, error } = await supabase
-      .from('bible_studies')
-      .select('*')
-      .ilike('title_key', `%${query}%`)
-      .order('created_at', { ascending: false })
-      .limit(20);
-      
-    if (error) {
-      throw error;
-    }
-    
-    return data as BibleStudy[];
-  } catch (error) {
-    console.error('Error searching Bible studies:', error);
-    return [];
-  }
-}
-
-/**
- * Gets a Bible study by ID
- * @param studyId Study ID
- * @returns Promise resolving to Bible study or null
- */
-export async function getBibleStudy(studyId: string): Promise<BibleStudy | null> {
+export async function getBibleStudyById(studyId: string): Promise<BibleStudy | null> {
   try {
     const { data, error } = await supabase
       .from('bible_studies')
@@ -68,46 +33,53 @@ export async function getBibleStudy(studyId: string): Promise<BibleStudy | null>
       .eq('id', studyId)
       .single();
       
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     
-    return data as BibleStudy;
-  }
-  catch (error) {
+    return data;
+  } catch (error) {
     console.error('Error fetching Bible study:', error);
     return null;
   }
 }
 
 /**
- * Alias for getBibleStudy for compatibility with existing code
+ * Search for Bible studies by query
  */
-export const getBibleStudyById = getBibleStudy;
+export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
+  if (!query.trim()) return [];
+
+  try {
+    // Search in both title and content
+    const { data, error } = await supabase
+      .from('bible_studies')
+      .select('*')
+      .or(`title.en.ilike.%${query}%,title.pt.ilike.%${query}%,content.content.en.ilike.%${query}%,content.content.pt.ilike.%${query}%`)
+      
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error searching Bible studies:', error);
+    return [];
+  }
+}
 
 /**
- * Gets user's study progress
- * @returns Promise resolving to array of user study progress
+ * Get user's progress on Bible studies
  */
 export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
   try {
-    const profile = await getUserProfile();
-    if (!profile?.id || profile.id.startsWith('guest-')) {
-      // Guest user, return local storage data or empty array
-      const storedProgress = localStorage.getItem('study_progress');
-      return storedProgress ? JSON.parse(storedProgress) : [];
-    }
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) return [];
     
     const { data, error } = await supabase
       .from('user_study_progress')
       .select('*')
-      .eq('user_id', profile.id);
+      .eq('user_id', session.session.user.id);
       
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
     
-    return data as UserStudyProgress[];
+    return data || [];
   } catch (error) {
     console.error('Error fetching user study progress:', error);
     return [];
@@ -115,10 +87,91 @@ export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
 }
 
 /**
- * Get localized content from a Bible study
- * @param study The Bible study object
- * @param language Current language code
- * @returns The localized content or a default message
+ * Mark a Bible study as completed
+ */
+export async function markStudyCompleted(studyId: string): Promise<boolean> {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) return false;
+    
+    // Get the study details
+    const study = await getBibleStudyById(studyId);
+    if (!study) return false;
+    
+    // Check if this study is already completed
+    const { data: existing } = await supabase
+      .from('user_study_progress')
+      .select('id')
+      .eq('user_id', session.session.user.id)
+      .eq('study_id', studyId)
+      .single();
+      
+    if (existing) {
+      // Update existing record
+      const { error } = await supabase
+        .from('user_study_progress')
+        .update({
+          completed_at: new Date().toISOString(),
+          points_earned: study.points || 10
+        })
+        .eq('id', existing.id);
+        
+      if (error) throw error;
+    } else {
+      // Insert new record
+      const { error } = await supabase
+        .from('user_study_progress')
+        .insert({
+          user_id: session.session.user.id,
+          study_id: studyId,
+          completed_at: new Date().toISOString(),
+          points_earned: study.points || 10
+        });
+        
+      if (error) throw error;
+    }
+    
+    // Update the user's experience points
+    await updateUserExperiencePoints(study.points || 10);
+    
+    return true;
+  } catch (error) {
+    console.error('Error marking study as completed:', error);
+    return false;
+  }
+}
+
+/**
+ * Update user's experience points
+ */
+async function updateUserExperiencePoints(points: number): Promise<void> {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) return;
+    
+    // Get current user profile
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('experience_points')
+      .eq('id', session.session.user.id)
+      .single();
+      
+    if (!profile) return;
+    
+    // Update profile with new points
+    await supabase
+      .from('user_profiles')
+      .update({
+        experience_points: (profile.experience_points || 0) + points
+      })
+      .eq('id', session.session.user.id);
+  } catch (error) {
+    console.error('Error updating user experience points:', error);
+  }
+}
+
+/**
+ * Helper function to get localized study content
  */
 export function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): string {
   if (!study || !study.content) return '';
@@ -135,78 +188,9 @@ export function getLocalizedStudyContent(study: BibleStudy, language: string = '
   // If content has a content field which is language-specific
   if (typeof study.content === 'object' && 
       study.content.content && 
-      typeof study.content.content === 'object' &&
-      study.content.content[language]) {
-    return study.content.content[language] || study.content.content.en || '';
+      typeof study.content.content === 'object') {
+    return study.content.content?.[language] || study.content.content?.['en'] || '';
   }
   
   return '';
-}
-
-/**
- * Marks a study as completed
- * @param studyId Study ID
- * @param points Points earned
- * @returns Promise resolving to true if successful
- */
-export async function completeStudy(studyId: string, points: number = 10): Promise<boolean> {
-  try {
-    const profile = await getUserProfile();
-    
-    if (!profile?.id || profile.id.startsWith('guest-')) {
-      // Guest user, save to local storage
-      const storedProgress = JSON.parse(localStorage.getItem('study_progress') || '[]');
-      const existingProgress = storedProgress.find((p: UserStudyProgress) => p.study_id === studyId);
-      
-      if (existingProgress) {
-        // Update existing progress
-        existingProgress.completed_at = new Date().toISOString();
-        existingProgress.points_earned = points;
-      } else {
-        // Add new progress
-        storedProgress.push({
-          id: `local-${Date.now()}`,
-          study_id: studyId,
-          user_id: profile?.id || 'local',
-          completed_at: new Date().toISOString(),
-          points_earned: points
-        });
-      }
-      
-      localStorage.setItem('study_progress', JSON.stringify(storedProgress));
-      
-      // Update user XP
-      const currentXP = profile.experience_points || 0;
-      await updateUserProfile({
-        experience_points: currentXP + points
-      });
-      
-      return true;
-    }
-    
-    // Authenticated user, save to database
-    const { data, error } = await supabase
-      .from('user_study_progress')
-      .upsert({
-        study_id: studyId,
-        user_id: profile.id,
-        completed_at: new Date().toISOString(),
-        points_earned: points
-      }, { onConflict: 'study_id,user_id' });
-      
-    if (error) {
-      throw error;
-    }
-    
-    // Update user XP
-    const currentXP = profile.experience_points || 0;
-    await updateUserProfile({
-      experience_points: currentXP + points
-    });
-    
-    return true;
-  } catch (error) {
-    console.error('Error completing study:', error);
-    return false;
-  }
 }

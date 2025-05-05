@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink } from 'lucide-react';
@@ -14,6 +15,7 @@ import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -141,10 +143,19 @@ const Search = () => {
   // Should display studies even if no search
   const displayStudies = activeTab === 'studies' ? (query ? studyResults : allStudies) : [];
 
-  // Helper function to update user progress
+  // Function to reload user progress after completing a study
   const loadUserProgress = async () => {
-    const progress = await getUserStudyProgress();
-    setUserProgress(progress);
+    try {
+      const progress = await getUserStudyProgress();
+      setUserProgress(progress);
+    } catch (error) {
+      console.error("Error loading user progress:", error);
+      toast({
+        title: t('common.error'),
+        description: t('studies.errorLoadingProgress'),
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -281,7 +292,3 @@ const Search = () => {
 };
 
 export default Search;
-
-function loadUserProgress() {
-  return getUserStudyProgress().then(setUserProgress);
-}
