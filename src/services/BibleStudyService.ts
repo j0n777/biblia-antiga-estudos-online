@@ -15,7 +15,8 @@ export async function getAllBibleStudies(): Promise<BibleStudy[]> {
       
     if (error) throw error;
     
-    return data || [];
+    // Type casting to match our expected BibleStudy interface
+    return (data || []) as unknown as BibleStudy[];
   } catch (error) {
     console.error('Error fetching Bible studies:', error);
     return [];
@@ -35,7 +36,8 @@ export async function getBibleStudyById(studyId: string): Promise<BibleStudy | n
       
     if (error) throw error;
     
-    return data;
+    // Type casting to match our expected BibleStudy interface
+    return data as unknown as BibleStudy;
   } catch (error) {
     console.error('Error fetching Bible study:', error);
     return null;
@@ -57,7 +59,8 @@ export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
       
     if (error) throw error;
     
-    return data || [];
+    // Type casting to match our expected BibleStudy interface
+    return (data || []) as unknown as BibleStudy[];
   } catch (error) {
     console.error('Error searching Bible studies:', error);
     return [];
@@ -87,9 +90,9 @@ export async function getUserStudyProgress(): Promise<UserStudyProgress[]> {
 }
 
 /**
- * Mark a Bible study as completed
+ * Mark a Bible study as completed (renamed from markStudyCompleted to completeStudy)
  */
-export async function markStudyCompleted(studyId: string): Promise<boolean> {
+export async function completeStudy(studyId: string): Promise<boolean> {
   try {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) return false;
@@ -189,6 +192,7 @@ export function getLocalizedStudyContent(study: BibleStudy, language: string = '
   if (typeof study.content === 'object' && 
       study.content.content && 
       typeof study.content.content === 'object') {
+    // Add null checks using optional chaining
     return study.content.content?.[language] || study.content.content?.['en'] || '';
   }
   

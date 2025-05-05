@@ -23,6 +23,7 @@ function getLocalizedStudyContent(study: BibleStudy, language: string = 'en'): s
   if (typeof study.content === 'object' && 
       study.content.content && 
       typeof study.content.content === 'object') {
+    // Add optional chaining for null safety
     return study.content.content?.[language] || study.content.content?.['en'] || '';
   }
   
