@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -222,61 +221,65 @@ const Read = () => {
 
             {/* Book and chapter selector */}
             <div className="flex space-x-2">
-              <Select value={bookId} onValueChange={handleBookChange} className="flex-1">
-                <SelectTrigger className="border-parchment-darker/30" aria-label="Select book">
-                  <SelectValue>
-                    {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="max-h-[400px]">
-                  <SelectGroup>
-                    <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.oldTestament')}</SelectLabel>
-                    {books
-                      .filter(book => book.testament === 'old')
-                      .map(book => (
-                        <SelectItem key={book.book_id} value={book.book_id}>
-                          {book.name}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                  <SelectGroup>
-                    <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.newTestament')}</SelectLabel>
-                    {books
-                      .filter(book => book.testament === 'new')
-                      .map(book => (
-                        <SelectItem key={book.book_id} value={book.book_id}>
-                          {book.name}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div className="flex-1">
+                <Select value={bookId} onValueChange={handleBookChange}>
+                  <SelectTrigger className="border-parchment-darker/30" aria-label="Select book">
+                    <SelectValue>
+                      {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[400px]">
+                    <SelectGroup>
+                      <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.oldTestament')}</SelectLabel>
+                      {books
+                        .filter(book => book.testament === 'old')
+                        .map(book => (
+                          <SelectItem key={book.book_id} value={book.book_id}>
+                            {book.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                    <SelectGroup>
+                      <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.newTestament')}</SelectLabel>
+                      {books
+                        .filter(book => book.testament === 'new')
+                        .map(book => (
+                          <SelectItem key={book.book_id} value={book.book_id}>
+                            {book.name}
+                          </SelectItem>
+                        ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <Select 
-                value={chapterNumber.toString()} 
-                onValueChange={value => {
-                  setChapterNumber(parseInt(value));
-                  setScrollToVerse(null);
-                }}
-                disabled={!bookId}
-              >
-                <SelectTrigger className="w-24 border-parchment-darker/30" aria-label="Select chapter">
-                  <SelectValue>
-                    {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  {books.find(b => b.book_id === bookId)?.chapters_count && 
-                    Array.from(
-                      { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
-                      (_, i) => i + 1
-                    ).map(num => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {t('bible.chapter')} {num}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <div className="w-24">
+                <Select 
+                  value={chapterNumber.toString()} 
+                  onValueChange={value => {
+                    setChapterNumber(parseInt(value));
+                    setScrollToVerse(null);
+                  }}
+                  disabled={!bookId}
+                >
+                  <SelectTrigger className="border-parchment-darker/30" aria-label="Select chapter">
+                    <SelectValue>
+                      {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {books.find(b => b.book_id === bookId)?.chapters_count && 
+                      Array.from(
+                        { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
+                        (_, i) => i + 1
+                      ).map(num => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {t('bible.chapter')} {num}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
               <FontSizeControl onFontSizeChange={handleFontSizeChange} />
             </div>

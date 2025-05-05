@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -51,7 +50,7 @@ const ProfilePage = () => {
     const fetchUserData = async () => {
       const userAchievements = await getUserAchievements();
       const userProfile = await getUserProfile();
-      const userSavedVerses = await getSavedVerses(3);
+      const userSavedVerses = await getSavedVerses();
       const books = await getBibleBooks();
       
       // Create book name lookup

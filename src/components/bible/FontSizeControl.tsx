@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Typography, TextAlignJustify } from "lucide-react";
+import { Type, AlignJustify } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ const FontSizeControl: React.FC<FontSizeControlProps> = ({ onFontSizeChange }) =
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="border-parchment-darker/30">
-          <Typography className="h-[1.2rem] w-[1.2rem]" />
+          <Type className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
