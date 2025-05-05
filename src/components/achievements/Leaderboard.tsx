@@ -1,136 +1,113 @@
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getLeaderboard } from '@/services/AchievementService';
 import { LeaderboardEntry } from '@/types/bible.types';
-import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Trophy } from 'lucide-react';
+import { UserCheck, Trophy, Medal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
 
-const Leaderboard = () => {
+interface LeaderboardProps {
+  limit?: number;
+  searchQuery?: string;
+}
+
+const Leaderboard = ({ limit = 15, searchQuery = '' }: LeaderboardProps) => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Get current user
-      const { data: session } = await supabase.auth.getSession();
-      if (session.session?.user) {
-        setCurrentUserId(session.session.user.id);
-      }
-      
-      // Get leaderboard
-      const leaderboard = await getLeaderboard();
-      setEntries(leaderboard);
+    const fetchLeaderboard = async () => {
+      const data = await getLeaderboard();
+      setEntries(data);
       setLoading(false);
     };
     
-    fetchData();
+    fetchLeaderboard();
   }, []);
 
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) return <Trophy size={16} className="text-yellow-500" />;
+    if (rank === 2) return <Medal size={16} className="text-gray-400" />;
+    if (rank === 3) return <Medal size={16} className="text-amber-700" />;
+    return rank;
+  };
+
+  const filteredEntries = entries.filter(entry => 
+    entry.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.nickname?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
-    return <div className="parchment-container p-4">Carregando ranking...</div>;
+    return <div className="parchment-container p-4">Carregando classificação...</div>;
   }
 
   if (entries.length === 0) {
     return (
       <Card className="parchment-container">
-        <div className="p-6 text-center">
-          <p className="text-muted-foreground">Não há dados no ranking ainda.</p>
-        </div>
+        <CardContent className="p-6">
+          <p className="text-center text-muted-foreground">
+            Nenhum jogador encontrado no ranking.
+          </p>
+        </CardContent>
       </Card>
     );
   }
-
-  // Find user's position
-  const userEntry = entries.find(entry => entry.id === currentUserId);
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2">
           <Trophy size={18} className="text-ancient-gold" />
-          Ranking de Leitores
+          Classificação
         </h3>
+        <Badge variant="outline" className="bg-parchment-light/50">
+          <UserCheck size={14} className="mr-1" /> {entries.length} jogadores
+        </Badge>
       </div>
       
-      {userEntry && (
-        <Card className="parchment-container bg-ancient-gold/10 border-ancient-gold/50">
-          <div className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-ancient-gold text-white font-bold">
-                {userEntry.rank}
-              </div>
-              <Avatar className="h-10 w-10 border-2 border-ancient-gold">
-                <AvatarImage src={userEntry.avatar_url || undefined} />
-                <AvatarFallback className="bg-ancient-brown text-white">
-                  {userEntry.nickname?.[0] || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-1">
-                  <p className="font-medium">
-                    {userEntry.nickname || "Usuário"}
-                  </p>
-                  <Badge variant="outline" className="text-xs font-normal">Você</Badge>
+      <div className="space-y-2">
+        {searchQuery && filteredEntries.length === 0 ? (
+          <Card className="parchment-container">
+            <CardContent className="p-4">
+              <p className="text-center text-muted-foreground">
+                Nenhum jogador encontrado com o termo "{searchQuery}".
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredEntries.slice(0, limit).map((entry) => (
+            <Card 
+              key={entry.id}
+              className={`parchment-container overflow-hidden ${entry.rank <= 3 ? 'border-ancient-gold/30' : ''}`}
+            >
+              <CardContent className="p-3 flex items-center">
+                <div className="flex-shrink-0 w-8 text-center font-medium">
+                  {getRankBadge(entry.rank)}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {userEntry.experience_points} pontos • {userEntry.achievements_count} conquistas
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-      
-      <Card className="parchment-container">
-        <div className="p-2">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-parchment-dark/20">
-                <TableHead className="w-12">Pos.</TableHead>
-                <TableHead>Leitor</TableHead>
-                <TableHead className="text-right">XP</TableHead>
-                <TableHead className="text-right">🔥</TableHead>
-                <TableHead className="text-right">🏆</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {entries.slice(0, 10).map((entry) => (
-                <TableRow 
-                  key={entry.id} 
-                  className={`border-parchment-dark/10 hover:bg-parchment-light ${
-                    entry.id === currentUserId ? 'bg-ancient-gold/5' : ''
-                  }`}
-                >
-                  <TableCell className="font-medium text-center">
-                    {entry.rank === 1 ? (
-                      <span className="text-xl text-ancient-gold">👑</span>
-                    ) : entry.rank}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={entry.avatar_url || undefined} />
-                        <AvatarFallback className="bg-ancient-brown text-white">
-                          {entry.nickname?.[0] || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{entry.nickname || "Anônimo"}</span>
+                <Avatar className="h-10 w-10 border">
+                  <AvatarFallback className="bg-parchment text-scripture-heading">
+                    {entry.display_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                  {entry.avatar_url && <AvatarImage src={entry.avatar_url} />}
+                </Avatar>
+                <div className="ml-3 flex-1">
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="font-medium text-scripture-heading">{entry.display_name}</p>
+                      <p className="text-xs text-muted-foreground">@{entry.nickname}</p>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">{entry.experience_points}</TableCell>
-                  <TableCell className="text-right">{entry.streak_count}</TableCell>
-                  <TableCell className="text-right">{entry.achievements_count}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+                    <div className="text-right">
+                      <p className="font-semibold text-ancient-brown">{entry.experience_points} XP</p>
+                      <p className="text-xs text-muted-foreground">{entry.streak_count} dias 🔥</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 };

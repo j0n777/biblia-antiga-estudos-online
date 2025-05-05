@@ -1,16 +1,34 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry } from '@/types/bible.types';
-import { getSavedVerses } from '@/services/BibleStudyService';
+import { Achievement, DailyChallenge, UserProfile, LeaderboardEntry, SavedVerse } from '@/types/bible.types';
 
-// Export the getSavedVerses function
-export { getSavedVerses };
-
-// Add export for checking if user is authenticated
+// Export the function for checking if user is authenticated
 export const isUserAuthenticated = async (): Promise<boolean> => {
   const { data } = await supabase.auth.getSession();
   return !!data.session?.user;
 };
+
+// Get saved verses
+export async function getSavedVerses(): Promise<SavedVerse[]> {
+  try {
+    const { data: session } = await supabase.auth.getSession();
+    const userId = session?.session?.user?.id;
+    
+    if (!userId) {
+      // Get from localStorage for non-authenticated users
+      const savedVerses = localStorage.getItem('saved_verses');
+      if (!savedVerses) return [];
+      
+      return JSON.parse(savedVerses);
+    }
+    
+    // TODO: Replace with actual database calls
+    return [];
+  } catch (error) {
+    console.error('Error getting saved verses:', error);
+    return [];
+  }
+}
 
 // Mock achievements for development
 export async function getUserAchievements(): Promise<Achievement[]> {
@@ -188,6 +206,7 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
           icon: '📖',
           target_book_id: null,
           target_chapter: null,
+          book_category: 'gospels',
           chapters_required: 3,
           progress: 1,
           completed: false,
@@ -223,6 +242,7 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
         icon: '📖',
         target_book_id: null,
         target_chapter: null,
+        book_category: 'gospels',
         chapters_required: 3,
         progress: 1,
         completed: false,
@@ -284,6 +304,17 @@ export async function trackReading(
       }
       
       localStorage.setItem('reading_history', JSON.stringify(readingHistory));
+      
+      // Update reading position for quick access
+      const lastPosition = {
+        version_id: versionId,
+        book_id: bookId,
+        chapter: chapterNumber,
+        verse: verseNumber,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('last_reading_position', JSON.stringify(lastPosition));
+      
       return true;
     }
     
@@ -388,7 +419,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       if (!profile) {
         // Create default profile for first-time users
         const defaultProfile: UserProfile = {
-          id: 'local',
+          id: 'guest-' + Math.random().toString(36).substring(2, 9),
           display_name: 'Visitante',
           nickname: 'guest',
           experience_points: 0,
@@ -553,6 +584,61 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
         streak_count: 10,
         achievements_count: 7,
         rank: 5
+      },
+      {
+        id: '6',
+        user_id: '6',
+        nickname: 'RaquelPaz',
+        display_name: 'Raquel Paz',
+        avatar_url: null,
+        experience_points: 620,
+        streak_count: 12,
+        achievements_count: 6,
+        rank: 6
+      },
+      {
+        id: '7',
+        user_id: '7',
+        nickname: 'TiagoLuz',
+        display_name: 'Tiago Luz',
+        avatar_url: null,
+        experience_points: 580,
+        streak_count: 9,
+        achievements_count: 8,
+        rank: 7
+      },
+      {
+        id: '8',
+        user_id: '8',
+        nickname: 'IsabelaGraça',
+        display_name: 'Isabela Graça',
+        avatar_url: null,
+        experience_points: 520,
+        streak_count: 7,
+        achievements_count: 5,
+        rank: 8
+      },
+      {
+        id: '9',
+        user_id: '9',
+        nickname: 'MateusSábio',
+        display_name: 'Mateus Sábio',
+        avatar_url: null,
+        experience_points: 490,
+        streak_count: 8,
+        achievements_count: 6,
+        rank: 9
+      },
+      {
+        id: '10',
+        user_id: '10',
+        nickname: 'DéboraFé',
+        display_name: 'Débora Fé',
+        avatar_url: null,
+        experience_points: 450,
+        streak_count: 5,
+        achievements_count: 4,
+        rank: 10
       }
     ];
     
@@ -563,3 +649,90 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   }
 }
 
+// Get user last reading position
+export async function getLastReadingPosition(): Promise<{
+  version_id: string,
+  book_id: string,
+  chapter: number,
+  verse: number
+} | null> {
+  try {
+    // Check if user is authenticated
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      // Get from localStorage for non-authenticated users
+      const position = localStorage.getItem('last_reading_position');
+      if (!position) {
+        // Return default position
+        return {
+          version_id: 'kja',
+          book_id: 'MAT',
+          chapter: 1,
+          verse: 1
+        };
+      }
+      
+      return JSON.parse(position);
+    }
+    
+    // Get from user profile in database
+    const profile = await getUserProfile();
+    
+    if (profile?.reading_position) {
+      return profile.reading_position;
+    }
+    
+    // Return default position if none found
+    return {
+      version_id: 'kja',
+      book_id: 'MAT',
+      chapter: 1,
+      verse: 1
+    };
+  } catch (error) {
+    console.error('Error getting last reading position:', error);
+    // Return default position on error
+    return {
+      version_id: 'kja',
+      book_id: 'MAT',
+      chapter: 1,
+      verse: 1
+    };
+  }
+}
+
+// Save user reading position
+export async function saveReadingPosition(
+  versionId: string,
+  bookId: string,
+  chapter: number,
+  verse: number = 1
+): Promise<boolean> {
+  try {
+    const position = {
+      version_id: versionId,
+      book_id: bookId,
+      chapter,
+      verse,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Check if user is authenticated
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      // Save to localStorage for non-authenticated users
+      localStorage.setItem('last_reading_position', JSON.stringify(position));
+      return true;
+    }
+    
+    // Update user profile in database
+    await updateUserProfile({
+      reading_position: position
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving reading position:', error);
+    return false;
+  }
+}

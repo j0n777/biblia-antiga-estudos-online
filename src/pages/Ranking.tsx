@@ -1,10 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Medal, Award, Users } from 'lucide-react';
-import ReadingStreak from '@/components/achievements/ReadingStreak';
+import { Trophy, Award, Users } from 'lucide-react';
 import DailyChallenges from '@/components/achievements/DailyChallenges';
 import Leaderboard from '@/components/achievements/Leaderboard';
 import { getUserProfile } from '@/services/AchievementService';
@@ -12,12 +10,15 @@ import { UserProfile } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Medal } from 'lucide-react';
 
 const RankingPage = () => {
   const [activeTab, setActiveTab] = useState('desafios');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const { t } = useLanguage();
   
@@ -81,12 +82,6 @@ const RankingPage = () => {
           </Alert>
         )}
 
-        <ReadingStreak
-          currentStreak={profile?.streak_count || 0}
-          longestStreak={profile?.streak_count || 0}
-          goalProgress={75}
-        />
-
         <div className="mt-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full bg-parchment-light">
@@ -105,7 +100,15 @@ const RankingPage = () => {
             </TabsContent>
 
             <TabsContent value="ranking" className="mt-4">
-              <Leaderboard />
+              <div className="mb-4">
+                <Input
+                  placeholder={t('ranking.searchPlayers') || 'Buscar jogadores...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="border-parchment-darker/30"
+                />
+              </div>
+              <Leaderboard searchQuery={searchQuery} />
             </TabsContent>
           </Tabs>
         </div>

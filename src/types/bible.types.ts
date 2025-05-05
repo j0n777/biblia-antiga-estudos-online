@@ -16,8 +16,8 @@ export interface BibleStudy {
 }
 
 export interface SavedVerse {
-  id: string;
-  user_id: string;
+  id?: string;
+  user_id?: string;
   book_id: string;
   chapter_number: number;
   verse_number: number;
@@ -25,6 +25,7 @@ export interface SavedVerse {
   saved_at: string;
   note?: string;
   highlight_color?: string;
+  color?: string;
 }
 
 export interface UserStudyProgress {
@@ -35,7 +36,6 @@ export interface UserStudyProgress {
   points_earned: number;
 }
 
-// Add missing types
 export interface BibleBook {
   book_id: string;
   name: string;
@@ -112,10 +112,10 @@ export interface Achievement {
   earned_at?: string;
   category: string;
   unlocked: boolean;
-  maxProgress?: number;
-  unlockedAt?: string;
+  unlockedAt?: string | null;
   points: number;
   target?: number;
+  maxProgress?: number;
 }
 
 export interface DailyChallenge {
@@ -130,8 +130,8 @@ export interface DailyChallenge {
   progress?: number;
   chapters_required: number;
   book_category?: string;
-  target_book_id?: string;
-  target_chapter?: number;
+  target_book_id?: string | null;
+  target_chapter?: number | null;
   expires_at?: string;
 }
 
@@ -147,7 +147,7 @@ export interface UserProfile {
   birth_year?: number;
   experience_points: number;
   streak_count: number;
-  last_streak_date?: string;
+  last_streak_date?: string | null;
   preferred_language?: string;
   preferred_bible_version?: string;
   font_size?: 'small' | 'medium' | 'large';

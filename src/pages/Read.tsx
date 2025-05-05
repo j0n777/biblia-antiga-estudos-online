@@ -2,58 +2,83 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
-import { ChevronLeft, ChevronRight, Menu, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
 import { saveReadingPosition } from '@/services/ReadingService';
-import { trackReading, saveVerse } from '@/services/AchievementService';
+import { trackReading, saveVerse, getLastReadingPosition } from '@/services/AchievementService';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
 import FontSizeControl from '@/components/bible/FontSizeControl';
 
-const bookToWidthMap: Record<string, number> = {
-  GEN: 50, EXO: 40, LEV: 27, NUM: 36, DEU: 34,
-  JOS: 24, JDG: 21, RUT: 4, '1SA': 31, '2SA': 24,
-  '1KI': 22, '2KI': 25, '1CH': 29, '2CH': 36, EZR: 10,
-  NEH: 13, EST: 10, JOB: 42, PSA: 150, PRO: 31,
-  ECC: 12, SNG: 8, ISA: 66, JER: 52, LAM: 5,
-  EZK: 48, DAN: 12, HOS: 14, JOL: 3, AMO: 9,
-  OBA: 1, JON: 4, MIC: 7, NAM: 3, HAB: 3,
-  ZEP: 3, HAG: 2, ZEC: 14, MAL: 4, MAT: 28,
-  MRK: 16, LUK: 24, JHN: 21, ACT: 28, ROM: 16,
-  '1CO': 16, '2CO': 13, GAL: 6, EPH: 6, PHP: 4,
-  COL: 4, '1TH': 5, '2TH': 3, '1TI': 6, '2TI': 4,
-  TIT: 3, PHM: 1, HEB: 13, JAS: 5, '1PE': 5,
-  '2PE': 3, '1JN': 5, '2JN': 1, '3JN': 1, JUD: 1,
-  REV: 22
-};
-
 const Read = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialBookId = searchParams.get('book') || 'JHN';
-  const initialChapter = parseInt(searchParams.get('chapter') || '1');
-  const initialVerse = parseInt(searchParams.get('verse') || '0');
-  const initialVersion = searchParams.get('version') || 'kja';
-  
-  const [bookId, setBookId] = useState(initialBookId);
-  const [chapterNumber, setChapterNumber] = useState(initialChapter);
+  const [bookId, setBookId] = useState('');
+  const [chapterNumber, setChapterNumber] = useState(1);
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [versionId, setVersionId] = useState(initialVersion);
+  const [versionId, setVersionId] = useState('kja');
   const [chapter, setChapter] = useState<BibleChapterType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollToVerse, setScrollToVerse] = useState<number | null>(initialVerse || null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
   const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+
+  // Get last reading position on initial load
+  useEffect(() => {
+    const initializeReadingPosition = async () => {
+      try {
+        const lastPosition = await getLastReadingPosition();
+        if (lastPosition) {
+          setBookId(lastPosition.book_id);
+          setChapterNumber(lastPosition.chapter);
+          setVersionId(lastPosition.version_id);
+          setScrollToVerse(lastPosition.verse);
+        } else {
+          setBookId('MAT');
+          setChapterNumber(1);
+          setVersionId('kja');
+        }
+        setIsInitialLoad(false);
+      } catch (error) {
+        console.error('Error initializing reading position:', error);
+        setBookId('MAT');
+        setChapterNumber(1);
+        setVersionId('kja');
+        setIsInitialLoad(false);
+      }
+    };
+
+    initializeReadingPosition();
+  }, []);
   
+  useEffect(() => {
+    // Only load data after we've initialized the reading position
+    if (!isInitialLoad) {
+      loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookId, chapterNumber, versionId, isInitialLoad]);
+  
+  // Update URL when reading position changes
+  useEffect(() => {
+    if (!isInitialLoad && bookId) {
+      setSearchParams({ 
+        book: bookId, 
+        chapter: chapterNumber.toString(),
+        version: versionId,
+        verse: scrollToVerse ? scrollToVerse.toString() : '1'
+      }, { replace: true });
+    }
+  }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
+
   const loadData = async () => {
     setIsLoading(true);
     try {
@@ -68,27 +93,21 @@ const Read = () => {
       setVersions(versionsData);
       setChapter(chapterData);
       
-      // Update URL without causing navigation
-      setSearchParams({ 
-        book: bookId, 
-        chapter: chapterNumber.toString(),
-        version: versionId 
-      }, { replace: true });
-      
       // Track reading progress
-      await trackReading(versionId, bookId, chapterNumber, 1);
+      await trackReading(versionId, bookId, chapterNumber, scrollToVerse || 1);
+      await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
       
     } catch (error) {
       console.error('Error loading data:', error);
+      toast({
+        title: t('common.error'),
+        description: t('bible.errorLoadingChapter'),
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookId, chapterNumber, versionId]);
   
   const handlePreviousChapter = () => {
     // Find the current book in the list
@@ -146,6 +165,10 @@ const Read = () => {
         ...savedVerses,
         [verseKey]: true
       });
+      toast({
+        title: t('bible.verseSaved'),
+        description: `${bookId} ${chapterNumber}:${verseNumber}`,
+      });
     }
   };
   
@@ -158,121 +181,32 @@ const Read = () => {
     return savedVerses[verseKey] || false;
   };
 
+  const handleBookChange = (value: string) => {
+    setBookId(value);
+    setChapterNumber(1);
+    setScrollToVerse(null);
+  };
+
+  // If still initializing reading position, show loading
+  if (isInitialLoad) {
+    return (
+      <PageLayout>
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-ancient-gold" />
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout>
-      <div className="py-6">
-        <div className="flex justify-between items-center mb-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Menu className="h-[1.2rem] w-[1.2rem]" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[85%] sm:w-[420px]">
-              <SheetHeader>
-                <SheetTitle>{t('bible.selectChapter')}</SheetTitle>
-              </SheetHeader>
-              <div className="py-4 overflow-y-auto max-h-full">
-                <Accordion 
-                  type="multiple"
-                  defaultValue={[books.find(b => b.book_id === bookId)?.testament === 'old' ? 'old_testament' : 'new_testament']}
-                >
-                  <AccordionItem value="old_testament">
-                    <AccordionTrigger className="font-oldstyle text-ancient-brown">
-                      {t('bible.oldTestament')}
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-1">
-                      {books
-                        .filter(book => book.testament === 'old')
-                        .map(book => (
-                          <Accordion key={book.book_id} type="single" collapsible>
-                            <AccordionItem value={book.book_id}>
-                              <AccordionTrigger className="py-1 text-sm">
-                                {book.name}
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <div className="grid grid-cols-8 gap-1">
-                                  {Array.from(
-                                    { length: book.chapters_count },
-                                    (_, i) => i + 1
-                                  ).map(chapterNum => (
-                                    <SheetClose key={chapterNum} asChild>
-                                      <Button
-                                        variant={bookId === book.book_id && chapterNumber === chapterNum ? "default" : "outline"}
-                                        size="sm"
-                                        className={`h-8 w-8 p-0 ${bookId === book.book_id && chapterNumber === chapterNum ? 'bg-ancient-gold text-white hover:bg-ancient-gold/90' : ''}`}
-                                        onClick={() => {
-                                          setBookId(book.book_id);
-                                          setChapterNumber(chapterNum);
-                                          setScrollToVerse(null);
-                                          saveReadingPosition(versionId, book.book_id, chapterNum, 1);
-                                        }}
-                                      >
-                                        {chapterNum}
-                                      </Button>
-                                    </SheetClose>
-                                  ))}
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                        ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="new_testament">
-                    <AccordionTrigger className="font-oldstyle text-ancient-brown">
-                      {t('bible.newTestament')}
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-1">
-                      {books
-                        .filter(book => book.testament === 'new')
-                        .map(book => (
-                          <Accordion key={book.book_id} type="single" collapsible>
-                            <AccordionItem value={book.book_id}>
-                              <AccordionTrigger className="py-1 text-sm">
-                                {book.name}
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <div className="grid grid-cols-8 gap-1">
-                                  {Array.from(
-                                    { length: book.chapters_count },
-                                    (_, i) => i + 1
-                                  ).map(chapterNum => (
-                                    <SheetClose key={chapterNum} asChild>
-                                      <Button
-                                        variant={bookId === book.book_id && chapterNumber === chapterNum ? "default" : "outline"}
-                                        size="sm"
-                                        className={`h-8 w-8 p-0 ${bookId === book.book_id && chapterNumber === chapterNum ? 'bg-ancient-gold text-white hover:bg-ancient-gold/90' : ''}`}
-                                        onClick={() => {
-                                          setBookId(book.book_id);
-                                          setChapterNumber(chapterNum);
-                                          setScrollToVerse(null);
-                                          saveReadingPosition(versionId, book.book_id, chapterNum, 1);
-                                        }}
-                                      >
-                                        {chapterNum}
-                                      </Button>
-                                    </SheetClose>
-                                  ))}
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                        ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            </SheetContent>
-          </Sheet>
-          
-          <div className="flex items-center gap-2 flex-1 justify-center">
-            <Select value={versionId} onValueChange={value => {
-              setVersionId(value);
-              setScrollToVerse(null);
-            }}>
-              <SelectTrigger className="w-[110px]" aria-label="Select version">
+      <div className="py-4 max-w-4xl mx-auto">
+        <div className="flex flex-col space-y-4 mb-4 px-2">
+          {/* Bible navigation controls */}
+          <div className="flex flex-col space-y-3">
+            {/* Version selector */}
+            <Select value={versionId} onValueChange={value => setVersionId(value)}>
+              <SelectTrigger className="w-full border-parchment-darker/30" aria-label="Select version">
                 <SelectValue>
                   {versions.find(v => v.id === versionId)?.name || versionId}
                 </SelectValue>
@@ -285,61 +219,77 @@ const Read = () => {
                 ))}
               </SelectContent>
             </Select>
-            
-            <Select value={bookId} onValueChange={value => {
-              setBookId(value);
-              setChapterNumber(1);
-              setScrollToVerse(null);
-            }}>
-              <SelectTrigger className="w-[110px]" aria-label="Select book">
-                <SelectValue>
-                  {books.find(b => b.book_id === bookId)?.name || bookId}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {books.map((book) => (
-                  <SelectItem key={book.book_id} value={book.book_id}>
-                    {book.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select 
-              value={chapterNumber.toString()} 
-              onValueChange={value => {
-                setChapterNumber(parseInt(value));
-                setScrollToVerse(null);
-              }}
-            >
-              <SelectTrigger className="w-[80px]" aria-label="Select chapter">
-                <SelectValue>
-                  {chapterNumber}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from(
-                  { length: bookToWidthMap[bookId] || 1 },
-                  (_, i) => i + 1
-                ).map(num => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+            {/* Book and chapter selector */}
+            <div className="flex space-x-2">
+              <Select value={bookId} onValueChange={handleBookChange} className="flex-1">
+                <SelectTrigger className="border-parchment-darker/30" aria-label="Select book">
+                  <SelectValue>
+                    {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-[400px]">
+                  <SelectGroup>
+                    <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.oldTestament')}</SelectLabel>
+                    {books
+                      .filter(book => book.testament === 'old')
+                      .map(book => (
+                        <SelectItem key={book.book_id} value={book.book_id}>
+                          {book.name}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.newTestament')}</SelectLabel>
+                    {books
+                      .filter(book => book.testament === 'new')
+                      .map(book => (
+                        <SelectItem key={book.book_id} value={book.book_id}>
+                          {book.name}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              
+              <Select 
+                value={chapterNumber.toString()} 
+                onValueChange={value => {
+                  setChapterNumber(parseInt(value));
+                  setScrollToVerse(null);
+                }}
+                disabled={!bookId}
+              >
+                <SelectTrigger className="w-24 border-parchment-darker/30" aria-label="Select chapter">
+                  <SelectValue>
+                    {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {books.find(b => b.book_id === bookId)?.chapters_count && 
+                    Array.from(
+                      { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
+                      (_, i) => i + 1
+                    ).map(num => (
+                      <SelectItem key={num} value={num.toString()}>
+                        {t('bible.chapter')} {num}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              
+              <FontSizeControl onFontSizeChange={handleFontSizeChange} />
+            </div>
           </div>
-          
-          <FontSizeControl onFontSizeChange={handleFontSizeChange} />
         </div>
 
         <div 
           ref={containerRef}
-          className="px-1 pb-16"
+          className="pb-16"
         >
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
             </div>
           ) : chapter ? (
             <BibleChapter 
@@ -352,12 +302,15 @@ const Read = () => {
           ) : (
             <div className="text-center py-12">
               <p>{t('bible.chapterNotFound')}</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                {t('bible.tryAnotherChapter')}
+              </p>
             </div>
           )}
         </div>
 
         <div className="fixed bottom-16 left-0 right-0 flex justify-center px-4 pb-4">
-          <div className="flex gap-2 bg-background/50 backdrop-blur-sm p-2 rounded-full shadow-lg border">
+          <div className="flex gap-2 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-lg border">
             <Button 
               variant="ghost" 
               size="icon"
