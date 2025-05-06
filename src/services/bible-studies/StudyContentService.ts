@@ -98,9 +98,9 @@ export function getStudyContent(study: BibleStudy, language: string = 'en'): str
       return contentObj;
     }
     
-    if (typeof contentObj === 'object') {
-      // Corrigido: adicionando verificação de null aqui
-      return contentObj && (contentObj[language] || contentObj['en'] || '');
+    if (typeof contentObj === 'object' && contentObj !== null) {
+      // Fix: Add null check before accessing properties
+      return contentObj[language] || contentObj['en'] || '';
     }
     return '';
   }

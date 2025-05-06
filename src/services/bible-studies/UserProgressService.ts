@@ -8,36 +8,35 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export async function completeStudy(studyId: string): Promise<boolean> {
   try {
-    // Primeiro verifique se o usuário já completou este estudo
+    // First check if the user has already completed this study
+    const userId = await getCurrentUserId();
     const { data: existingData } = await supabase
       .from('user_study_progress')
       .select('*')
       .eq('study_id', studyId)
-      .eq('user_id', await getCurrentUserId())
-      .single();
+      .eq('user_id', userId)
+      .maybeSingle();
     
     if (existingData) {
       console.log('Study already completed');
       return true;
     }
     
-    // Se não, marque como completo
+    // If not, mark as complete
     const { error } = await supabase
       .from('user_study_progress')
-      .insert([
-        {
-          study_id: studyId,
-          user_id: await getCurrentUserId(),
-          completed_at: new Date().toISOString(),
-        },
-      ]);
+      .insert({
+        study_id: studyId,
+        user_id: userId,
+        completed_at: new Date().toISOString(),
+      });
     
     if (error) {
       console.error('Error completing study:', error);
       return false;
     }
     
-    // Atualize os pontos do usuário
+    // Update user points
     const { data: studyData } = await supabase
       .from('bible_studies')
       .select('points')
@@ -88,7 +87,7 @@ async function getCurrentUserId(): Promise<string> {
     return data.session.user.id;
   }
   
-  // Para usuários não autenticados, use um ID de convidado armazenado no localStorage
+  // For non-authenticated users, use a guest ID stored in localStorage
   const guestId = localStorage.getItem('guestId') || `guest-${Date.now()}`;
   localStorage.setItem('guestId', guestId);
   
@@ -104,33 +103,32 @@ async function updateUserPoints(points: number): Promise<boolean> {
   try {
     const userId = await getCurrentUserId();
     
-    // Verificar se o usuário existe no perfil
+    // Check if user exists in profile
     const { data: profileData } = await supabase
       .from('user_profiles')
-      .select('experience_points')
-      .eq('user_id', userId)
-      .single();
+      .select('experience_points, id')
+      .eq('id', userId)
+      .maybeSingle();
     
     if (profileData) {
-      // Atualizar pontos existentes
+      // Update existing points
       const { error } = await supabase
         .from('user_profiles')
         .update({
           experience_points: (profileData.experience_points || 0) + points,
         })
-        .eq('user_id', userId);
+        .eq('id', userId);
       
       if (error) throw error;
     } else {
-      // Criar novo perfil com pontos iniciais
+      // Create new profile with initial points
+      // Fix: Use correct schema for user_profiles table (id instead of user_id)
       const { error } = await supabase
         .from('user_profiles')
-        .insert([
-          {
-            user_id: userId,
-            experience_points: points,
-          },
-        ]);
+        .insert({
+          id: userId, // Use id instead of user_id
+          experience_points: points,
+        });
       
       if (error) throw error;
     }

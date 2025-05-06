@@ -90,11 +90,12 @@ const Search = () => {
         if (referenceMatch) {
           // Busca por referência específica
           const [, book, chapter, verse] = referenceMatch;
+          const chapterNum = parseInt(chapter, 10); // Fix: Convert string to number
           const { data, error } = await supabase
             .from('bible_verses')
             .select('*')
-            .ilike('book_name', `%${book.trim()}%`)
-            .eq('chapter_number', chapter)
+            .ilike('book_id', `%${book.trim().toLowerCase()}%`)
+            .eq('chapter_number', chapterNum)
             .eq('version_id', language === 'en' ? 'kjv' : 'kja');
             
           if (verse) {
@@ -234,7 +235,8 @@ const Search = () => {
                 {searchResults.map((verse) => (
                   <div key={verse.id} className="parchment-container rounded-xl overflow-hidden animate-slide-up elevated-card">
                     <div className="text-xs text-ancient-brown font-medium mb-1">
-                      {verse.book_name || verse.book_id} {verse.chapter_number}:{verse.verse_number}
+                      {/* Fix: Use book_id instead of book_name which doesn't exist on BibleVerse */}
+                      {verse.book_id} {verse.chapter_number}:{verse.verse_number}
                     </div>
                     <BibleVerseComponent verse={verse} />
                   </div>

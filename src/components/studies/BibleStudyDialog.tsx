@@ -7,8 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BibleStudy } from '@/types/bible.types';
 import { completeStudy } from '@/services/bible-studies/UserProgressService';
-import { getBibleStudyById } from '@/services/bible-studies/StudyContentService';
-import { getStudyContent } from '@/services/bible-studies/StudyContentService';
+import { getBibleStudyById, getStudyContent } from '@/services/bible-studies/StudyContentService';
 
 interface BibleStudyDialogProps {
   study: BibleStudy;
@@ -64,7 +63,7 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Corrigido: remover o segundo argumento
+      // Fix: Remove the second argument that was causing the TS2554 error
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);
