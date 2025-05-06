@@ -68,7 +68,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       updated_at: data.updated_at || new Date().toISOString(),
       font_size: (data.font_size as 'small' | 'medium' | 'large') || 'medium',
       reading_position: data.reading_position || null,
-      preferred_bible_version: data.preferred_bible_version,
+      preferred_bible_version: data.preferred_bible_version || 'kja',
       // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
       preferred_language: data.preferred_language,

@@ -746,7 +746,7 @@ const detectBrowserLanguage = (): Language => {
   return 'pt-BR'; // Default
 };
 
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+export const LanguageProvider: React.FC<{children: ReactNode}> = ({ children }) => {
   // Try to get saved language from localStorage, or detect from browser
   const [language, setLanguageState] = useState<Language>(() => {
     const savedLang = localStorage.getItem('app-language');
