@@ -1,5 +1,5 @@
 
-import { Home, Book, Search, Trophy, User } from "lucide-react";
+import { Home, Book, Search, Users, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -35,10 +35,10 @@ const BottomNavigation = () => {
       label: t("nav.search")
     },
     {
-      name: "ranking",
-      path: "/ranking",
-      icon: <Trophy className="h-5 w-5" />,
-      label: t("nav.ranking")
+      name: "community",
+      path: "/community",
+      icon: <Users className="h-5 w-5" />,
+      label: t("nav.community")
     },
     {
       name: "profile",

@@ -63,7 +63,7 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Fix: Remove the second argument that was causing the TS2554 error
+      // Corrigido: Removido o segundo argumento que estava causando o erro TS2554
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);

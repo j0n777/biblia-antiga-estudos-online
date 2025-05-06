@@ -79,31 +79,83 @@ export async function searchBibleStudies(query: string): Promise<BibleStudy[]> {
 export function getStudyContent(study: BibleStudy, language: string = 'en'): string {
   if (!study || !study.content) return '';
   
+  // Para conteúdo armazenado como string direta
   if (typeof study.content === 'string') {
-    return study.content;
+    // Converter Markdown para HTML se necessário
+    return convertMarkdownToHTML(study.content);
   }
   
-  // If content is an object with direct language keys
-  if (typeof study.content === 'object' && study.content[language]) {
-    return study.content[language];
+  // Para conteúdo com chaves de idioma diretamente no objeto content
+  if (typeof study.content === 'object' && study.content !== null && study.content[language]) {
+    return convertMarkdownToHTML(study.content[language]);
   }
   
-  // If content has a content field which is language-specific
-  if (typeof study.content === 'object' && study.content.content) {
-    // Safely check if content exists and is an object
+  // Para estrutura aninhada com subcampo content
+  if (typeof study.content === 'object' && study.content !== null && study.content.content) {
     const contentObj = study.content.content;
-    if (!contentObj) return '';
     
     if (typeof contentObj === 'string') {
-      return contentObj;
+      return convertMarkdownToHTML(contentObj);
     }
     
-    if (typeof contentObj === 'object' && contentObj !== null) {
-      // Fix: Add null check before accessing properties
-      return contentObj[language] || contentObj['en'] || '';
+    if (contentObj && typeof contentObj === 'object') {
+      // Tentar obter pelo idioma atual ou usar inglês como fallback
+      const contentText = contentObj[language] || contentObj['en'] || '';
+      return convertMarkdownToHTML(contentText);
     }
-    return '';
   }
   
   return '';
+}
+
+/**
+ * Convert Markdown to HTML
+ * Simple function to convert basic Markdown to HTML
+ * @param markdown Markdown text
+ * @returns HTML string
+ */
+function convertMarkdownToHTML(markdown: string): string {
+  if (!markdown) return '';
+  
+  // Substituir cabeçalhos
+  let html = markdown
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  
+  // Substituir ênfase (negrito, itálico)
+  html = html
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/\_\_(.*?)\_\_/gim, '<strong>$1</strong>')
+    .replace(/\_(.*?)\_/gim, '<em>$1</em>');
+  
+  // Substituir links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-ancient-gold hover:underline">$1</a>');
+  
+  // Substituir listas
+  html = html.replace(/^\s*\n\* (.*)/gim, '<ul>\n<li>$1</li>');
+  html = html.replace(/^\* (.*)/gim, '<li>$1</li>');
+  html = html.replace(/^\s*\n\- (.*)/gim, '<ul>\n<li>$1</li>');
+  html = html.replace(/^\- (.*)/gim, '<li>$1</li>');
+  
+  // Quebras de linha e parágrafos
+  html = html
+    .replace(/^\s*\n\s*\n/gim, '</p><p>')
+    .replace(/^\s*\n/gim, '<br />');
+  
+  // Citações
+  html = html.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+  
+  // Limpar código HTML resultante
+  html = '<p>' + html + '</p>';
+  html = html
+    .replace(/<\/ul>\s*<p>/gim, '</ul>')
+    .replace(/<\/p>\s*<ul>/gim, '<ul>')
+    .replace(/<\/li>\s*<p>/gim, '</li>')
+    .replace(/<\/p>\s*<li>/gim, '<li>')
+    .replace(/<p>\s*<\/p>/gim, '')
+    .replace(/<\/p>\s*<p>/gim, '</p><p>');
+  
+  return html;
 }
