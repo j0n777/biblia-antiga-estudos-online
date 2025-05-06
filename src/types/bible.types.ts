@@ -4,6 +4,9 @@ export interface BibleVersion {
   name: string;
   language: string;
   description?: string;
+  language_name?: string;
+  is_original?: boolean;
+  original_language?: string;
 }
 
 export interface BibleBook {
@@ -11,17 +14,19 @@ export interface BibleBook {
   name: string;
   testament: string;
   order: number;
-  chapters_count?: number; // Added for compatibility
-  position?: number; // Added for compatibility
-  version_id?: string; // Added for compatibility
+  chapters_count?: number;
+  position?: number;
+  version_id?: string;
 }
 
 export interface BibleChapter {
   book_id: string;
   chapter_number: number;
-  id?: string; // Added for compatibility
-  book_name?: string; // Added for compatibility
-  verses?: BibleVerse[]; // Added for compatibility
+  id?: string;
+  book_name?: string;
+  verses?: BibleVerse[];
+  verses_count?: number;
+  version_id?: string;
 }
 
 export interface BibleVerse {
@@ -31,8 +36,8 @@ export interface BibleVerse {
   verse_number: number;
   text: string;
   version_id: string;
-  book_name?: string; // Added for compatibility
-  chapter_id?: string; // Added for compatibility
+  book_name?: string;
+  chapter_id?: string;
 }
 
 export interface BookContent {
@@ -62,12 +67,13 @@ export interface BibleStudy {
   title: string | { [key: string]: string };
   title_key?: string;
   content: string | { [key: string]: string } | { content: { [key: string]: string } };
-  description?: string | { [key: string]: string }; // Added for compatibility
+  description?: string | { [key: string]: string };
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   points: number;
   next_study_id?: string;
-  icon?: string; // Added for compatibility
+  icon?: string;
+  category?: string;
 }
 
 export interface UserProfile {
@@ -82,16 +88,17 @@ export interface UserProfile {
   created_at: string;
   updated_at: string;
   font_size: 'small' | 'medium' | 'large';
-  reading_position: string | null;
+  reading_position: string | null | ReadingPosition;
   avatar_url?: string;
   preferred_language?: string;
   preferred_bible_version?: string;
   daily_reading_goal?: number;
   has_completed_onboarding?: boolean;
-  country?: string; // Added for compatibility
-  birth_year?: number; // Added for compatibility
-  email?: string; // Added for compatibility
-  phone?: string; // Added for compatibility
+  country?: string;
+  birth_year?: number;
+  email?: string;
+  phone?: string;
+  username?: string;
 }
 
 export interface Achievement {
@@ -100,15 +107,17 @@ export interface Achievement {
   description: string;
   points: number;
   icon: string;
-  created_at: string;
-  updated_at: string;
-  name?: string; // Added for compatibility
-  category?: string; // Added for compatibility
-  unlocked?: boolean; // Added for compatibility
-  progress?: number; // Added for compatibility
-  total?: number; // Added for compatibility
-  maxProgress?: number; // Added for compatibility
-  unlockedAt?: string; // Added for compatibility
+  created_at?: string;
+  updated_at?: string;
+  name?: string;
+  category?: string;
+  unlocked?: boolean;
+  progress?: number;
+  total?: number;
+  maxProgress?: number;
+  unlockedAt?: string;
+  earned?: boolean;
+  earned_at?: string;
 }
 
 export interface DailyChallenge {
@@ -120,6 +129,8 @@ export interface DailyChallenge {
   target_value: number;
   is_completed: boolean;
   expires_at: string;
+  progress?: number;
+  icon?: string;
 }
 
 export type Challenge = DailyChallenge;
@@ -144,6 +155,8 @@ export interface SavedVerse {
   highlight_color?: string;
   created_at: string;
   updated_at: string;
+  version_id?: string;
+  saved_at?: string;
 }
 
 export interface ReadingHistory {
@@ -163,4 +176,5 @@ export interface UserStudyProgress {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  points_earned?: number;
 }

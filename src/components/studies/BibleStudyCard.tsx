@@ -10,7 +10,7 @@ interface BibleStudyCardProps {
   study: BibleStudy;
   isCompleted?: boolean;
   onClick?: () => void;
-  compact?: boolean; // Added for compatibility
+  compact?: boolean;
 }
 
 const BibleStudyCard = ({ study, isCompleted = false, onClick, compact = false }: BibleStudyCardProps) => {
@@ -28,17 +28,25 @@ const BibleStudyCard = ({ study, isCompleted = false, onClick, compact = false }
     // If study has direct description property
     if (typeof study.description === 'string') {
       description = study.description;
-    } else {
+    } else if (typeof study.description === 'object' && study.description !== null) {
       description = study.description[language] || '';
     }
-  } else if (typeof study.content === 'object') {
+  } else if (typeof study.content === 'object' && study.content !== null) {
     // Try to get description from content object
     if ('description' in study.content) {
       const descContent = study.content.description;
-      description = typeof descContent === 'string' ? descContent : (descContent?.[language] || '');
+      if (typeof descContent === 'string') {
+        description = descContent;
+      } else if (descContent && typeof descContent === 'object') {
+        description = descContent[language] || '';
+      }
     } else if ('content' in study.content && study.content.content && 'description' in study.content.content) {
       const descContent = study.content.content.description;
-      description = typeof descContent === 'string' ? descContent : (descContent || '');
+      if (typeof descContent === 'string') {
+        description = descContent;
+      } else if (descContent && typeof descContent === 'object') {
+        description = descContent[language] || '';
+      }
     }
   }
   

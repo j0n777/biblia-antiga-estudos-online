@@ -55,7 +55,7 @@ const DailyChallenges = () => {
         // Update local state
         setChallenges(prev => prev.map(challenge => 
           challenge.id === challengeId
-            ? { ...challenge, completed: true }
+            ? { ...challenge, is_completed: true }
             : challenge
         ));
         
@@ -130,7 +130,7 @@ const DailyChallenges = () => {
                 </div>
               </div>
               
-              {challenge.completed ? (
+              {challenge.is_completed ? (
                 <div className="flex items-center text-ancient-gold text-sm">
                   <CheckCircle className="w-4 h-4 mr-1" />
                   <span>{t('challenges.completed')}</span>
@@ -153,7 +153,7 @@ const DailyChallenges = () => {
                 className="h-2 bg-parchment-dark/20" 
               />
               
-              {!challenge.completed && progressValue >= 100 && (
+              {!challenge.is_completed && progressValue >= 100 && (
                 <Button 
                   variant="outline"
                   size="sm"

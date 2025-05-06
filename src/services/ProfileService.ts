@@ -18,7 +18,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       if (!profile) {
         // Create default profile for first-time users
         const defaultProfile: UserProfile = {
-          id: 'guest-' + Math.random().toString(36).substring(2, 9),
+          id: 'guest-' + new Date().getTime(),
           display_name: 'Visitante',
           nickname: 'guest',
           experience_points: 0,
@@ -74,7 +74,11 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       return newProfile;
     }
     
-    return data as UserProfile;
+    return {
+      ...data,
+      streak_record: data.streak_record || 0,
+      reading_position: data.reading_position || null
+    } as UserProfile;
   } catch (error) {
     console.error('Error getting user profile:', error);
     return null;

@@ -1,255 +1,156 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { DailyChallenge } from '@/types/bible.types';
-import { getUserProfile, updateUserProfile } from '@/services/ProfileService';
-
-// Mock data for daily challenges until we have the actual tables
-const mockChallenges: DailyChallenge[] = [
-  {
-    id: 'challenge-1',
-    title: 'Read 3 Chapters',
-    description: 'Read any 3 chapters from the Bible today',
-    points: 15,
-    completed: false,
-    icon: '📖',
-    expiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    name: 'daily-reading',
-    chapters_required: 3,
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    progress: 0
-  },
-  {
-    id: 'challenge-2',
-    title: 'Complete a Study',
-    description: 'Complete any Bible study today',
-    points: 20,
-    completed: false,
-    icon: '🔍',
-    expiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    name: 'daily-study',
-    chapters_required: 1,
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    progress: 0
-  }
-];
+import { getUserProfile } from './ProfileService';
+import { updateUserProfile } from './ProfileService';
 
 /**
- * Get daily challenges for the user
+ * Get daily challenges for the current user
  * @returns Promise resolving to array of daily challenges
  */
 export async function getDailyChallenges(): Promise<DailyChallenge[]> {
-  try {
-    // For now, return mock data as the tables don't exist yet
-    return mockChallenges;
-    
-    // Once we add the tables, we can use this code:
-    /*
-    const userProfile = await getUserProfile();
-    
-    if (!userProfile?.id) {
-      return [];
+  // Return mock challenges
+  return [
+    {
+      id: '1',
+      title: 'Leitura Diária',
+      description: 'Leia um capítulo da Bíblia hoje',
+      type: 'reading',
+      target_value: 1,
+      is_completed: false,
+      points: 10,
+      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+      progress: 0,
+      icon: '📖'
+    },
+    {
+      id: '2',
+      title: 'Estudo Bíblico',
+      description: 'Complete um estudo bíblico',
+      type: 'study',
+      target_value: 1,
+      is_completed: false,
+      points: 20,
+      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+      progress: 0,
+      icon: '📚'
     }
-    
-    const { data, error } = await supabase
-      .from('daily_challenges')
-      .select('*')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      throw error;
-    }
-    
-    // Get user completed challenges to mark them
-    const { data: userChallenges, error: userError } = await supabase
-      .from('user_challenge_progress')
-      .select('*')
-      .eq('user_id', userProfile.id);
-      
-    if (userError) {
-      throw userError;
-    }
-    
-    // Mark challenges as completed if the user has completed them
-    const challenges = data.map((challenge) => {
-      const completed = userChallenges?.some(
-        (uc) => uc.challenge_id === challenge.id && uc.completed_at
-      ) || false;
-      
-      // Calculate progress if available
-      const userProgress = userChallenges?.find(
-        (uc) => uc.challenge_id === challenge.id
-      );
-      
-      const progress = userProgress?.progress || 0;
-      
-      return {
-        ...challenge,
-        completed,
-        progress
-      } as DailyChallenge;
-    });
-    
-    return challenges;
-    */
-  } catch (error) {
-    console.error('Error getting daily challenges:', error);
-    return mockChallenges; // Return mock data on error for now
-  }
+  ];
 }
 
 /**
  * Mark a challenge as complete
  * @param challengeId Challenge ID
- * @param points Points to award (defaults to 10)
- * @returns Promise resolving to true if successful
+ * @returns Promise resolving to true if marked as completed successfully
  */
 export async function markChallengeComplete(challengeId: string): Promise<boolean> {
   try {
-    const userProfile = await getUserProfile();
+    const { data: session } = await supabase.auth.getSession();
+    const userId = session?.session?.user?.id;
     
-    if (!userProfile?.id) {
-      return false;
+    // Get the challenge
+    const challenges = await getDailyChallenges();
+    const challenge = challenges.find(c => c.id === challengeId);
+    
+    if (!challenge) {
+      throw new Error('Challenge not found');
     }
     
-    // Find the mock challenge and mark it complete for now
-    const challenge = mockChallenges.find(c => c.id === challengeId);
-    if (challenge) {
-      challenge.completed = true;
-      challenge.progress = 100;
-      
-      // Award points to the user
-      const currentXP = userProfile.experience_points || 0;
-      await updateUserProfile({
-        experience_points: currentXP + (challenge.points || 10)
-      });
+    // Get user profile to update points
+    const profile = await getUserProfile();
+    
+    if (!profile) {
+      throw new Error('User profile not found');
     }
     
+    // Add points
+    const updatedProfile = {
+      ...profile,
+      experience_points: profile.experience_points + challenge.points
+    };
+    
+    // Update profile
+    await updateUserProfile(updatedProfile);
+    
+    // In a real application, we would update the database to mark the challenge as completed
+    // For now, we're just simulating success
     return true;
-    
-    // Once we add the tables, we can use this code:
-    /*
-    // Update or insert the challenge completion
-    const { error } = await supabase
-      .from('user_challenge_progress')
-      .upsert({
-        user_id: userProfile.id,
-        challenge_id: challengeId,
-        completed_at: new Date().toISOString(),
-        progress: 100 // Full completion
-      });
-      
-    if (error) {
-      throw error;
-    }
-    
-    // Award points to the user
-    if (points > 0) {
-      const currentXP = userProfile.experience_points || 0;
-      await updateUserProfile({
-        experience_points: currentXP + points
-      });
-    }
-    
-    return true;
-    */
   } catch (error) {
-    console.error('Error marking challenge complete:', error);
+    console.error('Error marking challenge as complete:', error);
     return false;
   }
 }
 
 /**
- * Update challenge progress
- * @param challengeId Challenge ID
- * @param progress Progress amount (0-100)
- * @returns Promise resolving to true if successful
+ * Track reading progress for challenges
+ * This function should be called whenever a user reads a chapter
+ * @returns Promise resolving to true if progress updated successfully
  */
-export async function updateChallengeProgress(challengeId: string, progress: number): Promise<boolean> {
+export async function trackReadingProgress(): Promise<boolean> {
   try {
-    const userProfile = await getUserProfile();
+    // In a real application, this function would:
+    // 1. Get today's reading challenges
+    // 2. Update progress on relevant challenges
+    // 3. Mark challenges as complete if target reached
+    // 4. Update streak if applicable
     
-    if (!userProfile?.id) {
-      return false;
-    }
-    
-    // Find the mock challenge and update its progress
-    const challenge = mockChallenges.find(c => c.id === challengeId);
-    if (challenge) {
-      // Ensure progress is between 0 and 100
-      const validProgress = Math.max(0, Math.min(100, progress));
-      challenge.progress = validProgress;
-      
-      // If this completes the challenge, mark it as complete
-      if (validProgress >= 100 && !challenge.completed) {
-        challenge.completed = true;
-        
-        // Award points to the user
-        const currentXP = userProfile.experience_points || 0;
-        await updateUserProfile({
-          experience_points: currentXP + (challenge.points || 10)
-        });
-      }
-    }
-    
-    return true;
-    
-    // Once we have the tables, we can use this code:
-    /*
-    // Ensure progress is between 0 and 100
-    const validProgress = Math.max(0, Math.min(100, progress));
-    
-    // Get current progress
-    const { data: currentData, error: fetchError } = await supabase
-      .from('user_challenge_progress')
-      .select('*')
-      .eq('user_id', userProfile.id)
-      .eq('challenge_id', challengeId)
-      .maybeSingle();
-      
-    if (fetchError) {
-      throw fetchError;
-    }
-    
-    // Determine if this update completes the challenge
-    const isCompleted = validProgress >= 100;
-    const completedAt = isCompleted ? new Date().toISOString() : null;
-    
-    // Update or insert the challenge progress
-    const { error } = await supabase
-      .from('user_challenge_progress')
-      .upsert({
-        user_id: userProfile.id,
-        challenge_id: challengeId,
-        progress: validProgress,
-        completed_at: completedAt
-      });
-      
-    if (error) {
-      throw error;
-    }
-    
-    // If this update completes the challenge and it wasn't complete before, award points
-    if (isCompleted && (!currentData || !currentData.completed_at)) {
-      // Get the challenge to determine how many points to award
-      const { data: challengeData } = await supabase
-        .from('daily_challenges')
-        .select('points')
-        .eq('id', challengeId)
-        .single();
-        
-      if (challengeData && challengeData.points) {
-        const currentXP = userProfile.experience_points || 0;
-        await updateUserProfile({
-          experience_points: currentXP + challengeData.points
-        });
-      }
-    }
-    */
-    
+    // For now, we're just simulating success
     return true;
   } catch (error) {
-    console.error('Error updating challenge progress:', error);
+    console.error('Error tracking reading progress:', error);
     return false;
+  }
+}
+
+/**
+ * Track study completion progress for challenges
+ * This function should be called whenever a user completes a study
+ * @returns Promise resolving to true if progress updated successfully
+ */
+export async function trackStudyProgress(): Promise<boolean> {
+  try {
+    // In a real application, this function would:
+    // 1. Get today's study challenges
+    // 2. Update progress on relevant challenges
+    // 3. Mark challenges as complete if target reached
+    
+    // For now, we're just simulating success
+    return true;
+  } catch (error) {
+    console.error('Error tracking study progress:', error);
+    return false;
+  }
+}
+
+/**
+ * Get progress for a specific challenge
+ * @param challengeId Challenge ID
+ * @returns Promise resolving to progress value (0-100)
+ */
+export async function getChallengeProgress(challengeId: string): Promise<number> {
+  try {
+    // Get challenges
+    const challenges = await getDailyChallenges();
+    const challenge = challenges.find(c => c.id === challengeId);
+    
+    if (!challenge) {
+      throw new Error('Challenge not found');
+    }
+    
+    // In a real application, we would calculate the actual progress
+    // For now, we're just returning the mock progress
+    let progress = challenge.progress || 0;
+    
+    // Convert to percentage
+    const percentage = Math.round((progress / challenge.target_value) * 100);
+    
+    // If challenge is completed, return 100%
+    if (challenge.is_completed) {
+      return 100;
+    }
+    
+    return Math.min(percentage, 100);
+  } catch (error) {
+    console.error('Error getting challenge progress:', error);
+    return 0;
   }
 }

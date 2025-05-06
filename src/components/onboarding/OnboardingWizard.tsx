@@ -1,16 +1,17 @@
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronRight, CheckCircle, Book, Target, Globe, Settings } from 'lucide-react';
+import { ChevronRight, CheckCircle, Book, Target, Globe } from 'lucide-react';
 import { updateUserProfile } from '@/services/ProfileService';
-import { UserProfile } from '@/types/bible.types';
+import { UserProfile, BibleVersion } from '@/types/bible.types';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -25,12 +26,39 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
   const [selectedBibleVersion, setSelectedBibleVersion] = useState(profile?.preferred_bible_version || 'kja');
   const [dailyGoal, setDailyGoal] = useState(profile?.daily_reading_goal || 15);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
+  const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
+  const [isLoadingVersions, setIsLoadingVersions] = useState(false);
   
   const { t, language, setLanguage } = useLanguage();
   
+  useEffect(() => {
+    const fetchBibleVersions = async () => {
+      setIsLoadingVersions(true);
+      try {
+        const { data, error } = await supabase
+          .from('bible_versions')
+          .select('*');
+          
+        if (error) {
+          console.error('Error fetching Bible versions:', error);
+        } else if (data) {
+          setBibleVersions(data);
+        }
+      } catch (err) {
+        console.error('Error in fetchBibleVersions:', err);
+      } finally {
+        setIsLoadingVersions(false);
+      }
+    };
+    
+    if (open) {
+      fetchBibleVersions();
+    }
+  }, [open]);
+  
   const steps = [
     { 
-      title: 'Bem-vindo à Bíblia Sagrada', 
+      title: 'Bem-vindo à Bíblia de Estudos Original', 
       description: 'Vamos personalizar o aplicativo para você. Siga os próximos passos para configurar sua experiência.' 
     },
     { 
@@ -101,6 +129,19 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     }
   };
 
+  // Filter versions by language
+  const getVersionsByLanguage = (lang: string) => {
+    return bibleVersions.filter(version => 
+      version.language === lang || version.language_name?.toLowerCase().includes(lang.toLowerCase())
+    );
+  };
+  
+  const portugueseVersions = getVersionsByLanguage('pt-BR');
+  const englishVersions = getVersionsByLanguage('en');
+  const otherVersions = bibleVersions.filter(v => 
+    !portugueseVersions.includes(v) && !englishVersions.includes(v)
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-parchment p-6">
@@ -108,11 +149,12 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
           <DialogTitle className="text-xl font-oldstyle text-scripture-heading">
             {steps[step].title}
           </DialogTitle>
+          <DialogDescription>
+            {steps[step].description}
+          </DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
-          <p className="text-muted-foreground mb-6">{steps[step].description}</p>
-          
           {step === 0 && (
             <div className="space-y-4">
               <div className="bg-parchment-dark/10 p-4 rounded-lg flex items-center gap-4">
@@ -171,61 +213,75 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 </TabsList>
                 
                 <TabsContent value="portuguese" className="pt-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <Button
-                      variant={selectedBibleVersion === 'kja' ? "default" : "outline"}
-                      onClick={() => setSelectedBibleVersion('kja')}
-                      className={selectedBibleVersion === 'kja' ? "bg-ancient-gold" : ""}
-                    >
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">Almeida Revisada</span>
-                        <span className="text-xs">Tradução clássica e fidedigna</span>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={selectedBibleVersion === 'ntlh' ? "default" : "outline"}
-                      onClick={() => setSelectedBibleVersion('ntlh')}
-                      className={selectedBibleVersion === 'ntlh' ? "bg-ancient-gold" : ""}
-                    >
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">Nova Tradução na Linguagem de Hoje</span>
-                        <span className="text-xs">Linguagem contemporânea e acessível</span>
-                      </div>
-                    </Button>
-                  </div>
+                  {isLoadingVersions ? (
+                    <div className="text-center py-4">Carregando versões...</div>
+                  ) : portugueseVersions.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {portugueseVersions.map(version => (
+                        <Button
+                          key={version.id}
+                          variant={selectedBibleVersion === version.id ? "default" : "outline"}
+                          onClick={() => setSelectedBibleVersion(version.id)}
+                          className={selectedBibleVersion === version.id ? "bg-ancient-gold" : ""}
+                        >
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{version.name}</span>
+                            <span className="text-xs">{version.description || 'Tradução em português'}</span>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-4">Nenhuma versão em português encontrada.</p>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="english" className="pt-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <Button
-                      variant={selectedBibleVersion === 'kjv' ? "default" : "outline"}
-                      onClick={() => setSelectedBibleVersion('kjv')}
-                      className={selectedBibleVersion === 'kjv' ? "bg-ancient-gold" : ""}
-                    >
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">King James Version</span>
-                        <span className="text-xs">Classic English translation</span>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={selectedBibleVersion === 'niv' ? "default" : "outline"}
-                      onClick={() => setSelectedBibleVersion('niv')}
-                      className={selectedBibleVersion === 'niv' ? "bg-ancient-gold" : ""}
-                    >
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">New International Version</span>
-                        <span className="text-xs">Modern and accessible translation</span>
-                      </div>
-                    </Button>
-                  </div>
+                  {isLoadingVersions ? (
+                    <div className="text-center py-4">Loading versions...</div>
+                  ) : englishVersions.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {englishVersions.map(version => (
+                        <Button
+                          key={version.id}
+                          variant={selectedBibleVersion === version.id ? "default" : "outline"}
+                          onClick={() => setSelectedBibleVersion(version.id)}
+                          className={selectedBibleVersion === version.id ? "bg-ancient-gold" : ""}
+                        >
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{version.name}</span>
+                            <span className="text-xs">{version.description || 'English translation'}</span>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-4">No English versions found.</p>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="other" className="pt-4">
-                  <p className="text-sm text-muted-foreground text-center py-6">
-                    Mais traduções disponíveis nas configurações do aplicativo
-                  </p>
+                  {isLoadingVersions ? (
+                    <div className="text-center py-4">Loading versions...</div>
+                  ) : otherVersions.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                      {otherVersions.map(version => (
+                        <Button
+                          key={version.id}
+                          variant={selectedBibleVersion === version.id ? "default" : "outline"}
+                          onClick={() => setSelectedBibleVersion(version.id)}
+                          className={selectedBibleVersion === version.id ? "bg-ancient-gold" : ""}
+                        >
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">{version.name}</span>
+                            <span className="text-xs">{version.language_name || version.language}</span>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-4">Mais traduções disponíveis nas configurações do aplicativo</p>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>

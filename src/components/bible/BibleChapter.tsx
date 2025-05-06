@@ -42,12 +42,14 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         }
       } else if (chapter) {
         // If we have a chapter object directly, format it as BookContent
-        setChapterContent({
+        const contentWithId = {
+          id: chapter.id || `${chapter.book_id}-${chapter.chapter_number}`,
           book_id: chapter.book_id,
           book_name: chapter.book_name,
           chapter_number: chapter.chapter_number,
-          verses: chapter.verses
-        });
+          verses: chapter.verses || []
+        };
+        setChapterContent(contentWithId);
       }
     };
     

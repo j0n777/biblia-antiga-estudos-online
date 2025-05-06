@@ -1,236 +1,222 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { BibleChapter, BibleBook, BibleVersion, BibleVerse, BookContent } from '../types/bible.types';
+import { BibleBook, BibleChapter, BibleVerse, BookContent } from '@/types/bible.types';
 
-export async function getAllBooks(versionId: string = 'kja'): Promise<BibleBook[]> {
+/**
+ * Get all Bible books
+ * @param versionId Bible version ID
+ * @returns Promise resolving to array of Bible books
+ */
+export const getBibleBooks = async (versionId: string = 'kja'): Promise<BibleBook[]> => {
   try {
-    console.log(`Getting all books for version: ${versionId}`);
+    console.info(`Getting all books for version: ${versionId}`);
     
     const { data, error } = await supabase
       .from('bible_books')
       .select('*')
       .eq('version_id', versionId)
-      .order('position');
-      
-    if (error) {
-      throw new Error(`Error fetching Bible books: ${error.message}`);
-    }
-    
-    // Explicitly cast the testament field to 'old' | 'new'
-    return (data || []).map(book => ({
-      ...book,
-      testament: book.testament as 'old' | 'new'
-    }));
-  } catch (error) {
-    console.error('Error in getAllBooks:', error);
-    return [];
-  }
-}
-
-export async function getAllVersions(): Promise<BibleVersion[]> {
-  try {
-    const { data, error } = await supabase
-      .from('bible_versions')
-      .select('*')
-      .not('is_original', 'eq', true);  // Do not include original language versions in the main selection
-      
-    if (error) {
-      throw new Error(`Error fetching Bible versions: ${error.message}`);
-    }
-    
-    // Explicitly cast the original_language field if it exists
-    return (data || []).map(version => ({
-      ...version,
-      original_language: version.original_language as 'hebrew' | 'greek' | 'aramaic' | undefined
-    }));
-  } catch (error) {
-    console.error('Error in getAllVersions:', error);
-    return [];
-  }
-}
-
-export async function getChapter(
-  bookId: string, 
-  chapterNumber: number, 
-  versionId: string = 'kja'
-): Promise<BibleChapter | null> {
-  try {
-    console.log(`Fetching chapter: Book=${bookId}, Chapter=${chapterNumber}, Version=${versionId}`);
-    
-    // First, get the chapter record
-    const { data: chapterData, error: chapterError } = await supabase
-      .from('bible_chapters')
-      .select('id, version_id, book_id, chapter_number, verses_count')
-      .eq('version_id', versionId)
-      .eq('book_id', bookId)
-      .eq('chapter_number', chapterNumber);
-    
-    if (chapterError || !chapterData || chapterData.length === 0) {
-      console.error(`Error fetching chapter data: ${chapterError?.message || 'Chapter not found'}`);
-      return null;
-    }
-    
-    // Get the book name from the books table
-    const { data: bookData, error: bookError } = await supabase
-      .from('bible_books')
-      .select('name, testament')
-      .eq('version_id', versionId)
-      .eq('book_id', bookId)
-      .single();
-    
-    if (bookError || !bookData) {
-      console.error(`Error fetching book data: ${bookError?.message || 'Book not found'}`);
-      return null;
-    }
-    
-    // Get the version info
-    const { data: versionData, error: versionError } = await supabase
-      .from('bible_versions')
-      .select('*')
-      .eq('id', versionId)
-      .single();
-    
-    if (versionError || !versionData) {
-      console.error(`Error fetching version data: ${versionError?.message || 'Version not found'}`);
-      return null;
-    }
-    
-    // Then get the verses for this chapter
-    const { data: versesData, error: versesError } = await supabase
-      .from('bible_verses')
-      .select('id, verse_number, text, chapter_id')
-      .eq('chapter_id', chapterData[0].id)
-      .order('verse_number');
-    
-    if (versesError) {
-      console.error(`Error fetching verses: ${versesError.message}`);
-      return null;
-    }
-    
-    // Set the original language based on the testament
-    // Old Testament books are in Hebrew, New Testament in Greek
-    // This is a simplification, as some parts like Daniel have Aramaic sections
-    const originalLanguage = bookData.testament === 'new' ? 'greek' : 'hebrew';
-    
-    return {
-      id: chapterData[0].id,
-      version_id: chapterData[0].version_id,
-      book_id: chapterData[0].book_id,
-      book_name: bookData.name,
-      chapter_number: chapterData[0].chapter_number,
-      verses: versesData as BibleVerse[] || [],
-      version: {
-        ...versionData,
-        original_language: versionData.original_language as 'hebrew' | 'greek' | 'aramaic'
-      },
-      originalLanguage,
-    };
-  } catch (error) {
-    console.error('Error in getChapter:', error);
-    return null;
-  }
-}
-
-export async function searchBibleVerses(
-  query: string,
-  versionId: string = 'kja',
-  limit: number = 50
-): Promise<BibleVerse[]> {
-  try {
-    if (!query || query.trim().length < 2) {
-      return [];
-    }
-    
-    console.log(`Searching for verses: "${query}" in version ${versionId}`);
-    
-    // Use text search for more accurate results
-    const { data, error } = await supabase
-      .from('bible_verses')
-      .select('id, chapter_id, version_id, book_id, chapter_number, verse_number, text')
-      .eq('version_id', versionId)
-      .textSearch('text', query)
-      .limit(limit);
-    
-    if (error) {
-      console.error(`Error searching Bible verses: ${error.message}`);
-      throw new Error(`Error searching Bible verses: ${error.message}`);
-    }
-    
-    console.log(`Found ${data?.length || 0} verses matching "${query}"`);
-    return data || [];
-  } catch (error) {
-    console.error('Error in searchBibleVerses:', error);
-    return [];
-  }
-}
-
-export const getBibleBooks = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('bible_books')
-      .select('*')
       .order('position', { ascending: true });
-
+      
     if (error) {
       console.error('Error fetching Bible books:', error);
       return [];
     }
-
-    return data || [];
+    
+    // Transform the response to match BibleBook type
+    const books: BibleBook[] = data.map(book => ({
+      book_id: book.book_id,
+      name: book.name,
+      testament: book.testament,
+      order: book.position, // Map position to order
+      chapters_count: book.chapters_count,
+      position: book.position,
+      version_id: book.version_id
+    }));
+    
+    return books;
   } catch (error) {
     console.error('Error in getBibleBooks:', error);
     return [];
   }
 };
 
-export async function getBookContent(bookId: string, chapterNumber: number): Promise<BookContent | null> {
+/**
+ * Get all chapters for a specific book
+ * @param bookId Book ID
+ * @param versionId Bible version ID
+ * @returns Promise resolving to array of chapters
+ */
+export const getBookChapters = async (bookId: string, versionId: string = 'kja'): Promise<BibleChapter[]> => {
   try {
-    // Get book name
-    const { data: bookData, error: bookError } = await supabase
+    const { data, error } = await supabase
+      .from('bible_chapters')
+      .select('*')
+      .eq('book_id', bookId)
+      .eq('version_id', versionId)
+      .order('chapter_number', { ascending: true });
+      
+    if (error) {
+      console.error('Error fetching book chapters:', error);
+      return [];
+    }
+    
+    // Get the book name for better display
+    const { data: bookData } = await supabase
       .from('bible_books')
       .select('name')
       .eq('book_id', bookId)
+      .eq('version_id', versionId)
       .single();
+      
+    const bookName = bookData?.name || bookId;
     
-    if (bookError || !bookData) {
-      console.error(`Error fetching book data: ${bookError?.message || 'Book not found'}`);
-      return null;
-    }
+    // Transform the response to match BibleChapter type
+    const chapters: BibleChapter[] = data.map(chapter => ({
+      id: chapter.id,
+      book_id: chapter.book_id,
+      chapter_number: chapter.chapter_number,
+      book_name: bookName
+    }));
     
-    // Get chapter data
+    return chapters;
+  } catch (error) {
+    console.error('Error in getBookChapters:', error);
+    return [];
+  }
+};
+
+/**
+ * Get content for a specific chapter
+ * @param bookId Book ID
+ * @param chapterNumber Chapter number
+ * @param versionId Bible version ID
+ * @returns Promise resolving to chapter content
+ */
+export const getBookContent = async (
+  bookId: string, 
+  chapterNumber: number, 
+  versionId: string = 'kja'
+): Promise<BookContent> => {
+  try {
+    console.info(`Fetching chapter: Book=${bookId}, Chapter=${chapterNumber}, Version=${versionId}`);
+    
+    // Get the chapter ID first
     const { data: chapterData, error: chapterError } = await supabase
       .from('bible_chapters')
-      .select('id')
+      .select('*')
       .eq('book_id', bookId)
       .eq('chapter_number', chapterNumber)
+      .eq('version_id', versionId)
       .single();
-    
+      
     if (chapterError || !chapterData) {
-      console.error(`Error fetching chapter data: ${chapterError?.message || 'Chapter not found'}`);
-      return null;
+      console.error('Error fetching chapter:', chapterError);
+      throw new Error('Chapter not found');
     }
     
-    // Get verses
-    const { data: versesData, error: versesError } = await supabase
+    // Get all verses for this chapter
+    const { data: verses, error: versesError } = await supabase
       .from('bible_verses')
-      .select('id, verse_number, text, chapter_id')
+      .select('*')
       .eq('chapter_id', chapterData.id)
-      .order('verse_number');
-    
+      .order('verse_number', { ascending: true });
+      
     if (versesError) {
-      console.error(`Error fetching verses: ${versesError.message}`);
-      return null;
+      console.error('Error fetching verses:', versesError);
+      throw new Error('Verses not found');
     }
     
-    return {
+    // Get the book name
+    const { data: bookData } = await supabase
+      .from('bible_books')
+      .select('name')
+      .eq('book_id', bookId)
+      .eq('version_id', versionId)
+      .single();
+      
+    const bookName = bookData?.name || bookId;
+    
+    // Create the content object
+    const content: BookContent = {
+      id: chapterData.id,
       book_id: bookId,
-      book_name: bookData.name,
+      book_name: bookName,
       chapter_number: chapterNumber,
-      verses: versesData as BibleVerse[] || [],
+      verses: verses || []
     };
+    
+    return content;
   } catch (error) {
     console.error('Error in getBookContent:', error);
-    return null;
+    throw error;
   }
-}
+};
 
+/**
+ * Search the Bible for specific text
+ * @param query Search query
+ * @param versionId Bible version ID
+ * @param limit Maximum number of results to return
+ * @returns Promise resolving to array of matching verses
+ */
+export const searchBible = async (
+  query: string, 
+  versionId: string = 'kja', 
+  limit: number = 20
+): Promise<BibleVerse[]> => {
+  if (!query || query.trim().length < 3) {
+    return [];
+  }
+  
+  try {
+    // For basic search, we use the ILIKE operator to perform case-insensitive search
+    const { data, error } = await supabase
+      .from('bible_verses')
+      .select('*')
+      .eq('version_id', versionId)
+      .ilike('text', `%${query}%`)
+      .limit(limit);
+      
+    if (error) {
+      console.error('Error searching Bible:', error);
+      return [];
+    }
+    
+    // Create a lookup of book names for better display
+    const bookIds = [...new Set(data.map(verse => verse.book_id))];
+    
+    const { data: books } = await supabase
+      .from('bible_books')
+      .select('book_id, name')
+      .eq('version_id', versionId)
+      .in('book_id', bookIds);
+      
+    const bookNames = (books || []).reduce((acc: Record<string, string>, book) => {
+      acc[book.book_id] = book.name;
+      return acc;
+    }, {});
+    
+    // Transform the response
+    return data.map(verse => ({
+      ...verse,
+      book_name: bookNames[verse.book_id] || verse.book_id
+    }));
+  } catch (error) {
+    console.error('Error in searchBible:', error);
+    return [];
+  }
+};
+
+/**
+ * Get the books of the Bible by testament
+ * @param testament 'old' or 'new'
+ * @param versionId Bible version ID
+ * @returns Array of Bible books filtered by testament
+ */
+export const getBooksByTestament = async (
+  testament: 'old' | 'new', 
+  versionId: string = 'kja'
+): Promise<BibleBook[]> => {
+  const books = await getBibleBooks(versionId);
+  return books.filter(book => book.testament.toLowerCase() === testament);
+};
