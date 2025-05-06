@@ -58,7 +58,6 @@ export async function getUserProfile(): Promise<UserProfile> {
     // Ensure all required properties exist with defaults if needed
     const profile: UserProfile = {
       id: data.id || session.session.user.id,
-      user_id: data.id || session.session.user.id,
       display_name: data.display_name || '',
       nickname: data.nickname || '',
       experience_points: data.experience_points || 0,
@@ -69,9 +68,10 @@ export async function getUserProfile(): Promise<UserProfile> {
       updated_at: data.updated_at || new Date().toISOString(),
       font_size: (data.font_size as 'small' | 'medium' | 'large') || 'medium',
       reading_position: data.reading_position || null,
+      preferred_bible_version: data.preferred_bible_version,
+      // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
       preferred_language: data.preferred_language,
-      preferred_bible_version: data.preferred_bible_version,
       daily_reading_goal: data.daily_reading_goal,
       has_completed_onboarding: data.has_completed_onboarding,
       country: data.country,
@@ -97,7 +97,8 @@ export async function getUserProfile(): Promise<UserProfile> {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       font_size: 'medium',
-      reading_position: null
+      reading_position: null,
+      preferred_bible_version: 'kja'
     };
     
     return defaultProfile;

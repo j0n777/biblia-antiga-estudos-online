@@ -8,7 +8,7 @@ import { BibleStudy } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { completeStudy } from '@/services/bible-studies/UserProgressService';
 import { toast } from '@/hooks/use-toast';
-import Markdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 
 interface BibleStudyDialogProps {
   study: BibleStudy;
@@ -125,7 +125,7 @@ const BibleStudyDialog: React.FC<BibleStudyDialogProps> = ({
         
         <ScrollArea className="flex-1 pr-6 py-4">
           <div className="prose prose-ancient max-w-none">
-            <Markdown>{getLocalizedContent()}</Markdown>
+            <ReactMarkdown>{getLocalizedContent()}</ReactMarkdown>
           </div>
         </ScrollArea>
         
