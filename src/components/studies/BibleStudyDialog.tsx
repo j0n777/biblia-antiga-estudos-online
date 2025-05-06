@@ -63,7 +63,7 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Using only one argument as expected by the function
+      // Fixing to use only one argument as expected by the function
       const success = await completeStudy(study.id);
       if (success) {
         setHasCompleted(true);

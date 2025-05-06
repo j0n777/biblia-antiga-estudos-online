@@ -3,156 +3,128 @@ import { UserProfile } from '@/types/bible.types';
 
 /**
  * Get user profile
- * @returns Promise resolving to user profile or null
+ * @returns Promise resolving to user profile
  */
-export async function getUserProfile(): Promise<UserProfile | null> {
+export async function getUserProfile(): Promise<UserProfile> {
   try {
-    // Check if user is authenticated
     const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) {
-      console.log('User not authenticated, getting from localStorage');
+    
+    if (!session?.session) {
+      // Get guest profile from localStorage if not authenticated
+      const guestProfile = localStorage.getItem('guestProfile');
       
-      // Get from localStorage for non-authenticated users
-      const profile = localStorage.getItem('user_profile');
-      if (!profile) {
-        // Create default profile for first-time users
-        const defaultProfile: UserProfile = {
-          id: 'guest-' + new Date().getTime(),
-          display_name: 'Visitante',
-          nickname: 'guest',
-          experience_points: 0,
-          streak_count: 0,
-          streak_record: 0,
-          last_streak_date: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          font_size: 'medium',
-          reading_position: null
-        };
-        
-        localStorage.setItem('user_profile', JSON.stringify(defaultProfile));
-        return defaultProfile;
+      if (guestProfile) {
+        return JSON.parse(guestProfile);
       }
       
-      return JSON.parse(profile) as UserProfile;
+      // Create default guest profile
+      const defaultProfile: UserProfile = {
+        id: `guest-${Date.now()}`,
+        display_name: 'Guest',
+        nickname: 'Guest',
+        experience_points: 0,
+        streak_count: 0,
+        streak_record: 0,
+        last_streak_date: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        font_size: 'medium',
+        reading_position: null,
+        preferred_bible_version: 'kja'
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('guestProfile', JSON.stringify(defaultProfile));
+      return defaultProfile;
     }
     
-    // For authenticated users, get profile from database
+    // Get user profile from database
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
-      .eq('id', session.session.user.id)
+      .eq('user_id', session.session.user.id)
       .single();
       
     if (error) {
       console.error('Error fetching user profile:', error);
-      return createGuestProfile();
+      throw error;
     }
     
     if (!data) {
-      console.log('No profile found for user, creating a new one');
-      return await createNewUserProfile(session.session.user.id);
+      throw new Error('User profile not found');
     }
     
-    // Transform database data to UserProfile type
-    // Adding default values for properties that might be missing from database
-    return {
-      ...data,
+    // Ensure all required properties exist with defaults if needed
+    const profile: UserProfile = {
+      id: data.id,
+      user_id: data.user_id,
+      display_name: data.display_name || '',
+      nickname: data.nickname || '',
+      experience_points: data.experience_points || 0,
+      streak_count: data.streak_count || 0,
       streak_record: data.streak_record || 0,
-      reading_position: data.reading_position || null
-    } as UserProfile;
+      last_streak_date: data.last_streak_date,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      font_size: data.font_size || 'medium',
+      reading_position: data.reading_position,
+      avatar_url: data.avatar_url,
+      preferred_language: data.preferred_language,
+      preferred_bible_version: data.preferred_bible_version,
+      daily_reading_goal: data.daily_reading_goal,
+      has_completed_onboarding: data.has_completed_onboarding,
+      country: data.country,
+      birth_year: data.birth_year,
+      email: data.email,
+      phone: data.phone,
+      username: data.username
+    };
+    
+    return profile;
   } catch (error) {
     console.error('Error getting user profile:', error);
-    return null;
+    
+    // Return default profile if there's an error
+    const defaultProfile: UserProfile = {
+      id: `guest-${Date.now()}`,
+      display_name: 'Guest',
+      nickname: 'Guest',
+      experience_points: 0,
+      streak_count: 0,
+      streak_record: 0,
+      last_streak_date: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      font_size: 'medium',
+      reading_position: null
+    };
+    
+    return defaultProfile;
   }
 }
 
 /**
- * Create a guest profile
- * @returns Guest profile
- */
-const createGuestProfile = (): UserProfile => {
-  const defaultProfile: UserProfile = {
-    id: 'guest-' + new Date().getTime(),
-    display_name: 'Visitante',
-    nickname: 'guest',
-    experience_points: 0,
-    streak_count: 0,
-    streak_record: 0,
-    last_streak_date: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    font_size: 'medium',
-    reading_position: null
-  };
-  
-  return defaultProfile;
-};
-
-/**
- * Create a new user profile
- * @param userId User ID
- * @returns New user profile
- */
-const createNewUserProfile = async (userId: string): Promise<UserProfile> => {
-  const newProfile: UserProfile = {
-    id: userId,
-    user_id: userId,
-    display_name: userId,
-    nickname: userId,
-    experience_points: 0,
-    streak_count: 0,
-    streak_record: 0,
-    last_streak_date: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    font_size: 'medium',
-    reading_position: null
-  };
-  
-  await supabase
-    .from('user_profiles')
-    .insert(newProfile);
-    
-  return newProfile;
-};
-
-/**
  * Update user profile
- * @param updates Partial user profile with fields to update
+ * @param profile User profile data
  * @returns Promise resolving to success status
  */
-export async function updateUserProfile(updates: Partial<UserProfile>): Promise<boolean> {
+export async function updateUserProfile(profile: Partial<UserProfile>): Promise<boolean> {
   try {
-    // Check if user is authenticated
     const { data: session } = await supabase.auth.getSession();
     
-    // For non-authenticated users, update localStorage
     if (!session?.session?.user) {
-      console.log('User not authenticated, updating localStorage');
-      
-      const profile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-      const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
-      localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
-      
-      return true;
-    }
-
-    if (!updates.id) {
-      updates.id = session.session.user.id;
+      console.warn('Cannot update profile: User not authenticated');
+      return false;
     }
     
-    // For authenticated users, update in database
     const { error } = await supabase
       .from('user_profiles')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', session.session.user.id);
+      .update(profile)
+      .eq('user_id', session.session.user.id);
       
     if (error) {
-      throw new Error(`Profile update error: ${error.message}`);
+      console.error('Error updating user profile:', error);
+      return false;
     }
     
     return true;

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleBook, BibleChapter, BibleVerse, BookContent, BibleVersion } from '@/types/bible.types';
 
@@ -27,7 +26,7 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
       book_id: book.book_id,
       name: book.name,
       testament: book.testament,
-      order: book.position, // Map position to order
+      order: book.position || 0, // Map position to order
       chapters_count: book.chapters_count,
       position: book.position,
       version_id: book.version_id
@@ -35,10 +34,17 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
     
     return books;
   } catch (error) {
-    console.error('Error in getBibleBooks:', error);
+    console.error('Error in getAllBooks:', error);
     return [];
   }
 };
+
+/**
+ * Alias for getAllBooks - to maintain compatibility with existing code
+ * @param versionId Bible version ID
+ * @returns Promise resolving to array of Bible books
+ */
+export const getBibleBooks = getAllBooks;
 
 /**
  * Get all Bible versions
