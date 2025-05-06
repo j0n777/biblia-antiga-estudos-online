@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { ChevronRight, CheckCircle, Book, Target, Globe } from 'lucide-react';
 import { updateUserProfile } from '@/services/ProfileService';
 import { UserProfile, BibleVersion } from '@/types/bible.types';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { getAllVersions, getVersionsByLanguage } from '@/services/BibleDataService';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -27,6 +28,15 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
   const [isLoadingVersions, setIsLoadingVersions] = useState(false);
+  const [groupedVersions, setGroupedVersions] = useState<{
+    portuguese: BibleVersion[];
+    english: BibleVersion[];
+    other: BibleVersion[];
+  }>({
+    portuguese: [],
+    english: [],
+    other: []
+  });
   
   const { t, language, setLanguage } = useLanguage();
   
@@ -34,14 +44,23 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     const fetchBibleVersions = async () => {
       setIsLoadingVersions(true);
       try {
-        const { data, error } = await supabase
-          .from('bible_versions')
-          .select('*');
-          
-        if (error) {
-          console.error('Error fetching Bible versions:', error);
-        } else if (data) {
+        const data = await getAllVersions();
+        
+        if (data && data.length > 0) {
           setBibleVersions(data);
+          
+          // Group versions by language
+          const portuguese = data.filter(v => v.language === 'pt-BR' || v.language === 'pt');
+          const english = data.filter(v => v.language === 'en');
+          const other = data.filter(v => 
+            v.language !== 'pt-BR' && v.language !== 'pt' && v.language !== 'en'
+          );
+          
+          setGroupedVersions({
+            portuguese,
+            english,
+            other
+          });
         }
       } catch (err) {
         console.error('Error in fetchBibleVersions:', err);
@@ -128,20 +147,6 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     }
   };
 
-  // Filter versions by language
-  const getVersionsByLanguage = (lang: string) => {
-    return bibleVersions.filter(version => 
-      version.language === lang || 
-      (version.language_name && version.language_name.toLowerCase().includes(lang.toLowerCase()))
-    );
-  };
-  
-  const portugueseVersions = getVersionsByLanguage('pt-BR');
-  const englishVersions = getVersionsByLanguage('en');
-  const otherVersions = bibleVersions.filter(v => 
-    !portugueseVersions.includes(v) && !englishVersions.includes(v)
-  );
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-parchment p-6">
@@ -215,9 +220,9 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="portuguese" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Carregando versões...</div>
-                  ) : portugueseVersions.length > 0 ? (
+                  ) : groupedVersions.portuguese.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                      {portugueseVersions.map(version => (
+                      {groupedVersions.portuguese.map(version => (
                         <Button
                           key={version.id}
                           variant={selectedBibleVersion === version.id ? "default" : "outline"}
@@ -239,9 +244,9 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="english" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Loading versions...</div>
-                  ) : englishVersions.length > 0 ? (
+                  ) : groupedVersions.english.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                      {englishVersions.map(version => (
+                      {groupedVersions.english.map(version => (
                         <Button
                           key={version.id}
                           variant={selectedBibleVersion === version.id ? "default" : "outline"}
@@ -263,9 +268,9 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="other" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Loading versions...</div>
-                  ) : otherVersions.length > 0 ? (
+                  ) : groupedVersions.other.length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                      {otherVersions.map(version => (
+                      {groupedVersions.other.map(version => (
                         <Button
                           key={version.id}
                           variant={selectedBibleVersion === version.id ? "default" : "outline"}

@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { BibleBook, BibleChapter, BibleVerse, BookContent, BibleVersion } from '@/types/bible.types';
 
@@ -54,7 +55,9 @@ export const getAllVersions = async (): Promise<BibleVersion[]> => {
   try {
     const { data, error } = await supabase
       .from('bible_versions')
-      .select('*');
+      .select('*')
+      .order('language', { ascending: true })
+      .order('name', { ascending: true });
       
     if (error) {
       console.error('Error fetching Bible versions:', error);
@@ -64,6 +67,31 @@ export const getAllVersions = async (): Promise<BibleVersion[]> => {
     return data as BibleVersion[];
   } catch (error) {
     console.error('Error in getAllVersions:', error);
+    return [];
+  }
+};
+
+/**
+ * Get all Bible versions by language
+ * @param language Language code (e.g., 'pt-BR', 'en')
+ * @returns Promise resolving to array of Bible versions filtered by language
+ */
+export const getVersionsByLanguage = async (language: string): Promise<BibleVersion[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('bible_versions')
+      .select('*')
+      .eq('language', language)
+      .order('name', { ascending: true });
+      
+    if (error) {
+      console.error(`Error fetching Bible versions for language ${language}:`, error);
+      return [];
+    }
+    
+    return data as BibleVersion[];
+  } catch (error) {
+    console.error(`Error in getVersionsByLanguage for ${language}:`, error);
     return [];
   }
 };

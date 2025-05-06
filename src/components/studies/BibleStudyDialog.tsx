@@ -63,8 +63,9 @@ const BibleStudyDialog = ({
     
     setIsSubmitting(true);
     try {
-      // Fixing to use only one argument as expected by the function
+      // Fixed to only pass the required single argument
       const success = await completeStudy(study.id);
+      
       if (success) {
         setHasCompleted(true);
         toast({

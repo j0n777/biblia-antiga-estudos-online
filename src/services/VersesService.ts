@@ -2,7 +2,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { SavedVerse } from '@/types/bible.types';
 import { getAllBooks } from './BibleDataService';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * Get saved verses

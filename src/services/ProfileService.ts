@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfile } from '@/types/bible.types';
 
@@ -42,7 +43,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
-      .eq('user_id', session.session.user.id)
+      .eq('id', session.session.user.id)
       .single();
       
     if (error) {
@@ -56,18 +57,18 @@ export async function getUserProfile(): Promise<UserProfile> {
     
     // Ensure all required properties exist with defaults if needed
     const profile: UserProfile = {
-      id: data.id,
-      user_id: data.user_id,
+      id: data.id || session.session.user.id,
+      user_id: data.user_id || session.session.user.id,
       display_name: data.display_name || '',
       nickname: data.nickname || '',
       experience_points: data.experience_points || 0,
       streak_count: data.streak_count || 0,
       streak_record: data.streak_record || 0,
       last_streak_date: data.last_streak_date,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-      font_size: data.font_size || 'medium',
-      reading_position: data.reading_position,
+      created_at: data.created_at || new Date().toISOString(),
+      updated_at: data.updated_at || new Date().toISOString(),
+      font_size: (data.font_size as 'small' | 'medium' | 'large') || 'medium',
+      reading_position: data.reading_position || null,
       avatar_url: data.avatar_url,
       preferred_language: data.preferred_language,
       preferred_bible_version: data.preferred_bible_version,
@@ -120,7 +121,7 @@ export async function updateUserProfile(profile: Partial<UserProfile>): Promise<
     const { error } = await supabase
       .from('user_profiles')
       .update(profile)
-      .eq('user_id', session.session.user.id);
+      .eq('id', session.session.user.id);
       
     if (error) {
       console.error('Error updating user profile:', error);
