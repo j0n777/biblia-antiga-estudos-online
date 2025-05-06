@@ -58,7 +58,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     // Ensure all required properties exist with defaults if needed
     const profile: UserProfile = {
       id: data.id || session.session.user.id,
-      user_id: data.user_id || session.session.user.id,
+      user_id: data.id || session.session.user.id,
       display_name: data.display_name || '',
       nickname: data.nickname || '',
       experience_points: data.experience_points || 0,
