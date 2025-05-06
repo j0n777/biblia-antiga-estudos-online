@@ -40,12 +40,15 @@ const BibleStudyCard = ({ study, isCompleted = false, onClick, compact = false }
       } else if (descContent && typeof descContent === 'object') {
         description = descContent[language] || '';
       }
-    } else if ('content' in study.content && study.content.content && 'description' in study.content.content) {
-      const descContent = study.content.content.description;
-      if (typeof descContent === 'string') {
-        description = descContent;
-      } else if (descContent && typeof descContent === 'object') {
-        description = descContent[language] || '';
+    } else if ('content' in study.content && typeof study.content.content === 'object') {
+      const contentObj = study.content.content;
+      if (contentObj && 'description' in contentObj) {
+        const descContent = contentObj.description;
+        if (typeof descContent === 'string') {
+          description = descContent;
+        } else if (descContent && typeof descContent === 'object') {
+          description = descContent[language] || '';
+        }
       }
     }
   }

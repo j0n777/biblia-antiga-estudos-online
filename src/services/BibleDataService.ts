@@ -1,13 +1,13 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { BibleBook, BibleChapter, BibleVerse, BookContent } from '@/types/bible.types';
+import { BibleBook, BibleChapter, BibleVerse, BookContent, BibleVersion } from '@/types/bible.types';
 
 /**
  * Get all Bible books
  * @param versionId Bible version ID
  * @returns Promise resolving to array of Bible books
  */
-export const getBibleBooks = async (versionId: string = 'kja'): Promise<BibleBook[]> => {
+export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[]> => {
   try {
     console.info(`Getting all books for version: ${versionId}`);
     
@@ -36,6 +36,28 @@ export const getBibleBooks = async (versionId: string = 'kja'): Promise<BibleBoo
     return books;
   } catch (error) {
     console.error('Error in getBibleBooks:', error);
+    return [];
+  }
+};
+
+/**
+ * Get all Bible versions
+ * @returns Promise resolving to array of Bible versions
+ */
+export const getAllVersions = async (): Promise<BibleVersion[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('bible_versions')
+      .select('*');
+      
+    if (error) {
+      console.error('Error fetching Bible versions:', error);
+      return [];
+    }
+    
+    return data as BibleVersion[];
+  } catch (error) {
+    console.error('Error in getAllVersions:', error);
     return [];
   }
 };
@@ -75,7 +97,9 @@ export const getBookChapters = async (bookId: string, versionId: string = 'kja')
       id: chapter.id,
       book_id: chapter.book_id,
       chapter_number: chapter.chapter_number,
-      book_name: bookName
+      book_name: bookName,
+      verses_count: chapter.verses_count,
+      version_id: versionId
     }));
     
     return chapters;
@@ -159,7 +183,7 @@ export const getBookContent = async (
  * @param limit Maximum number of results to return
  * @returns Promise resolving to array of matching verses
  */
-export const searchBible = async (
+export const searchBibleVerses = async (
   query: string, 
   versionId: string = 'kja', 
   limit: number = 20
@@ -217,6 +241,39 @@ export const getBooksByTestament = async (
   testament: 'old' | 'new', 
   versionId: string = 'kja'
 ): Promise<BibleBook[]> => {
-  const books = await getBibleBooks(versionId);
+  const books = await getAllBooks(versionId);
   return books.filter(book => book.testament.toLowerCase() === testament);
+};
+
+/**
+ * Get a specific chapter with all its verses
+ * @param bookId Book ID
+ * @param chapterNumber Chapter number
+ * @param versionId Bible version ID
+ * @returns Promise resolving to chapter with verses
+ */
+export const getChapter = async (
+  bookId: string,
+  chapterNumber: number,
+  versionId: string = 'kja'
+): Promise<BibleChapter> => {
+  try {
+    const content = await getBookContent(bookId, chapterNumber, versionId);
+    
+    // Convert from BookContent to BibleChapter
+    const chapter: BibleChapter = {
+      id: content.id,
+      book_id: content.book_id,
+      chapter_number: content.chapter_number,
+      book_name: content.book_name,
+      verses: content.verses,
+      verses_count: content.verses.length,
+      version_id: versionId
+    };
+    
+    return chapter;
+  } catch (error) {
+    console.error(`Error getting chapter: ${bookId} ${chapterNumber}`, error);
+    throw error;
+  }
 };

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { UserProfile } from '@/types/bible.types';
 
@@ -38,7 +37,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       return JSON.parse(profile) as UserProfile;
     }
     
-    // For authenticated users, get from database
+    // For authenticated users, get profile from database
     const { data, error } = await supabase
       .from('user_profiles')
       .select('*')
@@ -47,33 +46,16 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       
     if (error) {
       console.error('Error fetching user profile:', error);
-      return null;
+      return createGuestProfile();
     }
     
     if (!data) {
-      // Create profile if it doesn't exist
-      const newProfile: UserProfile = {
-        id: session.session.user.id,
-        user_id: session.session.user.id,
-        display_name: session.session.user.email?.split('@')[0] || 'User',
-        nickname: session.session.user.email?.split('@')[0] || 'User',
-        experience_points: 0,
-        streak_count: 0,
-        streak_record: 0,
-        last_streak_date: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        font_size: 'medium',
-        reading_position: null
-      };
-      
-      await supabase
-        .from('user_profiles')
-        .insert(newProfile);
-        
-      return newProfile;
+      console.log('No profile found for user, creating a new one');
+      return await createNewUserProfile(session.session.user.id);
     }
     
+    // Transform database data to UserProfile type
+    // Adding default values for properties that might be missing from database
     return {
       ...data,
       streak_record: data.streak_record || 0,
@@ -84,6 +66,56 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     return null;
   }
 }
+
+/**
+ * Create a guest profile
+ * @returns Guest profile
+ */
+const createGuestProfile = (): UserProfile => {
+  const defaultProfile: UserProfile = {
+    id: 'guest-' + new Date().getTime(),
+    display_name: 'Visitante',
+    nickname: 'guest',
+    experience_points: 0,
+    streak_count: 0,
+    streak_record: 0,
+    last_streak_date: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    font_size: 'medium',
+    reading_position: null
+  };
+  
+  return defaultProfile;
+};
+
+/**
+ * Create a new user profile
+ * @param userId User ID
+ * @returns New user profile
+ */
+const createNewUserProfile = async (userId: string): Promise<UserProfile> => {
+  const newProfile: UserProfile = {
+    id: userId,
+    user_id: userId,
+    display_name: userId,
+    nickname: userId,
+    experience_points: 0,
+    streak_count: 0,
+    streak_record: 0,
+    last_streak_date: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    font_size: 'medium',
+    reading_position: null
+  };
+  
+  await supabase
+    .from('user_profiles')
+    .insert(newProfile);
+    
+  return newProfile;
+};
 
 /**
  * Update user profile

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -132,7 +131,8 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
   // Filter versions by language
   const getVersionsByLanguage = (lang: string) => {
     return bibleVersions.filter(version => 
-      version.language === lang || version.language_name?.toLowerCase().includes(lang.toLowerCase())
+      version.language === lang || 
+      (version.language_name && version.language_name.toLowerCase().includes(lang.toLowerCase()))
     );
   };
   

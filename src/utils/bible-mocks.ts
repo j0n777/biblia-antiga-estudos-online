@@ -1,49 +1,33 @@
-
-import { BibleChapter, BibleVersion } from '../types/bible.types';
-
-export function getChapterMock(
-  bookId: string = 'JHN',
-  chapterNumber: number = 1,
-  versionId: string = 'kja'
-): BibleChapter {
-  // Example mock data
-  const mockVerses = [
-    {
-      id: '1',
-      chapter_id: 'mock-chapter',
-      verse_number: 1,
-      text: 'No princípio era o Verbo, e o Verbo estava com Deus, e o Verbo era Deus.'
-    },
-    {
-      id: '2',
-      chapter_id: 'mock-chapter',
-      verse_number: 2,
-      text: 'Ele estava no princípio com Deus.'
-    },
-    {
-      id: '3',
-      chapter_id: 'mock-chapter',
-      verse_number: 3,
-      text: 'Todas as coisas foram feitas por ele, e sem ele nada do que foi feito se fez.'
-    }
-  ];
-  
-  const mockVersion: BibleVersion = {
-    id: versionId,
-    name: 'King James Atualizada',
-    language: 'pt-BR',
-    language_name: 'Portuguese',
-    is_original: false
+export const getBookMock = (bookId: string) => {
+  return {
+    book_id: bookId,
+    name: `Book ${bookId}`,
+    testament: bookId === 'GEN' ? 'old' : 'new',
+    order: 1,
+    chapters_count: bookId === 'PSA' ? 150 : 20
   };
+};
+
+export const getChapterMock = (bookId: string, chapterNumber: number): any => {
+  const verses = [];
+  const count = bookId === 'PSA' && chapterNumber === 119 ? 176 : 30; // Psalm 119 is the longest chapter
+  
+  for (let i = 1; i <= count; i++) {
+    verses.push({
+      id: `${bookId}-${chapterNumber}-${i}`,
+      book_id: bookId,
+      chapter_id: `${bookId}-${chapterNumber}`,
+      chapter_number: chapterNumber,
+      verse_number: i,
+      text: `This is a mock verse ${i} for chapter ${chapterNumber} of ${bookId}.`,
+      version_id: 'mock'
+    });
+  }
   
   return {
-    id: 'mock-chapter',
-    version_id: versionId,
+    id: `${bookId}-${chapterNumber}`,
     book_id: bookId,
-    book_name: 'João',
     chapter_number: chapterNumber,
-    verses: mockVerses,
-    version: mockVersion,
-    originalLanguage: 'greek'
+    verses
   };
-}
+};

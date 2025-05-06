@@ -66,7 +66,7 @@ export interface BibleStudy {
   id: string;
   title: string | { [key: string]: string };
   title_key?: string;
-  content: string | { [key: string]: string } | { content: { [key: string]: string } };
+  content: string | { [key: string]: any } | { content: { [key: string]: any } };
   description?: string | { [key: string]: string };
   created_at: string;
   updated_at?: string;
