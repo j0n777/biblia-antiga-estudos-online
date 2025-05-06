@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from "next-themes";
 import HomePage from './pages/Index';
 import ReadPage from './pages/Read';
 import SearchPage from './pages/Search';
@@ -69,7 +68,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/read" element={<ReadPage />} />
@@ -90,7 +89,7 @@ function App() {
       )}
       
       <Toaster />
-    </ThemeProvider>
+    </>
   );
 }
 

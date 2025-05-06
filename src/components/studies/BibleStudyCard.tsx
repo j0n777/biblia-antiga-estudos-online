@@ -5,15 +5,15 @@ import { BibleStudy } from '@/types/bible.types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getStudyContent } from '@/services/bible-studies/StudyContentService';
 
 interface BibleStudyCardProps {
   study: BibleStudy;
   isCompleted?: boolean;
   onClick?: () => void;
+  compact?: boolean; // Added for compatibility
 }
 
-const BibleStudyCard = ({ study, isCompleted = false, onClick }: BibleStudyCardProps) => {
+const BibleStudyCard = ({ study, isCompleted = false, onClick, compact = false }: BibleStudyCardProps) => {
   const { language } = useLanguage();
   const [isHovered, setIsHovered] = useState(false);
   
@@ -22,13 +22,28 @@ const BibleStudyCard = ({ study, isCompleted = false, onClick }: BibleStudyCardP
     study.title : 
     (study.title[language] || study.title_key || 'Bible Study');
     
-  // Get description from content
+  // Get description
   let description = '';
-  if (typeof study.content === 'object' && study.content.description) {
-    description = typeof study.content.description === 'string' ?
-      study.content.description :
-      (study.content.description[language] || '');
+  if (study.description) {
+    // If study has direct description property
+    if (typeof study.description === 'string') {
+      description = study.description;
+    } else {
+      description = study.description[language] || '';
+    }
+  } else if (typeof study.content === 'object') {
+    // Try to get description from content object
+    if ('description' in study.content) {
+      const descContent = study.content.description;
+      description = typeof descContent === 'string' ? descContent : (descContent?.[language] || '');
+    } else if ('content' in study.content && study.content.content && 'description' in study.content.content) {
+      const descContent = study.content.content.description;
+      description = typeof descContent === 'string' ? descContent : (descContent || '');
+    }
   }
+  
+  // Get icon or use default
+  const icon = study.icon || '📖';
   
   return (
     <Card 
@@ -37,10 +52,10 @@ const BibleStudyCard = ({ study, isCompleted = false, onClick }: BibleStudyCardP
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <CardContent className="p-0">
-        <div className="flex items-center gap-3 p-4">
+      <CardContent className={`p-0 ${compact ? 'p-2' : 'p-4'}`}>
+        <div className="flex items-center gap-3">
           <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded">
-            {study.icon}
+            {icon}
           </div>
           <div className="flex-1">
             <h3 className="font-oldstyle text-scripture-heading flex items-center gap-2">

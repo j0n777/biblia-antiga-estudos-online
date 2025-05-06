@@ -2,13 +2,16 @@
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { ThemeProvider } from './components/ThemeProvider';
 import App from './App.tsx';
 import './index.css';
 
 createRoot(document.getElementById("root")!).render(
-  <LanguageProvider>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </LanguageProvider>
+  <BrowserRouter>
+    <LanguageProvider>
+      <ThemeProvider defaultTheme="light">
+        <App />
+      </ThemeProvider>
+    </LanguageProvider>
+  </BrowserRouter>
 );
