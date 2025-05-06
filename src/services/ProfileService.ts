@@ -31,7 +31,9 @@ export async function getUserProfile(): Promise<UserProfile> {
         updated_at: new Date().toISOString(),
         font_size: 'medium',
         reading_position: null,
-        preferred_bible_version: 'kja'
+        preferred_bible_version: 'kja',
+        daily_reading_goal: 0,
+        has_completed_onboarding: false
       };
       
       // Save to localStorage
@@ -69,11 +71,11 @@ export async function getUserProfile(): Promise<UserProfile> {
       font_size: (data.font_size as 'small' | 'medium' | 'large') || 'medium',
       reading_position: data.reading_position || null,
       preferred_bible_version: data.preferred_bible_version || 'kja',
+      daily_reading_goal: data.daily_reading_goal || 0,
+      has_completed_onboarding: data.has_completed_onboarding || false,
       // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
       preferred_language: data.preferred_language,
-      daily_reading_goal: data.daily_reading_goal,
-      has_completed_onboarding: data.has_completed_onboarding,
       country: data.country,
       birth_year: data.birth_year,
       email: data.email,
@@ -98,7 +100,9 @@ export async function getUserProfile(): Promise<UserProfile> {
       updated_at: new Date().toISOString(),
       font_size: 'medium',
       reading_position: null,
-      preferred_bible_version: 'kja'
+      preferred_bible_version: 'kja',
+      daily_reading_goal: 0,
+      has_completed_onboarding: false
     };
     
     return defaultProfile;

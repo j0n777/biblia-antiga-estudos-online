@@ -1,6 +1,7 @@
 
 import { ReactNode } from 'react';
 import BottomNavigation from './BottomNavigation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -9,9 +10,11 @@ type PageLayoutProps = {
 };
 
 const PageLayout = ({ children, className = '', hideNavigation = false }: PageLayoutProps) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className={`min-h-screen pb-16 ${className}`}>
-      <main className="container mx-auto px-4">
+    <div className={`min-h-screen pb-16 ${className} overflow-x-hidden`}>
+      <main className={`container mx-auto ${isMobile ? 'px-1' : 'px-4'} max-w-full`}>
         {children}
       </main>
       {!hideNavigation && <BottomNavigation />}

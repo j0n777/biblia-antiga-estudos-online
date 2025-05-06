@@ -8,10 +8,12 @@ import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ReadingControls from '@/components/bible/ReadingControls';
 import ChapterNavigation from '@/components/bible/ChapterNavigation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Read = () => {
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   
   const { 
     bookId,
@@ -60,7 +62,7 @@ const Read = () => {
   return (
     <PageLayout>
       <div className="py-4">
-        <div className="flex flex-col space-y-4 mb-4 px-2">
+        <div className="flex flex-col space-y-4 mb-4 px-1">
           {/* Bible navigation controls */}
           <ReadingControls
             books={books}
@@ -75,8 +77,8 @@ const Read = () => {
           />
         </div>
 
-        {/* Reduzindo as margens laterais para o conteúdo da Bíblia */}
-        <div className="parchment-container animate-fade-in card-shadow px-2 sm:px-4">
+        {/* Reduced margins for Bible content to maximize reading space */}
+        <div className="parchment-container animate-fade-in card-shadow px-0 sm:px-1">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
