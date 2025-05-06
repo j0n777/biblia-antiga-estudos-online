@@ -121,7 +121,7 @@ const DailyChallenges = () => {
 
       {/* Daily Challenges */}
       <div className="space-y-4">
-        <h3 className="font-medium text-lg text-scripture-heading">Desafios Diários</h3>
+        <h3 className="font-medium text-lg text-scripture-heading">{t('challenges.dailyChallenges') || 'Desafios Diários'}</h3>
         
         {challenges.length === 0 ? (
           <div className="text-center py-8">
@@ -156,7 +156,7 @@ const DailyChallenges = () => {
                     {challenge.is_completed ? (
                       <div className="flex items-center text-ancient-gold text-sm">
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        <span>{t('challenges.completed')}</span>
+                        <span>{t('challenges.completed') || 'Concluído'}</span>
                       </div>
                     ) : challenge.expires_at ? (
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -168,7 +168,7 @@ const DailyChallenges = () => {
                   
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-ancient-brown mb-1">
-                      <span>{progressValue}% {t('challenges.complete')}</span>
+                      <span>{progressValue}% {t('challenges.complete') || 'concluído'}</span>
                       <span>{challenge.points} XP</span>
                     </div>
                     <Progress 
@@ -183,7 +183,7 @@ const DailyChallenges = () => {
                         className="w-full mt-3 text-sm bg-ancient-gold/20 border-ancient-gold/30 text-ancient-brown hover:bg-ancient-gold/30"
                         onClick={() => completeChallenge(challenge.id)}
                       >
-                        {t('challenges.claim')}
+                        {t('challenges.claim') || 'Reivindicar'}
                       </Button>
                     )}
                   </div>

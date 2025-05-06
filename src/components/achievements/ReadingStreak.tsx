@@ -2,6 +2,7 @@
 import { Trophy } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type ReadingStreakProps = {
   currentStreak: number;
@@ -10,11 +11,13 @@ type ReadingStreakProps = {
 };
 
 const ReadingStreak = ({ currentStreak, longestStreak, goalProgress }: ReadingStreakProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="parchment-container space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="font-oldstyle text-lg text-scripture-heading">Sequência de Leitura</h3>
-        <span className="text-sm text-muted-foreground">{currentStreak} dias</span>
+        <h3 className="font-oldstyle text-lg text-scripture-heading">{t('profile.readingStreak') || 'Sequência de Leitura'}</h3>
+        <span className="text-sm text-muted-foreground">{currentStreak} {t('profile.days') || 'dias'}</span>
       </div>
       
       <div className="flex items-center justify-center gap-2">
@@ -35,7 +38,7 @@ const ReadingStreak = ({ currentStreak, longestStreak, goalProgress }: ReadingSt
       
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Meta diária</span>
+          <span>{t('profile.dailyGoal') || 'Meta diária'}</span>
           <span>{goalProgress}%</span>
         </div>
         <Progress value={goalProgress} className="h-2 bg-muted" />
@@ -43,7 +46,9 @@ const ReadingStreak = ({ currentStreak, longestStreak, goalProgress }: ReadingSt
       
       <div className="flex items-center gap-2">
         <Trophy size={18} className="text-ancient-gold" />
-        <span className="text-sm">Melhor sequência: <strong>{longestStreak} dias</strong></span>
+        <span className="text-sm">
+          {t('profile.bestStreak') || 'Melhor sequência'}: <strong>{longestStreak} {t('profile.days') || 'dias'}</strong>
+        </span>
       </div>
     </div>
   );
