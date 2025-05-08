@@ -1,0 +1,100 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 43 43% 96%;
+    --foreground: 30 36% 12%;
+
+    --card: 43 31% 91%;
+    --card-foreground: 30 36% 12%;
+
+    --popover: 43 31% 91%;
+    --popover-foreground: 30 36% 12%;
+
+    --primary: 30 65% 23%;
+    --primary-foreground: 43 43% 96%;
+
+    --secondary: 43 31% 91%;
+    --secondary-foreground: 30 36% 12%;
+
+    --muted: 43 15% 85%;
+    --muted-foreground: 30 10% 40%;
+
+    --accent: 36 40% 65%;
+    --accent-foreground: 30 65% 23%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 30 30% 80%;
+    --input: 30 30% 80%;
+    --ring: 30 30% 50%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 43 43% 96%;
+    --sidebar-foreground: 30 36% 12%;
+    --sidebar-primary: 30 65% 23%;
+    --sidebar-primary-foreground: 43 43% 96%;
+    --sidebar-accent: 43 31% 91%;
+    --sidebar-accent-foreground: 30 36% 12%;
+    --sidebar-border: 30 30% 80%;
+    --sidebar-ring: 30 30% 50%;
+    
+    --scripture-heading: 92 35% 23%;
+    --scripture-text: 58 55% 15%;
+    --scripture-verse: 92 35% 23%;
+    --ancient-brown: 92 35% 23%;
+    --ancient-red: 12 45% 41%;
+    --ancient-gold: 36 56% 49%;
+  }
+
+  .dark {
+    --background: 30 25% 12%;
+    --foreground: 40 30% 90%;
+
+    --card: 30 20% 15%;
+    --card-foreground: 40 30% 90%;
+
+    --popover: 30 20% 15%;
+    --popover-foreground: 40 30% 90%;
+
+    --primary: 40 40% 70%;
+    --primary-foreground: 30 25% 12%;
+
+    --secondary: 30 15% 22%;
+    --secondary-foreground: 40 30% 90%;
+
+    --muted: 30 15% 22%;
+    --muted-foreground: 40 20% 70%;
+
+    --accent: 36 30% 45%;
+    --accent-foreground: 40 30% 90%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 15% 30%;
+    --input: 30 15% 30%;
+    --ring: 40 30% 60%;
+
+    --sidebar-background: 30 25% 12%;
+    --sidebar-foreground: 40 30% 90%;
+    --sidebar-primary: 40 40% 70%;
+    --sidebar-primary-foreground: 30 25% 12%;
+    --sidebar-accent: 30 15% 22%;
+    --sidebar-accent-foreground: 40 30% 90%;
+    --sidebar-border: 30 15% 30%;
+    --sidebar-ring: 40 30% 60%;
+    
+    --scripture-heading: 36 30% 75%;
+    --scripture-text: 40 15% 90%;
+    --scripture-verse: 36 30% 75%;
+    --ancient-brown: 36 30% 75%;
+    --ancient-red: 12 45% 65%;
+    --ancient-gold: 36 56% 65%;
+  }
+}

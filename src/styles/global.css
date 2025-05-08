@@ -1,0 +1,26 @@
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-parchment bg-opacity-80 text-scripture-text font-dmsans antialiased tracking-modern leading-relaxed;
+    background-image: url('/parchment-texture.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image: url('/parchment-dark.jpg');
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-oldstyle text-scripture-heading tracking-tighter;
+  }
+}

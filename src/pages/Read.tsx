@@ -61,7 +61,7 @@ const Read = () => {
 
   return (
     <PageLayout>
-      <div className="py-2 sm:py-4 w-full">
+      <div className="py-2 sm:py-4 w-full max-w-full overflow-hidden">
         <div className="flex flex-col space-y-3 sm:space-y-4 mb-2 sm:mb-4 px-0">
           {/* Bible navigation controls */}
           <ReadingControls
@@ -78,7 +78,7 @@ const Read = () => {
         </div>
 
         {/* Reduced margins for Bible content to maximize reading space */}
-        <div className="parchment-container animate-fade-in card-shadow px-0 sm:px-1 mx-0 sm:mx-1">
+        <div className="parchment-container animate-fade-in card-shadow px-0 mx-0 w-full">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />

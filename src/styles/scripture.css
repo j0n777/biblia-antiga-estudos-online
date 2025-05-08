@@ -1,0 +1,22 @@
+
+@layer base {
+  .verse-number {
+    @apply text-scripture-verse text-sm font-semibold align-super mr-0.5;
+  }
+  
+  .chapter-number {
+    @apply text-ancient-red font-oldstyle text-5xl font-bold float-left mr-2 leading-none;
+  }
+  
+  .scripture-text {
+    @apply text-lg leading-relaxed tracking-wide;
+  }
+  
+  .ornamental-border {
+    @apply border border-ancient-brown/30 rounded-lg p-6 relative;
+    background-image: url('/ornamental-corner.png');
+    background-repeat: no-repeat;
+    background-size: 40px;
+    background-position: top left, top right, bottom left, bottom right;
+  }
+}
