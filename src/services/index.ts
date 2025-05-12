@@ -11,17 +11,21 @@ export { getUserAchievements } from './AchievementService';
 // Challenges
 export { getDailyChallenges } from './ChallengeService';
 
-// Reading
+// Reading Progress
 export { 
   trackReading, 
   getReadingStreak 
 } from './ReadingProgressService';
 
+// Reading Services - updated imports from refactored modules
 export { 
   saveReadingPosition,
   getLastReadingPosition,
-  clearReadingPosition
-} from './ReadingService';
+  clearReadingPosition,
+  getReadingHistory,
+  getLastThreeReadings,
+  clearReadingHistory
+} from './reading';
 
 // Verses
 export { 
