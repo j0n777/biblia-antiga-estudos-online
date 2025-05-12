@@ -20,7 +20,7 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
   const [reference, setReference] = useState(initialReference || "João 3:16");
   const [text, setText] = useState(initialText || "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.");
   const [version, setVersion] = useState(initialVersion || "KJA");
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     // Fetch a verse of the day in the user's preferred language
@@ -77,31 +77,31 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Versículo do Dia',
+        title: t('verseOfDay.title') || 'Versículo do Dia',
         text: `${text} - ${reference} (${version})`,
       }).then(() => {
-        toast.success('Versículo compartilhado com sucesso!');
+        toast.success(t('verseOfDay.shared') || 'Versículo compartilhado com sucesso!');
       }).catch((error) => {
         console.error('Erro ao compartilhar:', error);
       });
     } else {
       // Fallback for browsers that don't support the Web Share API
       navigator.clipboard.writeText(`${text} - ${reference} (${version})`);
-      toast.success('Versículo copiado para a área de transferência!');
+      toast.success(t('verseOfDay.copied') || 'Versículo copiado para a área de transferência!');
     }
   };
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
     if (!isFavorite) {
-      toast.success('Versículo adicionado aos favoritos!');
+      toast.success(t('verseOfDay.addedToFavorites') || 'Versículo adicionado aos favoritos!');
     }
   };
 
   return (
     <Card className="parchment-container overflow-hidden">
       <CardContent className="pt-6">
-        <h3 className="font-oldstyle text-xl text-scripture-heading mb-4 text-center">Versículo do Dia</h3>
+        <h3 className="font-oldstyle text-xl text-scripture-heading mb-4 text-center">{t('verseOfDay.title') || 'Versículo do Dia'}</h3>
         <p className="scripture-text text-center mb-3">"{text}"</p>
         <p className="text-scripture-verse text-center font-oldstyle font-medium">{reference}</p>
         <p className="text-sm text-muted-foreground text-center mt-1">{version}</p>

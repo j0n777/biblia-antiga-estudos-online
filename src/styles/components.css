@@ -100,19 +100,19 @@
 
   /* Settings dialog specific styles */
   .settings-dialog-content {
-    @apply max-w-lg bg-parchment-light;
+    @apply max-w-lg bg-parchment-light dark:bg-parchment-dark/90 p-6;
   }
   
   .settings-dialog-tabs {
-    @apply flex border-b mb-4;
+    @apply flex border-b mb-4 w-full;
   }
   
   .settings-dialog-tab {
-    @apply px-4 py-2 transition-all;
+    @apply px-4 py-2 transition-all text-scripture-text;
   }
   
   .settings-dialog-tab.active {
-    @apply border-b-2 border-ancient-brown;
+    @apply border-b-2 border-ancient-brown text-ancient-brown;
   }
   
   .settings-radio-group {
