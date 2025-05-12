@@ -73,30 +73,33 @@ export async function getUserProfile(): Promise<UserProfile> {
       throw new Error('User profile not found');
     }
     
+    // Type assertion to access all fields from the database
+    const dbData = data as any;
+    
     // Ensure all required properties exist with defaults if needed
     const profile: UserProfile = {
-      id: data.id || session.session.user.id,
-      display_name: data.display_name || '',
-      nickname: data.nickname || '',
-      experience_points: data.experience_points || 0,
-      streak_count: data.streak_count || 0,
-      streak_record: data.streak_count || 0, // Use streak_count as fallback for streak_record
-      last_streak_date: data.last_streak_date,
-      created_at: data.created_at || new Date().toISOString(),
-      updated_at: data.updated_at || new Date().toISOString(),
-      font_size: (data.font_size as 'small' | 'medium' | 'large') || 'medium',
-      reading_position: data.reading_position || null,
-      preferred_bible_version: data.preferred_bible_version || 'kja',
-      preferred_language: data.preferred_language || navigator.language.toLowerCase().split('-')[0],
-      daily_reading_goal: data.daily_reading_goal || 15,
-      has_completed_onboarding: data.has_completed_onboarding || false,
+      id: dbData.id || session.session.user.id,
+      display_name: dbData.display_name || '',
+      nickname: dbData.nickname || '',
+      experience_points: dbData.experience_points || 0,
+      streak_count: dbData.streak_count || 0,
+      streak_record: dbData.streak_count || 0, // Use streak_count as fallback for streak_record
+      last_streak_date: dbData.last_streak_date,
+      created_at: dbData.created_at || new Date().toISOString(),
+      updated_at: dbData.updated_at || new Date().toISOString(),
+      font_size: (dbData.font_size as 'small' | 'medium' | 'large') || 'medium',
+      reading_position: dbData.reading_position || null,
+      preferred_bible_version: dbData.preferred_bible_version || 'kja',
+      preferred_language: dbData.preferred_language || navigator.language.toLowerCase().split('-')[0],
+      daily_reading_goal: dbData.daily_reading_goal || 15,
+      has_completed_onboarding: dbData.has_completed_onboarding || false,
       // Optional fields that may or may not be present in the database
-      avatar_url: data.avatar_url,
-      country: data.country,
-      birth_year: data.birth_year,
-      email: data.email,
-      phone: data.phone,
-      username: data.username
+      avatar_url: dbData.avatar_url,
+      country: dbData.country,
+      birth_year: dbData.birth_year,
+      email: dbData.email,
+      phone: dbData.phone,
+      username: dbData.username
     };
     
     return profile;
