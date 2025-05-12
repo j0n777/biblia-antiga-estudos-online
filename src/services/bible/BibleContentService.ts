@@ -25,7 +25,7 @@ export const getBookContent = async (
       .eq('book_id', bookId)
       .eq('chapter_number', chapterNumber)
       .eq('version_id', versionId)
-      .single();
+      .maybeSingle();
       
     if (chapterError || !chapterData) {
       console.error('Error fetching chapter:', chapterError);
@@ -50,7 +50,7 @@ export const getBookContent = async (
       .select('name')
       .eq('book_id', bookId)
       .eq('version_id', versionId)
-      .single();
+      .maybeSingle();
       
     const bookName = bookData?.name || bookId;
     
@@ -87,6 +87,8 @@ export const searchBibleVerses = async (
   }
   
   try {
+    console.log(`Searching Bible for "${query}" in version ${versionId}`);
+    
     // For basic search, we use the ILIKE operator to perform case-insensitive search
     const { data, error } = await supabase
       .from('bible_verses')
@@ -99,6 +101,8 @@ export const searchBibleVerses = async (
       console.error('Error searching Bible:', error);
       return [];
     }
+    
+    console.log(`Search results for "${query}":`, data?.length || 0);
     
     // Create a lookup of book names for better display
     const bookIds = [...new Set(data.map(verse => verse.book_id))];

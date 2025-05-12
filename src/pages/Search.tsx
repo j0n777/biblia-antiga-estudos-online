@@ -93,9 +93,14 @@ const Search = () => {
         const studies = await getAllBibleStudies();
         setAllStudies(studies);
         
-        // Carregar estudos completados pelo usuário
-        const completed = await getCompletedStudies();
-        setCompletedStudyIds(completed);
+        try {
+          // Carregar estudos completados pelo usuário
+          const completed = await getCompletedStudies();
+          setCompletedStudyIds(completed);
+        } catch (error) {
+          console.error("Error fetching completed studies:", error);
+          setCompletedStudyIds([]);
+        }
         
         // Carregar buscas recentes do localStorage
         const savedSearches = localStorage.getItem('recent_searches');
@@ -166,34 +171,55 @@ const Search = () => {
         if (referenceMatch) {
           // Busca por referência específica
           const [, book, chapter, verse] = referenceMatch;
-          const chapterNum = parseInt(chapter, 10); // Fix: Convert string to number
-          const { data, error } = await supabase
-            .from('bible_verses')
-            .select('*')
-            .ilike('book_id', `%${book.trim().toLowerCase()}%`)
-            .eq('chapter_number', chapterNum)
-            .eq('version_id', language === 'en' ? 'kjv' : 'kja');
+          const chapterNum = parseInt(chapter, 10);
+          
+          console.log(`Searching for reference: Book="${book.trim()}", Chapter=${chapterNum}${verse ? `, Verse=${verse}` : ''}`);
+          
+          try {
+            const { data, error } = await supabase
+              .from('bible_verses')
+              .select('*')
+              .ilike('book_id', `%${book.trim().toLowerCase().replace(/\s+/g, '')}%`)
+              .eq('chapter_number', chapterNum)
+              .eq('version_id', language === 'en' ? 'kjv' : 'kja');
+              
+            if (error) {
+              console.error('Error searching by reference:', error);
+              throw error;
+            }
+              
+            if (verse) {
+              // Se tiver versículo específico, filtrar
+              results = (data || []).filter(v => v.verse_number === parseInt(verse, 10)) as BibleVerseType[];
+            } else {
+              results = (data || []) as BibleVerseType[];
+            }
             
-          if (verse) {
-            // Se tiver versículo específico, filtrar
-            results = (data || []).filter(v => v.verse_number === parseInt(verse, 10)) as BibleVerseType[];
-          } else {
-            results = (data || []) as BibleVerseType[];
+            console.log(`Found ${results.length} verses for reference search`);
+          } catch (error) {
+            console.error('Reference search error:', error);
+            results = [];
           }
         } else {
           // Busca por texto
-          const { data, error } = await supabase
-            .from('bible_verses')
-            .select('*')
-            .ilike('text', `%${searchQuery}%`)
-            .eq('version_id', language === 'en' ? 'kjv' : 'kja')
-            .limit(20);
-    
-          results = (data || []) as BibleVerseType[];
+          try {
+            results = await searchBibleVerses(searchQuery, language === 'en' ? 'kjv' : 'kja');
+            console.log(`Found ${results.length} verses for text search`);
+          } catch (error) {
+            console.error('Text search error:', error);
+            results = [];
+          }
         }
         
-        console.log("Search results:", results);
         setSearchResults(results);
+        
+        if (results.length === 0) {
+          toast({
+            title: t('search.noResults'),
+            description: t('search.tryDifferentKeywords'),
+            variant: "default"
+          });
+        }
       } else if (activeTab === 'studies') {
         const results = await searchBibleStudies(searchQuery);
         setStudyResults(results);
@@ -203,6 +229,12 @@ const Search = () => {
       setSelectedTheme(null);
     } catch (error) {
       console.error('Search error:', error);
+      toast({
+        title: t('common.error'),
+        description: t('search.errorOccurred'),
+        variant: "destructive"
+      });
+      
       setSearchResults([]);
       setStudyResults([]);
     } finally {

@@ -46,7 +46,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       .from('user_profiles')
       .select('*')
       .eq('id', session.session.user.id)
-      .single();
+      .maybeSingle();
       
     if (error) {
       console.error('Error fetching user profile:', error);
