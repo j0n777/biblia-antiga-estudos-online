@@ -1,15 +1,15 @@
 
 // This file re-exports all bible-related functionality from other modules
-import { bookIdMapping, reverseBookIdMapping } from '../utils/bible-mappings';
-import { getChapterMock } from '../utils/bible-mocks';
-import { getVersionInfo, getBookName } from '../utils/bible-utils';
+import { bookIdMapping, reverseBookIdMapping } from '@/utils/bible-mappings';
+import { getChapterMock } from '@/utils/bible-mocks';
+import { getVersionInfo, getBookName } from '@/utils/bible-utils';
 import { 
   getAllBooks, 
   getAllVersions,
   getChapter,
   searchBibleVerses,
   getBookContent
-} from './BibleDataService';
+} from './bible';
 import {
   importInitialVersions,
   importCompleteVersion
@@ -18,7 +18,7 @@ import {
   saveReadingPosition,
   getLastReadingPosition,
   clearReadingPosition
-} from './ReadingService';
+} from './reading';
 
 // Export all types
 export type {
@@ -36,7 +36,7 @@ export type {
   UserProfile,
   LeaderboardEntry,
   BibleStudy
-} from '../types/bible.types';
+} from '@/types/bible.types';
   
 // Mappings
 export {

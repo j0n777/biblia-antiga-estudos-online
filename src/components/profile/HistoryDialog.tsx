@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SavedVerse, ReadingHistory } from '@/types/bible.types';
 import { getSavedVerses } from '@/services/VersesService';
-import { getReadingHistory } from '@/services/ReadingService';
+import { getReadingHistory } from '@/services/reading';
 import { BookOpen, Bookmark, History, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';

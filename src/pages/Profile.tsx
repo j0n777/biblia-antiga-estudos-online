@@ -10,7 +10,7 @@ import HistoryDialog from '@/components/profile/HistoryDialog';
 import { getUserAchievements } from '@/services/AchievementService';
 import { getUserProfile } from '@/services/ProfileService';
 import { getSavedVerses } from '@/services/VersesService';
-import { getLastThreeReadings } from '@/services/ReadingService';
+import { getLastThreeReadings } from '@/services/reading';
 import { UserProfile, SavedVerse, ReadingHistory } from '@/types/bible.types';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';

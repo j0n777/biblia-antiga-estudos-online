@@ -33,11 +33,11 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
-      // Track reading progress - convert scrollToVerse to string for trackReading
+      // Track reading progress - convert scrollToVerse to string for trackReading if it's a number
       await trackReading(
         bookId, 
         chapterNumber, 
-        scrollToVerse // This is now fixed as trackReading accepts string | number
+        scrollToVerse ? String(scrollToVerse) : '1'
       );
       
       // Save reading position - ensure all parameters are properly typed
