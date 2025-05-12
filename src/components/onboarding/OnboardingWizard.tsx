@@ -11,7 +11,7 @@ import { ChevronRight, CheckCircle, Book, Target, Globe } from 'lucide-react';
 import { updateUserProfile } from '@/services/ProfileService';
 import { UserProfile, BibleVersion } from '@/types/bible.types';
 import { toast } from '@/hooks/use-toast';
-import { getAllVersions, getVersionsByLanguage } from '@/services/BibleDataService';
+import { getAllVersions, getVersionsByLanguage, getVersionsGroupedByLanguage, getLanguageName } from '@/services/bible/BibleVersionsService';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -28,15 +28,8 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [bibleVersions, setBibleVersions] = useState<BibleVersion[]>([]);
   const [isLoadingVersions, setIsLoadingVersions] = useState(false);
-  const [groupedVersions, setGroupedVersions] = useState<{
-    portuguese: BibleVersion[];
-    english: BibleVersion[];
-    other: BibleVersion[];
-  }>({
-    portuguese: [],
-    english: [],
-    other: []
-  });
+  const [groupedVersionsByLanguage, setGroupedVersionsByLanguage] = useState<Record<string, BibleVersion[]>>({});
+  const [activeLanguageTab, setActiveLanguageTab] = useState('portuguese');
   
   const { t, language, setLanguage } = useLanguage();
   
@@ -44,23 +37,24 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     const fetchBibleVersions = async () => {
       setIsLoadingVersions(true);
       try {
-        const data = await getAllVersions();
+        // Get all versions
+        const groupedData = await getVersionsGroupedByLanguage();
         
-        if (data && data.length > 0) {
-          setBibleVersions(data);
+        if (groupedData && Object.keys(groupedData).length > 0) {
+          setGroupedVersionsByLanguage(groupedData);
           
-          // Group versions by language
-          const portuguese = data.filter(v => v.language === 'pt-BR' || v.language === 'pt');
-          const english = data.filter(v => v.language === 'en');
-          const other = data.filter(v => 
-            v.language !== 'pt-BR' && v.language !== 'pt' && v.language !== 'en'
-          );
+          // Flatten versions for the complete list
+          const allVersions = Object.values(groupedData).flat();
+          setBibleVersions(allVersions);
           
-          setGroupedVersions({
-            portuguese,
-            english,
-            other
-          });
+          // Set active tab based on user's language
+          if (selectedLanguage.startsWith('pt')) {
+            setActiveLanguageTab('portuguese');
+          } else if (selectedLanguage.startsWith('en')) {
+            setActiveLanguageTab('english');
+          } else {
+            setActiveLanguageTab('other');
+          }
         }
       } catch (err) {
         console.error('Error in fetchBibleVersions:', err);
@@ -72,7 +66,7 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     if (open) {
       fetchBibleVersions();
     }
-  }, [open]);
+  }, [open, selectedLanguage]);
   
   const steps = [
     { 
@@ -113,17 +107,25 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     }
   };
   
+  const handleLanguageChange = (newLanguage: string) => {
+    setSelectedLanguage(newLanguage);
+    // Reset version selection when language changes
+    setSelectedBibleVersion('');
+  };
+  
   const handleComplete = async () => {
     if (!profile) return;
     
     try {
-      await updateUserProfile({
+      const updatedProfile = {
         preferred_language: selectedLanguage,
         preferred_bible_version: selectedBibleVersion,
         daily_reading_goal: dailyGoal,
         display_name: displayName || profile.display_name,
         has_completed_onboarding: true,
-      });
+      };
+      
+      await updateUserProfile(updatedProfile);
       
       // Atualizar idioma do app
       if (selectedLanguage !== language) {
@@ -192,7 +194,7 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="language">Idioma do Aplicativo</Label>
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="language" className="w-full">
                     <SelectValue placeholder="Selecione um idioma" />
                   </SelectTrigger>
@@ -210,7 +212,7 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
           
           {step === 2 && (
             <div className="space-y-6">
-              <Tabs defaultValue="portuguese" className="w-full">
+              <Tabs defaultValue={activeLanguageTab} className="w-full">
                 <TabsList className="w-full">
                   <TabsTrigger value="portuguese" className="flex-1">Português</TabsTrigger>
                   <TabsTrigger value="english" className="flex-1">English</TabsTrigger>
@@ -220,9 +222,9 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="portuguese" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Carregando versões...</div>
-                  ) : groupedVersions.portuguese.length > 0 ? (
+                  ) : groupedVersionsByLanguage['pt'] && groupedVersionsByLanguage['pt'].length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                      {groupedVersions.portuguese.map(version => (
+                      {groupedVersionsByLanguage['pt'].map(version => (
                         <Button
                           key={version.id}
                           variant={selectedBibleVersion === version.id ? "default" : "outline"}
@@ -244,9 +246,9 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="english" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Loading versions...</div>
-                  ) : groupedVersions.english.length > 0 ? (
+                  ) : groupedVersionsByLanguage['en'] && groupedVersionsByLanguage['en'].length > 0 ? (
                     <div className="grid grid-cols-1 gap-4">
-                      {groupedVersions.english.map(version => (
+                      {groupedVersionsByLanguage['en'].map(version => (
                         <Button
                           key={version.id}
                           variant={selectedBibleVersion === version.id ? "default" : "outline"}
@@ -268,24 +270,31 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
                 <TabsContent value="other" className="pt-4">
                   {isLoadingVersions ? (
                     <div className="text-center py-4">Loading versions...</div>
-                  ) : groupedVersions.other.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-4">
-                      {groupedVersions.other.map(version => (
-                        <Button
-                          key={version.id}
-                          variant={selectedBibleVersion === version.id ? "default" : "outline"}
-                          onClick={() => setSelectedBibleVersion(version.id)}
-                          className={selectedBibleVersion === version.id ? "bg-ancient-gold" : ""}
-                        >
-                          <div className="flex flex-col items-start">
-                            <span className="font-medium">{version.name}</span>
-                            <span className="text-xs">{version.language_name || version.language}</span>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
                   ) : (
-                    <p className="text-center py-4">Mais traduções disponíveis nas configurações do aplicativo</p>
+                    <div className="grid grid-cols-1 gap-4">
+                      {Object.entries(groupedVersionsByLanguage)
+                        .filter(([lang]) => lang !== 'pt' && lang !== 'en')
+                        .flatMap(([_, versions]) => versions)
+                        .map(version => (
+                          <Button
+                            key={version.id}
+                            variant={selectedBibleVersion === version.id ? "default" : "outline"}
+                            onClick={() => setSelectedBibleVersion(version.id)}
+                            className={selectedBibleVersion === version.id ? "bg-ancient-gold" : ""}
+                          >
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">{version.name}</span>
+                              <span className="text-xs">{version.language_name || version.language}</span>
+                            </div>
+                          </Button>
+                        ))
+                      }
+                      {Object.entries(groupedVersionsByLanguage)
+                        .filter(([lang]) => lang !== 'pt' && lang !== 'en')
+                        .flatMap(([_, versions]) => versions).length === 0 && (
+                        <p className="text-center py-4">Mais traduções disponíveis nas configurações do aplicativo</p>
+                      )}
+                    </div>
                   )}
                 </TabsContent>
               </Tabs>

@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { BookContent, BibleChapter as BibleChapterType, BibleVerse as BibleVerseType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
 import BibleVerseComponent from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTheme } from 'next-themes';
+import { useTheme } from '@/components/ThemeProvider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getUserProfile } from '@/services/ProfileService';
+import { determineBestBibleVersion } from '@/utils/language-utils';
 
 interface BibleChapterProps {
   bookId?: string;
@@ -15,6 +17,7 @@ interface BibleChapterProps {
   onVerseAction?: (verseNumber: number) => Promise<void> | void;
   isVerseSelected?: (verseNumber: number) => boolean;
   fontSize?: 'small' | 'medium' | 'large';
+  versionId?: string;
 }
 
 const BibleChapter: React.FC<BibleChapterProps> = ({ 
@@ -24,10 +27,12 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   scrollToVerse,
   onVerseAction,
   isVerseSelected,
-  fontSize = 'medium'
+  fontSize = 'medium',
+  versionId
 }) => {
   const [chapterContent, setChapterContent] = useState<BookContent | null>(null);
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { theme } = useTheme();
   const isMobile = useIsMobile();
@@ -38,14 +43,20 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         try {
           // Get user's preferred Bible version
           const userProfile = await getUserProfile();
-          const versionId = userProfile.preferred_bible_version || 
-            (language === 'en' ? 'kjv' : language === 'es' ? 'rvr' : language === 'fr' ? 'apee' : 'kja');
           
-          const content = await getBookContent(bookId, chapterNumber, versionId);
+          // Use explicitly provided versionId, or determine best one based on user profile
+          const bibleVersionId = versionId || 
+            determineBestBibleVersion(userProfile, language);
+          
+          console.log(`Loading chapter content: ${bookId} ${chapterNumber} (${bibleVersionId})`);
+          
+          const content = await getBookContent(bookId, chapterNumber, bibleVersionId);
           setChapterContent(content);
+          setLoadError(null);
         } catch (error) {
           console.error("Error fetching chapter content:", error);
           setChapterContent(null);
+          setLoadError(`Não foi possível carregar o capítulo. Tente outra versão da Bíblia.`);
         }
       } else if (chapter) {
         // If we have a chapter object directly, format it as BookContent
@@ -57,11 +68,12 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
           verses: chapter.verses || []
         };
         setChapterContent(contentWithId);
+        setLoadError(null);
       }
     };
     
     fetchChapterContent();
-  }, [bookId, chapterNumber, chapter, language]);
+  }, [bookId, chapterNumber, chapter, language, versionId]);
   
   useEffect(() => {
     // Scroll to verse if specified
@@ -98,6 +110,20 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     }
   };
   
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center p-4">
+        <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+          <span className="text-2xl">📖</span>
+        </div>
+        <p className="text-scripture-heading font-medium mb-2">{loadError}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('bible.tryAnotherChapter')}
+        </p>
+      </div>
+    );
+  }
+  
   if (!chapterContent) {
     return (
       <div className="animate-pulse flex flex-col items-center justify-center h-[50vh]">
@@ -108,25 +134,6 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     );
   }
 
-  const renderVerse = (verse: BibleVerseType) => {
-    const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
-    const isHighlighted = scrollToVerse === verse.verse_number;
-    
-    return (
-      <div 
-        id={`verse-${verse.verse_number}`} 
-        key={verse.id} 
-        className={`mb-3 p-1 rounded-lg transition-all ${isHighlighted ? 'bg-amber-100/50 dark:bg-amber-900/20' : ''}`}
-      >
-        <BibleVerseComponent 
-          verse={verse}
-          isHighlighted={isSelected}
-          onVerseClick={() => onVerseAction && onVerseAction(verse.verse_number)}
-        />
-      </div>
-    );
-  };
-  
   return (
     <div className="px-1 py-4 md:px-2">
       <div className="flex justify-between items-center mb-4">

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Share2, Heart, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,9 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
         const preferredVersion = userProfile.preferred_bible_version || 
           (language === 'en' ? 'kjv' : language === 'es' ? 'rvr' : language === 'fr' ? 'apee' : 'kja');
         
-        // Sample verses for verse of the day
+        console.info(`Using preferred version for verse of the day: ${preferredVersion}`);
+        
+        // Sample verses for verse of the day - references should work in all languages
         const verseReferences = [
           "João 3:16", "Romanos 8:28", "Salmos 23:1", "Filipenses 4:13", 
           "Jeremias 29:11", "Isaías 40:31", "Mateus 5:16", "Provérbios 3:5-6"
@@ -38,6 +41,7 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
         
         // Select random verse reference
         const randomReference = verseReferences[Math.floor(Math.random() * verseReferences.length)];
+        console.info(`Searching Bible for "${randomReference}" in version ${preferredVersion}`);
         
         // Search for the verse
         const results = await searchBibleVerses(randomReference, preferredVersion);
@@ -48,13 +52,19 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
           
           // Get the version name
           const { data: versionData } = await supabase.from('bible_versions')
-            .select('name')
+            .select('name, language_name')
             .eq('id', preferredVersion)
             .maybeSingle();
             
           setReference(`${verse.book_id} ${verse.chapter_number}:${verse.verse_number}`);
           setText(verse.text);
           setVersion(versionData?.name || preferredVersion.toUpperCase());
+        } else {
+          console.warn(`No results found for reference: ${randomReference} in version: ${preferredVersion}`);
+          // Fallback to default verse if search doesn't work
+          setReference("João 3:16");
+          setText("Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.");
+          setVersion(preferredVersion.toUpperCase());
         }
       } catch (error) {
         console.error('Error fetching verse of the day:', error);

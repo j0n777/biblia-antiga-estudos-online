@@ -48,7 +48,7 @@ export async function getUserProfile(): Promise<UserProfile> {
         reading_position: null,
         preferred_bible_version: defaultVersion,
         preferred_language: browserLang,
-        daily_reading_goal: 0,
+        daily_reading_goal: 15,
         has_completed_onboarding: false
       };
       
@@ -88,7 +88,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       reading_position: data.reading_position || null,
       preferred_bible_version: data.preferred_bible_version || 'kja',
       preferred_language: data.preferred_language || navigator.language.toLowerCase().split('-')[0],
-      daily_reading_goal: data.daily_reading_goal || 0,
+      daily_reading_goal: data.daily_reading_goal || 15,
       has_completed_onboarding: data.has_completed_onboarding || false,
       // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
@@ -132,7 +132,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       reading_position: null,
       preferred_bible_version: defaultVersion,
       preferred_language: browserLang,
-      daily_reading_goal: 0,
+      daily_reading_goal: 15,
       has_completed_onboarding: false
     };
     
@@ -151,12 +151,24 @@ export async function updateUserProfile(profile: Partial<UserProfile>): Promise<
     
     if (!session?.session?.user) {
       console.warn('Cannot update profile: User not authenticated');
+      
+      // For guest users, update the localStorage profile
+      const guestProfile = localStorage.getItem('guestProfile');
+      if (guestProfile) {
+        const updatedProfile = { ...JSON.parse(guestProfile), ...profile, updated_at: new Date().toISOString() };
+        localStorage.setItem('guestProfile', JSON.stringify(updatedProfile));
+        return true;
+      }
+      
       return false;
     }
     
     const { error } = await supabase
       .from('user_profiles')
-      .update(profile)
+      .update({
+        ...profile,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', session.session.user.id);
       
     if (error) {

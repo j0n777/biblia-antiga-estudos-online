@@ -19,7 +19,13 @@ export const getAllVersions = async (): Promise<BibleVersion[]> => {
       return [];
     }
     
-    return data as BibleVersion[];
+    // Ensure language_name is set for all versions
+    const processedData = data.map(version => ({
+      ...version,
+      language_name: version.language_name || getLanguageName(version.language)
+    }));
+    
+    return processedData as BibleVersion[];
   } catch (error) {
     console.error('Error in getAllVersions:', error);
     return [];
@@ -48,7 +54,13 @@ export const getVersionsByLanguage = async (language: string): Promise<BibleVers
       return [];
     }
     
-    return data as BibleVersion[];
+    // Ensure language_name is set for all versions
+    const processedData = data.map(version => ({
+      ...version,
+      language_name: version.language_name || getLanguageName(version.language)
+    }));
+    
+    return processedData as BibleVersion[];
   } catch (error) {
     console.error(`Error in getVersionsByLanguage for ${language}:`, error);
     return [];
@@ -69,12 +81,16 @@ export const getVersionsGroupedByLanguage = async (): Promise<Record<string, Bib
     allVersions.forEach(version => {
       // Normalize language code and extract main language
       const languageKey = version.language.toLowerCase().split('-')[0];
+      const languageName = version.language_name || getLanguageName(languageKey);
       
       if (!groupedVersions[languageKey]) {
         groupedVersions[languageKey] = [];
       }
       
-      groupedVersions[languageKey].push(version);
+      groupedVersions[languageKey].push({
+        ...version,
+        language_name: languageName
+      });
     });
     
     return groupedVersions;
@@ -119,7 +135,7 @@ export const getVersionsForLanguageUI = async (): Promise<{
     
     return Object.entries(groupedVersions).map(([languageCode, versions]) => ({
       languageCode,
-      languageName: getLanguageName(languageCode),
+      languageName: versions[0].language_name || getLanguageName(languageCode),
       versions
     })).sort((a, b) => a.languageName.localeCompare(b.languageName));
   } catch (error) {

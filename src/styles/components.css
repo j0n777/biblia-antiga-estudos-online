@@ -75,4 +75,28 @@
   .dark button.hover\:bg-ancient-brown\/90:hover {
     @apply hover:bg-ancient-gold/90;
   }
+  
+  /* Fix profile settings margin overflow */
+  .settings-container {
+    @apply w-full max-w-full overflow-x-hidden;
+  }
+
+  .settings-form {
+    @apply px-4 py-2 w-full;
+  }
+  
+  .settings-input {
+    @apply w-full max-w-full;
+  }
+  
+  /* Fix dialog content padding on mobile */
+  @media (max-width: 640px) {
+    .dialog-content-mobile {
+      @apply p-4;
+    }
+    
+    .dialog-content-mobile .tabs-content {
+      @apply px-1;
+    }
+  }
 }

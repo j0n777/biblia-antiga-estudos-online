@@ -55,6 +55,12 @@
     --parchment-light: 43 43% 98%;
     --parchment-dark: 30 30% 88%;
     --parchment-darker: 30 25% 70%;
+    
+    --scripture-highlight-yellow: 50 100% 80%;
+    --scripture-highlight-green: 120 60% 85%;
+    --scripture-highlight-blue: 210 70% 85%;
+    --scripture-highlight-purple: 270 60% 85%;
+    --scripture-highlight-red: 0 70% 85%;
   }
 
   .dark {
@@ -74,7 +80,7 @@
     --secondary-foreground: 40 30% 90%;
 
     --muted: 30 15% 22%;
-    --muted-foreground: 40 20% 70%;
+    --muted-foreground: 40 30% 75%;
 
     --accent: 36 30% 45%;
     --accent-foreground: 40 30% 90%;
@@ -95,16 +101,22 @@
     --sidebar-border: 30 15% 30%;
     --sidebar-ring: 40 30% 60%;
     
-    --scripture-heading: 36 30% 75%;
-    --scripture-text: 40 15% 90%;
-    --scripture-verse: 36 30% 75%;
-    --ancient-brown: 36 30% 75%;
-    --ancient-red: 12 45% 65%;
+    --scripture-heading: 36 30% 80%;
+    --scripture-text: 40 15% 95%;
+    --scripture-verse: 36 30% 80%;
+    --ancient-brown: 36 30% 80%;
+    --ancient-red: 12 45% 70%;
     --ancient-gold: 36 56% 65%;
 
     --parchment: 30 20% 15%;
     --parchment-light: 30 15% 22%;
     --parchment-dark: 30 10% 10%;
     --parchment-darker: 30 15% 5%;
+    
+    --scripture-highlight-yellow: 50 70% 30%;
+    --scripture-highlight-green: 120 40% 25%;
+    --scripture-highlight-blue: 210 50% 30%;
+    --scripture-highlight-purple: 270 40% 30%;
+    --scripture-highlight-red: 0 50% 30%;
   }
 }
