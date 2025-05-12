@@ -17,11 +17,38 @@
   }
 
   .dark body {
+    @apply text-scripture-text bg-parchment-dark;
     background-image: url('/parchment-dark.jpg');
-    @apply text-scripture-text;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-oldstyle text-scripture-heading tracking-tighter;
+  }
+
+  .dark h1, 
+  .dark h2, 
+  .dark h3, 
+  .dark h4, 
+  .dark h5, 
+  .dark h6 {
+    @apply text-scripture-heading;
+  }
+
+  /* Improve contrast in dark mode */
+  .dark .text-muted-foreground {
+    @apply text-opacity-80;
+  }
+
+  button, 
+  input, 
+  select, 
+  textarea {
+    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50;
+  }
+
+  .dark input,
+  .dark select,
+  .dark textarea {
+    @apply bg-parchment-light border-parchment-darker text-scripture-text;
   }
 }

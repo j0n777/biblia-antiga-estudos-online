@@ -8,8 +8,16 @@ const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
   
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    // Set a data attribute on the document element for additional styling control
+    document.documentElement.setAttribute('data-theme', newTheme);
   };
+  
+  useEffect(() => {
+    // Ensure the data-theme attribute is set on initial load
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
   
   return (
     <Button 

@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { BookContent, BibleVerse, BibleChapter } from '@/types/bible.types';
 import { getBookChapters } from './BibleBooksService';
+import { getUserProfile } from '../ProfileService';
 
 /**
  * Get content for a specific chapter
@@ -27,8 +28,13 @@ export const getBookContent = async (
       .eq('version_id', versionId)
       .maybeSingle();
       
-    if (chapterError || !chapterData) {
+    if (chapterError) {
       console.error('Error fetching chapter:', chapterError);
+      throw new Error('Error fetching chapter');
+    }
+    
+    if (!chapterData) {
+      console.error('Chapter not found:', { bookId, chapterNumber, versionId });
       throw new Error('Chapter not found');
     }
     
@@ -82,14 +88,39 @@ export const searchBibleVerses = async (
   versionId: string = 'kja', 
   limit: number = 20
 ): Promise<BibleVerse[]> => {
-  if (!query || query.trim().length < 3) {
+  if (!query || query.trim().length < 2) {
     return [];
   }
   
   try {
     console.log(`Searching Bible for "${query}" in version ${versionId}`);
     
-    // For basic search, we use the ILIKE operator to perform case-insensitive search
+    // Check if it's a reference search (like "john 3:16")
+    const referenceMatch = query.match(/([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+)\s*(\d+)(?::(\d+))?/i);
+    
+    if (referenceMatch) {
+      // Reference search
+      const [, bookName, chapter, verse] = referenceMatch;
+      const trimmedBookName = bookName.trim().toLowerCase();
+      
+      // Try to find matching book_id
+      const { data: books } = await supabase
+        .from('bible_books')
+        .select('book_id, name')
+        .eq('version_id', versionId)
+        .ilike('name', `%${trimmedBookName}%`);
+      
+      if (!books || books.length === 0) {
+        // Try searching in book_id directly
+        return await searchByBookId(trimmedBookName, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+      }
+      
+      // Use the first matching book
+      const bookId = books[0].book_id;
+      return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+    }
+    
+    // Regular text search
     const { data, error } = await supabase
       .from('bible_verses')
       .select('*')
@@ -129,6 +160,63 @@ export const searchBibleVerses = async (
   }
 };
 
+// Helper function for searching by book ID, chapter, and optional verse
+const searchByBookId = async (
+  bookId: string, 
+  chapter: number, 
+  verse?: number, 
+  versionId: string = 'kja'
+): Promise<BibleVerse[]> => {
+  try {
+    // First try to get the chapter
+    const { data: chapterData } = await supabase
+      .from('bible_chapters')
+      .select('id')
+      .eq('book_id', bookId)
+      .eq('chapter_number', chapter)
+      .eq('version_id', versionId)
+      .maybeSingle();
+    
+    if (!chapterData) {
+      console.log(`Chapter not found: ${bookId} ${chapter}`);
+      return [];
+    }
+    
+    let query = supabase
+      .from('bible_verses')
+      .select('*')
+      .eq('chapter_id', chapterData.id);
+    
+    // Add verse filter if specified
+    if (verse) {
+      query = query.eq('verse_number', verse);
+    }
+    
+    const { data, error } = await query.order('verse_number');
+    
+    if (error) {
+      console.error('Error searching Bible by reference:', error);
+      return [];
+    }
+    
+    // Get book name
+    const { data: bookData } = await supabase
+      .from('bible_books')
+      .select('name')
+      .eq('book_id', bookId)
+      .eq('version_id', versionId)
+      .maybeSingle();
+    
+    return (data || []).map(verse => ({
+      ...verse,
+      book_name: bookData?.name || bookId
+    }));
+  } catch (error) {
+    console.error('Error in searchByBookId:', error);
+    return [];
+  }
+};
+
 /**
  * Get a specific chapter with all its verses
  * @param bookId Book ID
@@ -142,6 +230,12 @@ export const getChapter = async (
   versionId: string = 'kja'
 ): Promise<BibleChapter> => {
   try {
+    // If no version specified, get user's preferred version
+    if (!versionId || versionId === 'default') {
+      const userProfile = await getUserProfile();
+      versionId = userProfile.preferred_bible_version || 'kja';
+    }
+    
     const content = await getBookContent(bookId, chapterNumber, versionId);
     
     // Convert from BookContent to BibleChapter

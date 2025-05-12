@@ -50,6 +50,11 @@
     --ancient-brown: 92 35% 23%;
     --ancient-red: 12 45% 41%;
     --ancient-gold: 36 56% 49%;
+
+    --parchment: 43 43% 96%;
+    --parchment-light: 43 43% 98%;
+    --parchment-dark: 30 30% 88%;
+    --parchment-darker: 30 25% 70%;
   }
 
   .dark {
@@ -96,5 +101,10 @@
     --ancient-brown: 36 30% 75%;
     --ancient-red: 12 45% 65%;
     --ancient-gold: 36 56% 65%;
+
+    --parchment: 30 20% 15%;
+    --parchment-light: 30 15% 22%;
+    --parchment-dark: 30 10% 10%;
+    --parchment-darker: 30 15% 5%;
   }
 }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink, Heart, Crown, Zap, Shield, Smile, Home } from 'lucide-react';
@@ -18,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getUserProfile } from '@/services/ProfileService';
 
 interface ThemeSuggestion {
   name: string;
@@ -82,6 +82,7 @@ const Search = () => {
   const [completedStudyIds, setCompletedStudyIds] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<ThemeSuggestion | null>(null);
+  const [userPreferredVersion, setUserPreferredVersion] = useState<string>('kja');
   
   const { t, language } = useLanguage();
   
@@ -89,6 +90,12 @@ const Search = () => {
     const init = async () => {
       setIsLoading(true);
       try {
+        // Get user's preferred Bible version
+        const userProfile = await getUserProfile();
+        const preferredVersion = userProfile.preferred_bible_version || 
+          (language === 'en' ? 'kjv' : language === 'es' ? 'rvr' : language === 'fr' ? 'apee' : 'kja');
+        setUserPreferredVersion(preferredVersion);
+        
         // Carregar todos os estudos para exibir por padrão
         const studies = await getAllBibleStudies();
         setAllStudies(studies);
@@ -162,55 +169,8 @@ const Search = () => {
     
     try {
       if (activeTab === 'verses') {
-        // Método aprimorado para busca de versículos
-        // Verificar se é uma busca direta por referência bíblica (e.g. "joão 3:16")
-        const referenceMatch = searchQuery.match(/([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+)\s*(\d+)(?::(\d+))?/i);
-        
-        let results: BibleVerseType[] = [];
-        
-        if (referenceMatch) {
-          // Busca por referência específica
-          const [, book, chapter, verse] = referenceMatch;
-          const chapterNum = parseInt(chapter, 10);
-          
-          console.log(`Searching for reference: Book="${book.trim()}", Chapter=${chapterNum}${verse ? `, Verse=${verse}` : ''}`);
-          
-          try {
-            const { data, error } = await supabase
-              .from('bible_verses')
-              .select('*')
-              .ilike('book_id', `%${book.trim().toLowerCase().replace(/\s+/g, '')}%`)
-              .eq('chapter_number', chapterNum)
-              .eq('version_id', language === 'en' ? 'kjv' : 'kja');
-              
-            if (error) {
-              console.error('Error searching by reference:', error);
-              throw error;
-            }
-              
-            if (verse) {
-              // Se tiver versículo específico, filtrar
-              results = (data || []).filter(v => v.verse_number === parseInt(verse, 10)) as BibleVerseType[];
-            } else {
-              results = (data || []) as BibleVerseType[];
-            }
-            
-            console.log(`Found ${results.length} verses for reference search`);
-          } catch (error) {
-            console.error('Reference search error:', error);
-            results = [];
-          }
-        } else {
-          // Busca por texto
-          try {
-            results = await searchBibleVerses(searchQuery, language === 'en' ? 'kjv' : 'kja');
-            console.log(`Found ${results.length} verses for text search`);
-          } catch (error) {
-            console.error('Text search error:', error);
-            results = [];
-          }
-        }
-        
+        // Use user's preferred Bible version for searching
+        const results = await searchBibleVerses(searchQuery, userPreferredVersion);
         setSearchResults(results);
         
         if (results.length === 0) {

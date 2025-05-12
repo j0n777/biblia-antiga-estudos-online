@@ -1,4 +1,3 @@
-
 export interface BibleVersion {
   id: string;
   name: string;
@@ -89,11 +88,11 @@ export interface UserProfile {
   updated_at: string;
   font_size: 'small' | 'medium' | 'large';
   reading_position: string | null | ReadingPosition;
-  avatar_url?: string;
-  preferred_language?: string;
   preferred_bible_version?: string;
   daily_reading_goal?: number;
   has_completed_onboarding?: boolean;
+  avatar_url?: string;
+  preferred_language?: string;
   country?: string;
   birth_year?: number;
   email?: string;

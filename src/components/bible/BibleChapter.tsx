@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BookContent, BibleChapter as BibleChapterType, BibleVerse as BibleVerseType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
@@ -6,6 +5,7 @@ import BibleVerseComponent from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getUserProfile } from '@/services/ProfileService';
 
 interface BibleChapterProps {
   bookId?: string;
@@ -28,7 +28,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
 }) => {
   const [chapterContent, setChapterContent] = useState<BookContent | null>(null);
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { theme } = useTheme();
   const isMobile = useIsMobile();
   
@@ -36,7 +36,12 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     const fetchChapterContent = async () => {
       if (bookId && chapterNumber) {
         try {
-          const content = await getBookContent(bookId, chapterNumber);
+          // Get user's preferred Bible version
+          const userProfile = await getUserProfile();
+          const versionId = userProfile.preferred_bible_version || 
+            (language === 'en' ? 'kjv' : language === 'es' ? 'rvr' : language === 'fr' ? 'apee' : 'kja');
+          
+          const content = await getBookContent(bookId, chapterNumber, versionId);
           setChapterContent(content);
         } catch (error) {
           console.error("Error fetching chapter content:", error);
@@ -56,7 +61,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     };
     
     fetchChapterContent();
-  }, [bookId, chapterNumber, chapter]);
+  }, [bookId, chapterNumber, chapter, language]);
   
   useEffect(() => {
     // Scroll to verse if specified
@@ -116,7 +121,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         <BibleVerseComponent 
           verse={verse}
           isHighlighted={isSelected}
-          onVerseClick={() => handleVerseClick(verse.verse_number)}
+          onVerseClick={() => onVerseAction && onVerseAction(verse.verse_number)}
         />
       </div>
     );
@@ -131,10 +136,27 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       </div>
       
       <div className="pb-20">
-        <div className={`font-ancient ${getFontSizeClass()} text-scripture-text dark:text-scripture-text-dark px-1 py-1 md:px-2 md:py-2`}>
+        <div className={`font-ancient ${getFontSizeClass()} text-scripture-text dark:text-scripture-text px-1 py-1 md:px-2 md:py-2`}>
           {chapterContent.verses && chapterContent.verses.length > 0 ? (
             <div className="space-y-1">
-              {chapterContent.verses.map(renderVerse)}
+              {chapterContent.verses.map((verse) => {
+                const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
+                const isHighlighted = scrollToVerse === verse.verse_number;
+                
+                return (
+                  <div 
+                    id={`verse-${verse.verse_number}`} 
+                    key={verse.id} 
+                    className={`mb-3 p-1 rounded-lg transition-all ${isHighlighted ? 'bg-amber-100/50 dark:bg-amber-900/20' : ''}`}
+                  >
+                    <BibleVerseComponent 
+                      verse={verse}
+                      isHighlighted={isSelected}
+                      onVerseClick={() => onVerseAction && onVerseAction(verse.verse_number)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">

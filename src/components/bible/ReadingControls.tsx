@@ -1,9 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BibleBook, BibleVersion } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import FontSizeControl from './FontSizeControl';
+import { getUserProfile, updateUserProfile } from '@/services/ProfileService';
 
 interface ReadingControlsProps {
   books: BibleBook[];
@@ -28,16 +29,45 @@ const ReadingControls = ({
   onVersionChange,
   onFontSizeChange
 }: ReadingControlsProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const handleBookChange = (value: string) => {
     onBookChange(value);
+  };
+  
+  const handleVersionChange = async (value: string) => {
+    onVersionChange(value);
+    
+    // Save user's preferred version
+    try {
+      // Get current user profile
+      const userProfile = await getUserProfile();
+      
+      // Update preferred version
+      if (userProfile.preferred_bible_version !== value) {
+        // If we have a real user (not guest), update the database
+        if (!userProfile.id.startsWith('guest-')) {
+          await updateUserProfile({
+            preferred_bible_version: value
+          });
+        } else {
+          // For guest users, update localStorage
+          const guestProfile = {
+            ...userProfile,
+            preferred_bible_version: value
+          };
+          localStorage.setItem('guestProfile', JSON.stringify(guestProfile));
+        }
+      }
+    } catch (error) {
+      console.error('Error saving preferred Bible version:', error);
+    }
   };
 
   return (
     <div className="flex flex-col space-y-3">
       {/* Version selector */}
-      <Select value={versionId} onValueChange={value => onVersionChange(value)}>
+      <Select value={versionId} onValueChange={handleVersionChange}>
         <SelectTrigger className="w-full border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select version">
           <SelectValue placeholder="Select Version">
             {versions.find(v => v.id === versionId)?.name || versionId}
