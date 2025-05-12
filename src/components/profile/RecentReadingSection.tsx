@@ -33,7 +33,9 @@ const RecentReadingSection = ({
       
       <div className="space-y-2">
         {recentReadings.map((history, index) => {
-          const displayName = bookNames[history.book_id.toLowerCase()] || history.book_id || "Livro";
+          // Ensure book_id is lowercase for consistent lookups
+          const bookId = history.book_id?.toLowerCase() || "";
+          const displayName = bookNames[bookId] || history.book_id || t('bible.unknown');
           const chapterNum = history.chapter || 1;
           
           return (

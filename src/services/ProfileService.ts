@@ -80,7 +80,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       nickname: data.nickname || '',
       experience_points: data.experience_points || 0,
       streak_count: data.streak_count || 0,
-      streak_record: data.streak_record || 0,
+      streak_record: data.streak_count || 0, // Use streak_count as fallback for streak_record
       last_streak_date: data.last_streak_date,
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at || new Date().toISOString(),
@@ -88,8 +88,8 @@ export async function getUserProfile(): Promise<UserProfile> {
       reading_position: data.reading_position || null,
       preferred_bible_version: data.preferred_bible_version || 'kja',
       preferred_language: data.preferred_language || navigator.language.toLowerCase().split('-')[0],
-      daily_reading_goal: data.daily_reading_goal || 15,
-      has_completed_onboarding: data.has_completed_onboarding || false,
+      daily_reading_goal: 15, // Default if not present in database
+      has_completed_onboarding: false, // Default if not present in database
       // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
       country: data.country,

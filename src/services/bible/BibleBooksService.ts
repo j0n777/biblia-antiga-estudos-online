@@ -36,7 +36,18 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
         return [];
       }
       
-      data = defaultData;
+      // Transform the response to match BibleBook type
+      const books: BibleBook[] = defaultData.map(book => ({
+        book_id: book.book_id.toLowerCase(), // Ensure book_id is lowercase
+        name: book.name || book.book_id, // Use book_id as fallback for name
+        testament: book.testament,
+        order: book.position || 0, // Map position to order
+        chapters_count: book.chapters_count || 0,
+        position: book.position || 0,
+        version_id: book.version_id
+      }));
+      
+      return books;
     }
     
     // Transform the response to match BibleBook type

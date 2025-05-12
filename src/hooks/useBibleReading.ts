@@ -110,11 +110,12 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   // Update URL when reading position changes
   useEffect(() => {
     if (!isInitialLoad && bookId) {
+      const verseParam = scrollToVerse ? scrollToVerse.toString() : '1';
       setSearchParams({ 
         book: bookId, 
         chapter: chapterNumber.toString(),
         version: versionId,
-        verse: scrollToVerse ? scrollToVerse.toString() : '1'
+        verse: verseParam
       }, { replace: true });
     }
   }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
@@ -160,7 +161,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     if (currentBookIndex > 0) {
       const previousBook = books[currentBookIndex - 1];
       setBookId(previousBook.book_id);
-      setChapterNumber(previousBook.chapters_count);
+      setChapterNumber(previousBook.chapters_count || 1);
       setScrollToVerse(1);
     }
   };
@@ -175,7 +176,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     const currentBook = books[currentBookIndex];
     
     // If we're not at the last chapter, go to the next chapter of the same book
-    if (chapterNumber < currentBook.chapters_count) {
+    if (chapterNumber < (currentBook.chapters_count || 1)) {
       setChapterNumber(chapterNumber + 1);
       setScrollToVerse(1);
       return;
