@@ -32,26 +32,31 @@ const RecentReadingSection = ({
       </h3>
       
       <div className="space-y-2">
-        {recentReadings.map((history, index) => (
-          <Card 
-            key={`${history.book_id}-${history.chapter}-${index}`} 
-            className="p-3 bg-parchment-light border-ancient-gold/20 hover:bg-parchment-light/80"
-          >
-            <button 
-              className="w-full text-left"
-              onClick={() => onOpenChapter(history.book_id, history.chapter)}
+        {recentReadings.map((history, index) => {
+          const displayName = bookNames[history.book_id.toLowerCase()] || history.book_id || "Livro";
+          const chapterNum = history.chapter || 1;
+          
+          return (
+            <Card 
+              key={`${history.book_id}-${history.chapter}-${index}`} 
+              className="p-3 bg-parchment-light border-ancient-gold/20 hover:bg-parchment-light/80"
             >
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-ancient-brown">
-                  {bookNames[history.book_id] || history.book_id} {history.chapter}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date(history.timestamp).toLocaleDateString()}
-                </span>
-              </div>
-            </button>
-          </Card>
-        ))}
+              <button 
+                className="w-full text-left"
+                onClick={() => onOpenChapter(history.book_id, chapterNum)}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-semibold text-ancient-brown">
+                    {displayName} {chapterNum}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(history.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              </button>
+            </Card>
+          );
+        })}
         
         <div className="text-center pt-2">
           <Button 

@@ -17,6 +17,16 @@ export const getBookContent = async (
   versionId: string = 'kja'
 ): Promise<BookContent> => {
   try {
+    if (!bookId) {
+      console.error("Invalid book ID provided:", bookId);
+      throw new Error('Invalid book ID');
+    }
+    
+    if (isNaN(chapterNumber) || chapterNumber <= 0) {
+      console.error("Invalid chapter number:", chapterNumber);
+      throw new Error('Invalid chapter number');
+    }
+    
     console.info(`Fetching chapter: Book=${bookId}, Chapter=${chapterNumber}, Version=${versionId}`);
     
     // Make sure bookId is lowercase as stored in database
@@ -139,7 +149,11 @@ export const searchBibleVerses = async (
     console.log(`Search results for "${query}":`, data?.length || 0);
     
     // Create a lookup of book names for better display
-    const bookIds = [...new Set(data.map(verse => verse.book_id))];
+    const bookIds = [...new Set((data || []).map(verse => verse.book_id))];
+    
+    if (bookIds.length === 0) {
+      return [];
+    }
     
     const { data: books } = await supabase
       .from('bible_books')
@@ -153,7 +167,7 @@ export const searchBibleVerses = async (
     }, {});
     
     // Transform the response
-    return data.map(verse => ({
+    return (data || []).map(verse => ({
       ...verse,
       book_name: bookNames[verse.book_id] || verse.book_id
     }));
@@ -194,7 +208,7 @@ const searchByBookId = async (
       .eq('chapter_id', chapterData.id);
     
     // Add verse filter if specified
-    if (verse) {
+    if (verse && !isNaN(verse)) {
       query = query.eq('verse_number', verse);
     }
     
@@ -236,6 +250,16 @@ export const getChapter = async (
   versionId: string = 'kja'
 ): Promise<BibleChapter> => {
   try {
+    if (!bookId) {
+      console.error("Invalid book ID provided:", bookId);
+      throw new Error('Invalid book ID');
+    }
+    
+    if (isNaN(chapterNumber) || chapterNumber <= 0) {
+      console.error("Invalid chapter number:", chapterNumber);
+      throw new Error('Invalid chapter number');
+    }
+    
     // Make sure bookId is lowercase as stored in database
     const normalizedBookId = bookId.toLowerCase();
     

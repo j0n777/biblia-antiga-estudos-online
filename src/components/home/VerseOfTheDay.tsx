@@ -57,14 +57,15 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
             .eq('id', preferredVersion)
             .maybeSingle();
             
-          // Format the reference properly
-          const formattedReference = verse.book_name ? 
-            `${verse.book_name} ${verse.chapter_number}:${verse.verse_number}` : 
-            `${verse.book_id} ${verse.chapter_number}:${verse.verse_number}`;
+          // Format the reference properly with fallbacks for null values
+          const safeBookName = verse.book_name || verse.book_id || "Livro";
+          const safeChapterNumber = verse.chapter_number || 1;
+          const safeVerseNumber = verse.verse_number || 1;
+          const formattedReference = `${safeBookName} ${safeChapterNumber}:${safeVerseNumber}`;
             
           setReference(formattedReference);
-          setBookName(verse.book_name || null);
-          setText(verse.text);
+          setBookName(safeBookName);
+          setText(verse.text || "Versículo do dia não disponível");
           setVersion(versionData?.name || preferredVersion.toUpperCase());
         } else {
           console.warn(`No results found for reference: ${randomReference} in version: ${preferredVersion}`);

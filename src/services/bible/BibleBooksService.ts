@@ -22,14 +22,31 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
       return [];
     }
     
+    if (!data || data.length === 0) {
+      console.warn(`No books found for version: ${versionId}, trying default version`);
+      // Try with default version if no books found for specified version
+      const { data: defaultData, error: defaultError } = await supabase
+        .from('bible_books')
+        .select('*')
+        .eq('version_id', 'kja')
+        .order('position', { ascending: true });
+        
+      if (defaultError || !defaultData || defaultData.length === 0) {
+        console.error('No books found for default version:', defaultError);
+        return [];
+      }
+      
+      data = defaultData;
+    }
+    
     // Transform the response to match BibleBook type
     const books: BibleBook[] = data.map(book => ({
-      book_id: book.book_id,
-      name: book.name,
+      book_id: book.book_id.toLowerCase(), // Ensure book_id is lowercase
+      name: book.name || book.book_id, // Use book_id as fallback for name
       testament: book.testament,
       order: book.position || 0, // Map position to order
-      chapters_count: book.chapters_count,
-      position: book.position,
+      chapters_count: book.chapters_count || 0,
+      position: book.position || 0,
       version_id: book.version_id
     }));
     
@@ -55,8 +72,14 @@ export const getBibleBooks = getAllBooks;
  */
 export const getBookChapters = async (bookId: string, versionId: string = 'kja'): Promise<BibleChapter[]> => {
   try {
+    if (!bookId) {
+      console.error('Invalid book ID provided:', bookId);
+      return [];
+    }
+    
     // Make sure bookId is lowercase as stored in database
     const normalizedBookId = bookId.toLowerCase();
+    console.info(`Getting chapters for book: ${normalizedBookId}, version: ${versionId}`);
     
     const { data, error } = await supabase
       .from('bible_chapters')
@@ -76,7 +99,7 @@ export const getBookChapters = async (bookId: string, versionId: string = 'kja')
       .select('name')
       .eq('book_id', normalizedBookId)
       .eq('version_id', versionId)
-      .single();
+      .maybeSingle();
       
     const bookName = bookData?.name || normalizedBookId;
     
@@ -86,7 +109,7 @@ export const getBookChapters = async (bookId: string, versionId: string = 'kja')
       book_id: normalizedBookId,
       chapter_number: chapter.chapter_number,
       book_name: bookName,
-      verses_count: chapter.verses_count,
+      verses_count: chapter.verses_count || 0,
       version_id: versionId
     }));
     

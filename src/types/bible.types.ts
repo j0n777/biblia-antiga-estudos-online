@@ -1,5 +1,3 @@
-
-
 export interface BibleVersion {
   id: string;
   name: string;
@@ -84,23 +82,22 @@ export interface UserProfile {
   nickname: string;
   experience_points: number;
   streak_count: number;
-  streak_record: number; // Ensure this property is defined
+  streak_record: number;
   last_streak_date: string | null;
   created_at: string;
   updated_at: string;
   font_size: 'small' | 'medium' | 'large';
-  reading_position: string | null | ReadingPosition; // Ensure this property is defined
+  reading_position: string | null | ReadingPosition;
   preferred_bible_version: string;
   preferred_language: string;
-  daily_reading_goal: number; // Ensure this property is defined
-  has_completed_onboarding: boolean; // Ensure this property is defined
+  daily_reading_goal: number;
+  has_completed_onboarding: boolean;
   avatar_url?: string;
   country?: string;
   birth_year?: number;
   email?: string;
   phone?: string;
   username?: string;
-  // Optional properties that might be used by the ProfileService
   use_system_language?: boolean;
   notifications_enabled?: boolean;
   auto_scroll?: boolean;
