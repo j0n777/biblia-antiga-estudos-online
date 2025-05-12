@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* This file imports all the modular CSS files */
+/* Import base CSS first to avoid circular dependencies */
 @import './styles/base.css';
 @import './styles/global.css';
 @import './styles/scripture.css';

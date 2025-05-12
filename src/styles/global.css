@@ -10,19 +10,22 @@
   }
 
   body {
-    @apply bg-parchment bg-opacity-80 text-scripture-text font-dmsans antialiased tracking-modern leading-relaxed;
+    @apply bg-parchment bg-opacity-80 font-dmsans antialiased tracking-modern leading-relaxed;
+    color: hsl(var(--scripture-text));
     background-image: url('/parchment-texture.jpg');
     background-size: cover;
     background-attachment: fixed;
   }
 
   .dark body {
-    @apply text-scripture-text bg-parchment-dark;
+    color: hsl(var(--scripture-text));
+    background-color: hsl(var(--parchment-dark));
     background-image: url('/parchment-dark.jpg');
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-oldstyle text-scripture-heading tracking-tighter;
+    @apply font-oldstyle tracking-tighter;
+    color: hsl(var(--scripture-heading));
   }
 
   .dark h1, 
@@ -31,7 +34,7 @@
   .dark h4, 
   .dark h5, 
   .dark h6 {
-    @apply text-scripture-heading;
+    color: hsl(var(--scripture-heading));
   }
 
   /* Improve contrast in dark mode */
@@ -39,9 +42,10 @@
     @apply text-gray-300 text-opacity-90;
   }
   
-  /* Fix for circular dependency - using opacity directly instead of @apply */
+  /* Fix for circular dependency - using direct color and opacity values */
   .dark .scripture-text,
   .dark .text-scripture-text {
+    color: hsl(var(--scripture-text));
     opacity: 0.95;
   }
 
@@ -55,7 +59,8 @@
   .dark input,
   .dark select,
   .dark textarea {
-    @apply bg-parchment-light border-parchment-darker text-scripture-text;
+    @apply bg-parchment-light border-parchment-darker;
+    color: hsl(var(--scripture-text));
   }
   
   /* Fix select dropdown contrast */
@@ -64,7 +69,8 @@
   }
   
   .dark [data-radix-select-item] {
-    @apply text-scripture-text hover:bg-parchment-dark/20;
+    color: hsl(var(--scripture-text));
+    @apply hover:bg-parchment-dark/20;
   }
   
   .dark [data-radix-select-item][data-highlighted] {
@@ -81,6 +87,7 @@
   }
   
   .dark [role="tab"] {
-    @apply text-scripture-text hover:text-ancient-gold/80;
+    color: hsl(var(--scripture-text));
+    @apply hover:text-ancient-gold/80;
   }
 }

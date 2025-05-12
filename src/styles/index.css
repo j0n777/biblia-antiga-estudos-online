@@ -1,4 +1,9 @@
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import base CSS first to avoid circular dependencies */
 @import './base.css';
 @import './global.css';
 @import './scripture.css';
