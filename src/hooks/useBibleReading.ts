@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
@@ -22,6 +21,35 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
   const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
   const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
+
+  // Define the loadChapter function once at the top level
+  const loadChapter = async () => {
+    setIsLoading(true);
+    try {
+      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
+      
+      // Load chapter
+      const chapterData = await getChapter(bookId, chapterNumber, versionId);
+      setChapter(chapterData);
+      
+      // Track reading progress - convert scrollToVerse to string for trackReading
+      await trackReading(bookId, chapterNumber, scrollToVerse || 1);
+      
+      // Save reading position - ensure all parameters are properly typed
+      await saveReadingPosition(
+        versionId, 
+        bookId, 
+        chapterNumber, 
+        scrollToVerse || 1
+      );
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setChapter(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const initializeReadingPosition = async () => {
@@ -110,7 +138,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   // Update URL when reading position changes
   useEffect(() => {
     if (!isInitialLoad && bookId) {
-      const verseParam = scrollToVerse ? String(scrollToVerse) : '1'; // Fixed TypeScript error by converting to string
+      const verseParam = scrollToVerse ? String(scrollToVerse) : '1';
       setSearchParams({ 
         book: bookId, 
         chapter: chapterNumber.toString(),
@@ -119,27 +147,6 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       }, { replace: true });
     }
   }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
-
-  const loadChapter = async () => {
-    setIsLoading(true);
-    try {
-      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
-      
-      // Load chapter
-      const chapterData = await getChapter(bookId, chapterNumber, versionId);
-      setChapter(chapterData);
-      
-      // Track reading progress
-      await trackReading(bookId, chapterNumber, scrollToVerse || 1);
-      await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
-      
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setChapter(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handlePreviousChapter = () => {
     if (!books || books.length === 0) return;
@@ -231,27 +238,6 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   const isVerseSelected = (verseNumber: number) => {
     const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
     return savedVerses[verseKey] || false;
-  };
-  
-  const loadChapter = async () => {
-    setIsLoading(true);
-    try {
-      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
-      
-      // Load chapter
-      const chapterData = await getChapter(bookId, chapterNumber, versionId);
-      setChapter(chapterData);
-      
-      // Track reading progress
-      await trackReading(bookId, chapterNumber, scrollToVerse || 1);
-      await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
-      
-    } catch (error) {
-      console.error('Error loading data:', error);
-      setChapter(null);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return {
