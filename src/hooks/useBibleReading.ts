@@ -110,7 +110,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   // Update URL when reading position changes
   useEffect(() => {
     if (!isInitialLoad && bookId) {
-      const verseParam = scrollToVerse ? scrollToVerse.toString() : '1';
+      const verseParam = scrollToVerse ? String(scrollToVerse) : '1'; // Fixed TypeScript error by converting to string
       setSearchParams({ 
         book: bookId, 
         chapter: chapterNumber.toString(),
@@ -231,6 +231,27 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   const isVerseSelected = (verseNumber: number) => {
     const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
     return savedVerses[verseKey] || false;
+  };
+  
+  const loadChapter = async () => {
+    setIsLoading(true);
+    try {
+      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
+      
+      // Load chapter
+      const chapterData = await getChapter(bookId, chapterNumber, versionId);
+      setChapter(chapterData);
+      
+      // Track reading progress
+      await trackReading(bookId, chapterNumber, scrollToVerse || 1);
+      await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setChapter(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {

@@ -88,8 +88,8 @@ export async function getUserProfile(): Promise<UserProfile> {
       reading_position: data.reading_position || null,
       preferred_bible_version: data.preferred_bible_version || 'kja',
       preferred_language: data.preferred_language || navigator.language.toLowerCase().split('-')[0],
-      daily_reading_goal: 15, // Default if not present in database
-      has_completed_onboarding: false, // Default if not present in database
+      daily_reading_goal: data.daily_reading_goal || 15,
+      has_completed_onboarding: data.has_completed_onboarding || false,
       // Optional fields that may or may not be present in the database
       avatar_url: data.avatar_url,
       country: data.country,

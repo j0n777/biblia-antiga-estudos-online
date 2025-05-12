@@ -33,19 +33,22 @@ const RecentReadingSection = ({
       
       <div className="space-y-2">
         {recentReadings.map((history, index) => {
-          // Ensure book_id is lowercase for consistent lookups
-          const bookId = history.book_id?.toLowerCase() || "";
-          const displayName = bookNames[bookId] || history.book_id || t('bible.unknown');
+          // Ensure book_id is a string before calling toLowerCase
+          const bookId = typeof history.book_id === 'string' 
+            ? history.book_id.toLowerCase() 
+            : String(history.book_id).toLowerCase();
+          
+          const displayName = bookNames[bookId] || String(history.book_id) || t('bible.unknown');
           const chapterNum = history.chapter || 1;
           
           return (
             <Card 
-              key={`${history.book_id}-${history.chapter}-${index}`} 
+              key={`${bookId}-${chapterNum}-${index}`} 
               className="p-3 bg-parchment-light border-ancient-gold/20 hover:bg-parchment-light/80"
             >
               <button 
                 className="w-full text-left"
-                onClick={() => onOpenChapter(history.book_id, chapterNum)}
+                onClick={() => onOpenChapter(bookId, chapterNum)}
               >
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-ancient-brown">
