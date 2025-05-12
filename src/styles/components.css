@@ -82,21 +82,32 @@
   }
 
   .settings-form {
-    @apply px-4 py-2 w-full;
+    @apply px-2 py-2 w-full max-w-full;
   }
   
   .settings-input {
     @apply w-full max-w-full;
   }
+
+  /* Make the form inputs responsive */
+  .settings-form input,
+  .settings-form select,
+  .settings-form textarea {
+    @apply w-full max-w-full box-border;
+  }
   
   /* Fix dialog content padding on mobile */
   @media (max-width: 640px) {
     .dialog-content-mobile {
-      @apply p-4;
+      @apply p-2 max-w-[95vw];
     }
     
     .dialog-content-mobile .tabs-content {
       @apply px-1;
+    }
+
+    .settings-form .grid {
+      @apply grid-cols-1;
     }
   }
 }

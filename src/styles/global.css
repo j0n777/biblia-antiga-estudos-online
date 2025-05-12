@@ -39,8 +39,10 @@
     @apply text-gray-300 text-opacity-90;
   }
   
+  /* Fix for circular dependency - using opacity directly instead of @apply */
+  .dark .scripture-text,
   .dark .text-scripture-text {
-    @apply text-opacity-95;
+    opacity: 0.95;
   }
 
   button, 
