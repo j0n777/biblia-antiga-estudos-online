@@ -159,22 +159,24 @@ export async function getReadingHistory(limit: number = 20): Promise<ReadingHist
  * Add or update reading history entry
  * @param bookId Book ID
  * @param chapter Chapter number
- * @param verse Optional verse number
+ * @param verse Optional verse number or string
  * @returns Promise resolving to success status
  */
 export async function trackReading(
   bookId: string, 
   chapter: number, 
-  verse?: number
+  verse: string | number = 1
 ): Promise<boolean> {
   try {
     console.log(`Tracking reading: ${bookId} ${chapter}:${verse || 1}`);
     
     const timestamp = new Date().toISOString();
+    const verseNumber = typeof verse === 'string' ? parseInt(verse, 10) || 1 : verse;
+    
     const historyEntry: ReadingHistory = {
       book_id: bookId,
       chapter: chapter,
-      verse: verse || 1,
+      verse: verseNumber,
       timestamp
     };
     
