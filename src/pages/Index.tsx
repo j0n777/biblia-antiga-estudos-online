@@ -103,7 +103,7 @@ const Index = () => {
     <PageLayout>
       <div className="py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-oldstyle text-scripture-heading">Bíblia Antiga</h1>
+          <h1 className="text-2xl font-oldstyle text-scripture-heading">Bíblia de Estudos Original</h1>
           <ThemeToggle />
         </div>
       

@@ -102,37 +102,37 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
           <Settings2 size={20} className="text-scripture-heading" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg bg-parchment-light">
+      <DialogContent className="settings-dialog-content">
         <DialogHeader>
-          <DialogTitle className="font-oldstyle">{t('settings.title')}</DialogTitle>
+          <DialogTitle className="font-oldstyle">Configurações</DialogTitle>
           <DialogDescription>
-            {t('settings.description')}
+            Personalize sua experiência
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
-          <div className="flex border-b mb-4">
+          <div className="settings-dialog-tabs">
             <button
-              className={`px-4 py-2 ${activeTab === 'general' ? 'border-b-2 border-ancient-brown' : ''}`}
+              className={`settings-dialog-tab ${activeTab === 'general' ? 'active' : ''}`}
               onClick={() => setActiveTab('general')}
             >
-              {t('settings.title')}
+              Configurações
             </button>
             <button
-              className={`px-4 py-2 ${activeTab === 'profile' ? 'border-b-2 border-ancient-brown' : ''}`}
+              className={`settings-dialog-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
             >
-              {t('profile.title')}
+              Meu Perfil
             </button>
           </div>
           
           {activeTab === 'general' && (
-            <div className="space-y-6">
+            <div className="space-y-6 settings-container">
               <div className="space-y-4">
-                <Label htmlFor="app-language" className="text-base">{t('settings.language')}</Label>
+                <Label htmlFor="app-language" className="text-base">Idioma</Label>
                 <Select value={language} onValueChange={handleLanguageChange}>
                   <SelectTrigger id="app-language" className="w-full">
-                    <SelectValue placeholder={t('settings.language')} />
+                    <SelectValue placeholder="Selecionar idioma" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
@@ -148,30 +148,30 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 <div className="flex items-center justify-between">
                   <Label className="text-base flex items-center">
                     <Type size={18} className="mr-2" />
-                    {t('settings.fontSize') || 'Tamanho da Fonte'}
+                    Tamanho da Fonte
                   </Label>
                 </div>
                 <RadioGroup 
                   value={fontSize} 
                   onValueChange={handleFontSizeChange} 
-                  className="flex justify-between"
+                  className="settings-radio-group"
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="small" id="small" />
                     <Label htmlFor="small" className="text-xs cursor-pointer">
-                      {t('settings.fontSizeSmall') || 'Pequeno'}
+                      Pequeno
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="medium" id="medium" />
                     <Label htmlFor="medium" className="text-base cursor-pointer">
-                      {t('settings.fontSizeMedium') || 'Médio'}
+                      Médio
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="large" id="large" />
                     <Label htmlFor="large" className="text-xl cursor-pointer">
-                      {t('settings.fontSizeLarge') || 'Grande'}
+                      Grande
                     </Label>
                   </div>
                 </RadioGroup>
@@ -179,14 +179,13 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="use-system-language" className="text-base">{t('settings.systemLanguage')}</Label>
+                  <Label htmlFor="use-system-language" className="text-base">Usar idioma do sistema</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.systemLanguageDescription')}
+                    Detectar automaticamente o idioma do dispositivo
                   </p>
                 </div>
                 <Switch 
                   id="use-system-language" 
-                  // This would typically be a setting in the user profile
                   defaultChecked={true}
                   onCheckedChange={(checked) => handleSwitchChange(checked, 'use_system_language' as any)}
                 />
@@ -194,9 +193,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="notifications" className="text-base">{t('settings.notifications')}</Label>
+                  <Label htmlFor="notifications" className="text-base">Notificações</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.notificationsDescription')}
+                    Receber lembretes de leitura diária
                   </p>
                 </div>
                 <Switch 
@@ -208,9 +207,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="auto-scroll" className="text-base">{t('settings.autoScroll')}</Label>
+                  <Label htmlFor="auto-scroll" className="text-base">Auto-rolagem</Label>
                   <p className="text-sm text-muted-foreground">
-                    {t('settings.autoScrollDescription')}
+                    Rolar automaticamente durante a leitura
                   </p>
                 </div>
                 <Switch 
@@ -228,7 +227,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
         </div>
         
         <div className="flex justify-end">
-          <Button variant="outline" onClick={handleClose}>{t('common.close')}</Button>
+          <Button variant="outline" onClick={handleClose}>Fechar</Button>
         </div>
       </DialogContent>
     </Dialog>

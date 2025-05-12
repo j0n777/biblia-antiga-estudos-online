@@ -62,8 +62,8 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
         } else {
           console.warn(`No results found for reference: ${randomReference} in version: ${preferredVersion}`);
           // Fallback to default verse if search doesn't work
-          setReference("João 3:16");
-          setText("Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.");
+          setReference("Romanos 8:28");
+          setText("Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.");
           setVersion(preferredVersion.toUpperCase());
         }
       } catch (error) {
