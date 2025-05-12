@@ -83,7 +83,7 @@ const Read = () => {
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
             </div>
-          ) : (
+          ) : chapter ? (
             <BibleChapter 
               chapter={chapter} 
               scrollToVerse={scrollToVerse} 
@@ -91,6 +91,18 @@ const Read = () => {
               isVerseSelected={isVerseSelected}
               fontSize={fontSize}
             />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center p-4">
+              <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+                <span className="text-2xl">📖</span>
+              </div>
+              <p className="text-scripture-heading font-medium mb-2">
+                {t('bible.chapterNotFound') || 'Capítulo não encontrado'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t('bible.tryAnotherChapter') || 'Por favor selecione outro livro ou capítulo.'}
+              </p>
+            </div>
           )}
         </div>
 

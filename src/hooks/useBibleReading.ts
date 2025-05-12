@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
@@ -26,7 +27,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     const initializeReadingPosition = async () => {
       try {
         // First load all books and versions to ensure they're available
-        const booksData = await getAllBooks('kja');
+        const booksData = await getAllBooks(defaultVersion);
         if (booksData && booksData.length > 0) {
           setBooks(booksData);
           
@@ -55,21 +56,28 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
                 setVersionId(lastPosition.version_id || defaultVersion);
                 setScrollToVerse(lastPosition.verse || 1);
               } else {
-                // Fall back to Genesis 1 if book doesn't exist
-                setBookId('GEN');
+                // Fall back to a known valid book ID from the loaded books
+                const firstBook = booksData[0];
+                setBookId(firstBook.book_id);
                 setChapterNumber(1);
               }
             } else {
-              // Default to Genesis 1 if no reading position
+              // Default to first book in the list if no reading position
               console.log("No last reading position, using default");
-              setBookId('GEN');
-              setChapterNumber(1);
+              if (booksData.length > 0) {
+                const firstBook = booksData[0];
+                console.log("Setting default book to:", firstBook.book_id);
+                setBookId(firstBook.book_id);
+                setChapterNumber(1);
+              } else {
+                console.error("No books available in the loaded data");
+              }
             }
           }
         } else {
           console.error("No books data available");
           // Set reasonable defaults
-          setBookId('GEN');
+          setBookId('gn'); // Use lowercase 'gn' instead of 'GEN'
           setChapterNumber(1);
         }
         
@@ -82,7 +90,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       } catch (error) {
         console.error('Error initializing reading position:', error);
         // Set reasonable defaults
-        setBookId('GEN');
+        setBookId('gn'); // Use lowercase 'gn' instead of 'GEN'
         setChapterNumber(1);
         setVersionId(defaultVersion);
         setIsInitialLoad(false);
@@ -121,7 +129,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       setChapter(chapterData);
       
       // Track reading progress
-      await trackReading(versionId, bookId, chapterNumber, scrollToVerse || 1);
+      await trackReading(bookId, chapterNumber, scrollToVerse || 1);
       await saveReadingPosition(versionId, bookId, chapterNumber, scrollToVerse || 1);
       
     } catch (error) {

@@ -20,6 +20,7 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
   const [reference, setReference] = useState(initialReference || "João 3:16");
   const [text, setText] = useState(initialText || "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.");
   const [version, setVersion] = useState(initialVersion || "KJA");
+  const [bookName, setBookName] = useState<string | null>(null);
   const { language, t } = useLanguage();
 
   useEffect(() => {
@@ -56,7 +57,13 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
             .eq('id', preferredVersion)
             .maybeSingle();
             
-          setReference(`${verse.book_id} ${verse.chapter_number}:${verse.verse_number}`);
+          // Format the reference properly
+          const formattedReference = verse.book_name ? 
+            `${verse.book_name} ${verse.chapter_number}:${verse.verse_number}` : 
+            `${verse.book_id} ${verse.chapter_number}:${verse.verse_number}`;
+            
+          setReference(formattedReference);
+          setBookName(verse.book_name || null);
           setText(verse.text);
           setVersion(versionData?.name || preferredVersion.toUpperCase());
         } else {
@@ -103,8 +110,8 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
       <CardContent className="pt-6">
         <h3 className="font-oldstyle text-xl text-scripture-heading mb-4 text-center">{t('verseOfDay.title') || 'Versículo do Dia'}</h3>
         <p className="scripture-text text-center mb-3">"{text}"</p>
-        <p className="text-scripture-verse text-center font-oldstyle font-medium">{reference}</p>
-        <p className="text-sm text-muted-foreground text-center mt-1">{version}</p>
+        <p className="text-scripture-verse text-center font-oldstyle font-medium">{reference || "Referência"}</p>
+        <p className="text-sm text-muted-foreground text-center mt-1">{version || "KJA"}</p>
       </CardContent>
       <CardFooter className="flex justify-center gap-4 pt-2 pb-4">
         <Button 

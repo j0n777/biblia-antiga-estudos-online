@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { ChevronRight, CheckCircle, Book, Target, Globe } from 'lucide-react';
 import { updateUserProfile } from '@/services/ProfileService';
 import { UserProfile, BibleVersion } from '@/types/bible.types';
 import { toast } from '@/hooks/use-toast';
-import { getAllVersions, getVersionsByLanguage, getVersionsGroupedByLanguage, getLanguageName } from '@/services/bible/BibleVersionsService';
+import { getAllVersions, getVersionsByLanguage, getVersionsGroupedByLanguage } from '@/services/bible/BibleVersionsService';
 
 interface OnboardingWizardProps {
   open: boolean;
@@ -117,17 +116,41 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
     if (!profile) return;
     
     try {
+      // Ensure the selectedBibleVersion is set
+      let finalBibleVersion = selectedBibleVersion;
+      if (!finalBibleVersion) {
+        // Default based on language if not selected
+        if (selectedLanguage.startsWith('pt')) {
+          finalBibleVersion = 'kja';
+        } else if (selectedLanguage.startsWith('en')) {
+          finalBibleVersion = 'kjv';
+        } else if (selectedLanguage.startsWith('es')) {
+          finalBibleVersion = 'rvr';
+        } else if (selectedLanguage.startsWith('fr')) {
+          finalBibleVersion = 'apee';
+        } else {
+          finalBibleVersion = 'kjv'; // Default fallback
+        }
+      }
+      
       const updatedProfile = {
         preferred_language: selectedLanguage,
-        preferred_bible_version: selectedBibleVersion,
+        preferred_bible_version: finalBibleVersion,
         daily_reading_goal: dailyGoal,
         display_name: displayName || profile.display_name,
         has_completed_onboarding: true,
+        // Set default reading position to the first book of the selected Bible version
+        reading_position: JSON.stringify({
+          book_id: selectedLanguage.startsWith('en') ? 'gn' : 'mt', // Genesis or Matthew
+          chapter: 1,
+          verse: 1,
+          version_id: finalBibleVersion
+        })
       };
       
       await updateUserProfile(updatedProfile);
       
-      // Atualizar idioma do app
+      // Update app language
       if (selectedLanguage !== language) {
         setLanguage(selectedLanguage as any);
       }

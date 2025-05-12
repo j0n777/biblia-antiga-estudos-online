@@ -19,11 +19,14 @@ export const getBookContent = async (
   try {
     console.info(`Fetching chapter: Book=${bookId}, Chapter=${chapterNumber}, Version=${versionId}`);
     
+    // Make sure bookId is lowercase as stored in database
+    const normalizedBookId = bookId.toLowerCase();
+    
     // Get the chapter ID first
     const { data: chapterData, error: chapterError } = await supabase
       .from('bible_chapters')
       .select('*')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('chapter_number', chapterNumber)
       .eq('version_id', versionId)
       .maybeSingle();
@@ -34,7 +37,7 @@ export const getBookContent = async (
     }
     
     if (!chapterData) {
-      console.error('Chapter not found:', { bookId, chapterNumber, versionId });
+      console.error('Chapter not found:', { bookId: normalizedBookId, chapterNumber, versionId });
       throw new Error('Chapter not found');
     }
     
@@ -50,20 +53,20 @@ export const getBookContent = async (
       throw new Error('Verses not found');
     }
     
-    // Get the book name
+    // Get the book name for better display
     const { data: bookData } = await supabase
       .from('bible_books')
       .select('name')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('version_id', versionId)
       .maybeSingle();
       
-    const bookName = bookData?.name || bookId;
+    const bookName = bookData?.name || normalizedBookId;
     
     // Create the content object
     const content: BookContent = {
       id: chapterData.id,
-      book_id: bookId,
+      book_id: normalizedBookId,
       book_name: bookName,
       chapter_number: chapterNumber,
       verses: verses || []
@@ -168,17 +171,20 @@ const searchByBookId = async (
   versionId: string = 'kja'
 ): Promise<BibleVerse[]> => {
   try {
+    // Normalize bookId to lowercase
+    const normalizedBookId = bookId.toLowerCase();
+    
     // First try to get the chapter
     const { data: chapterData } = await supabase
       .from('bible_chapters')
       .select('id')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('chapter_number', chapter)
       .eq('version_id', versionId)
       .maybeSingle();
     
     if (!chapterData) {
-      console.log(`Chapter not found: ${bookId} ${chapter}`);
+      console.log(`Chapter not found: ${normalizedBookId} ${chapter}`);
       return [];
     }
     
@@ -203,13 +209,13 @@ const searchByBookId = async (
     const { data: bookData } = await supabase
       .from('bible_books')
       .select('name')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('version_id', versionId)
       .maybeSingle();
     
     return (data || []).map(verse => ({
       ...verse,
-      book_name: bookData?.name || bookId
+      book_name: bookData?.name || normalizedBookId
     }));
   } catch (error) {
     console.error('Error in searchByBookId:', error);
@@ -230,13 +236,16 @@ export const getChapter = async (
   versionId: string = 'kja'
 ): Promise<BibleChapter> => {
   try {
+    // Make sure bookId is lowercase as stored in database
+    const normalizedBookId = bookId.toLowerCase();
+    
     // If no version specified, get user's preferred version
     if (!versionId || versionId === 'default') {
       const userProfile = await getUserProfile();
       versionId = userProfile.preferred_bible_version || 'kja';
     }
     
-    const content = await getBookContent(bookId, chapterNumber, versionId);
+    const content = await getBookContent(normalizedBookId, chapterNumber, versionId);
     
     // Convert from BookContent to BibleChapter
     const chapter: BibleChapter = {

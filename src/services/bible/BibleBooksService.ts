@@ -55,10 +55,13 @@ export const getBibleBooks = getAllBooks;
  */
 export const getBookChapters = async (bookId: string, versionId: string = 'kja'): Promise<BibleChapter[]> => {
   try {
+    // Make sure bookId is lowercase as stored in database
+    const normalizedBookId = bookId.toLowerCase();
+    
     const { data, error } = await supabase
       .from('bible_chapters')
       .select('*')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('version_id', versionId)
       .order('chapter_number', { ascending: true });
       
@@ -71,16 +74,16 @@ export const getBookChapters = async (bookId: string, versionId: string = 'kja')
     const { data: bookData } = await supabase
       .from('bible_books')
       .select('name')
-      .eq('book_id', bookId)
+      .eq('book_id', normalizedBookId)
       .eq('version_id', versionId)
       .single();
       
-    const bookName = bookData?.name || bookId;
+    const bookName = bookData?.name || normalizedBookId;
     
     // Transform the response to match BibleChapter type
     const chapters: BibleChapter[] = data.map(chapter => ({
       id: chapter.id,
-      book_id: chapter.book_id,
+      book_id: normalizedBookId,
       chapter_number: chapter.chapter_number,
       book_name: bookName,
       verses_count: chapter.verses_count,
