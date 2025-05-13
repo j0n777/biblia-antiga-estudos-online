@@ -12,7 +12,7 @@ import { getUserProfile } from '../ProfileService';
 export const trackReading = async (
   bookId: string,
   chapter: number,
-  verse?: string | number
+  verse?: string | number | null
 ): Promise<boolean> => {
   try {
     console.log(`Tracking reading: ${bookId} ${chapter} ${verse}`);
@@ -68,9 +68,6 @@ export const trackReading = async (
  */
 export const getReadingHistory = async (limit: number = 10): Promise<ReadingHistory[]> => {
   try {
-    // Get user profile
-    const profile = await getUserProfile();
-    
     // Get from localStorage
     const historyJson = localStorage.getItem('reading_history');
     if (!historyJson) return [];
