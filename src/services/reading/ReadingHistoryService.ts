@@ -47,21 +47,12 @@ export const trackReading = async (
       return true;
     }
     
-    // For authenticated users, insert into the database
-    const { error } = await supabase
-      .from('reading_history')
-      .insert({
-        user_id: profile.user_id || profile.id,
-        book_id: bookId,
-        chapter: chapter,
-        verse: verse ? Number(verse) : null,
-        created_at: new Date().toISOString()
-      });
-    
-    if (error) {
-      console.error('Error tracking reading:', error);
-      return false;
-    }
+    // Store in localStorage for all users (as a backup)
+    const historyJson = localStorage.getItem('reading_history');
+    const history: ReadingHistory[] = historyJson ? JSON.parse(historyJson) : [];
+    history.unshift(readingEntry);
+    const trimmedHistory = history.slice(0, 50);
+    localStorage.setItem('reading_history', JSON.stringify(trimmedHistory));
     
     return true;
   } catch (error) {
@@ -80,29 +71,12 @@ export const getReadingHistory = async (limit: number = 10): Promise<ReadingHist
     // Get user profile
     const profile = await getUserProfile();
     
-    // For non-authenticated users, get from localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
-      const historyJson = localStorage.getItem('reading_history');
-      if (!historyJson) return [];
-      
-      const history: ReadingHistory[] = JSON.parse(historyJson);
-      return history.slice(0, limit);
-    }
+    // Get from localStorage
+    const historyJson = localStorage.getItem('reading_history');
+    if (!historyJson) return [];
     
-    // For authenticated users, get from database
-    const { data, error } = await supabase
-      .from('reading_history')
-      .select('id, book_id, chapter, verse, created_at as timestamp')
-      .eq('user_id', profile.user_id || profile.id)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    
-    if (error) {
-      console.error('Error getting reading history:', error);
-      return [];
-    }
-    
-    return data as ReadingHistory[];
+    const history: ReadingHistory[] = JSON.parse(historyJson);
+    return history.slice(0, limit);
   } catch (error) {
     console.error('Error getting reading history:', error);
     return [];
@@ -115,26 +89,8 @@ export const getReadingHistory = async (limit: number = 10): Promise<ReadingHist
  */
 export const clearReadingHistory = async (): Promise<boolean> => {
   try {
-    // Get user profile
-    const profile = await getUserProfile();
-    
-    // For non-authenticated users, remove from localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
-      localStorage.removeItem('reading_history');
-      return true;
-    }
-    
-    // For authenticated users, delete from database
-    const { error } = await supabase
-      .from('reading_history')
-      .delete()
-      .eq('user_id', profile.user_id || profile.id);
-    
-    if (error) {
-      console.error('Error clearing reading history:', error);
-      return false;
-    }
-    
+    // Remove from localStorage
+    localStorage.removeItem('reading_history');
     return true;
   } catch (error) {
     console.error('Error clearing reading history:', error);

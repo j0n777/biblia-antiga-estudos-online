@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { BibleBook, BibleChapter as BibleChapterType, BibleVersion } from '@/types/bible.types';
 import { getChapter, getAllBooks, getAllVersions } from '@/services/BibleDataService';
@@ -37,7 +36,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       await trackReading(
         bookId, 
         chapterNumber, 
-        scrollToVerse ? String(scrollToVerse) : '1'
+        scrollToVerse ? scrollToVerse : 1 // This is now properly handled by the trackReading function
       );
       
       // Save reading position - ensure all parameters are properly typed
