@@ -66,11 +66,12 @@ export const useChapterLoader = ({
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
-      // Track reading progress - pass verse as number or string depending on what's available
+      // Track reading progress - convert verse to string explicitly
       await trackReading(
+        versionId, 
         bookId, 
         chapterNumber, 
-        scrollToVerse !== null ? scrollToVerse : 1
+        scrollToVerse !== null ? String(scrollToVerse) : '1'
       );
       
       // Save reading position to storage
