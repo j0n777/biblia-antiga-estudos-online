@@ -1,12 +1,20 @@
+
 import { useState, useEffect } from 'react';
 import { getLastReadingPosition } from '@/services';
 import { useSearchParams } from 'react-router-dom';
 
 interface UseReadingPositionProps {
   defaultVersion?: string;
-  books: any[];
+  books: any[]; // Bible books data
 }
 
+/**
+ * Hook responsible for determining and managing the current reading position
+ * This includes:
+ * - Retrieving position from URL params
+ * - Falling back to last saved reading position
+ * - Initializing with reasonable defaults if needed
+ */
 export const useReadingPosition = ({ defaultVersion = 'kja', books = [] }: UseReadingPositionProps) => {
   const [searchParams] = useSearchParams();
   const [bookId, setBookId] = useState<string>('');
@@ -16,10 +24,14 @@ export const useReadingPosition = ({ defaultVersion = 'kja', books = [] }: UseRe
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
   useEffect(() => {
+    // This function initializes the reading position from either:
+    // 1. URL parameters (highest priority)
+    // 2. Last saved reading position from storage
+    // 3. Default to first book if nothing else is available
     const initializeReadingPosition = async () => {
       try {
         if (books && books.length > 0) {
-          // Check URL params first
+          // Check URL params first (highest priority)
           const urlBook = searchParams.get('book');
           const urlChapter = searchParams.get('chapter');
           const urlVersion = searchParams.get('version');
@@ -69,10 +81,11 @@ export const useReadingPosition = ({ defaultVersion = 'kja', books = [] }: UseRe
           setChapterNumber(1);
         }
         
+        // Mark initialization as complete
         setIsInitialLoad(false);
       } catch (error) {
         console.error('Error initializing reading position:', error);
-        // Set reasonable defaults
+        // Set reasonable defaults on error
         setBookId('gn');
         setChapterNumber(1);
         setVersionId(defaultVersion);

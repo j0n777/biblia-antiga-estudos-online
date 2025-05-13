@@ -14,6 +14,14 @@ interface UseChapterLoaderProps {
   isInitialLoad: boolean;
 }
 
+/**
+ * Hook responsible for loading chapter content and tracking reading progress
+ * Handles:
+ * - Fetching chapter data from API
+ * - Tracking reading progress
+ * - Updating URL parameters
+ * - Saving reading position to storage
+ */
 export const useChapterLoader = ({
   bookId,
   chapterNumber,
@@ -45,23 +53,27 @@ export const useChapterLoader = ({
     }
   }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
 
+  /**
+   * Load chapter content and track reading progress
+   * Updates user's reading history and position
+   */
   const loadChapter = async () => {
     setIsLoading(true);
     try {
       console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
       
-      // Load chapter
+      // Load chapter data
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
-      // Track reading progress - convert scrollToVerse to string for trackReading if it's a number
+      // Track reading progress - pass verse as number or string depending on what's available
       await trackReading(
         bookId, 
         chapterNumber, 
         scrollToVerse !== null ? scrollToVerse : 1
       );
       
-      // Save reading position - ensure all parameters are properly typed
+      // Save reading position to storage
       await saveReadingPosition(
         versionId, 
         bookId, 

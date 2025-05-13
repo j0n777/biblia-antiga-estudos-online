@@ -1,12 +1,15 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { ReadingHistory } from '@/types/bible.types';
 import { getUserProfile } from '../ProfileService';
 
 /**
  * Track user's reading activity
+ * Stores history in localStorage with fallback to database for authenticated users
+ * 
  * @param bookId Bible book ID
  * @param chapter Chapter number
- * @param verse Verse number (optional)
+ * @param verse Verse number (optional) - can be string or number
  * @returns Promise resolving to true if tracking was successful
  */
 export const trackReading = async (
@@ -63,6 +66,8 @@ export const trackReading = async (
 
 /**
  * Get user's reading history
+ * Retrieves history from localStorage for all users
+ * 
  * @param limit Number of entries to return
  * @returns Promise resolving to an array of reading history entries
  */
@@ -82,6 +87,8 @@ export const getReadingHistory = async (limit: number = 10): Promise<ReadingHist
 
 /**
  * Clear user's reading history
+ * Removes history from localStorage
+ * 
  * @returns Promise resolving to true if cleared successfully
  */
 export const clearReadingHistory = async (): Promise<boolean> => {

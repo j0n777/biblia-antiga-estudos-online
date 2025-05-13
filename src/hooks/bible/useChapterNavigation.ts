@@ -8,25 +8,48 @@ interface UseChapterNavigationProps {
   initialChapterNumber: number;
 }
 
+/**
+ * Hook responsible for navigating between chapters and books
+ * Handles:
+ * - Moving to previous/next chapter within the same book
+ * - Moving to previous book's last chapter or next book's first chapter when navigating past book boundaries
+ * - Keeping track of current book ID and chapter number
+ */
 export const useChapterNavigation = ({ 
-  books,
+  books = [],
   initialBookId = '',
   initialChapterNumber = 1
-}: UseChapterNavigationProps = {}) => {
+}: UseChapterNavigationProps = {
+  books: [],
+  initialBookId: '',
+  initialChapterNumber: 1
+}) => {
   const [bookId, setBookId] = useState<string>(initialBookId);
   const [chapterNumber, setChapterNumber] = useState<number>(initialChapterNumber);
   
+  /**
+   * Handle changing the current book
+   * Always resets chapter to 1 when changing books
+   */
   const handleBookChange = (newBookId: string) => {
     setBookId(newBookId);
     setChapterNumber(1);
     return { newBookId, newChapterNumber: 1 };
   };
 
+  /**
+   * Handle changing the current chapter within the same book
+   */
   const handleChapterChange = (newChapterNumber: number) => {
     setChapterNumber(newChapterNumber);
     return { bookId, newChapterNumber };
   };
 
+  /**
+   * Navigate to the previous chapter
+   * If at first chapter of current book, go to last chapter of previous book
+   * Returns null if already at the first chapter of the first book
+   */
   const handlePreviousChapter = () => {
     if (!books || books.length === 0) return null;
     
@@ -56,6 +79,11 @@ export const useChapterNavigation = ({
     return null;
   };
   
+  /**
+   * Navigate to the next chapter
+   * If at last chapter of current book, go to first chapter of next book
+   * Returns null if already at the last chapter of the last book
+   */
   const handleNextChapter = () => {
     if (!books || books.length === 0) return null;
     

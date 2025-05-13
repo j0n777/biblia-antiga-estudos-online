@@ -6,13 +6,27 @@ interface UseVerseManagementProps {
   initialChapterNumber: number;
 }
 
+/**
+ * Hook responsible for verse-level interactions like:
+ * - Tracking which verses are saved/highlighted
+ * - Saving verses to user's collection
+ * - Setting which verse to scroll to
+ */
 export const useVerseManagement = ({ 
   initialBookId = '',
   initialChapterNumber = 1 
-}: UseVerseManagementProps = {}) => {
+}: UseVerseManagementProps = {
+  initialBookId: '',
+  initialChapterNumber: 1
+}) => {
   const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
   const [savedVerses, setSavedVerses] = useState<Record<string, boolean>>({});
 
+  /**
+   * Handles saving a verse to user's collection
+   * Uses dynamic import to avoid circular dependencies
+   * Updates the local state to reflect saved status
+   */
   const handleSaveVerse = async (bookId: string, chapterNumber: number, verseNumber: number, versionId: string) => {
     const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
     
@@ -35,6 +49,9 @@ export const useVerseManagement = ({
     }
   };
 
+  /**
+   * Checks if a verse is currently saved/selected by the user
+   */
   const isVerseSelected = (bookId: string, chapterNumber: number, verseNumber: number) => {
     const verseKey = `${bookId}-${chapterNumber}-${verseNumber}`;
     return savedVerses[verseKey] || false;
