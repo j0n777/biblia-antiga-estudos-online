@@ -1,4 +1,3 @@
-
 export interface BibleVersion {
   id: string;
   name: string;
@@ -53,8 +52,9 @@ export interface WordDefinition {
 export interface ReadingPosition {
   book_id: string;
   chapter: number;
-  verse: number;
+  verse?: number;
   version_id: string;
+  timestamp?: string;
 }
 
 export interface Achievement {

@@ -1,22 +1,40 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Search as SearchIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BibleVerse } from '@/types/bible.types';
-import { searchBibleVerses } from '@/services';
+import { searchBibleVerses } from '@/services/bible';
 import { useLanguage } from '@/contexts/LanguageContext';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
+import { getUserProfile } from '@/services/ProfileService';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [preferredVersion, setPreferredVersion] = useState<string>('kja');
   const searchTimeoutRef = useRef<number | null>(null);
   const isSearchingRef = useRef<boolean>(false);
   const { t } = useLanguage();
+
+  // Load user's preferred Bible version
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      try {
+        const userProfile = await getUserProfile();
+        if (userProfile && userProfile.preferred_bible_version) {
+          setPreferredVersion(userProfile.preferred_bible_version);
+        }
+      } catch (error) {
+        console.error('Error loading user preferences:', error);
+        // Keep default version if error occurs
+      }
+    };
+
+    loadUserPreferences();
+  }, []);
 
   const handleSearch = useCallback(async (query: string) => {
     // Skip if already searching or query is too short
@@ -29,7 +47,8 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      const results = await searchBibleVerses(query);
+      // Use the user's preferred version for search
+      const results = await searchBibleVerses(query, preferredVersion);
       setSearchResults(results);
       setHasSearched(true);
     } catch (error) {
@@ -39,7 +58,7 @@ const Search = () => {
       setIsSearching(false);
       isSearchingRef.current = false;
     }
-  }, []);
+  }, [preferredVersion]);
 
   // Handle input change with debounce
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,17 +101,26 @@ const Search = () => {
         
         <div className="mb-6">
           <div className="flex gap-2">
-            <Input
-              placeholder={t('search.placeholder') || 'Digite uma referência (João 3:16) ou termo...'}
-              value={searchQuery}
-              onChange={handleInputChange}
-              className="bg-parchment-light/90 border-parchment-dark/20"
-            />
+            <div className="relative flex-grow">
+              <Input
+                placeholder={t('search.placeholder') || 'Digite uma referência (João 3:16) ou termo...'}
+                value={searchQuery}
+                onChange={handleInputChange}
+                className="bg-parchment-light/90 border-parchment-dark/20 pr-10"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              )}
+            </div>
             <Button 
               onClick={() => handleSearch(searchQuery)}
               disabled={isSearching || searchQuery.trim().length < 2}
+              className="bg-ancient-gold hover:bg-ancient-gold/90"
             >
-              {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : t('search.button') || 'Buscar'}
+              <SearchIcon className="h-4 w-4 mr-2" />
+              {t('search.button') || 'Buscar'}
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
@@ -124,7 +152,7 @@ const Search = () => {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-2xl">🔍</span>
+                  <SearchIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-scripture-heading font-medium mb-2">
                   {t('search.noResults') || 'Nenhum resultado encontrado'}
@@ -137,7 +165,7 @@ const Search = () => {
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
-                <span className="text-2xl">🔍</span>
+                <SearchIcon className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-scripture-heading font-medium mb-2">
                 {t('search.initial') || 'Digite uma palavra ou referência para buscar na Bíblia'}

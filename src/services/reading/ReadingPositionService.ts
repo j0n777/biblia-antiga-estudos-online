@@ -1,107 +1,134 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { ReadingPosition } from '@/types/bible.types';
-import { isUserAuthenticated } from '../AuthService';
+
+const LOCAL_STORAGE_KEY = 'last_reading_position';
 
 /**
- * Save user's reading position
- * @param versionId Bible version ID
- * @param bookId Bible book ID
- * @param chapter Chapter number
- * @param verse Verse number
+ * Save the user's last reading position
+ * @param position Reading position with book, chapter, and optional verse
  * @returns Promise resolving to success status
  */
-export async function saveReadingPosition(
-  versionId: string,
-  bookId: string,
-  chapter: number,
-  verse: number | string = 1
-): Promise<boolean> {
+export const saveReadingPosition = async (position: ReadingPosition): Promise<boolean> => {
   try {
-    // Ensure verse is a number
-    const verseNumber = typeof verse === 'string' ? parseInt(verse, 10) : verse;
+    const { data: session } = await supabase.auth.getSession();
     
-    const readingPosition: ReadingPosition = {
-      version_id: versionId,
-      book_id: bookId,
-      chapter: chapter,
-      verse: verseNumber,
+    // Add timestamp to the position data
+    const positionWithTimestamp = {
+      ...position,
       timestamp: new Date().toISOString()
     };
     
-    const isAuth = await isUserAuthenticated();
-    
-    if (!isAuth) {
-      // Store in localStorage for non-authenticated users
-      localStorage.setItem('last_reading_position', JSON.stringify(readingPosition));
+    if (session?.session?.user) {
+      // For signed-in users, store in database
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          reading_position: position  // Don't include timestamp in DB - using DB timestamp instead
+        })
+        .eq('id', session.session.user.id);
+        
+      if (error) {
+        console.error('Error saving reading position:', error);
+        // Fall back to localStorage if update fails
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(positionWithTimestamp));
+        return false;
+      }
+      
+      // Also save to localStorage as backup
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(positionWithTimestamp));
+      return true;
+    } else {
+      // For guest users, store in localStorage only
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(positionWithTimestamp));
       return true;
     }
-    
-    // For authenticated users (to be implemented)
-    // Fallback to localStorage for now
-    localStorage.setItem('last_reading_position', JSON.stringify(readingPosition));
-    
-    return true;
   } catch (error) {
     console.error('Error saving reading position:', error);
     return false;
   }
-}
+};
 
 /**
- * Get user's last reading position
- * @returns Promise resolving to reading position
+ * Get the user's last reading position
+ * @returns Promise resolving to position data or null if not found
  */
-export async function getLastReadingPosition(): Promise<ReadingPosition | null> {
+export const getLastReadingPosition = async (): Promise<ReadingPosition | null> => {
   try {
-    const isAuth = await isUserAuthenticated();
+    console.info('Loading last reading position');
+    const { data: session } = await supabase.auth.getSession();
     
-    if (!isAuth) {
-      // Get position from localStorage
-      const position = localStorage.getItem('last_reading_position');
-      if (!position) return null;
+    if (session?.session?.user) {
+      // For signed-in users, try database first
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('reading_position')
+        .eq('id', session.session.user.id)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error getting reading position from DB:', error);
+        // Fall back to localStorage
+        const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (localData) {
+          const localPosition = JSON.parse(localData) as ReadingPosition;
+          console.info('Retrieved reading position from localStorage:', localPosition);
+          return localPosition;
+        }
+        return null;
+      }
       
+      if (data?.reading_position) {
+        console.info('Retrieved reading position from DB:', data.reading_position);
+        return data.reading_position as ReadingPosition;
+      }
+    }
+    
+    // Check localStorage as backup or for guest users
+    const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (localData) {
       try {
-        const parsedPosition = JSON.parse(position);
-        
-        // Ensure numeric properties are proper numbers
-        const validatedPosition: ReadingPosition = {
-          ...parsedPosition,
-          chapter: Number(parsedPosition.chapter),
-          verse: Number(parsedPosition.verse)
-        };
-        
-        return validatedPosition;
+        const localPosition = JSON.parse(localData) as ReadingPosition;
+        console.info('Retrieved reading position from localStorage:', localPosition);
+        return localPosition;
       } catch (e) {
-        console.error('Error parsing reading position:', e);
+        console.error('Error parsing localStorage reading position:', e);
         return null;
       }
     }
     
-    // For authenticated users (to be implemented)
     return null;
   } catch (error) {
-    console.error('Error getting last reading position:', error);
+    console.error('Error getting reading position:', error);
     return null;
   }
-}
+};
 
 /**
- * Clear user's reading position
+ * Clear the user's reading position
  * @returns Promise resolving to success status
  */
-export async function clearReadingPosition(): Promise<boolean> {
+export const clearReadingPosition = async (): Promise<boolean> => {
   try {
-    const isAuth = await isUserAuthenticated();
+    const { data: session } = await supabase.auth.getSession();
     
-    if (!isAuth) {
-      localStorage.removeItem('last_reading_position');
-      return true;
+    if (session?.session?.user) {
+      // For signed-in users, clear in database
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ reading_position: null })
+        .eq('id', session.session.user.id);
+        
+      if (error) {
+        console.error('Error clearing reading position in DB:', error);
+      }
     }
     
-    // For authenticated users (to be implemented)
+    // Always clear from localStorage
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
     return true;
   } catch (error) {
     console.error('Error clearing reading position:', error);
     return false;
   }
-}
+};
