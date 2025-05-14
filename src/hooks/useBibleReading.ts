@@ -81,8 +81,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
               id: 'kja',
               name: 'King James',
               language: 'en',
-              language_name: 'English',
-              is_default: true
+              language_name: 'English'
             }
           ];
           setVersions(fallbackVersions);
@@ -112,8 +111,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
             id: 'kja',
             name: 'King James',
             language: 'en',
-            language_name: 'English',
-            is_default: true
+            language_name: 'English'
           }
         ];
         setVersions(fallbackVersions);

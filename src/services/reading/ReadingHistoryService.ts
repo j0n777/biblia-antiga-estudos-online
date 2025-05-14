@@ -1,5 +1,7 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { isUserAuthenticated } from '../AuthService';
+import { ReadingHistory } from '@/types/bible.types';
 
 /**
  * Track reading progress

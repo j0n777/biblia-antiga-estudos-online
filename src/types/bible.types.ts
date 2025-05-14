@@ -1,4 +1,3 @@
-
 export interface BibleVersion {
   id: string;
   name: string;

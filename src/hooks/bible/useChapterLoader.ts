@@ -32,13 +32,16 @@ export const useChapterLoader = ({
   const [chapter, setChapter] = useState<BibleChapter | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [loadingStarted, setLoadingStarted] = useState<boolean>(false);
 
   useEffect(() => {
     // Only load chapter after we've initialized the reading position
-    if (!isInitialLoad && bookId) {
+    // and when we have valid book and chapter data
+    if (!isInitialLoad && bookId && !loadingStarted) {
       loadChapter();
+      setLoadingStarted(true);
     }
-  }, [bookId, chapterNumber, versionId, isInitialLoad]);
+  }, [bookId, chapterNumber, versionId, isInitialLoad]); 
 
   // Update URL when reading position changes
   useEffect(() => {
@@ -66,12 +69,13 @@ export const useChapterLoader = ({
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
-      // Track reading progress - use the scrollToVerse value (as number) or default to 1
+      // Track reading progress - convert scrollToVerse to number or default to 1
+      const verseToTrack = scrollToVerse || 1;
       await trackReading(
         versionId, 
         bookId, 
         chapterNumber, 
-        scrollToVerse || 1
+        verseToTrack
       );
       
       // Save reading position to storage
@@ -79,7 +83,7 @@ export const useChapterLoader = ({
         versionId, 
         bookId, 
         chapterNumber, 
-        scrollToVerse || 1
+        verseToTrack
       );
       
     } catch (error) {
@@ -87,6 +91,7 @@ export const useChapterLoader = ({
       setChapter(null);
     } finally {
       setIsLoading(false);
+      setLoadingStarted(false); // Reset loading state to allow future loads
     }
   };
 
