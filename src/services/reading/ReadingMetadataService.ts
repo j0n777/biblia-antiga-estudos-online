@@ -8,8 +8,8 @@ import { getReadingHistory } from './ReadingHistoryService';
  */
 export async function getLastThreeReadings(): Promise<ReadingHistory[]> {
   try {
-    const history = await getReadingHistory(3);
-    return history;
+    const history = await getReadingHistory();
+    return history.slice(0, 3);
   } catch (error) {
     console.error('Error getting last readings:', error);
     return [];

@@ -38,8 +38,8 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
         setSavedVerses(verses);
         
         // Carregar histórico de leitura
-        const history = await getReadingHistory(20); // Últimos 20 registros
-        setReadingHistory(history);
+        const history = await getReadingHistory(); // No limit parameter
+        setReadingHistory(history.slice(0, 20)); // Get only 20 entries after fetching
         
         // Carregar nomes dos livros
         const books = await getBibleBooks();
@@ -132,6 +132,7 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                           )}
                         </div>
                         {verse.note && <p className="text-sm mt-1 text-gray-600">{verse.note}</p>}
+                        {verse.notes && !verse.note && <p className="text-sm mt-1 text-gray-600">{verse.notes}</p>}
                       </button>
                     </Card>
                   ))}
@@ -168,16 +169,16 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                       <div className="space-y-2 pl-6">
                         {entries.map((entry, i) => (
                           <Card 
-                            key={`${entry.book_id}-${entry.chapter}-${i}`} 
+                            key={`${entry.book_id}-${entry.chapter_number}-${i}`} 
                             className="p-2 bg-parchment-light/80 border-parchment-dark/30"
                           >
                             <button 
                               className="w-full text-left"
-                              onClick={() => handleOpenChapter(entry.book_id, entry.chapter)}
+                              onClick={() => handleOpenChapter(entry.book_id, entry.chapter_number)}
                             >
                               <div className="flex justify-between items-center">
                                 <span className="text-scripture-text">
-                                  {bookNames[entry.book_id] || entry.book_id} {entry.chapter}
+                                  {bookNames[entry.book_id] || entry.book_id} {entry.chapter_number}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {format(new Date(entry.timestamp), 'HH:mm')}

@@ -23,7 +23,14 @@ export async function getLeaderboard(limit: number = 50): Promise<LeaderboardEnt
     
     // Add rank to each entry
     const rankedEntries: LeaderboardEntry[] = data.map((entry, index) => ({
-      ...entry,
+      user_id: entry.id, // Map id to user_id
+      points: entry.experience_points || 0, // Map experience_points to points
+      display_name: entry.display_name || '',
+      id: entry.id,
+      nickname: entry.nickname || '',
+      experience_points: entry.experience_points || 0,
+      streak_count: entry.streak_count || 0,
+      avatar_url: entry.avatar_url || '',
       rank: index + 1
     }));
     

@@ -17,7 +17,12 @@ export async function getSavedVerses(): Promise<SavedVerse[]> {
       const savedVerses = localStorage.getItem('saved_verses');
       if (!savedVerses) return [];
       
-      return JSON.parse(savedVerses);
+      const parsedVerses = JSON.parse(savedVerses);
+      // Ensure all verses have the created_at field for the SavedVerse interface
+      return parsedVerses.map((verse: any) => ({
+        ...verse,
+        created_at: verse.saved_at || new Date().toISOString()
+      }));
     }
     
     // For authenticated users, get from database
@@ -32,7 +37,11 @@ export async function getSavedVerses(): Promise<SavedVerse[]> {
       return [];
     }
     
-    return data as SavedVerse[];
+    // Map saved_at to created_at to match the interface
+    return data.map((verse: any) => ({
+      ...verse,
+      created_at: verse.saved_at || new Date().toISOString()
+    })) as SavedVerse[];
   } catch (error) {
     console.error('Error getting saved verses:', error);
     return [];

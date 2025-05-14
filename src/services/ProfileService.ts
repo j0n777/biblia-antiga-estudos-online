@@ -38,6 +38,7 @@ export async function getUserProfile(): Promise<UserProfile> {
         id: `guest-${Date.now()}`,
         display_name: 'Guest',
         nickname: 'Guest',
+        email: 'guest@example.com',
         experience_points: 0,
         streak_count: 0,
         streak_record: 0,
@@ -81,6 +82,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       id: dbData.id || session.session.user.id,
       display_name: dbData.display_name || '',
       nickname: dbData.nickname || '',
+      email: dbData.email || session.session.user.email || '',
       experience_points: dbData.experience_points || 0,
       streak_count: dbData.streak_count || 0,
       streak_record: dbData.streak_count || 0, // Use streak_count as fallback for streak_record
@@ -97,7 +99,6 @@ export async function getUserProfile(): Promise<UserProfile> {
       avatar_url: dbData.avatar_url,
       country: dbData.country,
       birth_year: dbData.birth_year,
-      email: dbData.email,
       phone: dbData.phone,
       username: dbData.username
     };
@@ -125,6 +126,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       id: `guest-${Date.now()}`,
       display_name: 'Guest',
       nickname: 'Guest',
+      email: 'guest@example.com',
       experience_points: 0,
       streak_count: 0,
       streak_record: 0,
