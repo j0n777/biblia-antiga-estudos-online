@@ -1,3 +1,4 @@
+
 export interface BibleVersion {
   id: string;
   name: string;
@@ -5,6 +6,7 @@ export interface BibleVersion {
   language_name: string;
   original_language?: string;
   is_original?: boolean;
+  description?: string; // Added for OnboardingWizard
 }
 
 export interface BibleBook {
@@ -43,6 +45,9 @@ export interface WordDefinition {
   word: string;
   definition: string;
   language: string;
+  original?: string; // Added for BibleVerse component
+  transliteration?: string; // Added for BibleVerse component
+  strongs_number?: string; // Added for BibleVerse component
 }
 
 export interface ReadingPosition {
@@ -58,7 +63,16 @@ export interface Achievement {
   description: string;
   points: number;
   icon: string;
-  criteria: string;
+  criteria?: string;
+  category?: string; // Added for AchievementList filtering
+  unlocked?: boolean; // Added for AchievementList
+  unlockedAt?: string; // Added for AchievementList
+  progress?: number; // Added for progress tracking
+  total?: number; // Added for progress tracking
+  earned?: boolean;
+  earned_at?: string;
+  maxProgress?: number;
+  title?: string;
 }
 
 export interface UserStudyProgress {
@@ -77,6 +91,7 @@ export interface SavedVerse {
   version_id: string;
   notes?: string;
   created_at: Date;
+  highlight_color?: string; // Added for HistoryDialog
 }
 
 export interface BookContent {
@@ -89,10 +104,27 @@ export interface BookContent {
 
 export interface DailyChallenge {
   id: string;
-  date: Date;
-  verse_id: string;
+  date?: Date;
+  verse_id?: string;
   description: string;
   points: number;
+  title?: string; // Added for DailyChallenges component
+  is_completed?: boolean; // Added for DailyChallenges component
+  expires_at?: string; // Added for DailyChallenges component
+  progress?: number; // Added for DailyChallenges component
+  target_value?: number;
+  type?: string;
+  icon?: string; // Added for DailyChallenges component
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  expires_at?: string;
+  is_completed?: boolean;
+  progress?: number;
 }
 
 export interface UserProfile {
@@ -102,12 +134,24 @@ export interface UserProfile {
   preferred_language: string;
   preferred_bible_version: string;
   daily_reading_goal: number;
-  created_at: Date;
-  updated_at: Date;
-  last_active: Date;
+  created_at: string;
+  updated_at: string;
+  last_active?: Date;
   profile_picture_url?: string;
   reading_streak?: number;
   has_completed_onboarding: boolean;
+  nickname?: string; // Added for ProfileForm
+  country?: string; // Added for ProfileForm
+  birth_year?: number; // Added for ProfileForm
+  phone?: string; // Added for ProfileForm
+  avatar_url?: string; // Added for Leaderboard 
+  experience_points?: number; // Added for Leaderboard
+  streak_count?: number; // Added for DailyChallenges
+  streak_record?: number; // Added for DailyChallenges
+  font_size?: 'small' | 'medium' | 'large';
+  reading_position?: ReadingPosition | null;
+  last_streak_date?: string | null;
+  username?: string;
 }
 
 export interface LeaderboardEntry {
@@ -115,6 +159,12 @@ export interface LeaderboardEntry {
   display_name: string;
   points: number;
   profile_picture_url?: string;
+  id?: string; // Added for Leaderboard component
+  rank?: number; // Added for Leaderboard component
+  avatar_url?: string; // Added for Leaderboard component
+  nickname?: string; // Added for Leaderboard component
+  experience_points?: number; // Added for Leaderboard component
+  streak_count?: number; // Added for Leaderboard component
 }
 
 export interface BibleStudy {
@@ -145,3 +195,4 @@ export interface ReadingHistory {
   verse_number: number;
   timestamp: string;
 }
+
