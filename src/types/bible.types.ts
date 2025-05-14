@@ -195,10 +195,9 @@ export interface StudyLesson {
 export interface ReadingHistory {
   id?: string;
   user_id?: string;
-  version_id: string;
   book_id: string;
   chapter_number: number;
-  verse_number: number;
-  timestamp: string;
-  chapter?: number;
+  created_at: string;
+  read_at?: string;
+  version_id?: string;
 }

@@ -27,20 +27,18 @@ export const recordChapterRead = async (
       id: `${bookId}-${chapterNumber}-${Date.now()}`,
       book_id: bookId,
       chapter_number: chapterNumber,
-      read_at: new Date().toISOString(),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
     
     if (session?.session?.user) {
-      // For signed-in users, store in database
+      // For signed-in users, store in user_profiles table
+      // We'll track reading history in the user's profile for now
       await supabase
-        .from('reading_history')
-        .insert({
-          user_id: session.session.user.id,
-          book_id: bookId,
-          chapter_number: chapterNumber
+        .from('user_profiles')
+        .update({
+          last_streak_date: dateString
         })
-        .select();
+        .eq('id', session.session.user.id);
       
       // Update streak and XP here if needed...
     }
@@ -88,24 +86,8 @@ export const getLastThreeReadings = async (): Promise<ReadingHistory[]> => {
   try {
     const { data: session } = await supabase.auth.getSession();
     
-    if (session?.session?.user) {
-      // For signed-in users, get from database
-      const { data, error } = await supabase
-        .from('reading_history')
-        .select('*')
-        .eq('user_id', session.session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-        
-      if (error) {
-        console.error('Error getting reading history:', error);
-        return getLocalReadingHistory();
-      }
-      
-      return data as ReadingHistory[];
-    }
-    
-    // For guest users, get from localStorage
+    // We only implement local storage version since we don't have a
+    // reading_history table in the database yet
     return getLocalReadingHistory();
   } catch (error) {
     console.error('Error getting reading history:', error);
@@ -121,7 +103,7 @@ const getLocalReadingHistory = (): ReadingHistory[] => {
     const historyString = localStorage.getItem(LOCAL_STORAGE_KEY);
     
     if (historyString) {
-      return JSON.parse(historyString);
+      return JSON.parse(historyString) as ReadingHistory[];
     }
     
     return [];
