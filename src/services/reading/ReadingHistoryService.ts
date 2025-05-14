@@ -8,7 +8,7 @@ import { ReadingHistory } from '@/types/bible.types';
  * @param versionId Bible version ID
  * @param bookId Bible book ID
  * @param chapterNumber Chapter number
- * @param verseNumber Verse number or string
+ * @param verseNumber Verse number
  * @returns Promise resolving to success status
  */
 export async function trackReading(
@@ -18,10 +18,10 @@ export async function trackReading(
   verseNumber: number | string = 1
 ): Promise<boolean> {
   try {
-    // Ensure verseNumber is a number for consistent storage
-    const verseNum = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
+    // Ensure verseNumber is a number
+    const verse = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
     
-    console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verseNum}`);
+    console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verse}`);
     
     // Check if user is authenticated
     const { data: session } = await supabase.auth.getSession();
@@ -29,12 +29,12 @@ export async function trackReading(
       console.log('User not authenticated, storing in localStorage');
       
       // Store in localStorage for non-authenticated users
-      const readingHistory = JSON.parse(localStorage.getItem('reading_history') || '[]');
+      const readingHistory: ReadingHistory[] = JSON.parse(localStorage.getItem('reading_history') || '[]');
       readingHistory.push({
         version_id: versionId,
         book_id: bookId,
         chapter_number: chapterNumber,
-        verse_number: verseNum,
+        verse_number: verse,
         timestamp: new Date().toISOString()
       });
       
@@ -50,7 +50,7 @@ export async function trackReading(
         version_id: versionId,
         book_id: bookId,
         chapter: chapterNumber,
-        verse: verseNum,
+        verse: verse,
         timestamp: new Date().toISOString()
       };
       localStorage.setItem('last_reading_position', JSON.stringify(lastPosition));
@@ -69,38 +69,45 @@ export async function trackReading(
 
 /**
  * Get user's reading history
- * Retrieves history from localStorage for all users
- * 
- * @param limit Number of entries to return
- * @returns Promise resolving to an array of reading history entries
+ * @returns Promise resolving to array of reading history items
  */
-export const getReadingHistory = async (limit: number = 10): Promise<ReadingHistory[]> => {
+export async function getReadingHistory(): Promise<ReadingHistory[]> {
   try {
-    // Get from localStorage
-    const historyJson = localStorage.getItem('reading_history');
-    if (!historyJson) return [];
+    const isAuth = await isUserAuthenticated();
     
-    const history: ReadingHistory[] = JSON.parse(historyJson);
-    return history.slice(0, limit);
+    if (!isAuth) {
+      // Get history from localStorage
+      const history = localStorage.getItem('reading_history');
+      if (!history) return [];
+      
+      return JSON.parse(history) as ReadingHistory[];
+    }
+    
+    // TODO: Get reading history from database for logged in users
+    return [];
   } catch (error) {
     console.error('Error getting reading history:', error);
     return [];
   }
-};
+}
 
 /**
- * Clear user's reading history
- * Removes history from localStorage
- * 
- * @returns Promise resolving to true if cleared successfully
+ * Clear reading history
+ * @returns Promise resolving to success status
  */
-export const clearReadingHistory = async (): Promise<boolean> => {
+export async function clearReadingHistory(): Promise<boolean> {
   try {
-    // Remove from localStorage
-    localStorage.removeItem('reading_history');
+    const isAuth = await isUserAuthenticated();
+    
+    if (!isAuth) {
+      localStorage.removeItem('reading_history');
+      return true;
+    }
+    
+    // TODO: Clear reading history from database for logged in users
     return true;
   } catch (error) {
     console.error('Error clearing reading history:', error);
     return false;
   }
-};
+}

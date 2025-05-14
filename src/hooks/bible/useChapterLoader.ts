@@ -34,12 +34,18 @@ export const useChapterLoader = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingStarted, setLoadingStarted] = useState<boolean>(false);
 
+  // This effect controls when to load the chapter
   useEffect(() => {
-    // Only load chapter after we've initialized the reading position
-    // and when we have valid book and chapter data
-    if (!isInitialLoad && bookId && !loadingStarted) {
-      loadChapter();
+    const shouldLoadChapter = 
+      !isInitialLoad && // Don't load until initial position is set
+      bookId && // Must have a valid book ID
+      chapterNumber > 0 && // Must have a valid chapter number
+      !loadingStarted; // Prevent duplicate loads
+      
+    if (shouldLoadChapter) {
+      console.log(`Starting to load chapter: ${bookId} ${chapterNumber}`);
       setLoadingStarted(true);
+      loadChapter();
     }
   }, [bookId, chapterNumber, versionId, isInitialLoad]); 
 
@@ -61,9 +67,9 @@ export const useChapterLoader = ({
    * Updates user's reading history and position
    */
   const loadChapter = async () => {
-    setIsLoading(true);
     try {
-      console.log(`Loading chapter: ${bookId} ${chapterNumber} (${versionId})`);
+      setIsLoading(true);
+      console.log(`Loading chapter data: ${bookId} ${chapterNumber} (${versionId})`);
       
       // Load chapter data
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
@@ -71,6 +77,8 @@ export const useChapterLoader = ({
       
       // Track reading progress - convert scrollToVerse to number or default to 1
       const verseToTrack = scrollToVerse || 1;
+      
+      // Track reading progress
       await trackReading(
         versionId, 
         bookId, 

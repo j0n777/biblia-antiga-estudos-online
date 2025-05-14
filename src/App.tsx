@@ -40,8 +40,10 @@ function App() {
         const profile = await getUserProfile();
         setUserProfile(profile);
         
-        // Verificar se é a primeira utilização
-        if (profile && !profile.has_completed_onboarding) {
+        // For testing purposes - force onboarding to show
+        // Comment this out in production
+        if (!profile || !profile.has_completed_onboarding) {
+          console.log('Showing onboarding wizard');
           setShowOnboarding(true);
         }
       } catch (err) {
