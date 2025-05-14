@@ -90,7 +90,8 @@ export interface SavedVerse {
   verse_number: number;
   version_id: string;
   notes?: string;
-  created_at: Date;
+  note?: string; // Added for backward compatibility
+  created_at: Date | string;
   highlight_color?: string; // Added for HistoryDialog
 }
 
@@ -133,7 +134,7 @@ export interface UserProfile {
   display_name: string;
   preferred_language: string;
   preferred_bible_version: string;
-  daily_reading_goal: number;
+  daily_reading_goal?: number;
   created_at: string;
   updated_at: string;
   last_active?: Date;
@@ -149,7 +150,7 @@ export interface UserProfile {
   streak_count?: number; // Added for DailyChallenges
   streak_record?: number; // Added for DailyChallenges
   font_size?: 'small' | 'medium' | 'large';
-  reading_position?: ReadingPosition | null;
+  reading_position?: ReadingPosition | null | string;
   last_streak_date?: string | null;
   username?: string;
 }
@@ -169,11 +170,15 @@ export interface LeaderboardEntry {
 
 export interface BibleStudy {
   id: string;
-  title: string;
+  title: string | any; // Support for JSON title format
+  title_key?: string;
   description: string;
   lessons: StudyLesson[];
-  created_at: Date;
-  updated_at: Date;
+  created_at: Date | string;
+  updated_at: Date | string;
+  content?: any; // Added for BibleStudy components
+  points?: number; // Added for BibleStudy components
+  icon?: string; // Added for BibleStudy components
 }
 
 export interface StudyLesson {
@@ -194,5 +199,5 @@ export interface ReadingHistory {
   chapter_number: number;
   verse_number: number;
   timestamp: string;
+  chapter?: number; // Backward compatibility for some components
 }
-

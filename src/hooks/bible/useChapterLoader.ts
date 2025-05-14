@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BibleChapter } from '@/types/bible.types';
 import { getChapter } from '@/services/BibleDataService';
 import { saveReadingPosition } from '@/services';
@@ -33,6 +33,7 @@ export const useChapterLoader = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingStarted, setLoadingStarted] = useState<boolean>(false);
+  const loadedRef = useRef<{bookId: string, chapterNumber: number, versionId: string} | null>(null);
 
   // This effect controls when to load the chapter
   useEffect(() => {
@@ -41,8 +42,14 @@ export const useChapterLoader = ({
       bookId && // Must have a valid book ID
       chapterNumber > 0 && // Must have a valid chapter number
       !loadingStarted; // Prevent duplicate loads
+    
+    // Only load if params have changed
+    const hasChanged = !loadedRef.current || 
+      loadedRef.current.bookId !== bookId || 
+      loadedRef.current.chapterNumber !== chapterNumber || 
+      loadedRef.current.versionId !== versionId;
       
-    if (shouldLoadChapter) {
+    if (shouldLoadChapter && hasChanged) {
       console.log(`Starting to load chapter: ${bookId} ${chapterNumber}`);
       setLoadingStarted(true);
       loadChapter();
@@ -74,6 +81,13 @@ export const useChapterLoader = ({
       // Load chapter data
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
+      
+      // Update the loadedRef to track what we've loaded
+      loadedRef.current = {
+        bookId,
+        chapterNumber,
+        versionId
+      };
       
       // Track reading progress - convert scrollToVerse to number or default to 1
       const verseToTrack = scrollToVerse || 1;

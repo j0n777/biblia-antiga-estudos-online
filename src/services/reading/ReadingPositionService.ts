@@ -1,106 +1,75 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { ReadingPosition } from '@/types/bible.types';
-import { getUserProfile, updateUserProfile } from '../ProfileService';
 
 /**
- * Save user's current reading position
+ * Save reading position to local storage
  * @param versionId Bible version ID
  * @param bookId Bible book ID
- * @param chapter Chapter number
- * @param verse Verse number (optional, defaults to 1)
- * @returns Promise resolving to true if saved successfully
+ * @param chapterNumber Chapter number
+ * @param verseNumber Verse number
+ * @returns Promise resolving to success status
  */
-export const saveReadingPosition = async (
+export async function saveReadingPosition(
   versionId: string,
   bookId: string,
-  chapter: number,
-  verse: number = 1
-): Promise<boolean> => {
+  chapterNumber: number | string,
+  verseNumber: number | string = 1
+): Promise<boolean> {
   try {
-    // Create reading position object
-    const readingPosition: ReadingPosition = {
+    // Ensure numbers are parsed as integers
+    const chapter = typeof chapterNumber === 'string' ? parseInt(chapterNumber, 10) : chapterNumber;
+    const verse = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
+    
+    // Log what we're saving
+    console.log(`Saving reading position: ${versionId} ${bookId} ${chapter}:${verse}`);
+    
+    const position: ReadingPosition = {
       version_id: versionId,
       book_id: bookId,
       chapter: chapter,
       verse: verse
     };
-
-    // Get user profile
-    const profile = await getUserProfile();
     
-    // For non-authenticated users, save to localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
-      localStorage.setItem('reading_position', JSON.stringify(readingPosition));
-      return true;
-    }
-
-    // For authenticated users, update their profile
-    const updateResult = await updateUserProfile({
-      reading_position: JSON.stringify(readingPosition)
-    });
+    // Save to localStorage
+    localStorage.setItem('last_reading_position', JSON.stringify(position));
     
-    return updateResult;
+    // Update last read timestamp for streak calculations
+    const now = new Date().toISOString();
+    localStorage.setItem('last_read_timestamp', now);
+    
+    return true;
   } catch (error) {
     console.error('Error saving reading position:', error);
     return false;
   }
-};
+}
 
 /**
- * Get user's last reading position
- * @returns Promise resolving to the reading position, or null if not available
+ * Get last reading position from local storage
+ * @returns Promise resolving to reading position
  */
-export const getLastReadingPosition = async (): Promise<ReadingPosition | null> => {
+export async function getLastReadingPosition(): Promise<ReadingPosition | null> {
   try {
-    // Get user profile
-    const profile = await getUserProfile();
+    const positionJSON = localStorage.getItem('last_reading_position');
+    if (!positionJSON) return null;
     
-    // For non-authenticated users, get from localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
-      const storedPosition = localStorage.getItem('reading_position');
-      return storedPosition ? JSON.parse(storedPosition) : null;
-    }
-
-    // For authenticated users, get from their profile
-    if (profile.reading_position) {
-      // Handle both string and direct object formats
-      if (typeof profile.reading_position === 'string') {
-        return JSON.parse(profile.reading_position);
-      }
-      return profile.reading_position;
-    }
-    
-    return null;
+    return JSON.parse(positionJSON) as ReadingPosition;
   } catch (error) {
     console.error('Error getting reading position:', error);
     return null;
   }
-};
+}
 
 /**
- * Clear user's reading position
- * @returns Promise resolving to true if cleared successfully
+ * Clear reading position from local storage
+ * @returns Promise resolving to success status
  */
-export const clearReadingPosition = async (): Promise<boolean> => {
+export async function clearReadingPosition(): Promise<boolean> {
   try {
-    // Get user profile
-    const profile = await getUserProfile();
-    
-    // For non-authenticated users, remove from localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
-      localStorage.removeItem('reading_position');
-      return true;
-    }
-
-    // For authenticated users, update their profile to remove reading position
-    const updateResult = await updateUserProfile({
-      reading_position: null
-    });
-    
-    return updateResult;
+    localStorage.removeItem('last_reading_position');
+    return true;
   } catch (error) {
     console.error('Error clearing reading position:', error);
     return false;
   }
-};
+}

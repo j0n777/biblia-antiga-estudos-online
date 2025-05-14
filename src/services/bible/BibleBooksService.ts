@@ -40,7 +40,7 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
       const books: BibleBook[] = defaultData.map(book => ({
         book_id: book.book_id.toLowerCase(), // Ensure book_id is lowercase
         name: book.name || book.book_id, // Use book_id as fallback for name
-        testament: book.testament,
+        testament: book.testament as 'old' | 'new',
         order: book.position || 0, // Map position to order
         chapters_count: book.chapters_count || 0,
         position: book.position || 0,
@@ -54,7 +54,7 @@ export const getAllBooks = async (versionId: string = 'kja'): Promise<BibleBook[
     const books: BibleBook[] = data.map(book => ({
       book_id: book.book_id.toLowerCase(), // Ensure book_id is lowercase
       name: book.name || book.book_id, // Use book_id as fallback for name
-      testament: book.testament,
+      testament: book.testament as 'old' | 'new',
       order: book.position || 0, // Map position to order
       chapters_count: book.chapters_count || 0,
       position: book.position || 0,
