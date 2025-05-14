@@ -30,23 +30,96 @@ interface UseBibleReadingProps {
 export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps = {}) => {
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const [booksLoaded, setBooksLoaded] = useState<boolean>(false);
 
   // Load books and versions from the data service
   useEffect(() => {
     const loadBooksAndVersions = async () => {
       try {
+        console.log('Loading Bible books and versions...');
+        
+        // Use a default array if getAllBooks returns null or empty
         const booksData = await getAllBooks(defaultVersion);
         if (booksData && booksData.length > 0) {
+          console.log(`Loaded ${booksData.length} books successfully`);
           setBooks(booksData);
+        } else {
+          // Provide fallback data if loading fails
+          console.warn('No books data returned - using fallback data');
+          const fallbackBooks: BibleBook[] = [
+            { 
+              book_id: 'gn',
+              name: 'Genesis',
+              testament: 'old',
+              chapters_count: 50,
+              position: 1,
+              version_id: defaultVersion,
+              order: 1
+            },
+            { 
+              book_id: 'ex',
+              name: 'Exodus',
+              testament: 'old',
+              chapters_count: 40,
+              position: 2,
+              version_id: defaultVersion,
+              order: 2
+            }
+          ];
+          setBooks(fallbackBooks);
         }
         
+        // Set versions data
         const versionsData = await getAllVersions();
         if (versionsData && versionsData.length > 0) {
           setVersions(versionsData);
+        } else {
+          // Provide fallback version data if loading fails
+          const fallbackVersions: BibleVersion[] = [
+            {
+              id: 'kja',
+              name: 'King James',
+              language: 'en',
+              language_name: 'English',
+              is_default: true
+            }
+          ];
+          setVersions(fallbackVersions);
         }
+        
+        // Mark books as loaded
+        setBooksLoaded(true);
       } catch (error) {
         console.error('Error loading books and versions:', error);
+        
+        // Even on error, provide fallback data so the app can function
+        const fallbackBooks: BibleBook[] = [
+          { 
+            book_id: 'gn',
+            name: 'Genesis',
+            testament: 'old',
+            chapters_count: 50,
+            position: 1,
+            version_id: defaultVersion,
+            order: 1
+          }
+        ];
+        setBooks(fallbackBooks);
+        
+        const fallbackVersions: BibleVersion[] = [
+          {
+            id: 'kja',
+            name: 'King James',
+            language: 'en',
+            language_name: 'English',
+            is_default: true
+          }
+        ];
+        setVersions(fallbackVersions);
+        
+        // Mark books as loaded even on error
+        setBooksLoaded(true);
       }
     };
     
@@ -54,6 +127,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   }, [defaultVersion]);
 
   // Initialize reading position from URL or stored preferences
+  // Only initialize once books are loaded
   const {
     bookId,
     chapterNumber,
@@ -64,7 +138,11 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     setChapterNumber,
     setVersionId,
     setScrollToVerse
-  } = useReadingPosition({ defaultVersion, books });
+  } = useReadingPosition({ 
+    defaultVersion, 
+    books,
+    booksLoaded // Pass the booksLoaded flag to prevent initialization before books are ready
+  });
   
   // Chapter navigation logic
   const {

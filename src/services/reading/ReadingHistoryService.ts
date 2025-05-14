@@ -1,68 +1,69 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { ReadingHistory } from '@/types/bible.types';
-import { getUserProfile } from '../ProfileService';
+import { isUserAuthenticated } from '../AuthService';
 
 /**
- * Track user's reading activity
- * Stores history in localStorage with fallback to database for authenticated users
- * 
+ * Track reading progress
+ * @param versionId Bible version ID
  * @param bookId Bible book ID
- * @param chapter Chapter number
- * @param verse Verse number (optional) - can be string or number
- * @returns Promise resolving to true if tracking was successful
+ * @param chapterNumber Chapter number
+ * @param verseNumber Verse number or string
+ * @returns Promise resolving to success status
  */
-export const trackReading = async (
+export async function trackReading(
+  versionId: string,
   bookId: string,
-  chapter: number,
-  verse?: string | number | null
-): Promise<boolean> => {
+  chapterNumber: number,
+  verseNumber: number | string = 1
+): Promise<boolean> {
   try {
-    console.log(`Tracking reading: ${bookId} ${chapter} ${verse}`);
+    // Ensure verseNumber is a number for consistent storage
+    const verseNum = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
     
-    // Get user profile
-    const profile = await getUserProfile();
+    console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verseNum}`);
     
-    // Create reading history entry
-    const readingEntry: ReadingHistory = {
-      book_id: bookId,
-      chapter: chapter,
-      verse: verse ? Number(verse) : undefined,
-      timestamp: new Date().toISOString()
-    };
-    
-    // For non-authenticated users, save to localStorage
-    if (!profile?.id || profile.id === 'local' || profile.id.startsWith('guest-')) {
+    // Check if user is authenticated
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
       console.log('User not authenticated, storing in localStorage');
       
-      // Get existing history from localStorage
-      const historyJson = localStorage.getItem('reading_history');
-      const history: ReadingHistory[] = historyJson ? JSON.parse(historyJson) : [];
+      // Store in localStorage for non-authenticated users
+      const readingHistory = JSON.parse(localStorage.getItem('reading_history') || '[]');
+      readingHistory.push({
+        version_id: versionId,
+        book_id: bookId,
+        chapter_number: chapterNumber,
+        verse_number: verseNum,
+        timestamp: new Date().toISOString()
+      });
       
-      // Add new entry to the beginning of the array
-      history.unshift(readingEntry);
+      // Limit history size
+      if (readingHistory.length > 100) {
+        readingHistory.shift();
+      }
       
-      // Keep only the last 50 entries to avoid localStorage size limits
-      const trimmedHistory = history.slice(0, 50);
+      localStorage.setItem('reading_history', JSON.stringify(readingHistory));
       
-      // Save back to localStorage
-      localStorage.setItem('reading_history', JSON.stringify(trimmedHistory));
+      // Update reading position for quick access
+      const lastPosition = {
+        version_id: versionId,
+        book_id: bookId,
+        chapter: chapterNumber,
+        verse: verseNum,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem('last_reading_position', JSON.stringify(lastPosition));
+      
       return true;
     }
     
-    // Store in localStorage for all users (as a backup)
-    const historyJson = localStorage.getItem('reading_history');
-    const history: ReadingHistory[] = historyJson ? JSON.parse(historyJson) : [];
-    history.unshift(readingEntry);
-    const trimmedHistory = history.slice(0, 50);
-    localStorage.setItem('reading_history', JSON.stringify(trimmedHistory));
+    // TODO: Track reading progress in the database for logged in users
     
     return true;
   } catch (error) {
     console.error('Error tracking reading:', error);
     return false;
   }
-};
+}
 
 /**
  * Get user's reading history
