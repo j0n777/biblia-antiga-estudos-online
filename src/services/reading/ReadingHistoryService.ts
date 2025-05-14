@@ -1,5 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { isUserAuthenticated } from '../AuthService';
 import { ReadingHistory } from '@/types/bible.types';
 
@@ -23,20 +22,31 @@ export async function trackReading(
     
     console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verse}`);
     
-    // Check if user is authenticated
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) {
+    // Check if user is authenticated - this uses localStorage for guest users
+    const isAuth = await isUserAuthenticated();
+    if (!isAuth) {
       console.log('User not authenticated, storing in localStorage');
       
       // Store in localStorage for non-authenticated users
-      const readingHistory: ReadingHistory[] = JSON.parse(localStorage.getItem('reading_history') || '[]');
-      readingHistory.push({
+      let readingHistory: ReadingHistory[];
+      try {
+        const stored = localStorage.getItem('reading_history');
+        readingHistory = stored ? JSON.parse(stored) : [];
+      } catch (e) {
+        console.error('Error parsing reading history:', e);
+        readingHistory = [];
+      }
+      
+      // Add new entry
+      const newEntry: ReadingHistory = {
         version_id: versionId,
         book_id: bookId,
         chapter_number: chapterNumber,
         verse_number: verse,
         timestamp: new Date().toISOString()
-      });
+      };
+      
+      readingHistory.push(newEntry);
       
       // Limit history size
       if (readingHistory.length > 100) {
@@ -45,7 +55,7 @@ export async function trackReading(
       
       localStorage.setItem('reading_history', JSON.stringify(readingHistory));
       
-      // Update reading position for quick access
+      // Update reading position for quick access - separate from history
       const lastPosition = {
         version_id: versionId,
         book_id: bookId,
@@ -58,7 +68,8 @@ export async function trackReading(
       return true;
     }
     
-    // TODO: Track reading progress in the database for logged in users
+    // For authenticated users (not implemented yet)
+    console.log('Authenticated user reading tracking not implemented yet');
     
     return true;
   } catch (error) {
@@ -80,10 +91,15 @@ export async function getReadingHistory(): Promise<ReadingHistory[]> {
       const history = localStorage.getItem('reading_history');
       if (!history) return [];
       
-      return JSON.parse(history) as ReadingHistory[];
+      try {
+        return JSON.parse(history) as ReadingHistory[];
+      } catch (e) {
+        console.error('Error parsing reading history:', e);
+        return [];
+      }
     }
     
-    // TODO: Get reading history from database for logged in users
+    // For authenticated users (not implemented yet)
     return [];
   } catch (error) {
     console.error('Error getting reading history:', error);
@@ -104,7 +120,7 @@ export async function clearReadingHistory(): Promise<boolean> {
       return true;
     }
     
-    // TODO: Clear reading history from database for logged in users
+    // For authenticated users (not implemented yet)
     return true;
   } catch (error) {
     console.error('Error clearing reading history:', error);

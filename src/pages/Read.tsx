@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
@@ -34,11 +34,11 @@ const Read = () => {
     isVerseSelected
   } = useBibleReading();
   
-  const handleFontSizeChange = (size: 'small' | 'medium' | 'large') => {
+  const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large') => {
     setFontSize(size);
-  };
+  }, []);
   
-  const onVerseAction = async (verseNumber: number) => {
+  const onVerseAction = useCallback(async (verseNumber: number) => {
     const success = await handleSaveVerse(verseNumber);
     if (success) {
       toast({
@@ -46,7 +46,7 @@ const Read = () => {
         description: `${books.find(b => b.book_id === bookId)?.name || bookId} ${chapterNumber}:${verseNumber}`,
       });
     }
-  };
+  }, [handleSaveVerse, books, bookId, chapterNumber, t]);
 
   // If still initializing reading position, show loading
   if (isInitialLoad) {

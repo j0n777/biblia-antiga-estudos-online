@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon, X, Book, BookOpen, ExternalLink, Heart, Crown, Zap, Shield, Smile, Home } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,7 @@ import BibleVerseComponent from '@/components/bible/BibleVerse';
 import BibleStudyCard from '@/components/studies/BibleStudyCard';
 import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getUserProfile } from '@/services/ProfileService';
@@ -85,8 +84,15 @@ const Search = () => {
   const [userPreferredVersion, setUserPreferredVersion] = useState<string>('kja');
   
   const { t, language } = useLanguage();
+  const searchInProgressRef = useRef<boolean>(false);
   
+  // Initialize the page data
   useEffect(() => {
+    // Skip if already loading
+    if (searchInProgressRef.current) {
+      return;
+    }
+    
     const init = async () => {
       setIsLoading(true);
       try {
@@ -96,28 +102,32 @@ const Search = () => {
           (language === 'en' ? 'kjv' : language === 'es' ? 'rvr' : language === 'fr' ? 'apee' : 'kja');
         setUserPreferredVersion(preferredVersion);
         
-        // Carregar todos os estudos para exibir por padrão
+        // Load all studies to display by default
         const studies = await getAllBibleStudies();
         setAllStudies(studies);
         
         try {
-          // Carregar estudos completados pelo usuário
-          const completed = await getCompletedStudies();
-          setCompletedStudyIds(completed);
+          // Load user's completed studies
+          const completed = await getCompletedStudies().catch(() => []);
+          setCompletedStudyIds(completed || []);
         } catch (error) {
           console.error("Error fetching completed studies:", error);
           setCompletedStudyIds([]);
         }
         
-        // Carregar buscas recentes do localStorage
+        // Load recent searches from localStorage
         const savedSearches = localStorage.getItem('recent_searches');
         if (savedSearches) {
-          setRecentSearches(JSON.parse(savedSearches));
+          try {
+            setRecentSearches(JSON.parse(savedSearches));
+          } catch (e) {
+            setRecentSearches([]);
+          }
         }
         
-        // Realizar busca se houver uma consulta inicial
-        if (initialQuery) {
-          await performSearch(initialQuery);
+        // Perform search if there's an initial query
+        if (initialQuery && initialQuery.trim()) {
+          await performSearch(initialQuery, false);
         }
       } catch (error) {
         console.error("Error initializing search:", error);
@@ -129,42 +139,57 @@ const Search = () => {
     init();
   }, [initialQuery, language]);
   
-  const handleSearch = (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (searchInProgressRef.current) {
+      return;
+    }
+    
     performSearch(query);
     
-    // Atualizar URL
-    setSearchParams({ q: query, tab: activeTab });
+    // Use replace to avoid creating browser history entries
+    setSearchParams({ q: query, tab: activeTab }, { replace: true });
     
-    // Salvar pesquisa no histórico se não estiver vazia
+    // Save search to history if not empty
     if (query.trim()) {
       saveSearchToHistory(query);
     }
-  };
+  }, [query, activeTab, setSearchParams]);
   
-  const saveSearchToHistory = (searchQuery: string) => {
+  const saveSearchToHistory = useCallback((searchQuery: string) => {
     const trimmedQuery = searchQuery.trim();
     if (!trimmedQuery) return;
     
-    // Atualizar a lista de buscas recentes, mantendo apenas as últimas 5
-    const updatedSearches = [
-      trimmedQuery,
-      ...recentSearches.filter(s => s !== trimmedQuery)
-    ].slice(0, 5);
-    
-    setRecentSearches(updatedSearches);
-    localStorage.setItem('recent_searches', JSON.stringify(updatedSearches));
-  };
+    // Update recent searches list, keeping only the last 5
+    setRecentSearches(prevSearches => {
+      const updatedSearches = [
+        trimmedQuery,
+        ...prevSearches.filter(s => s !== trimmedQuery)
+      ].slice(0, 5);
+      
+      // Save to localStorage
+      localStorage.setItem('recent_searches', JSON.stringify(updatedSearches));
+      
+      return updatedSearches;
+    });
+  }, []);
   
-  const performSearch = async (searchQuery: string) => {
+  const performSearch = async (searchQuery: string, updateUrl = true) => {
+    if (searchInProgressRef.current) {
+      return;
+    }
+    
     if (!searchQuery.trim()) {
       if (activeTab === 'studies') {
-        setStudyResults(allStudies); // Mostrar todos os estudos quando não houver consulta
+        setStudyResults(allStudies); // Show all studies when no query
       }
       setSelectedTheme(null);
       return;
     }
     
+    searchInProgressRef.current = true;
     setIsSearching(true);
     
     try {
@@ -185,7 +210,12 @@ const Search = () => {
         setStudyResults(results);
       }
       
-      // Limpar tema selecionado ao fazer uma busca
+      // Update URL if needed
+      if (updateUrl) {
+        setSearchParams({ q: searchQuery, tab: activeTab }, { replace: true });
+      }
+      
+      // Clear selected theme when searching
       setSelectedTheme(null);
     } catch (error) {
       console.error('Search error:', error);
@@ -199,35 +229,46 @@ const Search = () => {
       setStudyResults([]);
     } finally {
       setIsSearching(false);
+      searchInProgressRef.current = false;
     }
   };
   
-  const handleTabChange = (value: string) => {
+  // Handle tab changes
+  const handleTabChange = useCallback((value: string) => {
+    if (searchInProgressRef.current) {
+      return;
+    }
+    
     setActiveTab(value);
-    setSearchParams({ q: query, tab: value });
+    setSearchParams({ q: query, tab: value }, { replace: true });
     
     if (query.trim()) {
       performSearch(query);
     } else if (value === 'studies') {
-      // Mostrar todos os estudos ao mudar para a aba de estudos sem uma consulta
+      // Show all studies when switching to studies tab without a query
       setStudyResults(allStudies);
     }
     
-    // Limpar tema selecionado ao mudar de aba
+    // Clear selected theme when changing tabs
     setSelectedTheme(null);
-  };
+  }, [query, performSearch, allStudies, setSearchParams]);
   
-  const clearSearch = () => {
+  // Clear search
+  const clearSearch = useCallback(() => {
+    if (searchInProgressRef.current) {
+      return;
+    }
+    
     setQuery('');
     setSearchResults([]);
     
-    // Mostrar todos os estudos quando a busca é limpa
+    // Show all studies when search is cleared
     setStudyResults(allStudies);
-    setSearchParams({});
+    setSearchParams({}, { replace: true });
     
-    // Limpar tema selecionado
+    // Clear selected theme
     setSelectedTheme(null);
-  };
+  }, [allStudies, setSearchParams]);
   
   const handleStudySelect = (study: BibleStudy) => {
     setSelectedStudy(study);
@@ -379,6 +420,7 @@ const Search = () => {
       <div className="py-6 px-2">
         <h1 className="text-2xl font-bold mb-6 font-oldstyle text-scripture-heading">{t('nav.search')}</h1>
         
+        {/* Search form */}
         <form onSubmit={handleSearch} className="mb-6">
           <div className="flex">
             <div className="relative flex-grow">
@@ -408,6 +450,7 @@ const Search = () => {
           </div>
         </form>
         
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid grid-cols-2 bg-parchment-light/80 p-1 rounded-lg">
             <TabsTrigger value="verses" className="flex items-center rounded-md data-[state=active]:bg-parchment">
@@ -420,6 +463,7 @@ const Search = () => {
             </TabsTrigger>
           </TabsList>
           
+          {/* Verses tab content */}
           <TabsContent value="verses" className="mt-4 animate-fade-in">
             {isSearching ? (
               <div className="flex flex-col items-center justify-center py-8">
@@ -464,6 +508,7 @@ const Search = () => {
             ) : renderEmptyStateContent()}
           </TabsContent>
           
+          {/* Studies tab content */}
           <TabsContent value="studies" className="mt-4 animate-fade-in">
             {isSearching || isLoading ? (
               <div className="flex flex-col items-center justify-center py-8">

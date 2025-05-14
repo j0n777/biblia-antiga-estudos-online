@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BibleBook, BibleChapter, BibleVersion } from '@/types/bible.types';
 import { getAllBooks, getAllVersions } from '@/services/BibleDataService';
 import { useReadingPosition } from './bible/useReadingPosition';
@@ -14,30 +14,25 @@ interface UseBibleReadingProps {
 
 /**
  * Main hook that orchestrates all Bible reading functionality
- * 
- * This hook coordinates between several specialized hooks:
- * - useReadingPosition: Manages the current reading position (book, chapter, verse)
- * - useChapterNavigation: Handles navigation between chapters and books
- * - useVerseManagement: Manages verse-level interactions like saving and highlighting
- * - useChapterLoader: Handles loading chapter content and tracking reading progress
- * 
- * The main hook's responsibilities:
- * - Loading books and versions data
- * - Initializing the specialized hooks with proper parameters
- * - Providing a unified API for the Bible reading UI components
- * - Coordinating actions that span multiple specialized hooks
  */
 export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps = {}) => {
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
   const [searchParams] = useSearchParams();
   const [booksLoaded, setBooksLoaded] = useState<boolean>(false);
+  const dataLoadedRef = useRef<boolean>(false);
 
-  // Load books and versions from the data service
+  // Load books and versions from the data service only once
   useEffect(() => {
+    // Skip if already loaded
+    if (dataLoadedRef.current) {
+      return;
+    }
+    
     const loadBooksAndVersions = async () => {
       try {
         console.log('Loading Bible books and versions...');
+        dataLoadedRef.current = true;
         
         // Use a default array if getAllBooks returns null or empty
         const booksData = await getAllBooks(defaultVersion);
@@ -118,6 +113,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
         
         // Mark books as loaded even on error
         setBooksLoaded(true);
+        dataLoadedRef.current = false; // Allow retrying on error
       }
     };
     
@@ -173,50 +169,30 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   });
   
   // Wrapper functions to ensure state is properly updated across all hooks
-  /**
-   * Change the current book
-   * Updates both chapter navigation state and reading position
-   */
-  const handleBookChange = (newBookId: string) => {
+  const handleBookChange = useCallback((newBookId: string) => {
     const result = navigationHandleBookChange(newBookId);
     setBookId(result.newBookId);
     setChapterNumber(result.newChapterNumber);
     setScrollToVerse(1);
-  };
+  }, [navigationHandleBookChange, setBookId, setChapterNumber, setScrollToVerse]);
 
-  /**
-   * Change the current chapter within the same book
-   * Updates both chapter navigation state and reading position
-   */
-  const handleChapterChange = (newChapterNumber: number) => {
+  const handleChapterChange = useCallback((newChapterNumber: number) => {
     const result = navigationHandleChapterChange(newChapterNumber);
     setChapterNumber(result.newChapterNumber);
     setScrollToVerse(1);
-  };
+  }, [navigationHandleChapterChange, setChapterNumber, setScrollToVerse]);
 
-  /**
-   * Change the Bible version
-   * Updates reading position state
-   */
-  const handleVersionChange = (newVersionId: string) => {
+  const handleVersionChange = useCallback((newVersionId: string) => {
     setVersionId(newVersionId);
-  };
+  }, [setVersionId]);
 
-  /**
-   * Save a verse to user's collection
-   * Uses verse management hook with current book/chapter context
-   */
-  const handleSaveVerse = async (verseNumber: number) => {
+  const handleSaveVerse = useCallback(async (verseNumber: number) => {
     return await verseSaveVerse(bookId, chapterNumber, verseNumber, versionId);
-  };
+  }, [verseSaveVerse, bookId, chapterNumber, versionId]);
 
-  /**
-   * Check if a verse is currently saved/selected by the user
-   * Uses verse management hook with current book/chapter context
-   */
-  const isVerseSelected = (verseNumber: number) => {
+  const isVerseSelected = useCallback((verseNumber: number) => {
     return verseIsSelected(bookId, chapterNumber, verseNumber);
-  };
+  }, [verseIsSelected, bookId, chapterNumber]);
 
   // Return a unified API for Bible reading components
   return {
