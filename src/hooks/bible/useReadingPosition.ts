@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { getLastReadingPosition } from '@/services';
 import { useSearchParams } from 'react-router-dom';
 
@@ -26,18 +27,16 @@ export const useReadingPosition = ({
   const [versionId, setVersionId] = useState<string>(defaultVersion);
   const [scrollToVerse, setScrollToVerse] = useState<number | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
+  
+  // Use ref to track initialization status
+  const initializedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    // Only initialize reading position when books are loaded or directly provided
-    if (!booksLoaded || books.length === 0) {
-      console.log("Waiting for books to load before initializing reading position");
+    // Only initialize reading position when books are loaded and not already initialized
+    if (!booksLoaded || books.length === 0 || initializedRef.current) {
       return;
     }
     
-    // This function initializes the reading position from either:
-    // 1. URL parameters (highest priority)
-    // 2. Last saved reading position from storage
-    // 3. Default to first book if nothing else is available
     const initializeReadingPosition = async () => {
       try {
         console.log("Initializing reading position with books:", books.length);
@@ -65,16 +64,16 @@ export const useReadingPosition = ({
               setBookId(lastPosition.book_id);
               setChapterNumber(lastPosition.chapter || 1);
               setVersionId(lastPosition.version_id || defaultVersion);
-              setScrollToVerse(lastPosition.verse || 1);
+              setScrollToVerse(lastPosition.verse ? Number(lastPosition.verse) : 1);
             } else {
-              // Fall back to a known valid book ID from the loaded books
+              // Fall back to a known valid book ID
               const firstBook = books[0];
               console.log("Book not found in data, using first available:", firstBook.book_id);
               setBookId(firstBook.book_id);
               setChapterNumber(1);
             }
           } else {
-            // Default to first book in the list if no reading position
+            // Default to first book if no reading position
             console.log("No last reading position, using default");
             if (books.length > 0) {
               const firstBook = books[0];
@@ -91,6 +90,7 @@ export const useReadingPosition = ({
         }
         
         // Mark initialization as complete
+        initializedRef.current = true;
         setIsInitialLoad(false);
       } catch (error) {
         console.error('Error initializing reading position:', error);
@@ -98,6 +98,7 @@ export const useReadingPosition = ({
         setBookId('gn');
         setChapterNumber(1);
         setVersionId(defaultVersion);
+        initializedRef.current = true;
         setIsInitialLoad(false);
       }
     };

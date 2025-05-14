@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
-import { BookContent, BibleChapter as BibleChapterType, BibleVerse as BibleVerseType } from '@/types/bible.types';
+import React, { useState, useEffect, useRef } from 'react';
+import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
 import BibleVerseComponent from './BibleVerse';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/components/ThemeProvider';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
 
@@ -35,40 +34,58 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   const [loadError, setLoadError] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { theme } = useTheme();
-  const isMobile = useIsMobile();
+  
+  // Use ref to track fetch status
+  const isFetchingRef = useRef<boolean>(false);
   
   useEffect(() => {
+    // Skip if we already have chapter directly provided
+    if (chapter) {
+      // Format directly provided chapter as BookContent
+      const contentWithId = {
+        id: chapter.id || `${chapter.book_id}-${chapter.chapter_number}`,
+        book_id: chapter.book_id,
+        book_name: chapter.book_name,
+        chapter_number: chapter.chapter_number,
+        verses: chapter.verses || []
+      };
+      setChapterContent(contentWithId);
+      setLoadError(null);
+      return;
+    }
+    
+    // Skip if missing required props
+    if (!bookId || !chapterNumber) {
+      return;
+    }
+    
+    // Skip if already fetching
+    if (isFetchingRef.current) {
+      return;
+    }
+    
     const fetchChapterContent = async () => {
-      if (bookId && chapterNumber) {
-        try {
-          // Get user's preferred Bible version
-          const userProfile = await getUserProfile();
-          
-          // Use explicitly provided versionId, or determine best one based on user profile
-          const bibleVersionId = versionId || 
-            determineBestBibleVersion(userProfile, language);
-          
-          console.log(`Loading chapter content: ${bookId} ${chapterNumber} (${bibleVersionId})`);
-          
-          const content = await getBookContent(bookId, chapterNumber, bibleVersionId);
-          setChapterContent(content);
-          setLoadError(null);
-        } catch (error) {
-          console.error("Error fetching chapter content:", error);
-          setChapterContent(null);
-          setLoadError(`Não foi possível carregar o capítulo. Tente outra versão da Bíblia.`);
-        }
-      } else if (chapter) {
-        // If we have a chapter object directly, format it as BookContent
-        const contentWithId = {
-          id: chapter.id || `${chapter.book_id}-${chapter.chapter_number}`,
-          book_id: chapter.book_id,
-          book_name: chapter.book_name,
-          chapter_number: chapter.chapter_number,
-          verses: chapter.verses || []
-        };
-        setChapterContent(contentWithId);
+      try {
+        isFetchingRef.current = true;
+        
+        // Get user's preferred Bible version
+        const userProfile = await getUserProfile();
+        
+        // Use explicitly provided versionId, or determine best one based on user profile
+        const bibleVersionId = versionId || 
+          determineBestBibleVersion(userProfile, language);
+        
+        console.log(`Loading chapter content: ${bookId} ${chapterNumber} (${bibleVersionId})`);
+        
+        const content = await getBookContent(bookId, chapterNumber, bibleVersionId);
+        setChapterContent(content);
         setLoadError(null);
+      } catch (error) {
+        console.error("Error fetching chapter content:", error);
+        setChapterContent(null);
+        setLoadError(`Não foi possível carregar o capítulo. Tente outra versão da Bíblia.`);
+      } finally {
+        isFetchingRef.current = false;
       }
     };
     

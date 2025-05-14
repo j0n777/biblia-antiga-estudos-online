@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
@@ -8,12 +8,10 @@ import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ReadingControls from '@/components/bible/ReadingControls';
 import ChapterNavigation from '@/components/bible/ChapterNavigation';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Read = () => {
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const { t } = useLanguage();
-  const isMobile = useIsMobile();
   
   const { 
     bookId,
@@ -34,6 +32,7 @@ const Read = () => {
     isVerseSelected
   } = useBibleReading();
   
+  // Use memoized handlers to prevent loops
   const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large') => {
     setFontSize(size);
   }, []);
@@ -77,7 +76,7 @@ const Read = () => {
           />
         </div>
 
-        {/* Reduced margins for Bible content to maximize reading space */}
+        {/* Bible content container */}
         <div className="parchment-container animate-fade-in card-shadow px-0 mx-0 w-full">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">

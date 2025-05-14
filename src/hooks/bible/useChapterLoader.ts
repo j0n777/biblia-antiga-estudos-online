@@ -3,8 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import { BibleChapter } from '@/types/bible.types';
 import { getChapter } from '@/services/BibleDataService';
 import { saveReadingPosition } from '@/services';
-import { trackReading } from '@/services';
-import { useSearchParams } from 'react-router-dom';
 
 interface UseChapterLoaderProps {
   bookId: string;
@@ -19,7 +17,6 @@ interface UseChapterLoaderProps {
  * Handles:
  * - Fetching chapter data from API
  * - Tracking reading progress
- * - Updating URL parameters
  * - Saving reading position to storage
  */
 export const useChapterLoader = ({
@@ -31,39 +28,15 @@ export const useChapterLoader = ({
 }: UseChapterLoaderProps) => {
   const [chapter, setChapter] = useState<BibleChapter | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Use refs to prevent infinite loops and track previous values
+  // Use refs to prevent infinite loops and track load state
+  const isLoadingRef = useRef<boolean>(false);
   const prevPropsRef = useRef<{
     bookId: string; 
     chapterNumber: number; 
     versionId: string;
   } | null>(null);
   
-  const loadingRef = useRef<boolean>(false);
-  
-  // This effect controls URL updates when reading position changes
-  useEffect(() => {
-    if (isInitialLoad || !bookId) {
-      return; // Skip URL updates during initial load
-    }
-    
-    // Don't update URL params during loading to prevent loops
-    if (loadingRef.current) {
-      return;
-    }
-    
-    const verseParam = scrollToVerse ? String(scrollToVerse) : '1';
-    
-    // Use replace instead of push to avoid creating browser history entries
-    setSearchParams({ 
-      book: bookId, 
-      chapter: chapterNumber.toString(),
-      version: versionId,
-      verse: verseParam
-    }, { replace: true });
-  }, [bookId, chapterNumber, versionId, scrollToVerse, setSearchParams, isInitialLoad]);
-
   // This effect controls when to load the chapter
   useEffect(() => {
     // Skip if we're still in initial loading state
@@ -71,13 +44,13 @@ export const useChapterLoader = ({
       return;
     }
     
-    // Skip if already loading
-    if (loadingRef.current) {
+    // Skip if no valid bookId or chapter number
+    if (!bookId || chapterNumber <= 0) {
       return;
     }
     
-    // Skip if no valid bookId or chapter number
-    if (!bookId || chapterNumber <= 0) {
+    // Prevent concurrent loads using the ref
+    if (isLoadingRef.current) {
       return;
     }
     
@@ -92,8 +65,15 @@ export const useChapterLoader = ({
       console.log(`Loading chapter data: ${bookId} ${chapterNumber} (${versionId})`);
       
       // Set loading flag to prevent concurrent loads
-      loadingRef.current = true;
+      isLoadingRef.current = true;
       setIsLoading(true);
+      
+      // Update ref with current props to prevent unnecessary reloads
+      prevPropsRef.current = {
+        bookId,
+        chapterNumber,
+        versionId
+      };
       
       // Load chapter data
       loadChapter();
@@ -112,30 +92,15 @@ export const useChapterLoader = ({
       const chapterData = await getChapter(bookId, chapterNumber, versionId);
       setChapter(chapterData);
       
-      // Update ref with current props to prevent unnecessary reloads
-      prevPropsRef.current = {
-        bookId,
-        chapterNumber,
-        versionId
-      };
-      
-      // Track reading progress - convert scrollToVerse to number or default to 1
-      const verseToTrack = scrollToVerse || 1;
-      
-      // Track reading progress
-      await trackReading(
-        versionId, 
-        bookId, 
-        chapterNumber, 
-        verseToTrack
-      );
+      // Save reading position with verse number as a number
+      const verseToSave = scrollToVerse ? Number(scrollToVerse) : 1;
       
       // Save reading position to storage
       await saveReadingPosition(
         versionId, 
         bookId, 
         chapterNumber, 
-        verseToTrack
+        verseToSave
       );
       
     } catch (error) {
@@ -143,7 +108,7 @@ export const useChapterLoader = ({
       setChapter(null);
     } finally {
       setIsLoading(false);
-      loadingRef.current = false; // Reset loading flag
+      isLoadingRef.current = false; // Reset loading flag
     }
   };
 

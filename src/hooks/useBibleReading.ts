@@ -6,7 +6,6 @@ import { useReadingPosition } from './bible/useReadingPosition';
 import { useChapterNavigation } from './bible/useChapterNavigation';
 import { useVerseManagement } from './bible/useVerseManagement';
 import { useChapterLoader } from './bible/useChapterLoader';
-import { useSearchParams } from 'react-router-dom';
 
 interface UseBibleReadingProps {
   defaultVersion?: string;
@@ -18,13 +17,11 @@ interface UseBibleReadingProps {
 export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps = {}) => {
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
-  const [searchParams] = useSearchParams();
   const [booksLoaded, setBooksLoaded] = useState<boolean>(false);
   const dataLoadedRef = useRef<boolean>(false);
 
-  // Load books and versions from the data service only once
+  // Load books and versions only once
   useEffect(() => {
-    // Skip if already loaded
     if (dataLoadedRef.current) {
       return;
     }
@@ -34,13 +31,16 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
         console.log('Loading Bible books and versions...');
         dataLoadedRef.current = true;
         
-        // Use a default array if getAllBooks returns null or empty
-        const booksData = await getAllBooks(defaultVersion);
+        // Load books and versions concurrently
+        const [booksData, versionsData] = await Promise.all([
+          getAllBooks(defaultVersion),
+          getAllVersions()
+        ]);
+        
         if (booksData && booksData.length > 0) {
           console.log(`Loaded ${booksData.length} books successfully`);
           setBooks(booksData);
         } else {
-          // Provide fallback data if loading fails
           console.warn('No books data returned - using fallback data');
           const fallbackBooks: BibleBook[] = [
             { 
@@ -51,26 +51,14 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
               position: 1,
               version_id: defaultVersion,
               order: 1
-            },
-            { 
-              book_id: 'ex',
-              name: 'Exodus',
-              testament: 'old',
-              chapters_count: 40,
-              position: 2,
-              version_id: defaultVersion,
-              order: 2
             }
           ];
           setBooks(fallbackBooks);
         }
         
-        // Set versions data
-        const versionsData = await getAllVersions();
         if (versionsData && versionsData.length > 0) {
           setVersions(versionsData);
         } else {
-          // Provide fallback version data if loading fails
           const fallbackVersions: BibleVersion[] = [
             {
               id: 'kja',
@@ -82,12 +70,12 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
           setVersions(fallbackVersions);
         }
         
-        // Mark books as loaded
+        // Mark books as loaded only after state has been updated
         setBooksLoaded(true);
       } catch (error) {
         console.error('Error loading books and versions:', error);
         
-        // Even on error, provide fallback data so the app can function
+        // Provide fallback data on error
         const fallbackBooks: BibleBook[] = [
           { 
             book_id: 'gn',
@@ -111,7 +99,6 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
         ];
         setVersions(fallbackVersions);
         
-        // Mark books as loaded even on error
         setBooksLoaded(true);
         dataLoadedRef.current = false; // Allow retrying on error
       }
@@ -120,8 +107,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     loadBooksAndVersions();
   }, [defaultVersion]);
 
-  // Initialize reading position from URL or stored preferences
-  // Only initialize once books are loaded
+  // Initialize reading position after books are loaded
   const {
     bookId,
     chapterNumber,
@@ -135,7 +121,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   } = useReadingPosition({ 
     defaultVersion, 
     books,
-    booksLoaded // Pass the booksLoaded flag to prevent initialization before books are ready
+    booksLoaded
   });
   
   // Chapter navigation logic
@@ -150,7 +136,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     initialChapterNumber: chapterNumber
   });
 
-  // Verse management logic
+  // Verse management logic with useCallback to prevent unnecessary rerenders
   const {
     isVerseSelected: verseIsSelected,
     handleSaveVerse: verseSaveVerse,
@@ -159,7 +145,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     initialChapterNumber: chapterNumber
   });
   
-  // Load chapter data
+  // Load chapter data with proper dependencies
   const { chapter, isLoading } = useChapterLoader({
     bookId,
     chapterNumber,
@@ -168,18 +154,22 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     isInitialLoad
   });
   
-  // Wrapper functions to ensure state is properly updated across all hooks
+  // Wrapper functions with useCallback to prevent unnecessary rerenders
   const handleBookChange = useCallback((newBookId: string) => {
     const result = navigationHandleBookChange(newBookId);
-    setBookId(result.newBookId);
-    setChapterNumber(result.newChapterNumber);
-    setScrollToVerse(1);
+    if (result) {
+      setBookId(result.newBookId);
+      setChapterNumber(result.newChapterNumber);
+      setScrollToVerse(1);
+    }
   }, [navigationHandleBookChange, setBookId, setChapterNumber, setScrollToVerse]);
 
   const handleChapterChange = useCallback((newChapterNumber: number) => {
     const result = navigationHandleChapterChange(newChapterNumber);
-    setChapterNumber(result.newChapterNumber);
-    setScrollToVerse(1);
+    if (result) {
+      setChapterNumber(result.newChapterNumber);
+      setScrollToVerse(1);
+    }
   }, [navigationHandleChapterChange, setChapterNumber, setScrollToVerse]);
 
   const handleVersionChange = useCallback((newVersionId: string) => {
@@ -194,7 +184,6 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     return verseIsSelected(bookId, chapterNumber, verseNumber);
   }, [verseIsSelected, bookId, chapterNumber]);
 
-  // Return a unified API for Bible reading components
   return {
     bookId,
     chapterNumber,

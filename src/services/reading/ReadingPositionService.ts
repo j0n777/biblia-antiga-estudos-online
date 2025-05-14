@@ -1,41 +1,44 @@
 
 import { ReadingPosition } from '@/types/bible.types';
+import { isUserAuthenticated } from '../AuthService';
 
 /**
- * Save reading position to local storage
+ * Save user's reading position
  * @param versionId Bible version ID
  * @param bookId Bible book ID
- * @param chapterNumber Chapter number
- * @param verseNumber Verse number
+ * @param chapter Chapter number
+ * @param verse Verse number
  * @returns Promise resolving to success status
  */
 export async function saveReadingPosition(
   versionId: string,
   bookId: string,
-  chapterNumber: number | string,
-  verseNumber: number | string = 1
+  chapter: number,
+  verse: number | string = 1
 ): Promise<boolean> {
   try {
-    // Ensure numbers are parsed as integers
-    const chapter = typeof chapterNumber === 'string' ? parseInt(chapterNumber, 10) : chapterNumber;
-    const verse = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
+    // Ensure verse is a number
+    const verseNumber = typeof verse === 'string' ? parseInt(verse, 10) : verse;
     
-    // Log what we're saving
-    console.log(`Saving reading position: ${versionId} ${bookId} ${chapter}:${verse}`);
-    
-    const position: ReadingPosition = {
+    const readingPosition: ReadingPosition = {
       version_id: versionId,
       book_id: bookId,
       chapter: chapter,
-      verse: verse
+      verse: verseNumber,
+      timestamp: new Date().toISOString()
     };
     
-    // Save to localStorage
-    localStorage.setItem('last_reading_position', JSON.stringify(position));
+    const isAuth = await isUserAuthenticated();
     
-    // Update last read timestamp for streak calculations
-    const now = new Date().toISOString();
-    localStorage.setItem('last_read_timestamp', now);
+    if (!isAuth) {
+      // Store in localStorage for non-authenticated users
+      localStorage.setItem('last_reading_position', JSON.stringify(readingPosition));
+      return true;
+    }
+    
+    // For authenticated users (to be implemented)
+    // Fallback to localStorage for now
+    localStorage.setItem('last_reading_position', JSON.stringify(readingPosition));
     
     return true;
   } catch (error) {
@@ -45,28 +48,57 @@ export async function saveReadingPosition(
 }
 
 /**
- * Get last reading position from local storage
+ * Get user's last reading position
  * @returns Promise resolving to reading position
  */
 export async function getLastReadingPosition(): Promise<ReadingPosition | null> {
   try {
-    const positionJSON = localStorage.getItem('last_reading_position');
-    if (!positionJSON) return null;
+    const isAuth = await isUserAuthenticated();
     
-    return JSON.parse(positionJSON) as ReadingPosition;
+    if (!isAuth) {
+      // Get position from localStorage
+      const position = localStorage.getItem('last_reading_position');
+      if (!position) return null;
+      
+      try {
+        const parsedPosition = JSON.parse(position);
+        
+        // Ensure numeric properties are proper numbers
+        const validatedPosition: ReadingPosition = {
+          ...parsedPosition,
+          chapter: Number(parsedPosition.chapter),
+          verse: Number(parsedPosition.verse)
+        };
+        
+        return validatedPosition;
+      } catch (e) {
+        console.error('Error parsing reading position:', e);
+        return null;
+      }
+    }
+    
+    // For authenticated users (to be implemented)
+    return null;
   } catch (error) {
-    console.error('Error getting reading position:', error);
+    console.error('Error getting last reading position:', error);
     return null;
   }
 }
 
 /**
- * Clear reading position from local storage
+ * Clear user's reading position
  * @returns Promise resolving to success status
  */
 export async function clearReadingPosition(): Promise<boolean> {
   try {
-    localStorage.removeItem('last_reading_position');
+    const isAuth = await isUserAuthenticated();
+    
+    if (!isAuth) {
+      localStorage.removeItem('last_reading_position');
+      return true;
+    }
+    
+    // For authenticated users (to be implemented)
     return true;
   } catch (error) {
     console.error('Error clearing reading position:', error);
