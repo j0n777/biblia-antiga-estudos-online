@@ -39,7 +39,7 @@ const RecentReadingSection = ({
             : String(history.book_id).toLowerCase();
           
           const displayName = bookNames[bookId] || String(history.book_id) || t('bible.unknown');
-          const chapterNum = history.chapter || 1;
+          const chapterNum = history.chapter_number || history.chapter || 1;
           
           return (
             <Card 
@@ -55,7 +55,7 @@ const RecentReadingSection = ({
                     {displayName} {chapterNum}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(history.timestamp).toLocaleDateString()}
+                    {new Date(history.timestamp || history.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </button>

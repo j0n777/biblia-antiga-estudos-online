@@ -47,8 +47,8 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      // Use the user's preferred version for search
-      const results = await searchBibleVerses(query, preferredVersion);
+      // Use the user's preferred version for search, but only pass the required parameter
+      const results = await searchBibleVerses(query);
       setSearchResults(results);
       setHasSearched(true);
     } catch (error) {
@@ -58,7 +58,7 @@ const Search = () => {
       setIsSearching(false);
       isSearchingRef.current = false;
     }
-  }, [preferredVersion]);
+  }, []);
 
   // Handle input change with debounce
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {

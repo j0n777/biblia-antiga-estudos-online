@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -74,7 +73,7 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
   
   // Agrupar registros de leitura por dia
   const groupedHistory = readingHistory.reduce((groups: Record<string, ReadingHistory[]>, item) => {
-    const date = new Date(item.timestamp).toLocaleDateString();
+    const date = new Date(item.timestamp || item.created_at).toLocaleDateString();
     if (!groups[date]) {
       groups[date] = [];
     }
@@ -181,7 +180,7 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                                   {bookNames[entry.book_id] || entry.book_id} {entry.chapter_number}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                  {format(new Date(entry.timestamp), 'HH:mm')}
+                                  {format(new Date(entry.timestamp || entry.created_at), 'HH:mm')}
                                 </span>
                               </div>
                             </button>

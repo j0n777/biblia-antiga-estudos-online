@@ -200,4 +200,7 @@ export interface ReadingHistory {
   created_at: string;
   read_at?: string;
   version_id?: string;
+  timestamp?: string;
+  chapter?: number;
+  verse_number?: number;
 }

@@ -1,4 +1,3 @@
-
 import { isUserAuthenticated } from '../AuthService';
 import { ReadingHistory } from '@/types/bible.types';
 
@@ -42,8 +41,8 @@ export async function trackReading(
         version_id: versionId,
         book_id: bookId,
         chapter_number: chapterNumber,
-        verse_number: verse,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
       
       readingHistory.push(newEntry);
