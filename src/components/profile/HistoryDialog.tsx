@@ -83,24 +83,24 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[80vh] bg-parchment">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] bg-parchment rounded-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-oldstyle flex items-center gap-2">
             <History className="h-5 w-5 text-ancient-gold" />
-            {t('profile.history')}
+            {t('profile.history') || "Histórico de Leitura"}
           </DialogTitle>
           <DialogDescription>
-            {t('profile.historyDescription')}
+            {t('profile.historyDescription') || "Aqui você encontra seu histórico de leituras e versículos salvos"}
           </DialogDescription>
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full">
-            <TabsTrigger value="saved" className="flex items-center gap-1">
-              <Bookmark className="h-4 w-4" /> {t('profile.savedVerses')}
+          <TabsList className="w-full rounded-md">
+            <TabsTrigger value="saved" className="flex items-center gap-1 rounded-md">
+              <Bookmark className="h-4 w-4" /> {t('profile.savedVerses') || "Versículos Salvos"}
             </TabsTrigger>
-            <TabsTrigger value="reading" className="flex items-center gap-1">
-              <BookOpen className="h-4 w-4" /> {t('profile.readingHistory')}
+            <TabsTrigger value="reading" className="flex items-center gap-1 rounded-md">
+              <BookOpen className="h-4 w-4" /> {t('profile.readingHistory') || "Histórico de Leitura"}
             </TabsTrigger>
           </TabsList>
           
@@ -113,7 +113,7 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
               ) : savedVerses.length > 0 ? (
                 <div className="space-y-3">
                   {savedVerses.map((verse) => (
-                    <Card key={verse.id} className="p-3 bg-parchment-light border-ancient-gold/20">
+                    <Card key={verse.id} className="p-3 bg-parchment-light border-ancient-gold/20 rounded-md">
                       <button 
                         className="w-full text-left"
                         onClick={() => handleOpenVerse(verse.book_id, verse.chapter_number, verse.verse_number)}
@@ -140,10 +140,10 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                 <div className="text-center py-12">
                   <Bookmark className="h-12 w-12 text-ancient-gold/30 mx-auto mb-2" />
                   <h3 className="text-lg font-oldstyle text-scripture-heading">
-                    {t('profile.noSavedVerses')}
+                    {t('profile.noSavedVerses') || "Nenhum versículo salvo"}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t('profile.startSavingVerses')}
+                    {t('profile.startSavingVerses') || "Salve seus versículos favoritos durante a leitura"}
                   </p>
                 </div>
               )}
@@ -169,7 +169,7 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                         {entries.map((entry, i) => (
                           <Card 
                             key={`${entry.book_id}-${entry.chapter_number}-${i}`} 
-                            className="p-2 bg-parchment-light/80 border-parchment-dark/30"
+                            className="p-2 bg-parchment-light/80 border-parchment-dark/30 rounded-md"
                           >
                             <button 
                               className="w-full text-left"
@@ -194,10 +194,10 @@ const HistoryDialog = ({ open, onOpenChange }: HistoryDialogProps) => {
                 <div className="text-center py-12">
                   <BookOpen className="h-12 w-12 text-ancient-gold/30 mx-auto mb-2" />
                   <h3 className="text-lg font-oldstyle text-scripture-heading">
-                    {t('profile.noReadingHistory')}
+                    {t('profile.noReadingHistory') || "Nenhum histórico de leitura"}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {t('profile.startReadingBible')}
+                    {t('profile.startReadingBible') || "Comece a ler a Bíblia para registrar seu histórico"}
                   </p>
                 </div>
               )}

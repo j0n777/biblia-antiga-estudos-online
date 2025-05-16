@@ -20,25 +20,29 @@ const RecentReadingSection = ({
 }: RecentReadingSectionProps) => {
   const { t } = useLanguage();
 
+  // If there are no readings, don't render anything
   if (recentReadings.length === 0) {
     return null;
   }
+
+  // Limit to only show 5 most recent readings
+  const limitedReadings = recentReadings.slice(0, 5);
 
   return (
     <div className="mb-6">
       <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2 mb-3">
         <Clock size={18} className="text-ancient-gold" />
-        {t('profile.recentReading')}
+        {t('profile.recentReading') || "Leituras Recentes"}
       </h3>
       
       <div className="space-y-2">
-        {recentReadings.map((history, index) => {
+        {limitedReadings.map((history, index) => {
           // Ensure book_id is a string before calling toLowerCase
           const bookId = typeof history.book_id === 'string' 
             ? history.book_id.toLowerCase() 
             : String(history.book_id).toLowerCase();
           
-          const displayName = bookNames[bookId] || String(history.book_id) || t('bible.unknown');
+          const displayName = bookNames[bookId] || String(history.book_id) || t('bible.unknown') || "Desconhecido";
           const chapterNum = history.chapter_number || history.chapter || 1;
           
           return (
@@ -69,7 +73,7 @@ const RecentReadingSection = ({
             className="text-sm text-ancient-brown"
             onClick={onViewAllHistory}
           >
-            {t('profile.viewAllHistory')}
+            {t('profile.viewAllHistory') || "Ver histórico completo"}
           </Button>
         </div>
       </div>

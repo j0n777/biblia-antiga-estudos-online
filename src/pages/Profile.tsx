@@ -125,7 +125,7 @@ const ProfilePage = () => {
     <PageLayout>
       <div className="py-6 px-2">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('profile.title')}</h1>
+          <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('profile.title') || "Perfil"}</h1>
           <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
         </div>
         
@@ -153,9 +153,9 @@ const ProfilePage = () => {
         />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-          <TabsList className="w-full bg-parchment-light">
-            <TabsTrigger value="conquistas" className="flex-1">{t('profile.achievements')}</TabsTrigger>
-            <TabsTrigger value="estatisticas" className="flex-1">{t('profile.stats')}</TabsTrigger>
+          <TabsList className="w-full bg-parchment-light rounded-md">
+            <TabsTrigger value="conquistas" className="flex-1 rounded-md">{t('profile.achievements') || "Conquistas"}</TabsTrigger>
+            <TabsTrigger value="estatisticas" className="flex-1 rounded-md">{t('profile.stats') || "Estatísticas"}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="conquistas" className="mt-4 space-y-4">
@@ -169,15 +169,15 @@ const ProfilePage = () => {
         
         <div className="mt-6 flex justify-center">
           {isAuthenticated ? (
-            <Button variant="outline" onClick={handleSignOut}>
-              {t('auth.signOut')}
+            <Button variant="outline" className="rounded-md" onClick={handleSignOut}>
+              {t('auth.signOut') || "Sair"}
             </Button>
           ) : (
             <Button 
-              className="bg-ancient-gold text-white hover:bg-ancient-gold/90"
+              className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-md"
               onClick={handleCreateAccount}
             >
-              {t('auth.createAccount')}
+              {t('auth.createAccount') || "Criar Conta"}
             </Button>
           )}
         </div>

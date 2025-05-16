@@ -133,9 +133,9 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {bibleStudies.map(study => (
-                <Card key={study.id} className="parchment-container overflow-hidden">
+                <Card key={study.id} className="parchment-container overflow-hidden rounded-md">
                   <CardContent className="p-4 flex items-center gap-3">
-                    <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded">
+                    <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-md">
                       {study.icon}
                     </div>
                     <div className="flex-1">
@@ -153,7 +153,7 @@ const Index = () => {
             <div className="flex justify-center mt-4">
               <Button 
                 variant="outline" 
-                className="flex gap-2 bg-parchment-light border-parchment-dark/30"
+                className="flex gap-2 bg-parchment-light border-parchment-dark/30 rounded-md"
                 onClick={() => navigate('/search')}
               >
                 <BookOpen size={16} />
@@ -164,10 +164,10 @@ const Index = () => {
           
           {/* Incentives for registration */}
           {!profile?.id.startsWith('guest-') && (
-            <Card className="parchment-container border-ancient-gold/20 bg-parchment-light/80">
+            <Card className="parchment-container border-ancient-gold/20 bg-parchment-light/80 rounded-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-ancient-gold/20 text-ancient-gold">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-md bg-ancient-gold/20 text-ancient-gold">
                     <Trophy size={20} />
                   </div>
                   <div className="flex-1">
@@ -175,7 +175,7 @@ const Index = () => {
                     <p className="text-sm text-muted-foreground">Crie uma conta para salvar seu progresso e participar do ranking</p>
                   </div>
                   <Button 
-                    className="bg-ancient-gold text-white hover:bg-ancient-gold/90"
+                    className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-md"
                     onClick={() => navigate('/auth')}
                   >
                     Criar conta

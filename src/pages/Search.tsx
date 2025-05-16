@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -106,7 +107,7 @@ const Search = () => {
                 placeholder={t('search.placeholder') || 'Digite uma referência (João 3:16) ou termo...'}
                 value={searchQuery}
                 onChange={handleInputChange}
-                className="bg-parchment-light/90 border-parchment-dark/20 pr-10"
+                className="bg-parchment-light/90 border-parchment-dark/20 pr-10 rounded-md"
               />
               {isSearching && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -117,7 +118,7 @@ const Search = () => {
             <Button 
               onClick={() => handleSearch(searchQuery)}
               disabled={isSearching || searchQuery.trim().length < 2}
-              className="bg-ancient-gold hover:bg-ancient-gold/90"
+              className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-md"
             >
               <SearchIcon className="h-4 w-4 mr-2" />
               {t('search.button') || 'Buscar'}
@@ -128,7 +129,7 @@ const Search = () => {
           </p>
         </div>
         
-        <div className="parchment-container card-shadow">
+        <div className="parchment-container card-shadow rounded-md">
           {isSearching ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -151,7 +152,7 @@ const Search = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-parchment-dark/20 rounded-md flex items-center justify-center mb-4">
                   <SearchIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-scripture-heading font-medium mb-2">
@@ -164,7 +165,7 @@ const Search = () => {
             )
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-parchment-dark/20 rounded-md flex items-center justify-center mb-4">
                 <SearchIcon className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-scripture-heading font-medium mb-2">

@@ -1,5 +1,3 @@
-
-
 @layer components {
   .parchment-container {
     @apply bg-parchment/90 border border-parchment-dark/20 rounded-xl shadow-md backdrop-blur-sm p-4 my-2;
@@ -77,6 +75,35 @@
 
   .dark button.hover\:bg-ancient-brown\/90:hover {
     @apply hover:bg-ancient-gold/90;
+  }
+  
+  /* Fix popup/dropdown backgrounds */
+  .dark [data-radix-select-content],
+  .dark [data-radix-dropdown-content],
+  .dark [data-radix-popper-content] {
+    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg;
+    color: hsl(var(--scripture-text));
+  }
+  
+  [data-radix-select-content],
+  [data-radix-dropdown-content],
+  [data-radix-popper-content] {
+    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-md;
+    color: hsl(var(--scripture-text));
+  }
+  
+  /* Add consistent rounded borders */
+  .rounded-borders {
+    @apply rounded-md;
+  }
+  
+  /* Dialog content background */
+  .dialog-content {
+    @apply bg-parchment-light border border-parchment-dark/30 shadow-lg;
+  }
+  
+  .dark .dialog-content {
+    @apply bg-parchment-dark border border-parchment-darker/40;
   }
   
   /* Fix profile settings margin overflow */
