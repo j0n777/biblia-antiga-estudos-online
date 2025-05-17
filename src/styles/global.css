@@ -53,7 +53,7 @@
   input, 
   select, 
   textarea {
-    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-lg;
   }
 
   .dark input,
@@ -100,7 +100,7 @@
   [role="menu"],
   .radix-popover-content,
   .radix-dropdown-menu-content {
-    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-md;
+    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-lg;
   }
   
   /* All interactive elements should have rounded borders */
@@ -115,6 +115,6 @@
   .avatar,
   .kbd,
   .toast {
-    @apply rounded-md;
+    @apply rounded-lg;
   }
 }

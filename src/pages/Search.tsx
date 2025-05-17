@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Search as SearchIcon, Loader2, Clock, History } from 'lucide-react';
+import { Search as SearchIcon, Loader2, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { BibleVerse } from '@/types/bible.types';
@@ -76,7 +76,7 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      // Use the user's preferred version for search
+      // Fix: Remove the second parameter since searchBibleVerses only accepts one parameter
       const results = await searchBibleVerses(query);
       setSearchResults(results);
       setHasSearched(true);
@@ -141,7 +141,7 @@ const Search = () => {
   return (
     <PageLayout>
       <div className="w-full max-w-3xl mx-auto">
-        <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-md mb-6">
+        <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-lg mb-6">
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl font-bold font-oldstyle text-scripture-heading">
               {t('search.title') || 'Pesquisar na Bíblia'}
@@ -155,7 +155,7 @@ const Search = () => {
                     placeholder={t('search.placeholder') || 'Digite uma referência (João 3:16) ou termo...'}
                     value={searchQuery}
                     onChange={handleInputChange}
-                    className="bg-parchment-light border-parchment-dark/20 pr-10 rounded-md"
+                    className="bg-parchment-light border-parchment-dark/20 pr-10 rounded-lg"
                   />
                   {isSearching && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -166,7 +166,7 @@ const Search = () => {
                 <Button 
                   onClick={handleSearchClick}
                   disabled={isSearching || searchQuery.trim().length < 2}
-                  className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-md"
+                  className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-lg"
                 >
                   <SearchIcon className="h-4 w-4 mr-2" />
                   {t('search.button') || 'Buscar'}
@@ -186,7 +186,7 @@ const Search = () => {
                     <Badge 
                       key={suggestion}
                       variant="outline" 
-                      className="bg-parchment-dark/10 hover:bg-parchment-dark/20 cursor-pointer rounded-md border-parchment-dark/20"
+                      className="bg-parchment-dark/10 hover:bg-parchment-dark/20 cursor-pointer rounded-lg border-parchment-dark/20"
                       onClick={() => handleSuggestionClick(suggestion)}
                     >
                       {suggestion}
@@ -208,7 +208,7 @@ const Search = () => {
                     <Badge 
                       key={index}
                       variant="outline" 
-                      className="bg-parchment-dark/5 hover:bg-parchment-dark/10 cursor-pointer rounded-md border-parchment-dark/10 text-scripture-text/80"
+                      className="bg-parchment-dark/5 hover:bg-parchment-dark/10 cursor-pointer rounded-lg border-parchment-dark/10 text-scripture-text/80"
                       onClick={() => handleHistoryItemClick(historyItem)}
                     >
                       {historyItem}
@@ -220,7 +220,7 @@ const Search = () => {
           </CardContent>
         </Card>
         
-        <div className="parchment-container card-shadow rounded-md">
+        <div className="parchment-container card-shadow rounded-lg">
           {isSearching ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -243,7 +243,7 @@ const Search = () => {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-16 h-16 bg-parchment-dark/20 rounded-md flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-parchment-dark/20 rounded-lg flex items-center justify-center mb-4">
                   <SearchIcon className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <p className="text-scripture-heading font-medium mb-2">
@@ -256,7 +256,7 @@ const Search = () => {
             )
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-parchment-dark/20 rounded-md flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-parchment-dark/20 rounded-lg flex items-center justify-center mb-4">
                 <SearchIcon className="h-6 w-6 text-muted-foreground" />
               </div>
               <p className="text-scripture-heading font-medium mb-2">
