@@ -1,6 +1,7 @@
+
 @layer components {
   .parchment-container {
-    @apply bg-parchment/90 border border-parchment-dark/20 rounded-xl shadow-md backdrop-blur-sm p-4 my-2;
+    @apply bg-parchment/90 border border-parchment-dark/20 rounded-md shadow-md backdrop-blur-sm p-4 my-2;
     color: hsl(var(--scripture-text));
     box-shadow: 0 2px 10px rgba(92, 63, 23, 0.15);
     background-image: url('/parchment-texture.jpg');
@@ -61,7 +62,7 @@
   }
 
   .bible-button {
-    @apply bg-parchment-light hover:bg-parchment rounded-lg p-3 border border-parchment-dark/20 shadow-sm transition-all duration-200;
+    @apply bg-parchment-light hover:bg-parchment rounded-md p-3 border border-parchment-dark/20 shadow-sm transition-all duration-200;
   }
 
   .dark .bible-button {
@@ -81,7 +82,7 @@
   .dark [data-radix-select-content],
   .dark [data-radix-dropdown-content],
   .dark [data-radix-popper-content] {
-    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg;
+    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg rounded-md;
     color: hsl(var(--scripture-text));
   }
   
@@ -99,7 +100,7 @@
   
   /* Dialog content background */
   .dialog-content {
-    @apply bg-parchment-light border border-parchment-dark/30 shadow-lg;
+    @apply bg-parchment-light border border-parchment-dark/30 shadow-lg rounded-md;
   }
   
   .dark .dialog-content {
@@ -128,7 +129,7 @@
 
   /* Settings dialog specific styles */
   .settings-dialog-content {
-    @apply max-w-lg bg-parchment-light dark:bg-parchment-dark/90 p-6;
+    @apply max-w-lg bg-parchment-light dark:bg-parchment-dark/90 p-6 rounded-md;
   }
   
   .settings-dialog-tabs {

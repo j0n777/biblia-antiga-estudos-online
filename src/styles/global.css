@@ -53,7 +53,7 @@
   input, 
   select, 
   textarea {
-    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50;
+    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-md;
   }
 
   .dark input,
@@ -89,5 +89,32 @@
   .dark [role="tab"] {
     color: hsl(var(--scripture-text));
     @apply hover:text-ancient-gold/80;
+  }
+  
+  /* Ensure all popups have proper backgrounds */
+  .popup-content,
+  [data-radix-popper-content],
+  [data-state="open"],
+  [role="dialog"],
+  [role="tooltip"],
+  [role="menu"],
+  .radix-popover-content,
+  .radix-dropdown-menu-content {
+    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-md;
+  }
+  
+  /* All interactive elements should have rounded borders */
+  .dialog,
+  .dropdown,
+  .button,
+  .input,
+  .card,
+  .badge,
+  .alert,
+  .select,
+  .avatar,
+  .kbd,
+  .toast {
+    @apply rounded-md;
   }
 }
