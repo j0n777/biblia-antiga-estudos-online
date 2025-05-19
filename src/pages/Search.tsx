@@ -12,9 +12,9 @@ import { useSearchBible } from '@/hooks/useSearchBible';
 const Search = () => {
   const { t } = useLanguage();
   
-  // Popular search suggestions
+  // Popular search suggestions - add more common search terms
   const searchSuggestions = [
-    'amor', 'paz', 'esperança', 'fé', 'perdão', 'graça', 'João 3:16', 'Jesus'
+    'amor', 'paz', 'esperança', 'fé', 'perdão', 'graça', 'Jesus', 'Deus', 'João 3:16'
   ];
 
   const {

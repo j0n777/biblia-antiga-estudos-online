@@ -51,7 +51,7 @@ const SearchInput = ({
         </Button>
       </div>
       <p className="text-sm text-muted-foreground mt-1">
-        Dica: Você pode pesquisar por referência (ex: "João 3:16") ou por palavras.
+        Dica: Você pode pesquisar por referência (ex: "João 3:16") ou por palavras como "paz", "amor".
       </p>
     </div>
   );

@@ -189,22 +189,34 @@ export const searchBibleVerses = async (
       }
     }
     
-    // 2. Second attempt: Text search across all verses (or in specific version if requested)
+    // 2. Second attempt: Text search across all verses
     const searchQueryTrimmed = query.trim();
     
-    // Build the query for text search
-    let dbQuery = supabase
+    // Build the query for text search - THIS IS THE CRITICAL PART TO FIX
+    let { data: verses, error } = await supabase
       .from('bible_verses')
       .select('*')
-      .ilike('text', `%${searchQueryTrimmed}%`);
-      
-    // Only filter by version if specifically requested
-    if (searchBySpecificVersion) {
-      dbQuery = dbQuery.eq('version_id', versionId);
-    }
+      .textSearch('text', searchQueryTrimmed)
+      // If searchBySpecificVersion is true, we filter by the specific version
+      .eq(searchBySpecificVersion ? 'version_id' : 'version_id', searchBySpecificVersion ? versionId : versionId)
+      .limit(limit);
     
-    // Execute the search
-    const { data: verses, error } = await dbQuery.limit(limit);
+    // If textSearch didn't work or no results, try with ilike
+    if ((!verses || verses.length === 0) && !error) {
+      const { data: ilikeverses, error: ilikeError } = await supabase
+        .from('bible_verses')
+        .select('*')
+        .ilike('text', `%${searchQueryTrimmed}%`)
+        // If searchBySpecificVersion is true, we filter by the specific version
+        .eq(searchBySpecificVersion ? 'version_id' : 'version_id', searchBySpecificVersion ? versionId : versionId)
+        .limit(limit);
+      
+      if (ilikeError) {
+        console.error('Error searching Bible with ilike:', ilikeError);
+      } else {
+        verses = ilikeverses;
+      }
+    }
     
     if (error) {
       console.error('Error searching Bible:', error);

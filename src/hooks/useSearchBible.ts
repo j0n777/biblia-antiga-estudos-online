@@ -81,20 +81,10 @@ export const useSearchBible = () => {
     }
   }, [preferredVersion]);
 
-  // Handle input change with debounce
+  // Handle input change
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    
-    // Clear any existing timeout
-    if (searchTimeoutRef.current) {
-      window.clearTimeout(searchTimeoutRef.current);
-    }
-    
-    // Don't search for very short queries
-    if (query.trim().length < 2) {
-      return;
-    }
   }, []);
 
   // Clean up timeout on unmount
