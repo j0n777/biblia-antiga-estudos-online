@@ -76,8 +76,8 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      // Fix: Remove the second parameter since searchBibleVerses only accepts one parameter
-      const results = await searchBibleVerses(query);
+      // Call searchBibleVerses with only the query parameter
+      const results = await searchBibleVerses(query, preferredVersion);
       setSearchResults(results);
       setHasSearched(true);
       
@@ -90,7 +90,7 @@ const Search = () => {
       setIsSearching(false);
       isSearchingRef.current = false;
     }
-  }, []);
+  }, [preferredVersion]);
 
   // Handle input change with debounce
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
