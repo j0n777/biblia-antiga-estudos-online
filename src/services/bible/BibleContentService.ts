@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { BookContent, BibleVerse, BibleChapter } from '@/types/bible.types';
 import { getBookChapters } from './BibleBooksService';
@@ -107,6 +108,7 @@ export const searchBibleVerses = async (
   
   try {
     // If no specific version is provided, get user's preferred version
+    let searchBySpecificVersion = false;
     if (!versionId) {
       try {
         const userProfile = await getUserProfile();
@@ -115,6 +117,8 @@ export const searchBibleVerses = async (
         console.error('Error getting user profile for version, using default:', error);
         versionId = 'kja'; // Fallback to default
       }
+    } else {
+      searchBySpecificVersion = true;
     }
     
     console.log(`Searching Bible for "${query}" in version ${versionId}`);
@@ -144,16 +148,22 @@ export const searchBibleVerses = async (
       return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // Simple text search with ILIKE (works for partial words too)
+    // Simple text search - directly querying the text column 
     const searchQueryTrimmed = query.trim();
     
-    // Search for the term in bible_verses
-    const { data: verses, error } = await supabase
+    // Build the query
+    let dbQuery = supabase
       .from('bible_verses')
       .select('*')
-      .eq('version_id', versionId)
-      .ilike('text', `%${searchQueryTrimmed}%`)
-      .limit(limit);
+      .ilike('text', `%${searchQueryTrimmed}%`);
+      
+    // Only filter by version if specifically requested
+    if (searchBySpecificVersion) {
+      dbQuery = dbQuery.eq('version_id', versionId);
+    }
+    
+    // Execute the search
+    const { data: verses, error } = await dbQuery.limit(limit);
     
     if (error) {
       console.error('Error searching Bible:', error);
@@ -161,31 +171,50 @@ export const searchBibleVerses = async (
     }
     
     if (!verses || verses.length === 0) {
-      console.log(`No results found for "${query}" in version ${versionId}`);
+      console.log(`No results found for "${query}"`);
       return [];
     }
     
-    console.log(`Found ${verses.length} matches for "${query}" in version ${versionId}`);
+    console.log(`Found ${verses.length} matches for "${query}"`);
     
     // Get book names for the results
     const bookIds = [...new Set(verses.map(verse => verse.book_id))];
+    const versionIds = [...new Set(verses.map(verse => verse.version_id))];
     
+    // Get all relevant book names across all versions in the results
     const { data: books } = await supabase
       .from('bible_books')
-      .select('book_id, name')
-      .eq('version_id', versionId)
-      .in('book_id', bookIds);
+      .select('book_id, name, version_id')
+      .in('book_id', bookIds)
+      .in('version_id', versionIds);
     
-    const bookNames = (books || []).reduce((acc: Record<string, string>, book) => {
-      acc[book.book_id] = book.name;
-      return acc;
-    }, {});
+    // Create a lookup map for book names by book_id and version_id
+    const bookNames: Record<string, Record<string, string>> = {};
+    
+    if (books && books.length > 0) {
+      books.forEach(book => {
+        if (!bookNames[book.book_id]) {
+          bookNames[book.book_id] = {};
+        }
+        bookNames[book.book_id][book.version_id] = book.name;
+      });
+    }
     
     // Return results with book names
-    return verses.map(verse => ({
-      ...verse,
-      book_name: bookNames[verse.book_id] || verse.book_id
-    }));
+    return verses.map(verse => {
+      // Get book name for this verse's version
+      let bookName = verse.book_id;
+      
+      // Try to get the book name for this specific version
+      if (bookNames[verse.book_id] && bookNames[verse.book_id][verse.version_id]) {
+        bookName = bookNames[verse.book_id][verse.version_id];
+      }
+      
+      return {
+        ...verse,
+        book_name: bookName
+      };
+    });
   } catch (error) {
     console.error('Error in searchBible:', error);
     return [];
