@@ -28,7 +28,9 @@ const Search = () => {
   } = useSearchBible();
 
   const handleSearchClick = () => {
-    handleSearch(searchQuery);
+    if (searchQuery.trim().length >= 2) {
+      handleSearch(searchQuery);
+    }
   };
   
   const handleSuggestionClick = (suggestion: string) => {

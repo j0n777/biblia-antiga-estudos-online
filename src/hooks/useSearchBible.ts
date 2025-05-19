@@ -60,11 +60,12 @@ export const useSearchBible = () => {
     // Set searching status
     isSearchingRef.current = true;
     setIsSearching(true);
+    setSearchQuery(query); // Update the input field with the searched query
     
     try {
       console.log(`Searching for "${query}" using version: ${preferredVersion || 'user default'}`);
       
-      // Call searchBibleVerses with query and preferred version (undefined will use user's preferred version)
+      // Call searchBibleVerses with query and preferred version
       const results = await searchBibleVerses(query, preferredVersion);
       setSearchResults(results);
       setHasSearched(true);
@@ -94,14 +95,7 @@ export const useSearchBible = () => {
     if (query.trim().length < 2) {
       return;
     }
-    
-    // Set a new timeout to debounce search
-    const timeoutId = window.setTimeout(() => {
-      handleSearch(query);
-    }, 500); // 500ms debounce
-    
-    searchTimeoutRef.current = timeoutId as unknown as number;
-  }, [handleSearch]);
+  }, []);
 
   // Clean up timeout on unmount
   useEffect(() => {

@@ -112,7 +112,7 @@ export const searchBibleVerses = async (
     if (!versionId) {
       try {
         const userProfile = await getUserProfile();
-        versionId = userProfile.preferred_bible_version || 'kja';
+        versionId = userProfile?.preferred_bible_version || 'kja';
       } catch (error) {
         console.error('Error getting user profile for version, using default:', error);
         versionId = 'kja'; // Fallback to default
@@ -148,10 +148,51 @@ export const searchBibleVerses = async (
       return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // Simple text search - directly querying the text column 
+    // If query has no specific verse reference, try different search approaches
+    
+    // 1. First attempt: Search for exact book name
+    const { data: books } = await supabase
+      .from('bible_books')
+      .select('book_id, name')
+      .ilike('name', `%${query.trim()}%`)
+      .eq('version_id', versionId);
+      
+    if (books && books.length > 0) {
+      // Query is likely a book name, return first chapter or sample verses
+      const bookId = books[0].book_id;
+      console.log(`Found book match: ${bookId}`);
+      
+      // Get sample verses from this book (first chapter, first few verses)
+      const { data: chapterData } = await supabase
+        .from('bible_chapters')
+        .select('id')
+        .eq('book_id', bookId)
+        .eq('chapter_number', 1)
+        .eq('version_id', versionId)
+        .limit(1);
+        
+      if (chapterData && chapterData.length > 0) {
+        const { data: sampleVerses } = await supabase
+          .from('bible_verses')
+          .select('*')
+          .eq('chapter_id', chapterData[0].id)
+          .order('verse_number')
+          .limit(10);
+          
+        if (sampleVerses && sampleVerses.length > 0) {
+          // Add book name to results
+          return sampleVerses.map(verse => ({
+            ...verse,
+            book_name: books[0].name
+          }));
+        }
+      }
+    }
+    
+    // 2. Second attempt: Text search across all verses (or in specific version if requested)
     const searchQueryTrimmed = query.trim();
     
-    // Build the query
+    // Build the query for text search
     let dbQuery = supabase
       .from('bible_verses')
       .select('*')
@@ -182,7 +223,7 @@ export const searchBibleVerses = async (
     const versionIds = [...new Set(verses.map(verse => verse.version_id))];
     
     // Get all relevant book names across all versions in the results
-    const { data: books } = await supabase
+    const { data: bookData } = await supabase
       .from('bible_books')
       .select('book_id, name, version_id')
       .in('book_id', bookIds)
@@ -191,8 +232,8 @@ export const searchBibleVerses = async (
     // Create a lookup map for book names by book_id and version_id
     const bookNames: Record<string, Record<string, string>> = {};
     
-    if (books && books.length > 0) {
-      books.forEach(book => {
+    if (bookData && bookData.length > 0) {
+      bookData.forEach(book => {
         if (!bookNames[book.book_id]) {
           bookNames[book.book_id] = {};
         }

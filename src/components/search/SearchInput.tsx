@@ -17,6 +17,13 @@ const SearchInput = ({
   onInputChange, 
   onSearchClick 
 }: SearchInputProps) => {
+  // Handle keyboard submission (Enter key)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim().length >= 2 && !isSearching) {
+      onSearchClick();
+    }
+  };
+  
   return (
     <div className="mb-4">
       <div className="flex gap-2">
@@ -25,6 +32,7 @@ const SearchInput = ({
             placeholder="Digite uma referência (João 3:16) ou termo..."
             value={searchQuery}
             onChange={onInputChange}
+            onKeyDown={handleKeyDown}
             className="bg-parchment-light border-parchment-dark/20 pr-10 rounded-lg"
           />
           {isSearching && (
