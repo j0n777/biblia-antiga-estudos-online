@@ -133,27 +133,68 @@ export const searchBibleVerses = async (
       return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // Regular text search
-    const { data, error } = await supabase
+    // Fix: Use proper text search for finding words in verses
+    // We'll add OR conditions to catch more matches, and make the search case-insensitive
+    const searchQueryTrimmed = query.trim();
+    
+    // Try to search with word boundaries for more accurate results
+    // First attempt: exact word match using ILIKE
+    const { data: exactMatches, error: exactError } = await supabase
       .from('bible_verses')
       .select('*')
       .eq('version_id', versionId)
-      .ilike('text', `%${query}%`)
+      .or(`text.ilike.% ${searchQueryTrimmed} %,text.ilike.${searchQueryTrimmed} %,text.ilike.% ${searchQueryTrimmed},text.ilike.${searchQueryTrimmed}`)
       .limit(limit);
       
-    if (error) {
-      console.error('Error searching Bible:', error);
+    if (exactError) {
+      console.error('Error searching Bible (exact match):', exactError);
+    }
+    
+    // If we find exact matches, use them
+    if (exactMatches && exactMatches.length > 0) {
+      console.log(`Found ${exactMatches.length} exact matches for "${query}"`);
+      
+      // Get book names
+      const bookIds = [...new Set(exactMatches.map(verse => verse.book_id))];
+      const { data: books } = await supabase
+        .from('bible_books')
+        .select('book_id, name')
+        .eq('version_id', versionId)
+        .in('book_id', bookIds);
+        
+      const bookNames = (books || []).reduce((acc: Record<string, string>, book) => {
+        acc[book.book_id] = book.name;
+        return acc;
+      }, {});
+      
+      // Transform the response
+      return exactMatches.map(verse => ({
+        ...verse,
+        book_name: bookNames[verse.book_id] || verse.book_id
+      }));
+    }
+    
+    // Second attempt: partial word match using ILIKE with %word%
+    const { data: partialMatches, error: partialError } = await supabase
+      .from('bible_verses')
+      .select('*')
+      .eq('version_id', versionId)
+      .ilike('text', `%${searchQueryTrimmed}%`)
+      .limit(limit);
+      
+    if (partialError) {
+      console.error('Error searching Bible (partial match):', partialError);
       return [];
     }
     
-    console.log(`Search results for "${query}":`, data?.length || 0);
+    console.log(`Search results for "${query}": ${partialMatches?.length || 0}`);
+    
+    if (!partialMatches || partialMatches.length === 0) {
+      return [];
+    }
     
     // Create a lookup of book names for better display
-    const bookIds = [...new Set((data || []).map(verse => verse.book_id))];
-    
-    if (bookIds.length === 0) {
-      return [];
-    }
+    const bookIds = [...new Set(partialMatches.map(verse => verse.book_id))];
     
     const { data: books } = await supabase
       .from('bible_books')
@@ -167,7 +208,7 @@ export const searchBibleVerses = async (
     }, {});
     
     // Transform the response
-    return (data || []).map(verse => ({
+    return partialMatches.map(verse => ({
       ...verse,
       book_name: bookNames[verse.book_id] || verse.book_id
     }));

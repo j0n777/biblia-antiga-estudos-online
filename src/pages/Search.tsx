@@ -25,7 +25,7 @@ const Search = () => {
   
   // Popular search suggestions
   const searchSuggestions = [
-    'amor', 'paz', 'esperança', 'fé', 'perdão', 'graça', 'João 3:16'
+    'amor', 'paz', 'esperança', 'fé', 'perdão', 'graça', 'João 3:16', 'Jesus'
   ];
 
   // Load user's preferred Bible version and search history
@@ -76,7 +76,7 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      // Call searchBibleVerses with only the query parameter
+      // Call searchBibleVerses with query and preferred version
       const results = await searchBibleVerses(query, preferredVersion);
       setSearchResults(results);
       setHasSearched(true);
@@ -112,7 +112,7 @@ const Search = () => {
       handleSearch(query);
     }, 500); // 500ms debounce
     
-    searchTimeoutRef.current = timeoutId;
+    searchTimeoutRef.current = timeoutId as unknown as number;
   }, [handleSearch]);
 
   // Clean up timeout on unmount
