@@ -17,7 +17,7 @@ const Search = () => {
   const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const [preferredVersion, setPreferredVersion] = useState<string>('kja');
+  const [preferredVersion, setPreferredVersion] = useState<string | undefined>(undefined);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const searchTimeoutRef = useRef<number | null>(null);
   const isSearchingRef = useRef<boolean>(false);
@@ -76,7 +76,9 @@ const Search = () => {
     setIsSearching(true);
     
     try {
-      // Call searchBibleVerses with query and preferred version
+      console.log(`Searching for "${query}" using version: ${preferredVersion || 'user default'}`);
+      
+      // Call searchBibleVerses with query and preferred version (undefined will use user's preferred version)
       const results = await searchBibleVerses(query, preferredVersion);
       setSearchResults(results);
       setHasSearched(true);

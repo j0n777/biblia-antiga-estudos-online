@@ -1,8 +1,8 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BookContent, BibleVerse, BibleChapter } from '@/types/bible.types';
 import { getBookChapters } from './BibleBooksService';
 import { getUserProfile } from '../ProfileService';
+import { determineBestBibleVersion } from '@/utils/language-utils';
 
 /**
  * Get content for a specific chapter
@@ -92,13 +92,13 @@ export const getBookContent = async (
 /**
  * Search the Bible for specific text
  * @param query Search query
- * @param versionId Bible version ID
+ * @param versionId Bible version ID (if not provided, will use user's preferred version)
  * @param limit Maximum number of results to return
  * @returns Promise resolving to array of matching verses
  */
 export const searchBibleVerses = async (
   query: string, 
-  versionId: string = 'kja', 
+  versionId?: string,
   limit: number = 20
 ): Promise<BibleVerse[]> => {
   if (!query || query.trim().length < 2) {
@@ -106,6 +106,17 @@ export const searchBibleVerses = async (
   }
   
   try {
+    // If no specific version is provided, get user's preferred version
+    if (!versionId) {
+      try {
+        const userProfile = await getUserProfile();
+        versionId = userProfile.preferred_bible_version || 'kja';
+      } catch (error) {
+        console.error('Error getting user profile for version, using default:', error);
+        versionId = 'kja'; // Fallback to default
+      }
+    }
+    
     console.log(`Searching Bible for "${query}" in version ${versionId}`);
     
     // Check if it's a reference search (like "john 3:16")
@@ -133,7 +144,7 @@ export const searchBibleVerses = async (
       return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // Simple word search - using just the basic ILIKE operator (most compatible)
+    // Simple text search with ILIKE (works for partial words too)
     const searchQueryTrimmed = query.trim();
     
     // Search for the term in bible_verses
@@ -150,11 +161,11 @@ export const searchBibleVerses = async (
     }
     
     if (!verses || verses.length === 0) {
-      console.log(`No results found for "${query}"`);
+      console.log(`No results found for "${query}" in version ${versionId}`);
       return [];
     }
     
-    console.log(`Found ${verses.length} matches for "${query}"`);
+    console.log(`Found ${verses.length} matches for "${query}" in version ${versionId}`);
     
     // Get book names for the results
     const bookIds = [...new Set(verses.map(verse => verse.book_id))];
