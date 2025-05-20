@@ -192,31 +192,13 @@ export const searchBibleVerses = async (
     // 2. Second attempt: Text search across all verses
     const searchQueryTrimmed = query.trim();
     
-    // Build the query for text search - THIS IS THE CRITICAL PART TO FIX
-    let { data: verses, error } = await supabase
+    // First try using ilike for better compatibility across all Supabase versions
+    const { data: verses, error } = await supabase
       .from('bible_verses')
       .select('*')
-      .textSearch('text', searchQueryTrimmed)
-      // If searchBySpecificVersion is true, we filter by the specific version
-      .eq(searchBySpecificVersion ? 'version_id' : 'version_id', searchBySpecificVersion ? versionId : versionId)
+      .ilike('text', `%${searchQueryTrimmed}%`)
+      .eq('version_id', versionId)
       .limit(limit);
-    
-    // If textSearch didn't work or no results, try with ilike
-    if ((!verses || verses.length === 0) && !error) {
-      const { data: ilikeverses, error: ilikeError } = await supabase
-        .from('bible_verses')
-        .select('*')
-        .ilike('text', `%${searchQueryTrimmed}%`)
-        // If searchBySpecificVersion is true, we filter by the specific version
-        .eq(searchBySpecificVersion ? 'version_id' : 'version_id', searchBySpecificVersion ? versionId : versionId)
-        .limit(limit);
-      
-      if (ilikeError) {
-        console.error('Error searching Bible with ilike:', ilikeError);
-      } else {
-        verses = ilikeverses;
-      }
-    }
     
     if (error) {
       console.error('Error searching Bible:', error);
@@ -224,54 +206,86 @@ export const searchBibleVerses = async (
     }
     
     if (!verses || verses.length === 0) {
-      console.log(`No results found for "${query}"`);
-      return [];
+      // If no results with ilike, try textSearch as a fallback
+      try {
+        const { data: textSearchVerses, error: textSearchError } = await supabase
+          .from('bible_verses')
+          .select('*')
+          .textSearch('text', searchQueryTrimmed)
+          .eq('version_id', versionId)
+          .limit(limit);
+        
+        if (textSearchError) {
+          console.error('Error using textSearch:', textSearchError);
+          return [];
+        }
+        
+        if (!textSearchVerses || textSearchVerses.length === 0) {
+          console.log(`No results found for "${query}"`);
+          return [];
+        }
+        
+        // Get book names for the text search results
+        return await addBookNamesToVerses(textSearchVerses);
+      } catch (textSearchErr) {
+        console.error('TextSearch failed, likely not supported:', textSearchErr);
+        return [];
+      }
     }
     
     console.log(`Found ${verses.length} matches for "${query}"`);
     
-    // Get book names for the results
-    const bookIds = [...new Set(verses.map(verse => verse.book_id))];
-    const versionIds = [...new Set(verses.map(verse => verse.version_id))];
+    // Add book names to the results
+    return await addBookNamesToVerses(verses);
     
-    // Get all relevant book names across all versions in the results
-    const { data: bookData } = await supabase
-      .from('bible_books')
-      .select('book_id, name, version_id')
-      .in('book_id', bookIds)
-      .in('version_id', versionIds);
-    
-    // Create a lookup map for book names by book_id and version_id
-    const bookNames: Record<string, Record<string, string>> = {};
-    
-    if (bookData && bookData.length > 0) {
-      bookData.forEach(book => {
-        if (!bookNames[book.book_id]) {
-          bookNames[book.book_id] = {};
-        }
-        bookNames[book.book_id][book.version_id] = book.name;
-      });
-    }
-    
-    // Return results with book names
-    return verses.map(verse => {
-      // Get book name for this verse's version
-      let bookName = verse.book_id;
-      
-      // Try to get the book name for this specific version
-      if (bookNames[verse.book_id] && bookNames[verse.book_id][verse.version_id]) {
-        bookName = bookNames[verse.book_id][verse.version_id];
-      }
-      
-      return {
-        ...verse,
-        book_name: bookName
-      };
-    });
   } catch (error) {
     console.error('Error in searchBible:', error);
     return [];
   }
+};
+
+// Helper function to add book names to verses
+const addBookNamesToVerses = async (verses: any[]): Promise<BibleVerse[]> => {
+  if (!verses || verses.length === 0) return [];
+  
+  // Get book names for the results
+  const bookIds = [...new Set(verses.map(verse => verse.book_id))];
+  const versionIds = [...new Set(verses.map(verse => verse.version_id))];
+  
+  // Get all relevant book names across all versions in the results
+  const { data: bookData } = await supabase
+    .from('bible_books')
+    .select('book_id, name, version_id')
+    .in('book_id', bookIds)
+    .in('version_id', versionIds);
+  
+  // Create a lookup map for book names by book_id and version_id
+  const bookNames: Record<string, Record<string, string>> = {};
+  
+  if (bookData && bookData.length > 0) {
+    bookData.forEach(book => {
+      if (!bookNames[book.book_id]) {
+        bookNames[book.book_id] = {};
+      }
+      bookNames[book.book_id][book.version_id] = book.name;
+    });
+  }
+  
+  // Return results with book names
+  return verses.map(verse => {
+    // Get book name for this verse's version
+    let bookName = verse.book_id;
+    
+    // Try to get the book name for this specific version
+    if (bookNames[verse.book_id] && bookNames[verse.book_id][verse.version_id]) {
+      bookName = bookNames[verse.book_id][verse.version_id];
+    }
+    
+    return {
+      ...verse,
+      book_name: bookName
+    };
+  });
 };
 
 // Helper function for searching by book ID, chapter, and optional verse

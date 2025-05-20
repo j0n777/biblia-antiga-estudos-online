@@ -29,7 +29,7 @@ const SearchInput = ({
       <div className="flex gap-2">
         <div className="relative flex-grow">
           <Input
-            placeholder="Digite uma referência (João 3:16) ou termo..."
+            placeholder="Digite uma palavra (paz) ou referência (João 3:16)..."
             value={searchQuery}
             onChange={onInputChange}
             onKeyDown={handleKeyDown}
@@ -51,7 +51,7 @@ const SearchInput = ({
         </Button>
       </div>
       <p className="text-sm text-muted-foreground mt-1">
-        Dica: Você pode pesquisar por referência (ex: "João 3:16") ou por palavras como "paz", "amor".
+        Dica: Você pode pesquisar por qualquer palavra como "paz", "amor", ou por referência como "João 3:16".
       </p>
     </div>
   );
