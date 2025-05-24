@@ -9,9 +9,8 @@ export const useSearchBible = () => {
   const [searchResults, setSearchResults] = useState<BibleVerse[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
-  const [preferredVersion, setPreferredVersion] = useState<string | undefined>(undefined);
+  const [preferredVersion, setPreferredVersion] = useState<string>('kja');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const searchTimeoutRef = useRef<number | null>(null);
   const isSearchingRef = useRef<boolean>(false);
 
   // Load user's preferred Bible version and search history
@@ -69,7 +68,7 @@ export const useSearchBible = () => {
     setSearchQuery(query); // Update the input field with the searched query
     
     try {
-      console.log(`Starting search for "${query}" using version: ${preferredVersion || 'kja'}`);
+      console.log(`Starting search for "${query}" using version: ${preferredVersion}`);
       
       // Call searchBibleVerses with query and preferred version
       const results = await searchBibleVerses(query, preferredVersion);
@@ -84,6 +83,7 @@ export const useSearchBible = () => {
     } catch (error) {
       console.error('Error searching Bible verses:', error);
       setSearchResults([]);
+      setHasSearched(true);
     } finally {
       setIsSearching(false);
       isSearchingRef.current = false;
@@ -94,15 +94,6 @@ export const useSearchBible = () => {
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-  }, []);
-
-  // Clean up timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        window.clearTimeout(searchTimeoutRef.current);
-      }
-    };
   }, []);
 
   return {

@@ -43,56 +43,24 @@ export const searchBibleVerses = async (
       
       console.log(`Reference search detected: ${trimmedBookName} ${chapter}${verse ? ':' + verse : ''}`);
       
-      // Try to find matching book_id
-      const { data: books } = await supabase
-        .from('bible_books')
-        .select('book_id, name')
-        .eq('version_id', versionId)
-        .ilike('name', `%${trimmedBookName}%`);
-      
-      if (!books || books.length === 0) {
-        // Try searching in book_id directly
-        return await searchByBookId(trimmedBookName, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
-      }
-      
-      // Use the first matching book
-      const bookId = books[0].book_id;
-      return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+      return await searchByReference(trimmedBookName, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // For text search - simplified and more reliable approach
-    const searchQueryTrimmed = query.trim();
-    console.log(`Performing text search for: "${searchQueryTrimmed}"`);
+    // Text search - simple word search
+    const searchTerm = query.trim();
+    console.log(`Performing text search for: "${searchTerm}"`);
     
-    // Single strategy: Use to_tsquery for better text search
+    // Use simple ILIKE search for better compatibility
     const { data: verses, error } = await supabase
       .from('bible_verses')
       .select('*')
       .eq('version_id', versionId)
-      .textSearch('text', searchQueryTrimmed, {
-        type: 'websearch'
-      })
+      .ilike('text', `%${searchTerm}%`)
       .limit(limit);
     
     if (error) {
       console.error('Text search error:', error);
-      
-      // Fallback to simple ILIKE search
-      console.log('Falling back to ILIKE search...');
-      const { data: fallbackVerses, error: fallbackError } = await supabase
-        .from('bible_verses')
-        .select('*')
-        .eq('version_id', versionId)
-        .ilike('text', `%${searchQueryTrimmed}%`)
-        .limit(limit);
-      
-      if (fallbackError) {
-        console.error('Fallback search error:', fallbackError);
-        return [];
-      }
-      
-      console.log(`Fallback search found ${fallbackVerses?.length || 0} results`);
-      return await addBookNamesToVerses(fallbackVerses || []);
+      return [];
     }
     
     console.log(`Text search found ${verses?.length || 0} results`);
@@ -156,7 +124,7 @@ const addBookNamesToVerses = async (verses: any[]): Promise<BibleVerse[]> => {
 };
 
 // Helper function for searching by book ID, chapter, and optional verse
-const searchByBookId = async (
+const searchByReference = async (
   bookId: string, 
   chapter: number, 
   verse?: number, 
@@ -210,7 +178,7 @@ const searchByBookId = async (
       book_name: bookData?.name || normalizedBookId
     }));
   } catch (error) {
-    console.error('Error in searchByBookId:', error);
+    console.error('Error in searchByReference:', error);
     return [];
   }
 };
