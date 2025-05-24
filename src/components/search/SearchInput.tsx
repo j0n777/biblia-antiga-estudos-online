@@ -1,5 +1,4 @@
 
-import { useState, useRef, useCallback } from 'react';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -31,34 +30,29 @@ const SearchInput = ({
   };
   
   return (
-    <div className="mb-4">
-      <div className="flex gap-2">
-        <div className="relative flex-grow">
-          <Input
-            placeholder="Digite qualquer palavra (ex: amor, paz, Jesus) ou referência (João 3:16)..."
-            value={searchQuery}
-            onChange={onInputChange}
-            onKeyDown={handleKeyDown}
-            className="bg-parchment-light border-parchment-dark/20 pr-10 rounded-lg"
-          />
-          {isSearching && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-            </div>
-          )}
-        </div>
-        <Button 
-          onClick={handleButtonClick}
-          disabled={isSearching || searchQuery.trim().length < 2}
-          className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-lg"
-        >
-          <SearchIcon className="h-4 w-4 mr-2" />
-          Buscar
-        </Button>
+    <div className="flex gap-3">
+      <div className="relative flex-grow">
+        <Input
+          placeholder="Digite qualquer palavra (ex: amor, paz, Jesus) ou referência (João 3:16)..."
+          value={searchQuery}
+          onChange={onInputChange}
+          onKeyDown={handleKeyDown}
+          className="bg-white border-parchment-dark/20 pr-10 rounded-lg text-base h-12"
+        />
+        {isSearching && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        )}
       </div>
-      <p className="text-sm text-muted-foreground mt-1">
-        Busque por qualquer palavra que apareça no texto dos versículos (amor, paz, Jesus) ou por referência específica (João 3:16).
-      </p>
+      <Button 
+        onClick={handleButtonClick}
+        disabled={isSearching || searchQuery.trim().length < 2}
+        className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-lg h-12 px-6"
+      >
+        <SearchIcon className="h-4 w-4 mr-2" />
+        Buscar
+      </Button>
     </div>
   );
 };

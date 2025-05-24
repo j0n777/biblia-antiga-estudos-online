@@ -1,5 +1,6 @@
 
 import { Badge } from '@/components/ui/badge';
+import { Lightbulb } from 'lucide-react';
 
 interface SearchSuggestionsProps {
   suggestions: string[];
@@ -10,14 +11,17 @@ const SearchSuggestions = ({ suggestions, onSuggestionClick }: SearchSuggestions
   if (!suggestions || suggestions.length === 0) return null;
 
   return (
-    <div className="mb-3">
-      <h3 className="text-sm font-medium text-scripture-heading mb-2">Sugestões de busca:</h3>
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-scripture-heading flex items-center gap-2">
+        <Lightbulb className="h-4 w-4 text-ancient-gold" />
+        Sugestões de busca:
+      </h3>
       <div className="flex flex-wrap gap-2">
         {suggestions.map(suggestion => (
           <Badge 
             key={suggestion}
             variant="outline" 
-            className="bg-parchment-dark/10 hover:bg-parchment-dark/20 cursor-pointer rounded-lg border-parchment-dark/20"
+            className="bg-ancient-gold/5 hover:bg-ancient-gold/15 cursor-pointer rounded-lg border-ancient-gold/20 text-scripture-text transition-colors"
             onClick={() => onSuggestionClick(suggestion)}
           >
             {suggestion}

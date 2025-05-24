@@ -41,6 +41,8 @@ export const searchBibleVerses = async (
       const [, bookName, chapter, verse] = referenceMatch;
       const trimmedBookName = bookName.trim().toLowerCase();
       
+      console.log(`Reference search detected: ${trimmedBookName} ${chapter}${verse ? ':' + verse : ''}`);
+      
       // Try to find matching book_id
       const { data: books } = await supabase
         .from('bible_books')
@@ -58,68 +60,47 @@ export const searchBibleVerses = async (
       return await searchByBookId(bookId, parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // For text search - use multiple search strategies to find the word
+    // For text search - simplified and more reliable approach
     const searchQueryTrimmed = query.trim();
-    
     console.log(`Performing text search for: "${searchQueryTrimmed}"`);
     
-    // Strategy 1: Direct ILIKE search with word boundaries
-    let verses: any[] = [];
-    
-    // Try exact word match first (with word boundaries)
-    const { data: exactWordVerses, error: exactError } = await supabase
+    // Single strategy: Use to_tsquery for better text search
+    const { data: verses, error } = await supabase
       .from('bible_verses')
       .select('*')
       .eq('version_id', versionId)
-      .ilike('text', `% ${searchQueryTrimmed} %`)
+      .textSearch('text', searchQueryTrimmed, {
+        type: 'websearch'
+      })
       .limit(limit);
     
-    if (!exactError && exactWordVerses && exactWordVerses.length > 0) {
-      verses = exactWordVerses;
-      console.log(`Found ${verses.length} exact word matches`);
-    } else {
-      // Strategy 2: Broader ILIKE search
-      const { data: broadVerses, error: broadError } = await supabase
+    if (error) {
+      console.error('Text search error:', error);
+      
+      // Fallback to simple ILIKE search
+      console.log('Falling back to ILIKE search...');
+      const { data: fallbackVerses, error: fallbackError } = await supabase
         .from('bible_verses')
         .select('*')
         .eq('version_id', versionId)
         .ilike('text', `%${searchQueryTrimmed}%`)
         .limit(limit);
       
-      if (!broadError && broadVerses && broadVerses.length > 0) {
-        verses = broadVerses;
-        console.log(`Found ${verses.length} broad matches`);
-      } else {
-        // Strategy 3: Try with different case variations
-        const variations = [
-          searchQueryTrimmed.toLowerCase(),
-          searchQueryTrimmed.toUpperCase(),
-          searchQueryTrimmed.charAt(0).toUpperCase() + searchQueryTrimmed.slice(1).toLowerCase()
-        ];
-        
-        for (const variation of variations) {
-          const { data: variationVerses, error: variationError } = await supabase
-            .from('bible_verses')
-            .select('*')
-            .eq('version_id', versionId)
-            .ilike('text', `%${variation}%`)
-            .limit(limit);
-          
-          if (!variationError && variationVerses && variationVerses.length > 0) {
-            verses = variationVerses;
-            console.log(`Found ${verses.length} matches with case variation: ${variation}`);
-            break;
-          }
-        }
+      if (fallbackError) {
+        console.error('Fallback search error:', fallbackError);
+        return [];
       }
+      
+      console.log(`Fallback search found ${fallbackVerses?.length || 0} results`);
+      return await addBookNamesToVerses(fallbackVerses || []);
     }
     
-    if (verses.length === 0) {
+    console.log(`Text search found ${verses?.length || 0} results`);
+    
+    if (!verses || verses.length === 0) {
       console.log(`No results found for "${query}" in version ${versionId}`);
       return [];
     }
-    
-    console.log(`Found ${verses.length} matches for "${query}"`);
     
     // Add book names to the results
     return await addBookNamesToVerses(verses);
