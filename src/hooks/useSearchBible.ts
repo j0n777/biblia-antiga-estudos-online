@@ -66,14 +66,21 @@ export const useSearchBible = () => {
     isSearchingRef.current = true;
     setIsSearching(true);
     setSearchQuery(query); // Update the input field with the searched query
+    setHasSearched(false); // Reset state for new search
+    setSearchResults([]); // Clear previous results
     
     try {
-      console.log(`Starting search for "${query}" using version: ${preferredVersion}`);
+      console.log(`=== STARTING SEARCH ===`);
+      console.log(`Query: "${query}"`);
+      console.log(`Version: ${preferredVersion}`);
+      console.log(`Query length: ${query.length}`);
       
       // Call searchBibleVerses with query and preferred version
       const results = await searchBibleVerses(query, preferredVersion);
       
-      console.log(`Search completed. Found ${results.length} results`);
+      console.log(`=== SEARCH COMPLETED ===`);
+      console.log(`Results found: ${results.length}`);
+      console.log('Results:', results);
       
       setSearchResults(results);
       setHasSearched(true);
@@ -81,6 +88,7 @@ export const useSearchBible = () => {
       // Add to search history
       saveSearchToHistory(query);
     } catch (error) {
+      console.error('=== SEARCH ERROR ===');
       console.error('Error searching Bible verses:', error);
       setSearchResults([]);
       setHasSearched(true);
