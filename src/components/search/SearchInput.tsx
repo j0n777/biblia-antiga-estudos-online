@@ -20,8 +20,14 @@ const SearchInput = ({
   // Handle keyboard submission (Enter key)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim().length >= 2 && !isSearching) {
+      console.log(`Enter pressed, searching for: "${searchQuery}"`);
       onSearchClick();
     }
+  };
+  
+  const handleButtonClick = () => {
+    console.log(`Search button clicked for: "${searchQuery}"`);
+    onSearchClick();
   };
   
   return (
@@ -29,7 +35,7 @@ const SearchInput = ({
       <div className="flex gap-2">
         <div className="relative flex-grow">
           <Input
-            placeholder="Digite uma palavra (paz) ou referência (João 3:16)..."
+            placeholder="Digite qualquer palavra (ex: amor, paz, Jesus) ou referência (João 3:16)..."
             value={searchQuery}
             onChange={onInputChange}
             onKeyDown={handleKeyDown}
@@ -42,7 +48,7 @@ const SearchInput = ({
           )}
         </div>
         <Button 
-          onClick={onSearchClick}
+          onClick={handleButtonClick}
           disabled={isSearching || searchQuery.trim().length < 2}
           className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-lg"
         >
@@ -51,7 +57,7 @@ const SearchInput = ({
         </Button>
       </div>
       <p className="text-sm text-muted-foreground mt-1">
-        Dica: Você pode pesquisar por qualquer palavra como "paz", "amor", ou por referência como "João 3:16".
+        Busque por qualquer palavra que apareça no texto dos versículos (amor, paz, Jesus) ou por referência específica (João 3:16).
       </p>
     </div>
   );

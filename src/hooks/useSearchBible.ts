@@ -21,6 +21,10 @@ export const useSearchBible = () => {
         const userProfile = await getUserProfile();
         if (userProfile && userProfile.preferred_bible_version) {
           setPreferredVersion(userProfile.preferred_bible_version);
+          console.log(`Loaded preferred version: ${userProfile.preferred_bible_version}`);
+        } else {
+          setPreferredVersion('kja');
+          console.log('Using default version: kja');
         }
         
         // Load search history from localStorage
@@ -30,6 +34,7 @@ export const useSearchBible = () => {
         }
       } catch (error) {
         console.error('Error loading user preferences:', error);
+        setPreferredVersion('kja');
       }
     };
     
@@ -54,6 +59,7 @@ export const useSearchBible = () => {
   const handleSearch = useCallback(async (query: string) => {
     // Skip if already searching or query is too short
     if (isSearchingRef.current || query.trim().length < 2) {
+      console.log('Skipping search: already searching or query too short');
       return;
     }
     
@@ -63,10 +69,13 @@ export const useSearchBible = () => {
     setSearchQuery(query); // Update the input field with the searched query
     
     try {
-      console.log(`Searching for "${query}" using version: ${preferredVersion || 'user default'}`);
+      console.log(`Starting search for "${query}" using version: ${preferredVersion || 'kja'}`);
       
       // Call searchBibleVerses with query and preferred version
       const results = await searchBibleVerses(query, preferredVersion);
+      
+      console.log(`Search completed. Found ${results.length} results`);
+      
       setSearchResults(results);
       setHasSearched(true);
       
