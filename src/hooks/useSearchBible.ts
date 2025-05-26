@@ -3,6 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { BibleVerse } from '@/types/bible.types';
 import { searchBibleVerses } from '@/services/bible';
 import { getUserProfile } from '@/services/ProfileService';
+import { toast } from '@/components/ui/use-toast';
 
 export const useSearchBible = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -13,7 +14,7 @@ export const useSearchBible = () => {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const isSearchingRef = useRef<boolean>(false);
 
-  // Load user's preferred Bible version and search history
+  // Load user preferences
   useEffect(() => {
     const loadUserPreferences = async () => {
       try {
@@ -26,7 +27,7 @@ export const useSearchBible = () => {
           console.log('Using default version: kja');
         }
         
-        // Load search history from localStorage
+        // Load search history
         const savedSearchHistory = localStorage.getItem('searchHistory');
         if (savedSearchHistory) {
           setSearchHistory(JSON.parse(savedSearchHistory));
@@ -40,65 +41,79 @@ export const useSearchBible = () => {
     loadUserPreferences();
   }, []);
   
-  // Save search history to localStorage
+  // Save search to history
   const saveSearchToHistory = (query: string) => {
     if (query.trim().length < 2) return;
     
     setSearchHistory(prevHistory => {
-      // Remove duplicate if it exists
       const filteredHistory = prevHistory.filter(item => item.toLowerCase() !== query.toLowerCase());
-      // Add new search to the beginning and limit to 5 items
       const newHistory = [query, ...filteredHistory].slice(0, 5);
-      // Save to localStorage
       localStorage.setItem('searchHistory', JSON.stringify(newHistory));
       return newHistory;
     });
   };
 
   const handleSearch = useCallback(async (query: string) => {
-    // Skip if already searching or query is too short
+    // Prevent duplicate searches
     if (isSearchingRef.current || query.trim().length < 2) {
       console.log('Skipping search: already searching or query too short');
       return;
     }
     
-    // Set searching status
+    console.log('=== STARTING SEARCH PROCESS ===');
+    console.log(`Query: "${query}"`);
+    console.log(`Preferred version: ${preferredVersion}`);
+    
+    // Set searching state
     isSearchingRef.current = true;
     setIsSearching(true);
-    setSearchQuery(query); // Update the input field with the searched query
-    setHasSearched(false); // Reset state for new search
-    setSearchResults([]); // Clear previous results
+    setSearchQuery(query);
+    setHasSearched(false);
+    setSearchResults([]);
     
     try {
-      console.log(`=== STARTING SEARCH ===`);
-      console.log(`Query: "${query}"`);
-      console.log(`Version: ${preferredVersion}`);
-      console.log(`Query length: ${query.length}`);
-      
-      // Call searchBibleVerses with query and preferred version
+      console.log('Calling searchBibleVerses...');
       const results = await searchBibleVerses(query, preferredVersion);
       
-      console.log(`=== SEARCH COMPLETED ===`);
-      console.log(`Results found: ${results.length}`);
+      console.log('=== SEARCH RESULTS ===');
+      console.log(`Results count: ${results.length}`);
       console.log('Results:', results);
       
       setSearchResults(results);
       setHasSearched(true);
       
-      // Add to search history
-      saveSearchToHistory(query);
+      // Save to history if we got results
+      if (results.length > 0) {
+        saveSearchToHistory(query);
+        toast({
+          title: "Busca concluída",
+          description: `${results.length} versículo${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}`,
+        });
+      } else {
+        toast({
+          title: "Nenhum resultado",
+          description: "Tente outras palavras ou verifique a ortografia",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('=== SEARCH ERROR ===');
-      console.error('Error searching Bible verses:', error);
+      console.error('Search failed:', error);
       setSearchResults([]);
       setHasSearched(true);
+      
+      toast({
+        title: "Erro na busca",
+        description: "Ocorreu um problema ao buscar. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsSearching(false);
       isSearchingRef.current = false;
+      console.log('=== SEARCH PROCESS COMPLETED ===');
     }
   }, [preferredVersion]);
 
-  // Handle input change
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
