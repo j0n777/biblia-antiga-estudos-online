@@ -1,7 +1,8 @@
 
-import { Loader2, SearchIcon, BookOpen } from 'lucide-react';
+import { Loader2, SearchIcon, BookOpen, Info } from 'lucide-react';
 import { BibleVerse } from '@/types/bible.types';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SearchResultsProps {
   isSearching: boolean;
@@ -22,8 +23,22 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
 
   if (hasSearched) {
     if (searchResults.length > 0) {
+      // Check if results are from different version than expected
+      const resultVersions = [...new Set(searchResults.map(v => v.version_id))];
+      const isFromDifferentVersion = resultVersions.length > 0 && !resultVersions.includes('kja');
+      
       return (
         <div className="p-6">
+          {isFromDifferentVersion && (
+            <Alert className="mb-4 border-amber-200 bg-amber-50">
+              <Info className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                Resultados encontrados em outra versão da Bíblia ({resultVersions.join(', ')}). 
+                Sua versão preferida (KJA) pode não ter dados disponíveis para esta busca.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="flex items-center gap-2 mb-6 pb-4 border-b border-parchment-dark/10">
             <BookOpen className="h-5 w-5 text-ancient-gold" />
             <h2 className="text-lg font-semibold text-scripture-heading">
@@ -32,6 +47,11 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
                 : `${searchResults.length} versículos encontrados`
               }
             </h2>
+            {resultVersions.length > 0 && (
+              <span className="text-sm text-muted-foreground ml-2">
+                (Versão: {resultVersions.join(', ')})
+              </span>
+            )}
           </div>
           
           <div className="space-y-6">
@@ -41,6 +61,11 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
                   <div className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-2 py-1 rounded">
                     {verse.book_name} {verse.chapter_number}:{verse.verse_number}
                   </div>
+                  {verse.version_id && (
+                    <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">
+                      {verse.version_id.toUpperCase()}
+                    </span>
+                  )}
                 </div>
                 <BibleVerseComponent verse={verse} />
               </div>
