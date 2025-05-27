@@ -77,7 +77,16 @@ export const useSearchBible = () => {
       
       console.log('=== SEARCH RESULTS ===');
       console.log(`Results count: ${results.length}`);
-      console.log('First few results:', results.slice(0, 3));
+      if (results.length > 0) {
+        console.log('First result sample:', {
+          id: results[0].id,
+          book_name: results[0].book_name,
+          chapter: results[0].chapter_number,
+          verse: results[0].verse_number,
+          version: results[0].version_id,
+          text_preview: results[0].text?.substring(0, 100) + '...'
+        });
+      }
       
       setSearchResults(results);
       setHasSearched(true);
@@ -85,14 +94,19 @@ export const useSearchBible = () => {
       // Save to history and show toast based on results
       if (results.length > 0) {
         saveSearchToHistory(query);
+        
+        // Check version used
+        const resultVersions = [...new Set(results.map(r => r.version_id).filter(Boolean))];
+        const versionInfo = resultVersions.length > 0 ? ` (${resultVersions.join(', ')})` : '';
+        
         toast({
           title: "Busca concluída",
-          description: `${results.length} versículo${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}`,
+          description: `${results.length} versículo${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}${versionInfo}`,
         });
       } else {
         toast({
           title: "Nenhum resultado",
-          description: "Não foram encontrados versículos para esta busca. Tente outras palavras.",
+          description: "Não foram encontrados versículos para esta busca. Tente outras palavras ou uma referência específica.",
           variant: "destructive"
         });
       }

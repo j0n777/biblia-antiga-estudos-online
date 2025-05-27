@@ -34,18 +34,19 @@ export const searchBibleVerses = async (
     
     console.log(`Using version: ${versionId}`);
     
-    // First, let's check what versions actually exist in the database
-    const { data: availableVersions, error: versionsError } = await supabase
+    // First, let's check what data we actually have
+    const { data: verseSample, error: sampleError } = await supabase
       .from('bible_verses')
-      .select('version_id')
-      .not('version_id', 'is', null)
+      .select('version_id, book_id, chapter_number, verse_number, text')
+      .not('text', 'is', null)
       .limit(10);
     
-    if (versionsError) {
-      console.error('Error checking available versions:', versionsError);
+    if (sampleError) {
+      console.error('Error checking verse sample:', sampleError);
     } else {
-      const uniqueVersions = [...new Set(availableVersions?.map(v => v.version_id) || [])];
-      console.log('Available versions in database:', uniqueVersions);
+      console.log('Sample verses in database:', verseSample);
+      const availableVersions = [...new Set(verseSample?.map(v => v.version_id).filter(Boolean) || [])];
+      console.log('Available versions from sample:', availableVersions);
     }
     
     // Check if it's a reference search (like "joão 3:16" or "genesis 1:1")
@@ -61,53 +62,69 @@ export const searchBibleVerses = async (
     console.log('Performing text search...');
     const searchTerm = query.trim();
     
-    // Try to search in the specified version first
-    console.log(`Searching in version: ${versionId}`);
-    let { data: verses, error } = await supabase
-      .from('bible_verses')
-      .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
-      .eq('version_id', versionId)
-      .ilike('text', `%${searchTerm}%`)
-      .limit(limit);
+    // Try multiple search strategies
+    let verses: any[] = [];
     
-    if (error) {
-      console.error('Error in version-specific search:', error);
-    }
-    
-    console.log(`Found ${verses?.length || 0} verses in version ${versionId}`);
-    
-    // If no results in preferred version, try other versions
-    if (!verses || verses.length === 0) {
-      console.log('No results in preferred version, trying other versions...');
-      
-      const { data: alternativeVerses, error: altError } = await supabase
+    // Strategy 1: Search in preferred version
+    if (versionId) {
+      console.log(`Strategy 1: Searching in preferred version: ${versionId}`);
+      const { data: versionVerses, error } = await supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
-        .not('version_id', 'is', null)
+        .eq('version_id', versionId)
         .ilike('text', `%${searchTerm}%`)
         .limit(limit);
       
-      if (altError) {
-        console.error('Error in alternative search:', altError);
-        return [];
+      if (!error && versionVerses && versionVerses.length > 0) {
+        verses = versionVerses;
+        console.log(`Found ${verses.length} verses in preferred version`);
+      } else {
+        console.log(`No results in preferred version (${versionId})`);
       }
+    }
+    
+    // Strategy 2: If no results, search in any version
+    if (verses.length === 0) {
+      console.log('Strategy 2: Searching in any available version...');
+      const { data: anyVersionVerses, error: altError } = await supabase
+        .from('bible_verses')
+        .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+        .ilike('text', `%${searchTerm}%`)
+        .not('version_id', 'is', null)
+        .limit(limit);
       
-      verses = alternativeVerses;
-      console.log(`Found ${verses?.length || 0} verses in alternative versions`);
+      if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
+        verses = anyVersionVerses;
+        console.log(`Found ${verses.length} verses in alternative versions`);
+      } else {
+        console.log('No results in any version with version_id');
+      }
+    }
+    
+    // Strategy 3: If still no results, search without version filter (including null version_id)
+    if (verses.length === 0) {
+      console.log('Strategy 3: Searching without version filter...');
+      const { data: allVerses, error: allError } = await supabase
+        .from('bible_verses')
+        .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+        .ilike('text', `%${searchTerm}%`)
+        .limit(limit);
       
-      if (verses && verses.length > 0) {
-        const foundVersion = verses[0].version_id;
-        console.log(`Using alternative version: ${foundVersion}`);
+      if (!allError && allVerses && allVerses.length > 0) {
+        verses = allVerses;
+        console.log(`Found ${verses.length} verses without version filter`);
+      } else {
+        console.log('No results found at all');
       }
     }
     
     if (!verses || verses.length === 0) {
-      console.log('No verses found in any version');
+      console.log('=== NO RESULTS FOUND ===');
       return [];
     }
     
     // Add book names to results
-    return await addBookNamesToVerses(verses, verses[0].version_id);
+    return await addBookNamesToVerses(verses, verses[0].version_id || 'unknown');
     
   } catch (error) {
     console.error('Error in searchBible:', error);
@@ -119,63 +136,44 @@ export const searchBibleVerses = async (
 const addBookNamesToVerses = async (verses: any[], versionId: string): Promise<BibleVerse[]> => {
   if (!verses || verses.length === 0) return [];
   
-  console.log(`Adding book names to ${verses.length} verses for version ${versionId}`);
+  console.log(`Adding book names to ${verses.length} verses`);
   
   // Get unique book IDs from the verses
   const bookIds = [...new Set(verses.map(verse => verse.book_id).filter(Boolean))];
   console.log(`Looking up book names for book_ids: ${bookIds.join(', ')}`);
   
-  // Get book names for this specific version
+  // Try to get book names from any version since we might have mixed versions
   const { data: bookData, error: bookError } = await supabase
     .from('bible_books')
-    .select('book_id, name')
-    .eq('version_id', versionId)
+    .select('book_id, name, version_id')
     .in('book_id', bookIds);
   
   if (bookError) {
-    console.error('Error fetching book names for version:', versionId, bookError);
-    
-    // Try to get book names from any version if the specific version fails
-    const { data: anyVersionBooks, error: anyError } = await supabase
-      .from('bible_books')
-      .select('book_id, name')
-      .in('book_id', bookIds)
-      .limit(100);
-    
-    if (anyError) {
-      console.error('Error fetching book names from any version:', anyError);
-    } else {
-      console.log(`Found ${anyVersionBooks?.length || 0} book records from any version`);
-      
-      // Create lookup map from any version
-      const bookNames: Record<string, string> = {};
-      if (anyVersionBooks) {
-        anyVersionBooks.forEach(book => {
-          bookNames[book.book_id] = book.name;
-        });
-      }
-      
-      return verses.map(verse => ({
-        ...verse,
-        book_name: bookNames[verse.book_id] || getDefaultBookName(verse.book_id) || 'Livro Desconhecido'
-      }));
-    }
+    console.error('Error fetching book names:', bookError);
   } else {
-    console.log(`Found ${bookData?.length || 0} book records for version ${versionId}`);
+    console.log(`Found ${bookData?.length || 0} book records`);
   }
   
-  // Create lookup map
+  // Create lookup map - prefer matching version, but accept any version
   const bookNames: Record<string, string> = {};
   if (bookData) {
-    bookData.forEach(book => {
+    // First pass: exact version matches
+    bookData.filter(book => book.version_id === versionId).forEach(book => {
       bookNames[book.book_id] = book.name;
+    });
+    
+    // Second pass: any version for missing books
+    bookData.forEach(book => {
+      if (!bookNames[book.book_id]) {
+        bookNames[book.book_id] = book.name;
+      }
     });
   }
   
   // Return verses with book names
   return verses.map(verse => ({
     ...verse,
-    book_name: bookNames[verse.book_id] || getDefaultBookName(verse.book_id) || 'Livro Desconhecido'
+    book_name: bookNames[verse.book_id] || getDefaultBookName(verse.book_id) || `Livro ${verse.book_id || 'Desconhecido'}`
   }));
 };
 
@@ -266,42 +264,26 @@ const searchByReference = async (
   versionId: string = 'kja'
 ): Promise<BibleVerse[]> => {
   try {
-    console.log(`Reference search: ${bookName} ${chapter}${verse ? ':' + verse : ''} in ${versionId}`);
+    console.log(`Reference search: ${bookName} ${chapter}${verse ? ':' + verse : ''}`);
     
-    // Search for book by name (case insensitive) in the specified version
+    // Search for book by name (case insensitive) in any version
     const { data: books, error: booksError } = await supabase
       .from('bible_books')
-      .select('book_id, name')
-      .eq('version_id', versionId)
+      .select('book_id, name, version_id')
       .ilike('name', `%${bookName}%`);
     
     if (booksError || !books || books.length === 0) {
-      console.log(`No book found for "${bookName}" in version ${versionId}, trying any version...`);
-      
-      // Try to find the book in any version
-      const { data: anyBooks, error: anyBooksError } = await supabase
-        .from('bible_books')
-        .select('book_id, name, version_id')
-        .ilike('name', `%${bookName}%`)
-        .limit(5);
-      
-      if (anyBooksError || !anyBooks || anyBooks.length === 0) {
-        console.log(`No book found for "${bookName}" in any version`);
-        return [];
-      }
-      
-      console.log(`Found book in alternative versions:`, anyBooks);
-      // Use the first available book and its version
-      const book = anyBooks[0];
-      versionId = book.version_id;
-      
-      return searchVersesByBookId(book.book_id, book.name, chapter, verse, versionId);
+      console.log(`No book found for "${bookName}"`);
+      return [];
     }
     
-    const book = books[0];
-    console.log(`Found book: ${book.name} (${book.book_id})`);
+    console.log(`Found books:`, books);
     
-    return searchVersesByBookId(book.book_id, book.name, chapter, verse, versionId);
+    // Prefer the requested version, but accept any version
+    let selectedBook = books.find(book => book.version_id === versionId) || books[0];
+    console.log(`Using book: ${selectedBook.name} (${selectedBook.book_id}) from version ${selectedBook.version_id}`);
+    
+    return searchVersesByBookId(selectedBook.book_id, selectedBook.name, chapter, verse, selectedBook.version_id);
     
   } catch (error) {
     console.error('Error in reference search:', error);
