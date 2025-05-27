@@ -34,19 +34,43 @@ export const searchBibleVerses = async (
     
     console.log(`Using version: ${versionId}`);
     
-    // First, let's check what data we actually have
-    const { data: verseSample, error: sampleError } = await supabase
+    // First, let's check what versions and data we actually have
+    console.log('=== CHECKING AVAILABLE DATA ===');
+    
+    // Check versions in database
+    const { data: versions, error: versionsError } = await supabase
+      .from('bible_versions')
+      .select('id, name, language')
+      .limit(10);
+    
+    if (!versionsError && versions) {
+      console.log('Available versions:', versions);
+    }
+    
+    // Check what data exists for KJA specifically
+    const { data: kjaCheck, error: kjaError } = await supabase
+      .from('bible_verses')
+      .select('version_id, book_id, chapter_number, verse_number, text')
+      .eq('version_id', 'kja')
+      .not('text', 'is', null)
+      .limit(5);
+    
+    if (!kjaError) {
+      console.log('KJA verses sample:', kjaCheck);
+    } else {
+      console.log('Error checking KJA:', kjaError);
+    }
+    
+    // Check general verse data structure
+    const { data: generalCheck, error: generalError } = await supabase
       .from('bible_verses')
       .select('version_id, book_id, chapter_number, verse_number, text')
       .not('text', 'is', null)
+      .not('book_id', 'is', null)
       .limit(10);
     
-    if (sampleError) {
-      console.error('Error checking verse sample:', sampleError);
-    } else {
-      console.log('Sample verses in database:', verseSample);
-      const availableVersions = [...new Set(verseSample?.map(v => v.version_id).filter(Boolean) || [])];
-      console.log('Available versions from sample:', availableVersions);
+    if (!generalError) {
+      console.log('General verses with book_id:', generalCheck);
     }
     
     // Check if it's a reference search (like "joão 3:16" or "genesis 1:1")
@@ -59,62 +83,79 @@ export const searchBibleVerses = async (
     }
     
     // Text search in verses
-    console.log('Performing text search...');
+    console.log('=== PERFORMING TEXT SEARCH ===');
     const searchTerm = query.trim();
     
-    // Try multiple search strategies
     let verses: any[] = [];
     
-    // Strategy 1: Search in preferred version
+    // Strategy 1: Search in preferred version with valid book_id
     if (versionId) {
-      console.log(`Strategy 1: Searching in preferred version: ${versionId}`);
+      console.log(`Strategy 1: Searching in version ${versionId} with valid book_id`);
       const { data: versionVerses, error } = await supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
         .eq('version_id', versionId)
+        .not('book_id', 'is', null)
+        .not('text', 'is', null)
         .ilike('text', `%${searchTerm}%`)
         .limit(limit);
       
       if (!error && versionVerses && versionVerses.length > 0) {
         verses = versionVerses;
-        console.log(`Found ${verses.length} verses in preferred version`);
+        console.log(`Found ${verses.length} verses in ${versionId} with book_id`);
       } else {
-        console.log(`No results in preferred version (${versionId})`);
+        console.log(`No results in ${versionId} with valid book_id`);
       }
     }
     
-    // Strategy 2: If no results, search in any version
+    // Strategy 2: Search in KJA without book_id filter (fallback)
+    if (verses.length === 0 && versionId === 'kja') {
+      console.log('Strategy 2: Searching in KJA without book_id filter');
+      const { data: kjaFallback, error: kjaFallbackError } = await supabase
+        .from('bible_verses')
+        .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+        .eq('version_id', 'kja')
+        .not('text', 'is', null)
+        .ilike('text', `%${searchTerm}%`)
+        .limit(limit);
+      
+      if (!kjaFallbackError && kjaFallback && kjaFallback.length > 0) {
+        verses = kjaFallback;
+        console.log(`Found ${verses.length} verses in KJA fallback`);
+      }
+    }
+    
+    // Strategy 3: Search in any version with valid book_id
     if (verses.length === 0) {
-      console.log('Strategy 2: Searching in any available version...');
+      console.log('Strategy 3: Searching in any version with valid book_id');
       const { data: anyVersionVerses, error: altError } = await supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
-        .ilike('text', `%${searchTerm}%`)
         .not('version_id', 'is', null)
+        .not('book_id', 'is', null)
+        .not('text', 'is', null)
+        .ilike('text', `%${searchTerm}%`)
         .limit(limit);
       
       if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
         verses = anyVersionVerses;
-        console.log(`Found ${verses.length} verses in alternative versions`);
-      } else {
-        console.log('No results in any version with version_id');
+        console.log(`Found ${verses.length} verses in alternative versions with book_id`);
       }
     }
     
-    // Strategy 3: If still no results, search without version filter (including null version_id)
+    // Strategy 4: Last resort - search without any filters except text
     if (verses.length === 0) {
-      console.log('Strategy 3: Searching without version filter...');
+      console.log('Strategy 4: Last resort search');
       const { data: allVerses, error: allError } = await supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+        .not('text', 'is', null)
         .ilike('text', `%${searchTerm}%`)
         .limit(limit);
       
       if (!allError && allVerses && allVerses.length > 0) {
         verses = allVerses;
-        console.log(`Found ${verses.length} verses without version filter`);
-      } else {
-        console.log('No results found at all');
+        console.log(`Found ${verses.length} verses in last resort search`);
       }
     }
     
@@ -123,8 +164,10 @@ export const searchBibleVerses = async (
       return [];
     }
     
+    console.log('Sample verse before processing:', verses[0]);
+    
     // Add book names to results
-    return await addBookNamesToVerses(verses, verses[0].version_id || 'unknown');
+    return await addBookNamesToVerses(verses, versionId || 'unknown');
     
   } catch (error) {
     console.error('Error in searchBible:', error);
@@ -133,16 +176,24 @@ export const searchBibleVerses = async (
 };
 
 // Helper function to add book names to verses
-const addBookNamesToVerses = async (verses: any[], versionId: string): Promise<BibleVerse[]> => {
+const addBookNamesToVerses = async (verses: any[], preferredVersionId: string): Promise<BibleVerse[]> => {
   if (!verses || verses.length === 0) return [];
   
-  console.log(`Adding book names to ${verses.length} verses`);
+  console.log(`=== ADDING BOOK NAMES TO ${verses.length} VERSES ===`);
   
-  // Get unique book IDs from the verses
+  // Get unique book IDs from the verses (filter out null/undefined)
   const bookIds = [...new Set(verses.map(verse => verse.book_id).filter(Boolean))];
-  console.log(`Looking up book names for book_ids: ${bookIds.join(', ')}`);
+  console.log(`Book IDs found in verses: ${bookIds.join(', ')}`);
   
-  // Try to get book names from any version since we might have mixed versions
+  if (bookIds.length === 0) {
+    console.log('No valid book_ids found, using fallback names');
+    return verses.map(verse => ({
+      ...verse,
+      book_name: `Livro ${verse.chapter_number || 'Desconhecido'}`
+    }));
+  }
+  
+  // Try to get book names - first from preferred version, then any version
   const { data: bookData, error: bookError } = await supabase
     .from('bible_books')
     .select('book_id, name, version_id')
@@ -151,30 +202,42 @@ const addBookNamesToVerses = async (verses: any[], versionId: string): Promise<B
   if (bookError) {
     console.error('Error fetching book names:', bookError);
   } else {
-    console.log(`Found ${bookData?.length || 0} book records`);
+    console.log(`Found ${bookData?.length || 0} book records:`, bookData);
   }
   
   // Create lookup map - prefer matching version, but accept any version
   const bookNames: Record<string, string> = {};
   if (bookData) {
     // First pass: exact version matches
-    bookData.filter(book => book.version_id === versionId).forEach(book => {
-      bookNames[book.book_id] = book.name;
+    bookData.filter(book => book.version_id === preferredVersionId).forEach(book => {
+      if (book.book_id && book.name) {
+        bookNames[book.book_id] = book.name;
+      }
     });
     
     // Second pass: any version for missing books
     bookData.forEach(book => {
-      if (!bookNames[book.book_id]) {
+      if (book.book_id && book.name && !bookNames[book.book_id]) {
         bookNames[book.book_id] = book.name;
       }
     });
   }
   
+  console.log('Book names mapping:', bookNames);
+  
   // Return verses with book names
-  return verses.map(verse => ({
-    ...verse,
-    book_name: bookNames[verse.book_id] || getDefaultBookName(verse.book_id) || `Livro ${verse.book_id || 'Desconhecido'}`
-  }));
+  return verses.map(verse => {
+    const bookName = verse.book_id 
+      ? (bookNames[verse.book_id] || getDefaultBookName(verse.book_id) || `Livro ${verse.book_id}`)
+      : `Capítulo ${verse.chapter_number || 'Desconhecido'}`;
+    
+    console.log(`Verse ${verse.id}: book_id="${verse.book_id}" -> book_name="${bookName}"`);
+    
+    return {
+      ...verse,
+      book_name: bookName
+    };
+  });
 };
 
 // Helper function to get default book names when database lookup fails
