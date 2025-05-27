@@ -4,69 +4,7 @@ import { BibleVerse } from '@/types/bible.types';
 import { getUserProfile } from '@/services/ProfileService';
 
 /**
- * Debug function to check database state
- */
-const debugDatabaseState = async () => {
-  console.log('=== DATABASE DEBUG START ===');
-  
-  // Check all versions
-  const { data: allVersions } = await supabase
-    .from('bible_versions')
-    .select('id, name');
-  console.log('All versions:', allVersions);
-  
-  // Check all verses count by version
-  if (allVersions && allVersions.length > 0) {
-    for (const version of allVersions) {
-      const { data: verses, count } = await supabase
-        .from('bible_verses')
-        .select('id', { count: 'exact' })
-        .eq('version_id', version.id)
-        .limit(1);
-      console.log(`Version ${version.id} (${version.name}): ${count} verses total`);
-    }
-  }
-  
-  // Check sample verses
-  const { data: sampleVerses } = await supabase
-    .from('bible_verses')
-    .select('id, version_id, book_id, chapter_number, verse_number, text')
-    .limit(5);
-  console.log('Sample verses:', sampleVerses);
-  
-  console.log('=== DATABASE DEBUG END ===');
-};
-
-/**
- * Find the best available version with data
- */
-const findVersionWithData = async (): Promise<string | null> => {
-  console.log('Finding version with data...');
-  
-  const { data: versions } = await supabase
-    .from('bible_versions')
-    .select('id, name');
-    
-  if (!versions) return null;
-  
-  for (const version of versions) {
-    const { data: verses } = await supabase
-      .from('bible_verses')
-      .select('id')
-      .eq('version_id', version.id)
-      .limit(1);
-      
-    if (verses && verses.length > 0) {
-      console.log(`Found version with data: ${version.id} (${version.name})`);
-      return version.id;
-    }
-  }
-  
-  return null;
-};
-
-/**
- * Search the Bible for specific text
+ * Search the Bible for specific text or references
  */
 export const searchBibleVerses = async (
   query: string, 
@@ -80,66 +18,78 @@ export const searchBibleVerses = async (
   
   try {
     console.log('=== SEARCH DEBUG START ===');
-    console.log(`Original query: "${query}"`);
-    console.log(`Original version: ${versionId}`);
+    console.log(`Query: "${query}"`);
+    console.log(`Version: ${versionId}`);
     
-    // Debug database state first
-    await debugDatabaseState();
-    
-    // If no specific version provided, get user's preferred version
+    // Get user's preferred version if not specified
     if (!versionId) {
       try {
         const userProfile = await getUserProfile();
         versionId = userProfile?.preferred_bible_version || 'kja';
-        console.log(`Using user preferred version: ${versionId}`);
       } catch (error) {
         console.error('Error getting user profile:', error);
         versionId = 'kja';
       }
     }
     
-    // Find a version that actually has data
-    let workingVersion = versionId;
-    const { data: versionCheck } = await supabase
-      .from('bible_verses')
-      .select('id')
-      .eq('version_id', versionId)
-      .limit(1);
-      
-    if (!versionCheck || versionCheck.length === 0) {
-      console.warn(`No data found for version ${versionId}, finding alternative...`);
-      workingVersion = await findVersionWithData();
-      
-      if (!workingVersion) {
-        console.error('No version with data found in database');
-        return [];
-      }
-      
-      console.log(`Using alternative version: ${workingVersion}`);
-    }
+    console.log(`Using version: ${versionId}`);
     
-    console.log(`Final version for search: ${workingVersion}`);
-    
-    // Check if it's a reference search (like "john 3:16" or "joão 3:16")
+    // Check if it's a reference search (like "joão 3:16" or "genesis 1:1")
     const referenceMatch = query.match(/([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+)\s*(\d+)(?::(\d+))?/i);
     
     if (referenceMatch) {
       console.log('Reference search detected');
       const [, bookName, chapter, verse] = referenceMatch;
-      return await searchByReference(bookName.trim(), parseInt(chapter), verse ? parseInt(verse) : undefined, workingVersion);
+      return await searchByReference(bookName.trim(), parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
     }
     
-    // Text search - simple and direct approach
+    // Text search in verses
     console.log('Performing text search...');
     const searchTerm = query.trim();
     
-    // Direct text search with ILIKE
-    console.log(`Searching for text: "${searchTerm}" in version: ${workingVersion}`);
+    // First, let's check if we have any verses at all for this version
+    const { data: versionCheck, error: versionError } = await supabase
+      .from('bible_verses')
+      .select('id, text, book_id, chapter_number, verse_number')
+      .eq('version_id', versionId)
+      .limit(1);
     
+    if (versionError) {
+      console.error('Version check error:', versionError);
+      return [];
+    }
+    
+    console.log(`Version check result: ${versionCheck?.length || 0} verses found for version ${versionId}`);
+    
+    if (!versionCheck || versionCheck.length === 0) {
+      // Try with any available version
+      console.log('No verses found for specified version, trying any version...');
+      
+      const { data: anyVersionVerses, error: anyError } = await supabase
+        .from('bible_verses')
+        .select('id, text, book_id, chapter_number, verse_number, version_id')
+        .ilike('text', `%${searchTerm}%`)
+        .limit(limit);
+      
+      if (anyError) {
+        console.error('Any version search error:', anyError);
+        return [];
+      }
+      
+      console.log(`Found ${anyVersionVerses?.length || 0} verses in any version`);
+      
+      if (anyVersionVerses && anyVersionVerses.length > 0) {
+        return await addBookNamesToVerses(anyVersionVerses, anyVersionVerses[0].version_id);
+      }
+      
+      return [];
+    }
+    
+    // Search in the specified version
     const { data: verses, error } = await supabase
       .from('bible_verses')
-      .select('*')
-      .eq('version_id', workingVersion)
+      .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+      .eq('version_id', versionId)
       .ilike('text', `%${searchTerm}%`)
       .limit(limit);
     
@@ -151,12 +101,11 @@ export const searchBibleVerses = async (
     console.log(`Found ${verses?.length || 0} verses`);
     
     if (!verses || verses.length === 0) {
-      console.log('No results found');
       return [];
     }
     
     // Add book names to results
-    return await addBookNamesToVerses(verses, workingVersion);
+    return await addBookNamesToVerses(verses, versionId);
     
   } catch (error) {
     console.error('Error in searchBible:', error);
@@ -198,7 +147,7 @@ const addBookNamesToVerses = async (verses: any[], versionId: string): Promise<B
   // Return verses with book names
   return verses.map(verse => ({
     ...verse,
-    book_name: bookNames[verse.book_id] || verse.book_id
+    book_name: bookNames[verse.book_id] || verse.book_id || 'Livro Desconhecido'
   }));
 };
 
@@ -212,7 +161,7 @@ const searchByReference = async (
   try {
     console.log(`Reference search: ${bookName} ${chapter}${verse ? ':' + verse : ''} in ${versionId}`);
     
-    // Search for book by name
+    // Search for book by name (case insensitive)
     const { data: books, error: booksError } = await supabase
       .from('bible_books')
       .select('book_id, name')
@@ -227,25 +176,13 @@ const searchByReference = async (
     const book = books[0];
     console.log(`Found book: ${book.name} (${book.book_id})`);
     
-    // Get chapter
-    const { data: chapterData, error: chapterError } = await supabase
-      .from('bible_chapters')
-      .select('id')
-      .eq('book_id', book.book_id)
-      .eq('chapter_number', chapter)
-      .eq('version_id', versionId)
-      .maybeSingle();
-    
-    if (chapterError || !chapterData) {
-      console.log(`Chapter not found: ${book.book_id} ${chapter}`);
-      return [];
-    }
-    
-    // Get verses
+    // Search for verses directly by book_id, chapter_number and optionally verse_number
     let query = supabase
       .from('bible_verses')
-      .select('*')
-      .eq('chapter_id', chapterData.id);
+      .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
+      .eq('version_id', versionId)
+      .eq('book_id', book.book_id)
+      .eq('chapter_number', chapter);
     
     if (verse) {
       query = query.eq('verse_number', verse);

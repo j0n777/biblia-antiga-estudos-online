@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { BibleVerse } from '@/types/bible.types';
 import { searchBibleVerses } from '@/services/bible';
 import { getUserProfile } from '@/services/ProfileService';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 export const useSearchBible = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -77,12 +77,12 @@ export const useSearchBible = () => {
       
       console.log('=== SEARCH RESULTS ===');
       console.log(`Results count: ${results.length}`);
-      console.log('Results:', results);
+      console.log('First few results:', results.slice(0, 3));
       
       setSearchResults(results);
       setHasSearched(true);
       
-      // Save to history if we got results
+      // Save to history and show toast based on results
       if (results.length > 0) {
         saveSearchToHistory(query);
         toast({
@@ -92,7 +92,7 @@ export const useSearchBible = () => {
       } else {
         toast({
           title: "Nenhum resultado",
-          description: "Tente outras palavras ou verifique a ortografia",
+          description: "Não foram encontrados versículos para esta busca. Tente outras palavras.",
           variant: "destructive"
         });
       }
