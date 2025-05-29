@@ -140,12 +140,12 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
         display_name: displayName || profile.display_name,
         has_completed_onboarding: true,
         // Set default reading position to the first book of the selected Bible version
-        reading_position: JSON.stringify({
+        reading_position: {
           book_id: selectedLanguage.startsWith('en') ? 'gn' : 'mt', // Genesis or Matthew
           chapter: 1,
           verse: 1,
           version_id: finalBibleVersion
-        })
+        }
       };
       
       await updateUserProfile(updatedProfile);

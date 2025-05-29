@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'profile'>('general');
   const { language, setLanguage, t } = useLanguage();
-  const [fontSize, setFontSize] = useState<string>(profile?.font_size || 'medium');
+  const [fontSize, setFontSize] = useState<string>(profile?.font_size || 'large');
 
   const handleClose = () => {
     setOpen(false);
@@ -61,12 +60,12 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
     
     try {
       await updateUserProfile({
-        font_size: size as 'small' | 'medium' | 'large'
+        font_size: size as 'large' | 'extra-large' | 'huge'
       });
       
       toast({
         title: t('settings.fontSize'),
-        description: `${t('settings.fontSizeChanged')}: ${getFontSizeName(size as 'small' | 'medium' | 'large')}`,
+        description: `${t('settings.fontSizeChanged')}: ${getFontSizeName(size as 'large' | 'extra-large' | 'huge')}`,
       });
       
       onProfileUpdate();
@@ -86,11 +85,11 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
     return names[lang];
   };
   
-  const getFontSizeName = (size: 'small' | 'medium' | 'large') => {
+  const getFontSizeName = (size: 'large' | 'extra-large' | 'huge') => {
     const names = {
-      'small': t('settings.fontSize.small') || 'Pequeno',
-      'medium': t('settings.fontSize.medium') || 'Médio',
-      'large': t('settings.fontSize.large') || 'Grande'
+      'large': t('settings.fontSize.large') || 'Normal',
+      'extra-large': t('settings.fontSize.extraLarge') || 'Grande',
+      'huge': t('settings.fontSize.huge') || 'Extra Grande'
     };
     return names[size];
   };
@@ -169,21 +168,21 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                   className="grid grid-cols-3 gap-3"
                 >
                   <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
-                    <RadioGroupItem value="small" id="small" className="border-ancient-gold text-ancient-gold" />
-                    <Label htmlFor="small" className="text-xs cursor-pointer text-scripture-text">
-                      {t('settings.fontSize.small') || 'Pequeno'}
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
-                    <RadioGroupItem value="medium" id="medium" className="border-ancient-gold text-ancient-gold" />
-                    <Label htmlFor="medium" className="text-base cursor-pointer text-scripture-text">
-                      {t('settings.fontSize.medium') || 'Médio'}
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
                     <RadioGroupItem value="large" id="large" className="border-ancient-gold text-ancient-gold" />
-                    <Label htmlFor="large" className="text-xl cursor-pointer text-scripture-text">
-                      {t('settings.fontSize.large') || 'Grande'}
+                    <Label htmlFor="large" className="text-base cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.large') || 'Normal'}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                    <RadioGroupItem value="extra-large" id="extra-large" className="border-ancient-gold text-ancient-gold" />
+                    <Label htmlFor="extra-large" className="text-lg cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.extraLarge') || 'Grande'}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                    <RadioGroupItem value="huge" id="huge" className="border-ancient-gold text-ancient-gold" />
+                    <Label htmlFor="huge" className="text-xl cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.huge') || 'Extra Grande'}
                     </Label>
                   </div>
                 </RadioGroup>
