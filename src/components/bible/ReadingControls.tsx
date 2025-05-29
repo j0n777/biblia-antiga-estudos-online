@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BibleBook, BibleVersion } from '@/types/bible.types';
@@ -15,7 +14,7 @@ interface ReadingControlsProps {
   onBookChange: (bookId: string) => void;
   onChapterChange: (chapter: number) => void;
   onVersionChange: (version: string) => void;
-  onFontSizeChange: (size: 'small' | 'medium' | 'large' | 'extra-large' | 'huge') => void;
+  onFontSizeChange: (size: 'large' | 'extra-large' | 'huge') => void;
 }
 
 const ReadingControls = ({

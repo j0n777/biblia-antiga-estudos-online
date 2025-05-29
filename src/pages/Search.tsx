@@ -17,9 +17,9 @@ const Search = () => {
   const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
   const [isStudyDialogOpen, setIsStudyDialogOpen] = useState(false);
   
-  // Popular search suggestions - add more common search terms
+  // Popular search suggestions - simplified list
   const searchSuggestions = [
-    'amor', 'paz', 'esperança', 'fé', 'perdão', 'graça', 'Jesus', 'Deus', 'João 3:16'
+    'amor', 'paz', 'Jesus', 'fé', 'esperança'
   ];
 
   const {
@@ -60,14 +60,11 @@ const Search = () => {
     <PageLayout>
       <div className="w-full max-w-4xl mx-auto space-y-6">
         {/* Main Search Card */}
-        <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-xl">
+        <Card className="parchment-container rounded-xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold font-oldstyle text-scripture-heading">
               {t('search.title') || 'Pesquisar na Bíblia'}
             </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Busque por qualquer palavra que apareça no texto dos versículos ou por referência específica (João 3:16).
-            </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <SearchInput 
@@ -77,13 +74,15 @@ const Search = () => {
               onSearchClick={handleSearchClick}
             />
             
-            {/* Search suggestions and history - only show when not searching and no results */}
+            {/* Simplified suggestions - only show when not searching and no results */}
             {!hasSearched && !isSearching && (
               <div className="space-y-4">
-                <SearchSuggestions
-                  suggestions={searchSuggestions}
-                  onSuggestionClick={handleSuggestionClick}
-                />
+                {searchSuggestions.length > 0 && (
+                  <SearchSuggestions
+                    suggestions={searchSuggestions}
+                    onSuggestionClick={handleSuggestionClick}
+                  />
+                )}
                 
                 {searchHistory.length > 0 && (
                   <SearchHistory 
@@ -98,7 +97,7 @@ const Search = () => {
         
         {/* Results Card - only show when searching or has searched */}
         {(isSearching || hasSearched) && (
-          <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-xl">
+          <Card className="parchment-container rounded-xl">
             <CardContent className="p-0">
               <SearchResults
                 isSearching={isSearching}

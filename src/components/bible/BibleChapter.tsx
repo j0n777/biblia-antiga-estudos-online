@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
@@ -15,7 +14,7 @@ interface BibleChapterProps {
   scrollToVerse?: number | null;
   onVerseAction?: (verseNumber: number) => Promise<void> | void;
   isVerseSelected?: (verseNumber: number) => boolean;
-  fontSize?: 'small' | 'medium' | 'large' | 'extra-large' | 'huge';
+  fontSize?: 'large' | 'extra-large' | 'huge';
   versionId?: string;
 }
 
@@ -116,10 +115,6 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
 
   const getFontSizeClass = () => {
     switch (fontSize) {
-      case 'small':
-        return 'text-sm';
-      case 'medium':
-        return 'text-base';
       case 'large':
         return 'text-lg';
       case 'extra-large':

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +10,7 @@ import ReadingControls from '@/components/bible/ReadingControls';
 import ChapterNavigation from '@/components/bible/ChapterNavigation';
 
 const Read = () => {
-  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large' | 'extra-large' | 'huge'>('large'); // Default to large
+  const [fontSize, setFontSize] = useState<'large' | 'extra-large' | 'huge'>('large'); // Default to large
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   
@@ -54,7 +53,7 @@ const Read = () => {
   }, [searchParams, bookId, handleBookChange, handleChapterChange]);
   
   // Use memoized handlers to prevent loops
-  const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large' | 'extra-large' | 'huge') => {
+  const handleFontSizeChange = useCallback((size: 'large' | 'extra-large' | 'huge') => {
     setFontSize(size);
   }, []);
   
