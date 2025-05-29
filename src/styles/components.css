@@ -1,7 +1,7 @@
 
 @layer components {
   .parchment-container {
-    @apply bg-parchment/90 border border-parchment-dark/20 rounded-lg shadow-md backdrop-blur-sm p-4 my-2;
+    @apply bg-parchment/90 border border-parchment-dark/20 rounded-xl shadow-md backdrop-blur-sm p-4 my-2;
     color: hsl(var(--scripture-text));
     box-shadow: 0 2px 10px rgba(92, 63, 23, 0.15);
     background-image: url('/parchment-texture.jpg');
@@ -10,7 +10,7 @@
   }
 
   .dark .parchment-container {
-    @apply bg-parchment-dark/90 border border-parchment-darker/30;
+    @apply bg-parchment-dark/90 border border-parchment-darker/30 rounded-xl;
     color: hsl(var(--scripture-text));
     background-image: url('/parchment-dark.jpg');
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -49,11 +49,11 @@
   }
 
   .achievement-badge {
-    @apply flex items-center justify-center w-16 h-16 rounded-lg bg-ancient-gold text-white text-xl font-bold shadow-md;
+    @apply flex items-center justify-center w-16 h-16 rounded-xl bg-ancient-gold text-white text-xl font-bold shadow-md;
   }
 
   .card-shadow {
-    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl;
     box-shadow: 0 4px 20px rgba(92, 63, 23, 0.1);
   }
 
@@ -62,11 +62,11 @@
   }
 
   .bible-button {
-    @apply bg-parchment-light hover:bg-parchment rounded-lg p-3 border border-parchment-dark/20 shadow-sm transition-all duration-200;
+    @apply bg-parchment-light hover:bg-parchment rounded-xl p-3 border border-parchment-dark/20 shadow-sm transition-all duration-200;
   }
 
   .dark .bible-button {
-    @apply bg-parchment-light hover:bg-parchment-dark/90 border-parchment-darker/40;
+    @apply bg-parchment-light hover:bg-parchment-dark/90 border-parchment-darker/40 rounded-xl;
   }
 
   /* Improve dark mode visibility */
@@ -90,7 +90,7 @@
   .select-content,
   .dialog-content,
   .toast {
-    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-lg;
+    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
     background-color: white !important;
     backdrop-filter: blur(8px);
     z-index: 9999 !important;
@@ -108,7 +108,7 @@
   .dark .select-content,
   .dark .dialog-content,
   .dark .toast {
-    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl;
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     backdrop-filter: blur(8px);
     z-index: 9999 !important;
@@ -117,27 +117,27 @@
 
   /* Standardized colors for buttons and UI elements */
   .btn-primary {
-    @apply bg-ancient-gold text-white hover:bg-ancient-gold/90 border-ancient-gold;
+    @apply bg-ancient-gold text-white hover:bg-ancient-gold/90 border-ancient-gold rounded-xl;
   }
 
   .btn-secondary {
-    @apply bg-parchment-light text-scripture-text hover:bg-parchment border-parchment-dark/30;
+    @apply bg-parchment-light text-scripture-text hover:bg-parchment border-parchment-dark/30 rounded-xl;
   }
 
   .btn-outline {
-    @apply bg-transparent border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white;
+    @apply bg-transparent border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white rounded-xl;
   }
 
   .dark .btn-primary {
-    @apply bg-ancient-gold text-parchment-dark hover:bg-ancient-gold/90;
+    @apply bg-ancient-gold text-parchment-dark hover:bg-ancient-gold/90 rounded-xl;
   }
 
   .dark .btn-secondary {
-    @apply bg-parchment-light text-scripture-text hover:bg-parchment-dark/80 border-parchment-darker/40;
+    @apply bg-parchment-light text-scripture-text hover:bg-parchment-dark/80 border-parchment-darker/40 rounded-xl;
   }
 
   .dark .btn-outline {
-    @apply border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-parchment-dark;
+    @apply border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-parchment-dark rounded-xl;
   }
 
   /* Radio buttons and form controls */
@@ -146,7 +146,7 @@
   }
 
   input[type="radio"] {
-    @apply border-parchment-dark/50;
+    @apply border-parchment-dark/50 rounded-lg;
   }
 
   .dark input[type="radio"] {
@@ -160,28 +160,28 @@
   /* Select dropdowns standardization */
   select,
   [data-radix-select-trigger] {
-    @apply bg-parchment-light border-parchment-dark/30 text-scripture-text;
+    @apply bg-parchment-light border-parchment-dark/30 text-scripture-text rounded-xl;
   }
 
   .dark select,
   .dark [data-radix-select-trigger] {
-    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text;
+    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text rounded-xl;
   }
   
   /* Add consistent rounded borders */
   .rounded-borders {
-    @apply rounded-lg;
+    @apply rounded-xl;
   }
   
   /* Dialog content background */
   .dialog-content {
-    @apply bg-white border border-parchment-dark/30 shadow-lg rounded-lg;
+    @apply bg-white border border-parchment-dark/30 shadow-lg rounded-xl;
     background-color: white !important;
     z-index: 9999 !important;
   }
   
   .dark .dialog-content {
-    @apply bg-parchment-dark border border-parchment-darker/40;
+    @apply bg-parchment-dark border border-parchment-darker/40 rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
   }
@@ -196,25 +196,25 @@
   }
   
   .settings-input {
-    @apply w-full max-w-full;
+    @apply w-full max-w-full rounded-xl;
   }
 
   /* Make the form inputs responsive */
   .settings-form input,
   .settings-form select,
   .settings-form textarea {
-    @apply w-full max-w-full box-border bg-parchment-light border-parchment-dark/30 text-scripture-text;
+    @apply w-full max-w-full box-border bg-parchment-light border-parchment-dark/30 text-scripture-text rounded-xl;
   }
 
   .dark .settings-form input,
   .dark .settings-form select,
   .dark .settings-form textarea {
-    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text;
+    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text rounded-xl;
   }
 
   /* Settings dialog specific styles */
   .settings-dialog-content {
-    @apply max-w-lg bg-white dark:bg-parchment-dark p-6 rounded-lg;
+    @apply max-w-lg bg-white dark:bg-parchment-dark p-6 rounded-xl;
     background-color: white !important;
     z-index: 9999 !important;
   }
@@ -224,11 +224,11 @@
   }
   
   .settings-dialog-tabs {
-    @apply flex border-b mb-4 w-full;
+    @apply flex border-b mb-4 w-full rounded-xl;
   }
   
   .settings-dialog-tab {
-    @apply px-4 py-2 transition-all text-scripture-text;
+    @apply px-4 py-2 transition-all text-scripture-text rounded-xl;
   }
   
   .settings-dialog-tab.active {
@@ -242,7 +242,7 @@
   /* Fix dialog content padding on mobile */
   @media (max-width: 640px) {
     .dialog-content-mobile {
-      @apply p-2 max-w-[95vw];
+      @apply p-2 max-w-[95vw] rounded-xl;
     }
     
     .dialog-content-mobile .tabs-content {
@@ -254,7 +254,7 @@
     }
   }
   
-  /* Ensure all dropdowns and popovers have solid backgrounds with high z-index */
+  /* Ensure all dropdowns and popovers have solid backgrounds with high z-index and rounded corners */
   [role="menu"],
   [role="listbox"],
   [role="combobox"],
@@ -266,7 +266,7 @@
   .select-dropdown,
   .sonner-toast,
   .sonner-toaster {
-    @apply bg-white border border-parchment-dark/30 shadow-xl;
+    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
     background-color: white !important;
     z-index: 9999 !important;
     backdrop-filter: blur(8px);
@@ -284,7 +284,7 @@
   .dark .select-dropdown,
   .dark .sonner-toast,
   .dark .sonner-toaster {
-    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl;
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
     backdrop-filter: blur(8px);
@@ -294,15 +294,33 @@
   /* Toast specific fixes */
   .toast,
   .sonner-toast {
-    @apply bg-white border border-parchment-dark/30 text-scripture-text;
+    @apply bg-white border border-parchment-dark/30 text-scripture-text rounded-xl;
     background-color: white !important;
     z-index: 9999 !important;
   }
 
   .dark .toast,
   .dark .sonner-toast {
-    @apply bg-parchment-dark border border-parchment-darker/40 text-scripture-text;
+    @apply bg-parchment-dark border border-parchment-darker/40 text-scripture-text rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
+  }
+
+  /* Ensure cards and other elements have rounded corners */
+  .card,
+  .achievement-card,
+  .profile-card,
+  .verse-card,
+  .search-card {
+    @apply rounded-xl;
+  }
+
+  /* Switch styling improvements */
+  .switch-root {
+    @apply rounded-full;
+  }
+  
+  .switch-thumb {
+    @apply rounded-full;
   }
 }

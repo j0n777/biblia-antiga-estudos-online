@@ -88,9 +88,9 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
   
   const getFontSizeName = (size: 'small' | 'medium' | 'large') => {
     const names = {
-      'small': t('settings.fontSizeSmall') || 'Pequeno',
-      'medium': t('settings.fontSizeMedium') || 'Médio',
-      'large': t('settings.fontSizeLarge') || 'Grande'
+      'small': t('settings.fontSize.small') || 'Pequeno',
+      'medium': t('settings.fontSize.medium') || 'Médio',
+      'large': t('settings.fontSize.large') || 'Grande'
     };
     return names[size];
   };
@@ -98,136 +98,167 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="rounded-lg">
           <Settings2 size={20} className="text-scripture-heading" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="settings-dialog-content">
+      <DialogContent className="settings-dialog-content rounded-xl max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-oldstyle">Configurações</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-oldstyle text-scripture-heading">
+            {t('settings.title') || 'Configurações'}
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Personalize sua experiência
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
-          <div className="settings-dialog-tabs">
+          <div className="flex border-b mb-6 w-full rounded-lg bg-parchment-light/50">
             <button
-              className={`settings-dialog-tab ${activeTab === 'general' ? 'active' : ''}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all rounded-lg ${
+                activeTab === 'general' 
+                  ? 'bg-ancient-gold text-white shadow-sm' 
+                  : 'text-scripture-text hover:text-ancient-gold hover:bg-ancient-gold/10'
+              }`}
               onClick={() => setActiveTab('general')}
             >
-              Configurações
+              {t('settings.title') || 'Configurações'}
             </button>
             <button
-              className={`settings-dialog-tab ${activeTab === 'profile' ? 'active' : ''}`}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-all rounded-lg ${
+                activeTab === 'profile' 
+                  ? 'bg-ancient-gold text-white shadow-sm' 
+                  : 'text-scripture-text hover:text-ancient-gold hover:bg-ancient-gold/10'
+              }`}
               onClick={() => setActiveTab('profile')}
             >
-              Meu Perfil
+              {t('settings.profile') || 'Meu Perfil'}
             </button>
           </div>
           
           {activeTab === 'general' && (
             <div className="space-y-6 settings-container">
-              <div className="space-y-4">
-                <Label htmlFor="app-language" className="text-base">Idioma</Label>
+              <div className="space-y-4 p-4 bg-parchment-light/30 rounded-xl">
+                <Label htmlFor="app-language" className="text-base font-medium text-scripture-heading">
+                  {t('settings.language') || 'Idioma'}
+                </Label>
                 <Select value={language} onValueChange={handleLanguageChange}>
-                  <SelectTrigger id="app-language" className="w-full">
+                  <SelectTrigger id="app-language" className="w-full bg-white border-parchment-dark/30 rounded-lg">
                     <SelectValue placeholder="Selecionar idioma" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pt-BR">Português (Brasil)</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="ar">العربية</SelectItem>
+                  <SelectContent className="rounded-lg">
+                    <SelectItem value="pt-BR" className="rounded-lg">Português (Brasil)</SelectItem>
+                    <SelectItem value="en" className="rounded-lg">English</SelectItem>
+                    <SelectItem value="es" className="rounded-lg">Español</SelectItem>
+                    <SelectItem value="fr" className="rounded-lg">Français</SelectItem>
+                    <SelectItem value="ar" className="rounded-lg">العربية</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-4 p-4 bg-parchment-light/30 rounded-xl">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base flex items-center">
-                    <Type size={18} className="mr-2" />
-                    Tamanho da Fonte
+                  <Label className="text-base font-medium text-scripture-heading flex items-center">
+                    <Type size={18} className="mr-2 text-ancient-gold" />
+                    {t('settings.fontSize') || 'Tamanho da Fonte'}
                   </Label>
                 </div>
                 <RadioGroup 
                   value={fontSize} 
                   onValueChange={handleFontSizeChange} 
-                  className="settings-radio-group"
+                  className="grid grid-cols-3 gap-3"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="small" id="small" />
-                    <Label htmlFor="small" className="text-xs cursor-pointer">
-                      Pequeno
+                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                    <RadioGroupItem value="small" id="small" className="border-ancient-gold text-ancient-gold" />
+                    <Label htmlFor="small" className="text-xs cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.small') || 'Pequeno'}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="medium" id="medium" />
-                    <Label htmlFor="medium" className="text-base cursor-pointer">
-                      Médio
+                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                    <RadioGroupItem value="medium" id="medium" className="border-ancient-gold text-ancient-gold" />
+                    <Label htmlFor="medium" className="text-base cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.medium') || 'Médio'}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="large" id="large" />
-                    <Label htmlFor="large" className="text-xl cursor-pointer">
-                      Grande
+                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                    <RadioGroupItem value="large" id="large" className="border-ancient-gold text-ancient-gold" />
+                    <Label htmlFor="large" className="text-xl cursor-pointer text-scripture-text">
+                      {t('settings.fontSize.large') || 'Grande'}
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="use-system-language" className="text-base">Usar idioma do sistema</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Detectar automaticamente o idioma do dispositivo
-                  </p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="use-system-language" className="text-base font-medium text-scripture-heading">
+                      {t('settings.systemLanguage') || 'Usar idioma do sistema'}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Detectar automaticamente o idioma do dispositivo
+                    </p>
+                  </div>
+                  <Switch 
+                    id="use-system-language" 
+                    defaultChecked={true}
+                    onCheckedChange={(checked) => handleSwitchChange(checked, 'use_system_language' as any)}
+                    className="data-[state=checked]:bg-ancient-gold"
+                  />
                 </div>
-                <Switch 
-                  id="use-system-language" 
-                  defaultChecked={true}
-                  onCheckedChange={(checked) => handleSwitchChange(checked, 'use_system_language' as any)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="notifications" className="text-base">Notificações</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Receber lembretes de leitura diária
-                  </p>
+                
+                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="notifications" className="text-base font-medium text-scripture-heading">
+                      {t('settings.notifications') || 'Notificações'}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {t('settings.dailyReminders') || 'Receber lembretes de leitura diária'}
+                    </p>
+                  </div>
+                  <Switch 
+                    id="notifications" 
+                    defaultChecked={true}
+                    onCheckedChange={(checked) => handleSwitchChange(checked, 'notifications_enabled' as any)}
+                    className="data-[state=checked]:bg-ancient-gold"
+                  />
                 </div>
-                <Switch 
-                  id="notifications" 
-                  defaultChecked={true}
-                  onCheckedChange={(checked) => handleSwitchChange(checked, 'notifications_enabled' as any)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="auto-scroll" className="text-base">Auto-rolagem</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Rolar automaticamente durante a leitura
-                  </p>
+                
+                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="auto-scroll" className="text-base font-medium text-scripture-heading">
+                      {t('settings.autoScroll') || 'Auto-rolagem'}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {t('settings.autoScrollReading') || 'Rolar automaticamente durante a leitura'}
+                    </p>
+                  </div>
+                  <Switch 
+                    id="auto-scroll" 
+                    defaultChecked={false}
+                    onCheckedChange={(checked) => handleSwitchChange(checked, 'auto_scroll' as any)}
+                    className="data-[state=checked]:bg-ancient-gold"
+                  />
                 </div>
-                <Switch 
-                  id="auto-scroll" 
-                  defaultChecked={false}
-                  onCheckedChange={(checked) => handleSwitchChange(checked, 'auto_scroll' as any)}
-                />
               </div>
             </div>
           )}
           
           {activeTab === 'profile' && (
-            <ProfileForm profile={profile} onProfileUpdate={onProfileUpdate} />
+            <div className="bg-parchment-light/30 rounded-xl p-4">
+              <ProfileForm profile={profile} onProfileUpdate={onProfileUpdate} />
+            </div>
           )}
         </div>
         
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={handleClose}>Fechar</Button>
+        <div className="flex justify-end pt-4 border-t border-parchment-dark/20">
+          <Button 
+            variant="outline" 
+            onClick={handleClose}
+            className="bg-parchment-light border-parchment-dark/30 text-scripture-text hover:bg-parchment hover:text-scripture-heading rounded-lg"
+          >
+            {t('common.close') || 'Fechar'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

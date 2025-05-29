@@ -84,9 +84,9 @@ const ReadingControls = ({
             {versions.find(v => v.id === versionId)?.name || versionId}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="max-h-[300px]">
+        <SelectContent className="max-h-[300px] rounded-xl">
           {versions.map((version) => (
-            <SelectItem key={version.id} value={version.id}>
+            <SelectItem key={version.id} value={version.id} className="rounded-lg">
               {version.name}
             </SelectItem>
           ))}
@@ -98,27 +98,31 @@ const ReadingControls = ({
         <div className="flex-1">
           <Select value={bookId} onValueChange={handleBookChange}>
             <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select book">
-              <SelectValue placeholder={t('bible.selectBook')}>
-                {books.find(b => b.book_id === bookId)?.name || t('bible.selectBook')}
+              <SelectValue placeholder={t('bible.selectBook') || 'Selecionar Livro'}>
+                {books.find(b => b.book_id === bookId)?.name || (t('bible.selectBook') || 'Selecionar Livro')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[400px]">
+            <SelectContent className="max-h-[400px] rounded-xl">
               <SelectGroup>
-                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.oldTestament')}</SelectLabel>
+                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">
+                  {t('bible.oldTestament') || 'Antigo Testamento'}
+                </SelectLabel>
                 {books
                   .filter(book => book.testament === 'old')
                   .map(book => (
-                    <SelectItem key={book.book_id} value={book.book_id}>
+                    <SelectItem key={book.book_id} value={book.book_id} className="rounded-lg">
                       {book.name}
                     </SelectItem>
                   ))}
               </SelectGroup>
               <SelectGroup>
-                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">{t('bible.newTestament')}</SelectLabel>
+                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">
+                  {t('bible.newTestament') || 'Novo Testamento'}
+                </SelectLabel>
                 {books
                   .filter(book => book.testament === 'new')
                   .map(book => (
-                    <SelectItem key={book.book_id} value={book.book_id}>
+                    <SelectItem key={book.book_id} value={book.book_id} className="rounded-lg">
                       {book.name}
                     </SelectItem>
                   ))}
@@ -134,18 +138,18 @@ const ReadingControls = ({
             disabled={!bookId}
           >
             <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select chapter">
-              <SelectValue placeholder={t('bible.selectChapter')}>
-                {chapterNumber ? `${t('bible.chapter')} ${chapterNumber}` : t('bible.selectChapter')}
+              <SelectValue placeholder={t('bible.selectChapter') || 'Cap.'}>
+                {chapterNumber ? chapterNumber.toString() : (t('bible.selectChapter') || 'Cap.')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[300px]">
+            <SelectContent className="max-h-[300px] rounded-xl">
               {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
                 Array.from(
                   { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
                   (_, i) => i + 1
                 ).map(num => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {t('bible.chapter')} {num}
+                  <SelectItem key={num} value={num.toString()} className="rounded-lg">
+                    {num}
                   </SelectItem>
                 ))}
             </SelectContent>
