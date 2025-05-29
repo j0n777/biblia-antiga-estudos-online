@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -122,17 +123,17 @@ const Index = () => {
           <BadgeProgress badges={mockBadges} />
           
           {/* Bible Studies Section */}
-          <div>
-            <div className="flex justify-between items-center mb-3">
+          <div className="parchment-container rounded-xl">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-oldstyle text-scripture-heading">Estudos Bíblicos</h2>
-              <Button variant="ghost" size="sm" className="text-sm text-muted-foreground" onClick={() => navigate('/search')}>
+              <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold rounded-xl" onClick={() => navigate('/search')}>
                 Ver todos
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               {bibleStudies.map(study => (
-                <Card key={study.id} className="parchment-container overflow-hidden rounded-xl">
+                <Card key={study.id} className="bg-parchment-light/50 border-parchment-dark/20 overflow-hidden rounded-xl hover:shadow-md transition-shadow">
                   <CardContent className="p-4 flex items-center gap-3">
                     <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                       {study.icon}
@@ -141,7 +142,7 @@ const Index = () => {
                       <h3 className="font-oldstyle text-scripture-heading">{study.title}</h3>
                       <p className="text-sm text-muted-foreground">{study.description}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="shrink-0">
+                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-ancient-gold/10 rounded-xl">
                       <ExternalLink className="h-5 w-5 text-ancient-brown" />
                     </Button>
                   </CardContent>
@@ -149,10 +150,10 @@ const Index = () => {
               ))}
             </div>
             
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center">
               <Button 
                 variant="outline" 
-                className="flex gap-2 bg-parchment-light border-parchment-dark/30 rounded-xl"
+                className="flex gap-2 bg-parchment-light border-parchment-dark/30 hover:bg-ancient-gold/10 rounded-xl"
                 onClick={() => navigate('/search')}
               >
                 <BookOpen size={16} />

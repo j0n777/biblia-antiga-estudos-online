@@ -7,6 +7,8 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Hide scrollbars for app-like experience */
+    overflow-x: hidden;
   }
 
   body {
@@ -15,6 +17,14 @@
     background-image: url('/parchment-texture.jpg');
     background-size: cover;
     background-attachment: fixed;
+    /* Hide scrollbars but keep scrolling functionality */
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+
+  body::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
   }
 
   .dark body {
@@ -53,7 +63,7 @@
   input, 
   select, 
   textarea {
-    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-xl;
   }
 
   .dark input,
@@ -65,16 +75,17 @@
   
   /* Fix select dropdown contrast */
   .dark [data-radix-select-content] {
-    @apply bg-parchment-light border-parchment-dark;
+    @apply bg-parchment-dark border-parchment-darker/40 rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
   }
   
   .dark [data-radix-select-item] {
     color: hsl(var(--scripture-text));
-    @apply hover:bg-parchment-dark/20;
+    @apply hover:bg-parchment-light/20 rounded-lg;
   }
   
   .dark [data-radix-select-item][data-highlighted] {
-    @apply bg-parchment-dark/30;
+    @apply bg-parchment-light/30 rounded-lg;
   }
   
   /* Improve tabs contrast in dark mode */
@@ -83,12 +94,12 @@
   }
   
   .dark [role="tab"][data-state="active"] {
-    @apply bg-ancient-gold/20 text-ancient-gold;
+    @apply bg-ancient-gold/20 text-ancient-gold rounded-lg;
   }
   
   .dark [role="tab"] {
     color: hsl(var(--scripture-text));
-    @apply hover:text-ancient-gold/80;
+    @apply hover:text-ancient-gold/80 rounded-lg;
   }
   
   /* Ensure all popups have proper backgrounds */
@@ -100,7 +111,30 @@
   [role="menu"],
   .radix-popover-content,
   .radix-dropdown-menu-content {
-    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-lg;
+    @apply bg-white border border-parchment-dark/20 shadow-lg rounded-xl;
+    background-color: white !important;
+  }
+  
+  .dark .popup-content,
+  .dark [data-radix-popper-content],
+  .dark [data-state="open"],
+  .dark [role="dialog"],
+  .dark [role="tooltip"],
+  .dark [role="menu"],
+  .dark .radix-popover-content,
+  .dark .radix-dropdown-menu-content {
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-lg rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
+  }
+  
+  /* Hide scrollbars globally but keep scroll functionality */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
   }
   
   /* All interactive elements should have rounded borders */
@@ -115,6 +149,6 @@
   .avatar,
   .kbd,
   .toast {
-    @apply rounded-lg;
+    @apply rounded-xl;
   }
 }
