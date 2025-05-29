@@ -37,10 +37,10 @@ const ReadingControls = ({
     const loadUserFontSize = async () => {
       try {
         const profile = await getUserProfile();
-        const fontSize = profile.font_size as 'large' | 'extra-large' | 'huge';
+        const fontSize = profile.font_size;
         if (fontSize && ['large', 'extra-large', 'huge'].includes(fontSize)) {
-          setUserFontSize(fontSize);
-          onFontSizeChange(fontSize);
+          setUserFontSize(fontSize as 'large' | 'extra-large' | 'huge');
+          onFontSizeChange(fontSize as 'large' | 'extra-large' | 'huge');
         }
       } catch (error) {
         console.error('Error loading user font size:', error);

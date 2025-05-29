@@ -131,28 +131,26 @@ export interface Challenge {
 
 export interface UserProfile {
   id: string;
-  email: string;
   display_name: string;
-  preferred_language: string;
-  preferred_bible_version: string;
-  daily_reading_goal?: number;
+  nickname: string;
+  email: string;
+  experience_points: number;
+  streak_count: number;
+  streak_record: number;
+  last_streak_date: string | null;
   created_at: string;
   updated_at: string;
-  last_active?: Date;
-  profile_picture_url?: string;
-  reading_streak?: number;
+  font_size: 'large' | 'extra-large' | 'huge';
+  reading_position: ReadingPosition | null;
+  preferred_bible_version: string;
+  preferred_language: string;
+  daily_reading_goal: number;
   has_completed_onboarding: boolean;
-  nickname?: string;
+  // Optional fields
+  avatar_url?: string;
   country?: string;
   birth_year?: number;
   phone?: string;
-  avatar_url?: string;
-  experience_points?: number;
-  streak_count?: number;
-  streak_record?: number;
-  font_size?: 'small' | 'medium' | 'large';
-  reading_position?: ReadingPosition | null | string;
-  last_streak_date?: string | null;
   username?: string;
 }
 

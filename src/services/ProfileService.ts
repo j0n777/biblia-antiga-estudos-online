@@ -89,7 +89,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       last_streak_date: dbData.last_streak_date,
       created_at: dbData.created_at || new Date().toISOString(),
       updated_at: dbData.updated_at || new Date().toISOString(),
-      font_size: (dbData.font_size as 'large' | 'extra-large' | 'huge') || 'large',
+      font_size: dbData.font_size || 'large',
       reading_position: dbData.reading_position || null,
       preferred_bible_version: dbData.preferred_bible_version || 'kja',
       preferred_language: dbData.preferred_language || navigator.language.toLowerCase().split('-')[0],
