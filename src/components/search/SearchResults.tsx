@@ -1,17 +1,41 @@
 
-import { Loader2, SearchIcon, BookOpen, Info } from 'lucide-react';
+import { Loader2, SearchIcon, BookOpen, Info, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { BibleVerse } from '@/types/bible.types';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface SearchResultsProps {
   isSearching: boolean;
   hasSearched: boolean;
   searchResults: BibleVerse[];
+  totalResults: number;
+  hasMoreResults: boolean;
+  onLoadMore: () => void;
+  wholeWordsOnly: boolean;
+  onToggleWholeWords: () => void;
 }
 
-const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResultsProps) => {
-  if (isSearching) {
+const SearchResults = ({ 
+  isSearching, 
+  hasSearched, 
+  searchResults, 
+  totalResults,
+  hasMoreResults,
+  onLoadMore,
+  wholeWordsOnly,
+  onToggleWholeWords
+}: SearchResultsProps) => {
+  const navigate = useNavigate();
+
+  const handleVerseClick = (verse: BibleVerse) => {
+    // Navigate to reading page with specific chapter and verse
+    navigate(`/read?book=${verse.book_id}&chapter=${verse.chapter_number}&verse=${verse.verse_number}`);
+  };
+
+  if (isSearching && searchResults.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-ancient-gold mb-4" />
@@ -39,28 +63,44 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
             </Alert>
           )}
           
-          <div className="flex items-center gap-2 mb-6 pb-4 border-b border-parchment-dark/10">
-            <BookOpen className="h-5 w-5 text-ancient-gold" />
-            <h2 className="text-lg font-semibold text-scripture-heading">
-              {searchResults.length === 1 
-                ? '1 versículo encontrado' 
-                : `${searchResults.length} versículos encontrados`
-              }
-            </h2>
-            {resultVersions.length > 0 && (
-              <span className="text-sm text-muted-foreground ml-2">
-                (Versão: {resultVersions.join(', ')})
-              </span>
-            )}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-parchment-dark/10">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-ancient-gold" />
+              <h2 className="text-lg font-semibold text-scripture-heading">
+                {totalResults === 1 
+                  ? '1 versículo encontrado' 
+                  : `${totalResults} versículos encontrados`
+                }
+              </h2>
+              {resultVersions.length > 0 && (
+                <span className="text-sm text-muted-foreground ml-2">
+                  (Versão: {resultVersions.join(', ')})
+                </span>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={wholeWordsOnly ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={onToggleWholeWords}
+              >
+                {wholeWordsOnly ? "Palavras inteiras" : "Correspondência parcial"}
+              </Badge>
+            </div>
           </div>
           
           <div className="space-y-6">
             {searchResults.map((verse) => (
               <div key={verse.id} className="bg-white/50 rounded-lg p-4 border border-parchment-dark/10 hover:shadow-sm transition-shadow">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-2 py-1 rounded">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <button
+                    onClick={() => handleVerseClick(verse)}
+                    className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-2 py-1 rounded hover:bg-ancient-gold/20 transition-colors flex items-center gap-1"
+                  >
                     {verse.book_name} {verse.chapter_number}:{verse.verse_number}
-                  </div>
+                    <ExternalLink className="h-3 w-3" />
+                  </button>
                   {verse.version_id && (
                     <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">
                       {verse.version_id.toUpperCase()}
@@ -70,6 +110,28 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
                 <BibleVerseComponent verse={verse} />
               </div>
             ))}
+          </div>
+          
+          {hasMoreResults && (
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={onLoadMore}
+                disabled={isSearching}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                {isSearching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <BookOpen className="h-4 w-4" />
+                )}
+                {isSearching ? 'Carregando...' : 'Carregar mais resultados'}
+              </Button>
+            </div>
+          )}
+          
+          <div className="text-center text-sm text-muted-foreground mt-4">
+            Mostrando {searchResults.length} de {totalResults} resultados
           </div>
         </div>
       );
@@ -82,9 +144,19 @@ const SearchResults = ({ isSearching, hasSearched, searchResults }: SearchResult
           <h3 className="text-lg font-semibold text-scripture-heading mb-2">
             Nenhum resultado encontrado
           </h3>
-          <p className="text-muted-foreground max-w-md">
+          <p className="text-muted-foreground max-w-md mb-4">
             Tente usar outras palavras ou verifique a ortografia. Lembre-se de que você pode buscar por palavras soltas ou referências como "João 3:16".
           </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Modo de busca:</span>
+            <Badge
+              variant={wholeWordsOnly ? "default" : "outline"}
+              className="cursor-pointer"
+              onClick={onToggleWholeWords}
+            >
+              {wholeWordsOnly ? "Palavras inteiras" : "Correspondência parcial"}
+            </Badge>
+          </div>
         </div>
       );
     }

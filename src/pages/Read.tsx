@@ -1,5 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
@@ -11,6 +12,7 @@ import ChapterNavigation from '@/components/bible/ChapterNavigation';
 
 const Read = () => {
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   
   const { 
@@ -31,6 +33,25 @@ const Read = () => {
     handleSaveVerse,
     isVerseSelected
   } = useBibleReading();
+  
+  // Handle URL parameters for direct navigation from search
+  useEffect(() => {
+    const urlBook = searchParams.get('book');
+    const urlChapter = searchParams.get('chapter');
+    const urlVerse = searchParams.get('verse');
+    
+    if (urlBook && urlChapter && urlBook !== bookId) {
+      console.log(`Navigating to ${urlBook} ${urlChapter} from search`);
+      handleBookChange(urlBook);
+      handleChapterChange(parseInt(urlChapter));
+      
+      // Set verse to scroll to if provided
+      if (urlVerse) {
+        // The scrollToVerse will be handled by the useBibleReading hook
+        console.log(`Will scroll to verse ${urlVerse}`);
+      }
+    }
+  }, [searchParams, bookId, handleBookChange, handleChapterChange]);
   
   // Use memoized handlers to prevent loops
   const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large') => {
@@ -57,6 +78,10 @@ const Read = () => {
       </PageLayout>
     );
   }
+
+  // Get verse to scroll to from URL parameters
+  const verseFromUrl = searchParams.get('verse') ? parseInt(searchParams.get('verse')!) : null;
+  const finalScrollToVerse = verseFromUrl || scrollToVerse;
 
   return (
     <PageLayout>
@@ -85,7 +110,7 @@ const Read = () => {
           ) : chapter ? (
             <BibleChapter 
               chapter={chapter} 
-              scrollToVerse={scrollToVerse} 
+              scrollToVerse={finalScrollToVerse} 
               onVerseAction={onVerseAction}
               isVerseSelected={isVerseSelected}
               fontSize={fontSize}

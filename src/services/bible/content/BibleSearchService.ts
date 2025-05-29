@@ -1,24 +1,33 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleVerse } from '@/types/bible.types';
 import { getUserProfile } from '@/services/ProfileService';
 
+export interface SearchResult {
+  verses: BibleVerse[];
+  totalCount: number;
+  hasMore: boolean;
+}
+
 /**
- * Search the Bible for specific text or references
+ * Search the Bible for specific text or references with pagination
  */
 export const searchBibleVerses = async (
   query: string, 
   versionId?: string,
-  limit: number = 50
-): Promise<BibleVerse[]> => {
+  page: number = 1,
+  pageSize: number = 10,
+  wholeWordsOnly: boolean = true
+): Promise<SearchResult> => {
   if (!query || query.trim().length < 2) {
     console.log('Query too short or empty');
-    return [];
+    return { verses: [], totalCount: 0, hasMore: false };
   }
   
   try {
     console.log('=== SEARCH DEBUG START ===');
     console.log(`Query: "${query}"`);
+    console.log(`Page: ${page}, PageSize: ${pageSize}`);
+    console.log(`Whole words only: ${wholeWordsOnly}`);
     console.log(`Requested Version: ${versionId}`);
     
     // Get user's preferred version if not specified
@@ -34,144 +43,130 @@ export const searchBibleVerses = async (
     
     console.log(`Using version: ${versionId}`);
     
-    // First, let's check what versions and data we actually have
-    console.log('=== CHECKING AVAILABLE DATA ===');
-    
-    // Check versions in database
-    const { data: versions, error: versionsError } = await supabase
-      .from('bible_versions')
-      .select('id, name, language')
-      .limit(10);
-    
-    if (!versionsError && versions) {
-      console.log('Available versions:', versions);
-    }
-    
-    // Check what data exists for KJA specifically
-    const { data: kjaCheck, error: kjaError } = await supabase
-      .from('bible_verses')
-      .select('version_id, book_id, chapter_number, verse_number, text')
-      .eq('version_id', 'kja')
-      .not('text', 'is', null)
-      .limit(5);
-    
-    if (!kjaError) {
-      console.log('KJA verses sample:', kjaCheck);
-    } else {
-      console.log('Error checking KJA:', kjaError);
-    }
-    
-    // Check general verse data structure
-    const { data: generalCheck, error: generalError } = await supabase
-      .from('bible_verses')
-      .select('version_id, book_id, chapter_number, verse_number, text')
-      .not('text', 'is', null)
-      .not('book_id', 'is', null)
-      .limit(10);
-    
-    if (!generalError) {
-      console.log('General verses with book_id:', generalCheck);
-    }
-    
     // Check if it's a reference search (like "joão 3:16" or "genesis 1:1")
     const referenceMatch = query.match(/([a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ\s]+)\s*(\d+)(?::(\d+))?/i);
     
     if (referenceMatch) {
       console.log('Reference search detected');
       const [, bookName, chapter, verse] = referenceMatch;
-      return await searchByReference(bookName.trim(), parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+      const result = await searchByReference(bookName.trim(), parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+      return {
+        verses: result,
+        totalCount: result.length,
+        hasMore: false
+      };
     }
     
-    // Text search in verses
+    // Text search in verses with pagination
     console.log('=== PERFORMING TEXT SEARCH ===');
     const searchTerm = query.trim();
     
-    let verses: any[] = [];
+    // Calculate offset for pagination
+    const offset = (page - 1) * pageSize;
     
-    // Strategy 1: Search in preferred version with valid book_id
+    let verses: any[] = [];
+    let totalCount = 0;
+    
+    // Create search pattern for whole words or partial match
+    const searchPattern = wholeWordsOnly 
+      ? `\\m${searchTerm}\\M` // PostgreSQL word boundary regex
+      : `%${searchTerm}%`; // Standard LIKE pattern
+    
+    // Strategy 1: Search in preferred version
     if (versionId) {
-      console.log(`Strategy 1: Searching in version ${versionId} with valid book_id`);
-      const { data: versionVerses, error } = await supabase
+      console.log(`Strategy 1: Searching in version ${versionId}`);
+      
+      // Get total count first
+      const { count, error: countError } = await supabase
+        .from('bible_verses')
+        .select('*', { count: 'exact', head: true })
+        .eq('version_id', versionId)
+        .not('book_id', 'is', null)
+        .not('text', 'is', null)
+        [wholeWordsOnly ? 'textSearch' : 'ilike']('text', searchPattern);
+      
+      if (!countError) {
+        totalCount = count || 0;
+        console.log(`Total count in ${versionId}: ${totalCount}`);
+      }
+      
+      // Get paginated results
+      const query = supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
         .eq('version_id', versionId)
         .not('book_id', 'is', null)
-        .not('text', 'is', null)
-        .ilike('text', `%${searchTerm}%`)
-        .limit(limit);
+        .not('text', 'is', null);
+      
+      const { data: versionVerses, error } = wholeWordsOnly
+        ? await query.textSearch('text', searchPattern).range(offset, offset + pageSize - 1)
+        : await query.ilike('text', searchPattern).range(offset, offset + pageSize - 1);
       
       if (!error && versionVerses && versionVerses.length > 0) {
         verses = versionVerses;
-        console.log(`Found ${verses.length} verses in ${versionId} with book_id`);
+        console.log(`Found ${verses.length} verses in ${versionId} (page ${page})`);
       } else {
-        console.log(`No results in ${versionId} with valid book_id`);
+        console.log(`No results in ${versionId}`);
       }
     }
     
-    // Strategy 2: Search in KJA without book_id filter (fallback)
-    if (verses.length === 0 && versionId === 'kja') {
-      console.log('Strategy 2: Searching in KJA without book_id filter');
-      const { data: kjaFallback, error: kjaFallbackError } = await supabase
-        .from('bible_verses')
-        .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
-        .eq('version_id', 'kja')
-        .not('text', 'is', null)
-        .ilike('text', `%${searchTerm}%`)
-        .limit(limit);
-      
-      if (!kjaFallbackError && kjaFallback && kjaFallback.length > 0) {
-        verses = kjaFallback;
-        console.log(`Found ${verses.length} verses in KJA fallback`);
-      }
-    }
-    
-    // Strategy 3: Search in any version with valid book_id
+    // Strategy 2: Search in any version if no results in preferred version
     if (verses.length === 0) {
-      console.log('Strategy 3: Searching in any version with valid book_id');
-      const { data: anyVersionVerses, error: altError } = await supabase
+      console.log('Strategy 2: Searching in any version');
+      
+      // Get total count
+      const { count, error: countError } = await supabase
+        .from('bible_verses')
+        .select('*', { count: 'exact', head: true })
+        .not('version_id', 'is', null)
+        .not('book_id', 'is', null)
+        .not('text', 'is', null)
+        [wholeWordsOnly ? 'textSearch' : 'ilike']('text', searchPattern);
+      
+      if (!countError) {
+        totalCount = count || 0;
+        console.log(`Total count in any version: ${totalCount}`);
+      }
+      
+      // Get paginated results
+      const query = supabase
         .from('bible_verses')
         .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
         .not('version_id', 'is', null)
         .not('book_id', 'is', null)
-        .not('text', 'is', null)
-        .ilike('text', `%${searchTerm}%`)
-        .limit(limit);
+        .not('text', 'is', null);
+      
+      const { data: anyVersionVerses, error: altError } = wholeWordsOnly
+        ? await query.textSearch('text', searchPattern).range(offset, offset + pageSize - 1)
+        : await query.ilike('text', searchPattern).range(offset, offset + pageSize - 1);
       
       if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
         verses = anyVersionVerses;
-        console.log(`Found ${verses.length} verses in alternative versions with book_id`);
-      }
-    }
-    
-    // Strategy 4: Last resort - search without any filters except text
-    if (verses.length === 0) {
-      console.log('Strategy 4: Last resort search');
-      const { data: allVerses, error: allError } = await supabase
-        .from('bible_verses')
-        .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
-        .not('text', 'is', null)
-        .ilike('text', `%${searchTerm}%`)
-        .limit(limit);
-      
-      if (!allError && allVerses && allVerses.length > 0) {
-        verses = allVerses;
-        console.log(`Found ${verses.length} verses in last resort search`);
+        console.log(`Found ${verses.length} verses in alternative versions (page ${page})`);
       }
     }
     
     if (!verses || verses.length === 0) {
       console.log('=== NO RESULTS FOUND ===');
-      return [];
+      return { verses: [], totalCount: 0, hasMore: false };
     }
     
     console.log('Sample verse before processing:', verses[0]);
     
     // Add book names to results
-    return await addBookNamesToVerses(verses, versionId || 'unknown');
+    const versesWithBookNames = await addBookNamesToVerses(verses, versionId || 'unknown');
+    
+    const hasMore = totalCount > offset + verses.length;
+    
+    return {
+      verses: versesWithBookNames,
+      totalCount,
+      hasMore
+    };
     
   } catch (error) {
     console.error('Error in searchBible:', error);
-    return [];
+    return { verses: [], totalCount: 0, hasMore: false };
   }
 };
 

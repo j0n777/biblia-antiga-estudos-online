@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { BibleVerse } from '@/types/bible.types';
-import { searchBibleVerses } from '@/services/bible';
+import { searchBibleVerses, SearchResult } from '@/services/bible';
 import { getUserProfile } from '@/services/ProfileService';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,7 +12,13 @@ export const useSearchBible = () => {
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [preferredVersion, setPreferredVersion] = useState<string>('kja');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalResults, setTotalResults] = useState<number>(0);
+  const [hasMoreResults, setHasMoreResults] = useState<boolean>(false);
+  const [wholeWordsOnly, setWholeWordsOnly] = useState<boolean>(true);
   const isSearchingRef = useRef<boolean>(false);
+
+  const pageSize = 10;
 
   // Load user preferences
   useEffect(() => {
@@ -53,7 +59,7 @@ export const useSearchBible = () => {
     });
   };
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback(async (query: string, page: number = 1) => {
     // Prevent duplicate searches
     if (isSearchingRef.current || query.trim().length < 2) {
       console.log('Skipping search: already searching or query too short');
@@ -61,54 +67,62 @@ export const useSearchBible = () => {
     }
     
     console.log('=== STARTING SEARCH PROCESS ===');
-    console.log(`Query: "${query}"`);
+    console.log(`Query: "${query}", Page: ${page}`);
     console.log(`Preferred version: ${preferredVersion}`);
     
     // Set searching state
     isSearchingRef.current = true;
     setIsSearching(true);
     setSearchQuery(query);
-    setHasSearched(false);
-    setSearchResults([]);
+    
+    // Reset results only for new search (page 1)
+    if (page === 1) {
+      setHasSearched(false);
+      setSearchResults([]);
+      setCurrentPage(1);
+    }
     
     try {
       console.log('Calling searchBibleVerses...');
-      const results = await searchBibleVerses(query, preferredVersion);
+      const result: SearchResult = await searchBibleVerses(query, preferredVersion, page, pageSize, wholeWordsOnly);
       
       console.log('=== SEARCH RESULTS ===');
-      console.log(`Results count: ${results.length}`);
-      if (results.length > 0) {
-        console.log('First result sample:', {
-          id: results[0].id,
-          book_name: results[0].book_name,
-          chapter: results[0].chapter_number,
-          verse: results[0].verse_number,
-          version: results[0].version_id,
-          text_preview: results[0].text?.substring(0, 100) + '...'
-        });
+      console.log(`Results count: ${result.verses.length}`);
+      console.log(`Total results: ${result.totalCount}`);
+      console.log(`Has more: ${result.hasMore}`);
+      
+      if (page === 1) {
+        // New search - replace results
+        setSearchResults(result.verses);
+      } else {
+        // Load more - append results
+        setSearchResults(prev => [...prev, ...result.verses]);
       }
       
-      setSearchResults(results);
+      setTotalResults(result.totalCount);
+      setHasMoreResults(result.hasMore);
+      setCurrentPage(page);
       setHasSearched(true);
       
-      // Save to history and show toast based on results
-      if (results.length > 0) {
-        saveSearchToHistory(query);
-        
-        // Check version used
-        const resultVersions = [...new Set(results.map(r => r.version_id).filter(Boolean))];
-        const versionInfo = resultVersions.length > 0 ? ` (${resultVersions.join(', ')})` : '';
-        
-        toast({
-          title: "Busca concluída",
-          description: `${results.length} versículo${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}${versionInfo}`,
-        });
-      } else {
-        toast({
-          title: "Nenhum resultado",
-          description: "Não foram encontrados versículos para esta busca. Tente outras palavras ou uma referência específica.",
-          variant: "destructive"
-        });
+      // Save to history and show toast for new searches
+      if (page === 1) {
+        if (result.totalResults > 0) {
+          saveSearchToHistory(query);
+          
+          const resultVersions = [...new Set(result.verses.map(r => r.version_id).filter(Boolean))];
+          const versionInfo = resultVersions.length > 0 ? ` (${resultVersions.join(', ')})` : '';
+          
+          toast({
+            title: "Busca concluída",
+            description: `${result.totalCount} versículo${result.totalCount > 1 ? 's' : ''} encontrado${result.totalCount > 1 ? 's' : ''}${versionInfo}`,
+          });
+        } else {
+          toast({
+            title: "Nenhum resultado",
+            description: "Não foram encontrados versículos para esta busca. Tente outras palavras ou uma referência específica.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('=== SEARCH ERROR ===');
@@ -126,11 +140,21 @@ export const useSearchBible = () => {
       isSearchingRef.current = false;
       console.log('=== SEARCH PROCESS COMPLETED ===');
     }
-  }, [preferredVersion]);
+  }, [preferredVersion, wholeWordsOnly]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!isSearching && hasMoreResults && searchQuery.trim().length >= 2) {
+      handleSearch(searchQuery, currentPage + 1);
+    }
+  }, [isSearching, hasMoreResults, searchQuery, currentPage, handleSearch]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
+  }, []);
+
+  const toggleWholeWordsOnly = useCallback(() => {
+    setWholeWordsOnly(prev => !prev);
   }, []);
 
   return {
@@ -140,7 +164,13 @@ export const useSearchBible = () => {
     isSearching,
     hasSearched,
     searchHistory,
+    currentPage,
+    totalResults,
+    hasMoreResults,
+    wholeWordsOnly,
     handleSearch,
-    handleInputChange
+    handleLoadMore,
+    handleInputChange,
+    toggleWholeWordsOnly
   };
 };

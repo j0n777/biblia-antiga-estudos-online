@@ -23,8 +23,13 @@ const Search = () => {
     isSearching,
     hasSearched,
     searchHistory,
+    totalResults,
+    hasMoreResults,
+    wholeWordsOnly,
     handleSearch,
-    handleInputChange
+    handleLoadMore,
+    handleInputChange,
+    toggleWholeWordsOnly
   } = useSearchBible();
 
   const handleSearchClick = () => {
@@ -89,6 +94,11 @@ const Search = () => {
                 isSearching={isSearching}
                 hasSearched={hasSearched}
                 searchResults={searchResults}
+                totalResults={totalResults}
+                hasMoreResults={hasMoreResults}
+                onLoadMore={handleLoadMore}
+                wholeWordsOnly={wholeWordsOnly}
+                onToggleWholeWords={toggleWholeWordsOnly}
               />
             </CardContent>
           </Card>

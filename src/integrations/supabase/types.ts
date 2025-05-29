@@ -114,31 +114,31 @@ export type Database = {
       }
       bible_verses: {
         Row: {
-          book_id: string | null
+          book_id: string
           chapter_id: string
-          chapter_number: number | null
+          chapter_number: number
           id: string
           text: string
           verse_number: number
-          version_id: string | null
+          version_id: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           chapter_id: string
-          chapter_number?: number | null
+          chapter_number: number
           id?: string
           text: string
           verse_number: number
-          version_id?: string | null
+          version_id: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           chapter_id?: string
-          chapter_number?: number | null
+          chapter_number?: number
           id?: string
           text?: string
           verse_number?: number
-          version_id?: string | null
+          version_id?: string
         }
         Relationships: [
           {
