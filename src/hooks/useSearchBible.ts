@@ -106,7 +106,7 @@ export const useSearchBible = () => {
       
       // Save to history and show toast for new searches
       if (page === 1) {
-        if (result.totalResults > 0) {
+        if (result.totalCount > 0) {
           saveSearchToHistory(query);
           
           const resultVersions = [...new Set(result.verses.map(r => r.version_id).filter(Boolean))];

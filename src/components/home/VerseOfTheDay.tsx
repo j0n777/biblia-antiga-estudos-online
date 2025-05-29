@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { getUserProfile } from '@/services/ProfileService';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { searchBibleVerses } from '@/services/BibleDataService';
+import { searchBibleVerses } from '@/services/bible';
 import { supabase } from '@/integrations/supabase/client';
 
 type VerseOfTheDayProps = {
@@ -47,9 +47,9 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
         // Search for the verse
         const results = await searchBibleVerses(randomReference, preferredVersion);
         
-        if (results.length > 0) {
+        if (results.verses.length > 0) {
           // Get the verse
-          const verse = results[0];
+          const verse = results.verses[0];
           
           // Get the version name
           const { data: versionData } = await supabase.from('bible_versions')
