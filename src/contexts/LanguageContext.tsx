@@ -28,7 +28,12 @@ const translations = {
     'navigation.search': 'Pesquisar',
     'navigation.read': 'Ler',
     'navigation.profile': 'Perfil',
-    'navigation.community': 'Comunidade'
+    'navigation.community': 'Comunidade',
+    'nav.home': 'Início',
+    'nav.search': 'Buscar',
+    'nav.read': 'Ler',
+    'nav.profile': 'Perfil',
+    'nav.community': 'Comunidade'
   },
   en: {
     'home.title': 'Home',
@@ -45,7 +50,12 @@ const translations = {
     'navigation.search': 'Search',
     'navigation.read': 'Read',
     'navigation.profile': 'Profile',
-    'navigation.community': 'Community'
+    'navigation.community': 'Community',
+    'nav.home': 'Home',
+    'nav.search': 'Search',
+    'nav.read': 'Read',
+    'nav.profile': 'Profile',
+    'nav.community': 'Community'
   },
   es: {
     'home.title': 'Inicio',
@@ -62,7 +72,12 @@ const translations = {
     'navigation.search': 'Buscar',
     'navigation.read': 'Leer',
     'navigation.profile': 'Perfil',
-    'navigation.community': 'Comunidad'
+    'navigation.community': 'Comunidad',
+    'nav.home': 'Inicio',
+    'nav.search': 'Buscar',
+    'nav.read': 'Leer',
+    'nav.profile': 'Perfil',
+    'nav.community': 'Comunidad'
   },
   fr: {
     'home.title': 'Accueil',
@@ -79,7 +94,12 @@ const translations = {
     'navigation.search': 'Rechercher',
     'navigation.read': 'Lire',
     'navigation.profile': 'Profil',
-    'navigation.community': 'Communauté'
+    'navigation.community': 'Communauté',
+    'nav.home': 'Accueil',
+    'nav.search': 'Rechercher',
+    'nav.read': 'Lire',
+    'nav.profile': 'Profil',
+    'nav.community': 'Communauté'
   },
   ar: {
     'home.title': 'الرئيسية',
@@ -96,7 +116,12 @@ const translations = {
     'navigation.search': 'البحث',
     'navigation.read': 'قراءة',
     'navigation.profile': 'الملف الشخصي',
-    'navigation.community': 'المجتمع'
+    'navigation.community': 'المجتمع',
+    'nav.home': 'الرئيسية',
+    'nav.search': 'البحث',
+    'nav.read': 'قراءة',
+    'nav.profile': 'الملف الشخصي',
+    'nav.community': 'المجتمع'
   }
 };
 

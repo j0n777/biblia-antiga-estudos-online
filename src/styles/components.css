@@ -78,19 +78,29 @@
     @apply hover:bg-ancient-gold/90;
   }
   
-  /* Fix popup/dropdown backgrounds */
-  .dark [data-radix-select-content],
-  .dark [data-radix-dropdown-content],
-  .dark [data-radix-popper-content] {
-    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg rounded-lg;
-    color: hsl(var(--scripture-text));
-  }
-  
+  /* Fix popup/dropdown backgrounds - ensure solid backgrounds */
   [data-radix-select-content],
   [data-radix-dropdown-content],
-  [data-radix-popper-content] {
-    @apply bg-parchment-light border border-parchment-dark/20 shadow-lg rounded-lg;
+  [data-radix-popper-content],
+  [data-radix-popover-content],
+  .dropdown-content,
+  .popover-content,
+  .select-content {
+    @apply bg-white border border-parchment-dark/20 shadow-lg rounded-lg z-50;
     color: hsl(var(--scripture-text));
+    background-color: white !important;
+  }
+  
+  .dark [data-radix-select-content],
+  .dark [data-radix-dropdown-content],
+  .dark [data-radix-popper-content],
+  .dark [data-radix-popover-content],
+  .dark .dropdown-content,
+  .dark .popover-content,
+  .dark .select-content {
+    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg rounded-lg;
+    color: hsl(var(--scripture-text));
+    background-color: hsl(var(--parchment-dark)) !important;
   }
   
   /* Add consistent rounded borders */
@@ -100,7 +110,7 @@
   
   /* Dialog content background */
   .dialog-content {
-    @apply bg-parchment-light border border-parchment-dark/30 shadow-lg rounded-lg;
+    @apply bg-white border border-parchment-dark/30 shadow-lg rounded-lg;
   }
   
   .dark .dialog-content {
@@ -129,7 +139,7 @@
 
   /* Settings dialog specific styles */
   .settings-dialog-content {
-    @apply max-w-lg bg-parchment-light dark:bg-parchment-dark/90 p-6 rounded-lg;
+    @apply max-w-lg bg-white dark:bg-parchment-dark/90 p-6 rounded-lg;
   }
   
   .settings-dialog-tabs {
@@ -161,5 +171,30 @@
     .settings-form .grid {
       @apply grid-cols-1;
     }
+  }
+  
+  /* Ensure all dropdowns and popovers have solid backgrounds */
+  [role="menu"],
+  [role="listbox"],
+  [role="combobox"],
+  [role="dialog"]:not(.toast),
+  .dropdown-menu,
+  .popover,
+  .tooltip,
+  .select-dropdown {
+    @apply bg-white border border-gray-200 shadow-lg z-50;
+    background-color: white !important;
+  }
+  
+  .dark [role="menu"],
+  .dark [role="listbox"],
+  .dark [role="combobox"],
+  .dark [role="dialog"]:not(.toast),
+  .dark .dropdown-menu,
+  .dark .popover,
+  .dark .tooltip,
+  .dark .select-dropdown {
+    @apply bg-parchment-dark border border-parchment-darker/40;
+    background-color: hsl(var(--parchment-dark)) !important;
   }
 }

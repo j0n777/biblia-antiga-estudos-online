@@ -72,59 +72,35 @@ export const searchBibleVerses = async (
       console.log(`Strategy 1: Searching in version ${versionId}`);
       
       if (wholeWordsOnly) {
-        // For whole words, use a more specific approach with word boundaries
-        console.log('Using whole words search with ILIKE pattern');
+        // For whole words, use a simpler approach with regex-like patterns
+        console.log('Using whole words search with regex pattern');
         
-        // Create patterns for word boundaries using ILIKE
-        const patterns = [
-          `% ${searchTerm} %`,  // word surrounded by spaces
-          `${searchTerm} %`,    // word at beginning
-          `% ${searchTerm}`,    // word at end
-          searchTerm            // exact match (single word)
-        ];
+        // Use a single query with regex pattern for word boundaries
+        const pattern = `\\y${searchTerm}\\y`;
         
         // Get total count first
-        let countQuery = supabase
+        const { count, error: countError } = await supabase
           .from('bible_verses')
           .select('*', { count: 'exact', head: true })
           .eq('version_id', versionId)
           .not('book_id', 'is', null)
-          .not('text', 'is', null);
-        
-        // Add OR conditions for word boundaries
-        for (let i = 0; i < patterns.length; i++) {
-          if (i === 0) {
-            countQuery = countQuery.or(`text.ilike.${patterns[i]}`);
-          } else {
-            countQuery = countQuery.or(`text.ilike.${patterns[i]}`);
-          }
-        }
-        
-        const { count, error: countError } = await countQuery;
+          .not('text', 'is', null)
+          .textSearch('text', `"${searchTerm}"`);
         
         if (!countError) {
           totalCount = count || 0;
           console.log(`Total count in ${versionId}: ${totalCount}`);
         }
         
-        // Get paginated results
-        let dataQuery = supabase
+        // Get paginated results using text search
+        const { data: versionVerses, error } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .eq('version_id', versionId)
           .not('book_id', 'is', null)
-          .not('text', 'is', null);
-        
-        // Add OR conditions for word boundaries
-        for (let i = 0; i < patterns.length; i++) {
-          if (i === 0) {
-            dataQuery = dataQuery.or(`text.ilike.${patterns[i]}`);
-          } else {
-            dataQuery = dataQuery.or(`text.ilike.${patterns[i]}`);
-          }
-        }
-        
-        const { data: versionVerses, error } = await dataQuery.range(offset, offset + pageSize - 1);
+          .not('text', 'is', null)
+          .textSearch('text', `"${searchTerm}"`)
+          .range(offset, offset + pageSize - 1);
         
         if (!error && versionVerses && versionVerses.length > 0) {
           verses = versionVerses;
@@ -175,32 +151,14 @@ export const searchBibleVerses = async (
       console.log('Strategy 2: Searching in any version');
       
       if (wholeWordsOnly) {
-        // Create patterns for word boundaries using ILIKE
-        const patterns = [
-          `% ${searchTerm} %`,  // word surrounded by spaces
-          `${searchTerm} %`,    // word at beginning
-          `% ${searchTerm}`,    // word at end
-          searchTerm            // exact match (single word)
-        ];
-        
-        // Get total count
-        let countQuery = supabase
+        // Get total count using text search
+        const { count, error: countError } = await supabase
           .from('bible_verses')
           .select('*', { count: 'exact', head: true })
           .not('version_id', 'is', null)
           .not('book_id', 'is', null)
-          .not('text', 'is', null);
-        
-        // Add OR conditions for word boundaries
-        for (let i = 0; i < patterns.length; i++) {
-          if (i === 0) {
-            countQuery = countQuery.or(`text.ilike.${patterns[i]}`);
-          } else {
-            countQuery = countQuery.or(`text.ilike.${patterns[i]}`);
-          }
-        }
-        
-        const { count, error: countError } = await countQuery;
+          .not('text', 'is', null)
+          .textSearch('text', `"${searchTerm}"`);
         
         if (!countError) {
           totalCount = count || 0;
@@ -208,23 +166,14 @@ export const searchBibleVerses = async (
         }
         
         // Get paginated results
-        let dataQuery = supabase
+        const { data: anyVersionVerses, error: altError } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .not('version_id', 'is', null)
           .not('book_id', 'is', null)
-          .not('text', 'is', null);
-        
-        // Add OR conditions for word boundaries
-        for (let i = 0; i < patterns.length; i++) {
-          if (i === 0) {
-            dataQuery = dataQuery.or(`text.ilike.${patterns[i]}`);
-          } else {
-            dataQuery = dataQuery.or(`text.ilike.${patterns[i]}`);
-          }
-        }
-        
-        const { data: anyVersionVerses, error: altError } = await dataQuery.range(offset, offset + pageSize - 1);
+          .not('text', 'is', null)
+          .textSearch('text', `"${searchTerm}"`)
+          .range(offset, offset + pageSize - 1);
         
         if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
           verses = anyVersionVerses;
