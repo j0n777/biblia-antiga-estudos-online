@@ -1,8 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export type Language = 'pt-BR' | 'en' | 'es' | 'fr' | 'ar';
+
 interface LanguageContextType {
   currentLanguage: string;
+  language: string; // Add language as alias for currentLanguage
   setLanguage: (language: string) => void;
   t: (key: string) => string;
 }
@@ -10,7 +13,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const translations = {
-  pt: {
+  'pt-BR': {
     'home.title': 'Início',
     'home.greeting': 'Bem-vindo',
     'home.subtitle': 'Comece sua jornada espiritual',
@@ -60,11 +63,45 @@ const translations = {
     'navigation.read': 'Leer',
     'navigation.profile': 'Perfil',
     'navigation.community': 'Comunidad'
+  },
+  fr: {
+    'home.title': 'Accueil',
+    'home.greeting': 'Bienvenue',
+    'home.subtitle': 'Commencez votre voyage spirituel',
+    'home.dailyVerse': 'Verset du Jour',
+    'search.title': 'Rechercher dans la Bible',
+    'search.placeholder': 'Tapez un mot ou une référence...',
+    'search.noResults': 'Aucun résultat trouvé',
+    'profile.title': 'Profil',
+    'community.title': 'Communauté',
+    'read.title': 'Lire',
+    'navigation.home': 'Accueil',
+    'navigation.search': 'Rechercher',
+    'navigation.read': 'Lire',
+    'navigation.profile': 'Profil',
+    'navigation.community': 'Communauté'
+  },
+  ar: {
+    'home.title': 'الرئيسية',
+    'home.greeting': 'مرحبا',
+    'home.subtitle': 'ابدأ رحلتك الروحية',
+    'home.dailyVerse': 'آية اليوم',
+    'search.title': 'البحث في الكتاب المقدس',
+    'search.placeholder': 'اكتب كلمة أو مرجع...',
+    'search.noResults': 'لم يتم العثور على نتائج',
+    'profile.title': 'الملف الشخصي',
+    'community.title': 'المجتمع',
+    'read.title': 'قراءة',
+    'navigation.home': 'الرئيسية',
+    'navigation.search': 'البحث',
+    'navigation.read': 'قراءة',
+    'navigation.profile': 'الملف الشخصي',
+    'navigation.community': 'المجتمع'
   }
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState('pt');
+  const [currentLanguage, setCurrentLanguage] = useState('pt-BR');
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferred-language');
@@ -84,7 +121,12 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ currentLanguage, setLanguage, t }}>
+    <LanguageContext.Provider value={{ 
+      currentLanguage, 
+      language: currentLanguage, // Add language as alias
+      setLanguage, 
+      t 
+    }}>
       {children}
     </LanguageContext.Provider>
   );
