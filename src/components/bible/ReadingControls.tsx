@@ -15,7 +15,7 @@ interface ReadingControlsProps {
   onBookChange: (bookId: string) => void;
   onChapterChange: (chapter: number) => void;
   onVersionChange: (version: string) => void;
-  onFontSizeChange: (size: 'small' | 'medium' | 'large') => void;
+  onFontSizeChange: (size: 'small' | 'medium' | 'large' | 'extra-large' | 'huge') => void;
 }
 
 const ReadingControls = ({

@@ -15,7 +15,7 @@ interface BibleChapterProps {
   scrollToVerse?: number | null;
   onVerseAction?: (verseNumber: number) => Promise<void> | void;
   isVerseSelected?: (verseNumber: number) => boolean;
-  fontSize?: 'small' | 'medium' | 'large';
+  fontSize?: 'small' | 'medium' | 'large' | 'extra-large' | 'huge';
   versionId?: string;
 }
 
@@ -26,7 +26,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   scrollToVerse,
   onVerseAction,
   isVerseSelected,
-  fontSize = 'medium',
+  fontSize = 'large',
   versionId
 }) => {
   const [chapterContent, setChapterContent] = useState<BookContent | null>(null);
@@ -122,8 +122,12 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         return 'text-base';
       case 'large':
         return 'text-lg';
+      case 'extra-large':
+        return 'text-xl';
+      case 'huge':
+        return 'text-2xl';
       default:
-        return 'text-base';
+        return 'text-lg';
     }
   };
   
