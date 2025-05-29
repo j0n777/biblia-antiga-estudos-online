@@ -29,7 +29,7 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
+        default: "border bg-white text-scripture-text border-parchment-dark/30 shadow-xl dark:bg-parchment-dark dark:border-parchment-darker/40 dark:text-scripture-text",
         destructive:
           "destructive group border-destructive bg-destructive text-destructive-foreground",
       },
@@ -49,6 +49,10 @@ const Toast = React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
+      style={{
+        backgroundColor: 'white',
+        zIndex: 9999,
+      }}
       {...props}
     />
   )
@@ -64,7 +68,7 @@ const ToastAction = React.forwardRef<
     variant="outline"
     size="sm"
     className={cn(
-      "text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm hover:bg-ancient-gold/90",
+      "text-xs bg-ancient-gold text-white px-3 py-1 rounded-sm hover:bg-ancient-gold/90 border-ancient-gold",
       className
     )}
     {...props}
@@ -98,7 +102,7 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn("text-sm font-semibold", className)}
+    className={cn("text-sm font-semibold text-scripture-text", className)}
     {...props}
   />
 ))
@@ -110,7 +114,7 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-sm opacity-90", className)}
+    className={cn("text-sm opacity-90 text-scripture-text", className)}
     {...props}
   />
 ))

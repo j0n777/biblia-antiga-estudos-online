@@ -78,29 +78,94 @@
     @apply hover:bg-ancient-gold/90;
   }
   
-  /* Fix popup/dropdown backgrounds - ensure solid backgrounds */
+  /* Fix popup/dropdown backgrounds - ensure solid backgrounds with better z-index */
   [data-radix-select-content],
   [data-radix-dropdown-content],
   [data-radix-popper-content],
   [data-radix-popover-content],
+  [data-radix-dialog-content],
+  [data-radix-alert-dialog-content],
   .dropdown-content,
   .popover-content,
-  .select-content {
-    @apply bg-white border border-parchment-dark/20 shadow-lg rounded-lg z-50;
-    color: hsl(var(--scripture-text));
+  .select-content,
+  .dialog-content,
+  .toast {
+    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-lg;
     background-color: white !important;
+    backdrop-filter: blur(8px);
+    z-index: 9999 !important;
+    color: hsl(var(--scripture-text)) !important;
   }
   
   .dark [data-radix-select-content],
   .dark [data-radix-dropdown-content],
   .dark [data-radix-popper-content],
   .dark [data-radix-popover-content],
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-alert-dialog-content],
   .dark .dropdown-content,
   .dark .popover-content,
-  .dark .select-content {
-    @apply bg-parchment-dark border border-parchment-darker/30 shadow-lg rounded-lg;
-    color: hsl(var(--scripture-text));
+  .dark .select-content,
+  .dark .dialog-content,
+  .dark .toast {
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl;
     background-color: hsl(var(--parchment-dark)) !important;
+    backdrop-filter: blur(8px);
+    z-index: 9999 !important;
+    color: hsl(var(--scripture-text)) !important;
+  }
+
+  /* Standardized colors for buttons and UI elements */
+  .btn-primary {
+    @apply bg-ancient-gold text-white hover:bg-ancient-gold/90 border-ancient-gold;
+  }
+
+  .btn-secondary {
+    @apply bg-parchment-light text-scripture-text hover:bg-parchment border-parchment-dark/30;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white;
+  }
+
+  .dark .btn-primary {
+    @apply bg-ancient-gold text-parchment-dark hover:bg-ancient-gold/90;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-parchment-light text-scripture-text hover:bg-parchment-dark/80 border-parchment-darker/40;
+  }
+
+  .dark .btn-outline {
+    @apply border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-parchment-dark;
+  }
+
+  /* Radio buttons and form controls */
+  input[type="radio"]:checked {
+    @apply bg-ancient-gold border-ancient-gold;
+  }
+
+  input[type="radio"] {
+    @apply border-parchment-dark/50;
+  }
+
+  .dark input[type="radio"] {
+    @apply border-parchment-darker/60;
+  }
+
+  .dark input[type="radio"]:checked {
+    @apply bg-ancient-gold border-ancient-gold;
+  }
+
+  /* Select dropdowns standardization */
+  select,
+  [data-radix-select-trigger] {
+    @apply bg-parchment-light border-parchment-dark/30 text-scripture-text;
+  }
+
+  .dark select,
+  .dark [data-radix-select-trigger] {
+    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text;
   }
   
   /* Add consistent rounded borders */
@@ -111,10 +176,14 @@
   /* Dialog content background */
   .dialog-content {
     @apply bg-white border border-parchment-dark/30 shadow-lg rounded-lg;
+    background-color: white !important;
+    z-index: 9999 !important;
   }
   
   .dark .dialog-content {
     @apply bg-parchment-dark border border-parchment-darker/40;
+    background-color: hsl(var(--parchment-dark)) !important;
+    z-index: 9999 !important;
   }
   
   /* Fix profile settings margin overflow */
@@ -134,12 +203,24 @@
   .settings-form input,
   .settings-form select,
   .settings-form textarea {
-    @apply w-full max-w-full box-border;
+    @apply w-full max-w-full box-border bg-parchment-light border-parchment-dark/30 text-scripture-text;
+  }
+
+  .dark .settings-form input,
+  .dark .settings-form select,
+  .dark .settings-form textarea {
+    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text;
   }
 
   /* Settings dialog specific styles */
   .settings-dialog-content {
-    @apply max-w-lg bg-white dark:bg-parchment-dark/90 p-6 rounded-lg;
+    @apply max-w-lg bg-white dark:bg-parchment-dark p-6 rounded-lg;
+    background-color: white !important;
+    z-index: 9999 !important;
+  }
+
+  .dark .settings-dialog-content {
+    background-color: hsl(var(--parchment-dark)) !important;
   }
   
   .settings-dialog-tabs {
@@ -151,7 +232,7 @@
   }
   
   .settings-dialog-tab.active {
-    @apply border-b-2 border-ancient-brown text-ancient-brown;
+    @apply border-b-2 border-ancient-gold text-ancient-gold;
   }
   
   .settings-radio-group {
@@ -173,28 +254,55 @@
     }
   }
   
-  /* Ensure all dropdowns and popovers have solid backgrounds */
+  /* Ensure all dropdowns and popovers have solid backgrounds with high z-index */
   [role="menu"],
   [role="listbox"],
   [role="combobox"],
   [role="dialog"]:not(.toast),
+  [role="alertdialog"],
   .dropdown-menu,
   .popover,
   .tooltip,
-  .select-dropdown {
-    @apply bg-white border border-gray-200 shadow-lg z-50;
+  .select-dropdown,
+  .sonner-toast,
+  .sonner-toaster {
+    @apply bg-white border border-parchment-dark/30 shadow-xl;
     background-color: white !important;
+    z-index: 9999 !important;
+    backdrop-filter: blur(8px);
+    color: hsl(var(--scripture-text)) !important;
   }
   
   .dark [role="menu"],
   .dark [role="listbox"],
   .dark [role="combobox"],
   .dark [role="dialog"]:not(.toast),
+  .dark [role="alertdialog"],
   .dark .dropdown-menu,
   .dark .popover,
   .dark .tooltip,
-  .dark .select-dropdown {
-    @apply bg-parchment-dark border border-parchment-darker/40;
+  .dark .select-dropdown,
+  .dark .sonner-toast,
+  .dark .sonner-toaster {
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl;
     background-color: hsl(var(--parchment-dark)) !important;
+    z-index: 9999 !important;
+    backdrop-filter: blur(8px);
+    color: hsl(var(--scripture-text)) !important;
+  }
+
+  /* Toast specific fixes */
+  .toast,
+  .sonner-toast {
+    @apply bg-white border border-parchment-dark/30 text-scripture-text;
+    background-color: white !important;
+    z-index: 9999 !important;
+  }
+
+  .dark .toast,
+  .dark .sonner-toast {
+    @apply bg-parchment-dark border border-parchment-darker/40 text-scripture-text;
+    background-color: hsl(var(--parchment-dark)) !important;
+    z-index: 9999 !important;
   }
 }
