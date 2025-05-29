@@ -9,26 +9,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface FontSizeControlProps {
-  onFontSizeChange: (fontSize: 'small' | 'medium' | 'large') => void;
+  onFontSizeChange: (fontSize: 'small' | 'medium' | 'large' | 'extra-large' | 'huge') => void;
 }
 
 const FontSizeControl: React.FC<FontSizeControlProps> = ({ onFontSizeChange }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="border-parchment-darker/30">
+        <Button variant="outline" size="icon" className="border-parchment-darker/30 rounded-xl">
           <Type className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onFontSizeChange('small')}>
+      <DropdownMenuContent align="end" className="bg-white border-parchment-dark/30 shadow-xl rounded-xl z-[9999]">
+        <DropdownMenuItem onClick={() => onFontSizeChange('small')} className="rounded-lg">
           <span className="text-sm">Texto Pequeno</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onFontSizeChange('medium')}>
+        <DropdownMenuItem onClick={() => onFontSizeChange('medium')} className="rounded-lg">
           <span className="text-base">Texto Médio</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onFontSizeChange('large')}>
+        <DropdownMenuItem onClick={() => onFontSizeChange('large')} className="rounded-lg">
           <span className="text-lg">Texto Grande</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onFontSizeChange('extra-large')} className="rounded-lg">
+          <span className="text-xl">Texto Extra Grande</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onFontSizeChange('huge')} className="rounded-lg">
+          <span className="text-2xl">Texto Enorme</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

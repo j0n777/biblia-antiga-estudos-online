@@ -78,7 +78,7 @@
     @apply hover:bg-ancient-gold/90;
   }
   
-  /* Fix popup/dropdown backgrounds - ensure solid backgrounds with better z-index */
+  /* Fix all popup/dropdown backgrounds with solid colors and high z-index */
   [data-radix-select-content],
   [data-radix-dropdown-content],
   [data-radix-popper-content],
@@ -92,7 +92,7 @@
   .toast {
     @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
     background-color: white !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none !important;
     z-index: 9999 !important;
     color: hsl(var(--scripture-text)) !important;
   }
@@ -110,7 +110,7 @@
   .dark .toast {
     @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none !important;
     z-index: 9999 !important;
     color: hsl(var(--scripture-text)) !important;
   }
@@ -160,12 +160,14 @@
   /* Select dropdowns standardization */
   select,
   [data-radix-select-trigger] {
-    @apply bg-parchment-light border-parchment-dark/30 text-scripture-text rounded-xl;
+    @apply bg-white border-parchment-dark/30 text-scripture-text rounded-xl;
+    background-color: white !important;
   }
 
   .dark select,
   .dark [data-radix-select-trigger] {
-    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text rounded-xl;
+    @apply border-parchment-darker/40 text-scripture-text rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
   }
   
   /* Add consistent rounded borders */
@@ -173,88 +175,7 @@
     @apply rounded-xl;
   }
   
-  /* Dialog content background */
-  .dialog-content {
-    @apply bg-white border border-parchment-dark/30 shadow-lg rounded-xl;
-    background-color: white !important;
-    z-index: 9999 !important;
-  }
-  
-  .dark .dialog-content {
-    @apply bg-parchment-dark border border-parchment-darker/40 rounded-xl;
-    background-color: hsl(var(--parchment-dark)) !important;
-    z-index: 9999 !important;
-  }
-  
-  /* Fix profile settings margin overflow */
-  .settings-container {
-    @apply w-full max-w-full overflow-x-hidden;
-  }
-
-  .settings-form {
-    @apply px-2 py-2 w-full max-w-full;
-  }
-  
-  .settings-input {
-    @apply w-full max-w-full rounded-xl;
-  }
-
-  /* Make the form inputs responsive */
-  .settings-form input,
-  .settings-form select,
-  .settings-form textarea {
-    @apply w-full max-w-full box-border bg-parchment-light border-parchment-dark/30 text-scripture-text rounded-xl;
-  }
-
-  .dark .settings-form input,
-  .dark .settings-form select,
-  .dark .settings-form textarea {
-    @apply bg-parchment-light border-parchment-darker/40 text-scripture-text rounded-xl;
-  }
-
-  /* Settings dialog specific styles */
-  .settings-dialog-content {
-    @apply max-w-lg bg-white dark:bg-parchment-dark p-6 rounded-xl;
-    background-color: white !important;
-    z-index: 9999 !important;
-  }
-
-  .dark .settings-dialog-content {
-    background-color: hsl(var(--parchment-dark)) !important;
-  }
-  
-  .settings-dialog-tabs {
-    @apply flex border-b mb-4 w-full rounded-xl;
-  }
-  
-  .settings-dialog-tab {
-    @apply px-4 py-2 transition-all text-scripture-text rounded-xl;
-  }
-  
-  .settings-dialog-tab.active {
-    @apply border-b-2 border-ancient-gold text-ancient-gold;
-  }
-  
-  .settings-radio-group {
-    @apply flex justify-between items-center;
-  }
-  
-  /* Fix dialog content padding on mobile */
-  @media (max-width: 640px) {
-    .dialog-content-mobile {
-      @apply p-2 max-w-[95vw] rounded-xl;
-    }
-    
-    .dialog-content-mobile .tabs-content {
-      @apply px-1;
-    }
-
-    .settings-form .grid {
-      @apply grid-cols-1;
-    }
-  }
-  
-  /* Ensure all dropdowns and popovers have solid backgrounds with high z-index and rounded corners */
+  /* All dropdowns and popovers have solid backgrounds with high z-index and rounded corners */
   [role="menu"],
   [role="listbox"],
   [role="combobox"],
@@ -269,7 +190,7 @@
     @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
     background-color: white !important;
     z-index: 9999 !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none !important;
     color: hsl(var(--scripture-text)) !important;
   }
   
@@ -284,10 +205,10 @@
   .dark .select-dropdown,
   .dark .sonner-toast,
   .dark .sonner-toaster {
-    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl rounded-xl;
+    @apply border border-parchment-darker/40 shadow-xl rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none !important;
     color: hsl(var(--scripture-text)) !important;
   }
 
@@ -301,7 +222,7 @@
 
   .dark .toast,
   .dark .sonner-toast {
-    @apply bg-parchment-dark border border-parchment-darker/40 text-scripture-text rounded-xl;
+    @apply border border-parchment-darker/40 text-scripture-text rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
   }
@@ -311,7 +232,8 @@
   .achievement-card,
   .profile-card,
   .verse-card,
-  .search-card {
+  .search-card,
+  .bible-study-card {
     @apply rounded-xl;
   }
 
@@ -322,5 +244,39 @@
   
   .switch-thumb {
     @apply rounded-full;
+  }
+
+  /* Make all inputs and form elements rounded */
+  input,
+  textarea,
+  select,
+  button {
+    @apply rounded-xl;
+  }
+
+  /* Font size classes for reading */
+  .font-size-small {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .font-size-medium {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .font-size-large {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .font-size-extra-large {
+    font-size: 1.25rem;
+    line-height: 1.875rem;
+  }
+
+  .font-size-huge {
+    font-size: 1.5rem;
+    line-height: 2rem;
   }
 }

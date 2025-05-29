@@ -11,7 +11,7 @@ import ReadingControls from '@/components/bible/ReadingControls';
 import ChapterNavigation from '@/components/bible/ChapterNavigation';
 
 const Read = () => {
-  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large' | 'extra-large' | 'huge'>('large'); // Default to large
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   
@@ -54,7 +54,7 @@ const Read = () => {
   }, [searchParams, bookId, handleBookChange, handleChapterChange]);
   
   // Use memoized handlers to prevent loops
-  const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large') => {
+  const handleFontSizeChange = useCallback((size: 'small' | 'medium' | 'large' | 'extra-large' | 'huge') => {
     setFontSize(size);
   }, []);
   
@@ -102,7 +102,7 @@ const Read = () => {
         </div>
 
         {/* Bible content container */}
-        <div className="parchment-container animate-fade-in card-shadow px-0 mx-0 w-full">
+        <div className="parchment-container animate-fade-in card-shadow px-0 mx-0 w-full rounded-xl">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -117,7 +117,7 @@ const Read = () => {
             />
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center p-4">
-              <div className="w-16 h-16 bg-parchment-dark/20 rounded-full flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-parchment-dark/20 rounded-xl flex items-center justify-center mb-4">
                 <span className="text-2xl">📖</span>
               </div>
               <p className="text-scripture-heading font-medium mb-2">

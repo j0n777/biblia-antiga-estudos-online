@@ -7,10 +7,15 @@ import SearchInput from '@/components/search/SearchInput';
 import SearchSuggestions from '@/components/search/SearchSuggestions';
 import SearchHistory from '@/components/search/SearchHistory';
 import SearchResults from '@/components/search/SearchResults';
+import BibleStudiesSection from '@/components/studies/BibleStudiesSection';
+import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
 import { useSearchBible } from '@/hooks/useSearchBible';
+import { BibleStudy } from '@/types/bible.types';
 
 const Search = () => {
   const { t } = useLanguage();
+  const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
+  const [isStudyDialogOpen, setIsStudyDialogOpen] = useState(false);
   
   // Popular search suggestions - add more common search terms
   const searchSuggestions = [
@@ -46,11 +51,16 @@ const Search = () => {
     handleSearch(query);
   };
 
+  const handleStudyClick = (study: BibleStudy) => {
+    setSelectedStudy(study);
+    setIsStudyDialogOpen(true);
+  };
+
   return (
     <PageLayout>
       <div className="w-full max-w-4xl mx-auto space-y-6">
         {/* Main Search Card */}
-        <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-lg">
+        <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold font-oldstyle text-scripture-heading">
               {t('search.title') || 'Pesquisar na Bíblia'}
@@ -88,7 +98,7 @@ const Search = () => {
         
         {/* Results Card - only show when searching or has searched */}
         {(isSearching || hasSearched) && (
-          <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-lg">
+          <Card className="bg-parchment-light/90 border-parchment-dark/20 rounded-xl">
             <CardContent className="p-0">
               <SearchResults
                 isSearching={isSearching}
@@ -102,6 +112,20 @@ const Search = () => {
               />
             </CardContent>
           </Card>
+        )}
+
+        {/* Bible Studies Section - show when not searching or no results */}
+        {(!hasSearched || (hasSearched && searchResults.length === 0)) && (
+          <BibleStudiesSection onStudyClick={handleStudyClick} />
+        )}
+
+        {/* Bible Study Dialog */}
+        {selectedStudy && (
+          <BibleStudyDialog
+            study={selectedStudy}
+            open={isStudyDialogOpen}
+            onOpenChange={setIsStudyDialogOpen}
+          />
         )}
       </div>
     </PageLayout>
