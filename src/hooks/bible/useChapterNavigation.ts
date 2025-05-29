@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BibleBook } from '@/types/bible.types';
 
 interface UseChapterNavigationProps {
@@ -26,6 +26,19 @@ export const useChapterNavigation = ({
 }) => {
   const [bookId, setBookId] = useState<string>(initialBookId);
   const [chapterNumber, setChapterNumber] = useState<number>(initialChapterNumber);
+  
+  // Update state when initial values change
+  useEffect(() => {
+    if (initialBookId && initialBookId !== bookId) {
+      setBookId(initialBookId);
+    }
+  }, [initialBookId, bookId]);
+  
+  useEffect(() => {
+    if (initialChapterNumber && initialChapterNumber !== chapterNumber) {
+      setChapterNumber(initialChapterNumber);
+    }
+  }, [initialChapterNumber, chapterNumber]);
   
   /**
    * Handle changing the current book

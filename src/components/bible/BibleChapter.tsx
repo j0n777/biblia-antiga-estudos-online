@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
@@ -6,6 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/components/ThemeProvider';
 import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
+import { useVerseVisibility } from '@/hooks/bible/useVerseVisibility';
+import { saveReadingPosition } from '@/services';
 
 interface BibleChapterProps {
   bookId?: string;
@@ -16,6 +19,7 @@ interface BibleChapterProps {
   isVerseSelected?: (verseNumber: number) => boolean;
   fontSize?: 'large' | 'extra-large' | 'huge';
   versionId?: string;
+  onCurrentVerseChange?: (verseNumber: number) => void;
 }
 
 const BibleChapter: React.FC<BibleChapterProps> = ({ 
@@ -26,16 +30,38 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   onVerseAction,
   isVerseSelected,
   fontSize = 'large',
-  versionId
+  versionId,
+  onCurrentVerseChange
 }) => {
   const [chapterContent, setChapterContent] = useState<BookContent | null>(null);
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [currentReadingVerse, setCurrentReadingVerse] = useState<number>(1);
   const { t, language } = useLanguage();
   const { theme } = useTheme();
   
   // Use ref to track fetch status
   const isFetchingRef = useRef<boolean>(false);
+  const verseElementsRef = useRef<Map<number, HTMLElement>>(new Map());
+  
+  // Track which verse is currently visible
+  const handleVerseVisible = React.useCallback((verseNumber: number) => {
+    if (verseNumber !== currentReadingVerse) {
+      setCurrentReadingVerse(verseNumber);
+      if (onCurrentVerseChange) {
+        onCurrentVerseChange(verseNumber);
+      }
+      
+      // Save reading position when verse changes
+      if (bookId && chapterNumber && versionId) {
+        saveReadingPosition(versionId, bookId, chapterNumber, verseNumber);
+      }
+    }
+  }, [currentReadingVerse, onCurrentVerseChange, bookId, chapterNumber, versionId]);
+  
+  const { observeVerse, unobserveVerse } = useVerseVisibility({
+    onVerseVisible: handleVerseVisible
+  });
   
   useEffect(() => {
     // Skip if we already have chapter directly provided
@@ -103,6 +129,30 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     }
   }, [scrollToVerse, chapterContent]);
 
+  // Set up intersection observer for all verses when content loads
+  useEffect(() => {
+    if (chapterContent && chapterContent.verses) {
+      const timeout = setTimeout(() => {
+        chapterContent.verses.forEach(verse => {
+          const element = document.getElementById(`verse-${verse.verse_number}`);
+          if (element) {
+            verseElementsRef.current.set(verse.verse_number, element);
+            observeVerse(element, verse.verse_number);
+          }
+        });
+      }, 500); // Wait a bit for DOM to be ready
+
+      return () => {
+        clearTimeout(timeout);
+        // Clean up observers
+        verseElementsRef.current.forEach((element) => {
+          unobserveVerse(element);
+        });
+        verseElementsRef.current.clear();
+      };
+    }
+  }, [chapterContent, observeVerse, unobserveVerse]);
+
   const handleVerseSelect = (verseId: string) => {
     setSelectedVerseId(verseId === selectedVerseId ? null : verseId);
   };
@@ -156,6 +206,9 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
         <h1 className="text-2xl font-bold font-oldstyle text-scripture-heading">
           {chapterContent.book_name} {chapterContent.chapter_number}
         </h1>
+        <div className="text-sm text-muted-foreground">
+          Versículo atual: {currentReadingVerse}
+        </div>
       </div>
       
       <div className="pb-20">
@@ -165,12 +218,16 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
               {chapterContent.verses.map((verse) => {
                 const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
                 const isHighlighted = scrollToVerse === verse.verse_number;
+                const isCurrentlyReading = currentReadingVerse === verse.verse_number;
                 
                 return (
                   <div 
                     id={`verse-${verse.verse_number}`} 
                     key={verse.id} 
-                    className={`mb-3 p-1 rounded-lg transition-all ${isHighlighted ? 'bg-amber-100/50 dark:bg-amber-900/20' : ''}`}
+                    className={`mb-3 p-1 rounded-lg transition-all ${
+                      isHighlighted ? 'bg-amber-100/50 dark:bg-amber-900/20' : 
+                      isCurrentlyReading ? 'bg-ancient-gold/10 dark:bg-ancient-gold/5' : ''
+                    }`}
                   >
                     <BibleVerseComponent 
                       verse={verse}

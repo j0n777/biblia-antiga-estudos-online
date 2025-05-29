@@ -18,6 +18,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   const [books, setBooks] = useState<BibleBook[]>([]);
   const [versions, setVersions] = useState<BibleVersion[]>([]);
   const [booksLoaded, setBooksLoaded] = useState<boolean>(false);
+  const [currentReadingVerse, setCurrentReadingVerse] = useState<number>(1);
   const dataLoadedRef = useRef<boolean>(false);
 
   // Load books and versions only once
@@ -117,7 +118,8 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     setBookId,
     setChapterNumber,
     setVersionId,
-    setScrollToVerse
+    setScrollToVerse,
+    setCurrentReadingVerse: setReadingVerse
   } = useReadingPosition({ 
     defaultVersion, 
     books,
@@ -154,6 +156,12 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     isInitialLoad
   });
   
+  // Handle current verse change
+  const handleCurrentVerseChange = useCallback((verseNumber: number) => {
+    setCurrentReadingVerse(verseNumber);
+    setReadingVerse(verseNumber);
+  }, [setReadingVerse]);
+  
   // Wrapper functions with useCallback to prevent unnecessary rerenders
   const handleBookChange = useCallback((newBookId: string) => {
     const result = navigationHandleBookChange(newBookId);
@@ -161,6 +169,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
       setBookId(result.newBookId);
       setChapterNumber(result.newChapterNumber);
       setScrollToVerse(1);
+      setCurrentReadingVerse(1);
     }
   }, [navigationHandleBookChange, setBookId, setChapterNumber, setScrollToVerse]);
 
@@ -169,6 +178,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     if (result) {
       setChapterNumber(result.newChapterNumber);
       setScrollToVerse(1);
+      setCurrentReadingVerse(1);
     }
   }, [navigationHandleChapterChange, setChapterNumber, setScrollToVerse]);
 
@@ -194,6 +204,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     isLoading,
     isInitialLoad,
     scrollToVerse,
+    currentReadingVerse,
     setScrollToVerse,
     handlePreviousChapter,
     handleNextChapter,
@@ -201,6 +212,7 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
     handleChapterChange,
     handleVersionChange,
     handleSaveVerse,
-    isVerseSelected
+    isVerseSelected,
+    onCurrentVerseChange: handleCurrentVerseChange
   };
 };

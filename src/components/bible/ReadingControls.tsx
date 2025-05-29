@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BibleBook, BibleVersion } from '@/types/bible.types';
@@ -29,6 +30,25 @@ const ReadingControls = ({
   onFontSizeChange
 }: ReadingControlsProps) => {
   const { t } = useLanguage();
+  const [userFontSize, setUserFontSize] = useState<'large' | 'extra-large' | 'huge'>('large');
+  
+  // Load user's preferred font size on component mount
+  useEffect(() => {
+    const loadUserFontSize = async () => {
+      try {
+        const profile = await getUserProfile();
+        const fontSize = profile.font_size as 'large' | 'extra-large' | 'huge';
+        if (fontSize && ['large', 'extra-large', 'huge'].includes(fontSize)) {
+          setUserFontSize(fontSize);
+          onFontSizeChange(fontSize);
+        }
+      } catch (error) {
+        console.error('Error loading user font size:', error);
+      }
+    };
+    
+    loadUserFontSize();
+  }, [onFontSizeChange]);
   
   // Use memoized handlers to prevent rerendering
   const handleBookChange = useCallback((value: string) => {
@@ -73,6 +93,22 @@ const ReadingControls = ({
       }
     }
   }, [versionId, onVersionChange]);
+
+  const handleFontSizeChange = useCallback(async (size: 'large' | 'extra-large' | 'huge') => {
+    if (size !== userFontSize) {
+      setUserFontSize(size);
+      onFontSizeChange(size);
+      
+      try {
+        // Save user's preferred font size
+        await updateUserProfile({
+          font_size: size
+        });
+      } catch (error) {
+        console.error('Error saving font size:', error);
+      }
+    }
+  }, [userFontSize, onFontSizeChange]);
 
   return (
     <div className="flex flex-col space-y-3">
@@ -155,7 +191,7 @@ const ReadingControls = ({
           </Select>
         </div>
         
-        <FontSizeControl onFontSizeChange={onFontSizeChange} />
+        <FontSizeControl onFontSizeChange={handleFontSizeChange} />
       </div>
     </div>
   );
