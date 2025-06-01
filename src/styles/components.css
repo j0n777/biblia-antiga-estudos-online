@@ -78,7 +78,7 @@
     @apply hover:bg-ancient-gold/90;
   }
   
-  /* Fix all popup/dropdown backgrounds with solid colors and high z-index */
+  /* Fix all popup/dropdown backgrounds with solid colors and high z-index - all rounded */
   [data-radix-select-content],
   [data-radix-dropdown-content],
   [data-radix-popper-content],
@@ -90,11 +90,11 @@
   .select-content,
   .dialog-content,
   .toast {
-    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
-    background-color: white !important;
+    @apply bg-bible-controls border border-gray-300 shadow-xl rounded-xl;
+    background-color: #f5f1e6 !important;
     backdrop-filter: none !important;
     z-index: 9999 !important;
-    color: hsl(var(--scripture-text)) !important;
+    color: #5e4119 !important;
   }
   
   .dark [data-radix-select-content],
@@ -115,17 +115,17 @@
     color: hsl(var(--scripture-text)) !important;
   }
 
-  /* Standardized colors for buttons and UI elements */
+  /* Standardized colors for buttons and UI elements - all rounded */
   .btn-primary {
     @apply bg-ancient-gold text-white hover:bg-ancient-gold/90 border-ancient-gold rounded-xl;
   }
 
   .btn-secondary {
-    @apply bg-parchment-light text-scripture-text hover:bg-parchment border-parchment-dark/30 rounded-xl;
+    @apply bg-bible-controls text-bible-title hover:bg-bible-controls/80 border-gray-300 rounded-xl;
   }
 
   .btn-outline {
-    @apply bg-transparent border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white rounded-xl;
+    @apply bg-transparent border-bible-title text-bible-title hover:bg-bible-title hover:text-white rounded-xl;
   }
 
   .dark .btn-primary {
@@ -140,13 +140,13 @@
     @apply border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-parchment-dark rounded-xl;
   }
 
-  /* Radio buttons and form controls */
+  /* Radio buttons and form controls - rounded */
   input[type="radio"]:checked {
     @apply bg-ancient-gold border-ancient-gold;
   }
 
   input[type="radio"] {
-    @apply border-parchment-dark/50 rounded-lg;
+    @apply border-parchment-dark/50 rounded-xl;
   }
 
   .dark input[type="radio"] {
@@ -157,11 +157,11 @@
     @apply bg-ancient-gold border-ancient-gold;
   }
 
-  /* Select dropdowns standardization */
+  /* Select dropdowns standardization - rounded */
   select,
   [data-radix-select-trigger] {
-    @apply bg-white border-parchment-dark/30 text-scripture-text rounded-xl;
-    background-color: white !important;
+    @apply bg-bible-controls border-gray-300 text-bible-title rounded-xl;
+    background-color: #f5f1e6 !important;
   }
 
   .dark select,
@@ -187,11 +187,11 @@
   .select-dropdown,
   .sonner-toast,
   .sonner-toaster {
-    @apply bg-white border border-parchment-dark/30 shadow-xl rounded-xl;
-    background-color: white !important;
+    @apply bg-bible-controls border border-gray-300 shadow-xl rounded-xl;
+    background-color: #f5f1e6 !important;
     z-index: 9999 !important;
     backdrop-filter: none !important;
-    color: hsl(var(--scripture-text)) !important;
+    color: #5e4119 !important;
   }
   
   .dark [role="menu"],
@@ -212,11 +212,11 @@
     color: hsl(var(--scripture-text)) !important;
   }
 
-  /* Toast specific fixes */
+  /* Toast specific fixes - rounded */
   .toast,
   .sonner-toast {
-    @apply bg-white border border-parchment-dark/30 text-scripture-text rounded-xl;
-    background-color: white !important;
+    @apply bg-bible-controls border border-gray-300 text-bible-title rounded-xl;
+    background-color: #f5f1e6 !important;
     z-index: 9999 !important;
   }
 
@@ -237,7 +237,7 @@
     @apply rounded-xl;
   }
 
-  /* Switch styling improvements */
+  /* Switch styling improvements - rounded */
   .switch-root {
     @apply rounded-full;
   }

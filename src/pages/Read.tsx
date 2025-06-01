@@ -119,22 +119,22 @@ const Read = () => {
           />
         </div>
 
-        {/* Chapter title - centered */}
-        {!isLoading && chapter && (
-          <div className="text-center px-4 mb-6">
-            <h2 className="text-3xl font-bold text-bible-title font-serif mb-1">
-              {books.find(b => b.book_id === bookId)?.name || bookId}
-            </h2>
-            <div className="text-lg text-bible-subtitle font-medium">
-              Capítulo {chapterNumber}
-            </div>
-            <div className="w-24 h-0.5 bg-bible-subtitle mx-auto mt-3"></div>
-          </div>
-        )}
-
-        {/* Bible content in styled box */}
+        {/* Bible content in styled box with title inside */}
         <div className="px-4 pb-4">
           <div className="bg-bible-box rounded-xl shadow-lg border border-gray-200/50 min-h-[400px]">
+            {/* Chapter title - inside the box */}
+            {!isLoading && chapter && (
+              <div className="text-center px-6 pt-6 pb-4">
+                <h2 className="text-3xl font-bold text-bible-title font-serif mb-1">
+                  {books.find(b => b.book_id === bookId)?.name || bookId}
+                </h2>
+                <div className="text-lg text-bible-subtitle font-medium">
+                  Capítulo {chapterNumber}
+                </div>
+                <div className="w-24 h-0.5 bg-bible-subtitle mx-auto mt-3"></div>
+              </div>
+            )}
+
             {isLoading ? (
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin text-bible-title" />

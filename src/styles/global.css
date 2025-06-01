@@ -12,11 +12,9 @@
   }
 
   body {
-    @apply bg-parchment bg-opacity-80 font-dmsans antialiased tracking-modern leading-relaxed;
-    color: hsl(var(--scripture-text));
-    background-image: url('/parchment-texture.jpg');
-    background-size: cover;
-    background-attachment: fixed;
+    @apply bg-bible-background font-dmsans antialiased tracking-modern leading-relaxed;
+    color: #5e4119;
+    background: linear-gradient(to bottom, #ece5d4, #e0d7c4);
     /* Hide scrollbars but keep scrolling functionality */
     overflow-x: hidden;
     scrollbar-width: none; /* Firefox */
@@ -35,7 +33,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-oldstyle tracking-tighter;
-    color: hsl(var(--scripture-heading));
+    color: #5e4119;
   }
 
   .dark h1, 
@@ -63,7 +61,7 @@
   input, 
   select, 
   textarea {
-    @apply focus:outline-none focus:ring-2 focus:ring-ancient-gold focus:ring-opacity-50 rounded-xl;
+    @apply focus:outline-none focus:ring-2 focus:ring-bible-title focus:ring-opacity-50 rounded-xl;
   }
 
   .dark input,
@@ -81,11 +79,11 @@
   
   .dark [data-radix-select-item] {
     color: hsl(var(--scripture-text));
-    @apply hover:bg-parchment-light/20 rounded-lg;
+    @apply hover:bg-parchment-light/20 rounded-xl;
   }
   
   .dark [data-radix-select-item][data-highlighted] {
-    @apply bg-parchment-light/30 rounded-lg;
+    @apply bg-parchment-light/30 rounded-xl;
   }
   
   /* Improve tabs contrast in dark mode */
@@ -94,12 +92,12 @@
   }
   
   .dark [role="tab"][data-state="active"] {
-    @apply bg-ancient-gold/20 text-ancient-gold rounded-lg;
+    @apply bg-ancient-gold/20 text-ancient-gold rounded-xl;
   }
   
   .dark [role="tab"] {
     color: hsl(var(--scripture-text));
-    @apply hover:text-ancient-gold/80 rounded-lg;
+    @apply hover:text-ancient-gold/80 rounded-xl;
   }
   
   /* Ensure all popups have proper backgrounds */
@@ -111,8 +109,8 @@
   [role="menu"],
   .radix-popover-content,
   .radix-dropdown-menu-content {
-    @apply bg-white border border-parchment-dark/20 shadow-lg rounded-xl;
-    background-color: white !important;
+    @apply bg-bible-controls border border-gray-300 shadow-lg rounded-xl;
+    background-color: #f5f1e6 !important;
   }
   
   .dark .popup-content,

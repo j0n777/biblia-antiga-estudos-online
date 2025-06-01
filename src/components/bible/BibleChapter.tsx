@@ -193,7 +193,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   }
 
   return (
-    <div className="p-6">
+    <div className="px-6 pb-6">
       <div className="pb-20">
         <div className={`${getFontSizeClass()} text-gray-800 font-serif leading-relaxed`}>
           {chapterContent?.verses && chapterContent.verses.length > 0 ? (
@@ -205,34 +205,14 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
                 const isFirstVerse = index === 0;
                 
                 return (
-                  <div 
-                    id={`verse-${verse.verse_number}`} 
-                    key={verse.id} 
-                    className={`transition-all duration-200 ${
-                      isHighlighted ? 'bg-yellow-100/60 rounded-lg p-2' : 
-                      isCurrentlyReading ? 'bg-amber-50/50 rounded-lg p-2' : 
-                      'hover:bg-gray-50/50 rounded-lg p-2'
-                    }`}
-                  >
-                    <span className="inline">
-                      {isFirstVerse && (
-                        <span className="float-left text-6xl font-bold text-bible-subtitle mr-3 mt-1 leading-none font-serif">
-                          {verse.verse_number}
-                        </span>
-                      )}
-                      {!isFirstVerse && (
-                        <span className="text-sm font-bold text-bible-subtitle align-super mr-1">
-                          {verse.verse_number}
-                        </span>
-                      )}
-                      <span 
-                        className="cursor-pointer text-gray-800"
-                        onClick={() => handleVerseClick(verse.verse_number)}
-                      >
-                        {verse.text}
-                      </span>
-                    </span>
-                  </div>
+                  <BibleVerseComponent
+                    key={verse.id}
+                    verse={verse}
+                    isHighlighted={isSelected}
+                    onVerseClick={() => handleVerseClick(verse.verse_number)}
+                    fontSize={fontSize}
+                    isFirstVerse={isFirstVerse}
+                  />
                 );
               })}
             </div>
