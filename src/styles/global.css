@@ -143,84 +143,125 @@
 }
 
 @layer components {
-  /* Padrões globais de página - aplicados com !important para garantir prioridade */
+  /* FORÇA APLICAÇÃO DE ESTILOS GLOBAIS EM TODOS OS ELEMENTOS */
+  
+  /* FUNDO GLOBAL - aplicado com máxima especificidade */
+  html,
+  body,
+  #root,
   .min-h-screen,
+  main,
+  div[class*="min-h"],
   .page-background,
   .page-container {
     background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
     color: #5e4119 !important;
   }
 
-  /* Textos globais - com !important para sobrescrever componentes específicos */
+  /* TEXTOS GLOBAIS - força aplicação em todos os elementos de texto */
+  h1, h2, h3, h4, h5, h6,
   .text-foreground,
   .text-bible-title,
-  .page-title {
+  .page-title,
+  [class*="title"],
+  [class*="heading"] {
     color: #5e4119 !important;
+    font-family: theme('fontFamily.serif') !important;
   }
 
+  p, span, div,
   .text-muted-foreground,
-  .text-bible-subtitle {
+  .text-bible-subtitle,
+  [class*="subtitle"],
+  [class*="description"] {
     color: #984b38 !important;
   }
 
-  /* Cards e componentes globais */
+  /* CARDS E CONTAINERS GLOBAIS */
   .card,
   .bg-card,
-  .content-box {
+  .content-box,
+  [data-radix-dialog-content],
+  [data-radix-popover-content],
+  .bg-background,
+  [class*="card"],
+  [class*="container"] {
     background-color: #e9e0cc !important;
     border: 1px solid rgba(156, 142, 99, 0.3) !important;
-    @apply rounded-xl;
+    border-radius: 0.75rem !important;
   }
 
-  .bg-background {
-    background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
+  /* BOTÕES GLOBAIS */
+  button,
+  .button,
+  [role="button"],
+  .btn,
+  [class*="btn"] {
+    border-radius: 0.75rem !important;
   }
 
-  /* Layout padrão global para páginas */
+  button[class*="bg-ancient-gold"],
+  .btn-primary {
+    background-color: #c4915c !important;
+    color: white !important;
+  }
+
+  button[class*="variant-outline"],
+  .btn-secondary {
+    background-color: #f5f1e6 !important;
+    color: #5e4119 !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* LAYOUT PADRÃO GLOBAL PARA PÁGINAS */
   .page-container {
-    @apply min-h-screen w-full overflow-x-hidden;
+    min-height: 100vh !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
     background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
+    padding-bottom: 4rem !important;
   }
 
   .content-box {
     background-color: #e9e0cc !important;
-    @apply rounded-xl shadow-lg border;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+    padding: 1rem !important;
+    margin: 1rem !important;
   }
 
   .page-header {
-    @apply px-4 py-4;
+    padding: 1rem !important;
   }
 
   .page-title {
-    @apply text-xl font-medium font-serif;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+    font-family: theme('fontFamily.serif') !important;
     color: #5e4119 !important;
   }
 
   .page-content {
-    @apply px-4 pb-4;
+    padding: 0 1rem 1rem 1rem !important;
   }
 
-  /* Garantir que todas as páginas tenham o fundo correto */
-  .container,
-  main,
-  div[class*="page"],
-  div[class*="min-h-screen"] {
-    background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
-  }
-
-  /* Override específico para componentes shadcn/ui */
-  [data-radix-dialog-content],
-  [data-radix-popover-content],
-  .radix-select-content {
-    background-color: #f5f1e6 !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  .dark [data-radix-dialog-content],
-  .dark [data-radix-popover-content],
-  .dark .radix-select-content {
+  /* MODO ESCURO */
+  .dark .page-container,
+  .dark .content-box,
+  .dark .card,
+  .dark .bg-card {
     background-color: hsl(var(--parchment-dark)) !important;
     border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+  .dark .page-title {
+    color: hsl(var(--scripture-heading)) !important;
+  }
+
+  .dark p, .dark span, .dark div,
+  .dark .text-muted-foreground {
+    color: hsl(var(--scripture-text)) !important;
   }
 }

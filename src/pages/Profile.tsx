@@ -134,81 +134,79 @@ const ProfilePage = () => {
 
   return (
     <PageLayout>
-      <div className="page-container">
-        {/* Header with consistent styling */}
-        <div className="page-header">
-          <div className="flex items-center justify-between">
-            <h1 className="page-title">{t('profile.title') || "Perfil"}</h1>
-            <div className="flex gap-2">
-              {isAuthenticated && profile && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowOnboarding(true)}
-                  className="text-sm rounded-xl"
-                >
-                  Configurar Onboarding
-                </Button>
-              )}
-              <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
-            </div>
+      {/* Header with consistent styling */}
+      <div className="page-header">
+        <div className="flex items-center justify-between">
+          <h1 className="page-title">{t('profile.title') || "Perfil"}</h1>
+          <div className="flex gap-2">
+            {isAuthenticated && profile && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowOnboarding(true)}
+                className="text-sm rounded-xl"
+              >
+                Configurar Onboarding
+              </Button>
+            )}
+            <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
           </div>
         </div>
-        
-        {/* Content in styled box with consistent margins */}
-        <div className="page-content">
-          <div className="content-box p-4">
-            {!isAuthenticated && <GuestModeAlert onCreateAccount={handleCreateAccount} />}
+      </div>
+      
+      {/* Content in styled box with consistent margins */}
+      <div className="page-content">
+        <div className="content-box">
+          {!isAuthenticated && <GuestModeAlert onCreateAccount={handleCreateAccount} />}
+          
+          <UserHeader 
+            profile={profile}
+            isAuthenticated={isAuthenticated}
+            onOpenHistoryDialog={() => setShowHistoryDialog(true)}
+            onCreateAccount={handleCreateAccount}
+          />
+          
+          <RecentReadingSection 
+            recentReadings={recentReadings}
+            bookNames={bookNames}
+            onViewAllHistory={() => setShowHistoryDialog(true)}
+            onOpenChapter={handleOpenChapter}
+          />
+          
+          <SavedVersesSection 
+            savedVerses={savedVerses}
+            bookNames={bookNames}
+            onViewAllVerses={() => setShowHistoryDialog(true)}
+            onReadVerse={handleReadVerse}
+          />
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+            <TabsList className="w-full bg-parchment-light rounded-xl">
+              <TabsTrigger value="conquistas" className="flex-1 rounded-xl">{t('profile.achievements') || "Conquistas"}</TabsTrigger>
+              <TabsTrigger value="estatisticas" className="flex-1 rounded-xl">{t('profile.stats') || "Estatísticas"}</TabsTrigger>
+            </TabsList>
             
-            <UserHeader 
-              profile={profile}
-              isAuthenticated={isAuthenticated}
-              onOpenHistoryDialog={() => setShowHistoryDialog(true)}
-              onCreateAccount={handleCreateAccount}
-            />
+            <TabsContent value="conquistas" className="mt-4 space-y-4">
+              <AchievementList />
+            </TabsContent>
             
-            <RecentReadingSection 
-              recentReadings={recentReadings}
-              bookNames={bookNames}
-              onViewAllHistory={() => setShowHistoryDialog(true)}
-              onOpenChapter={handleOpenChapter}
-            />
-            
-            <SavedVersesSection 
-              savedVerses={savedVerses}
-              bookNames={bookNames}
-              onViewAllVerses={() => setShowHistoryDialog(true)}
-              onReadVerse={handleReadVerse}
-            />
-            
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-              <TabsList className="w-full bg-parchment-light rounded-xl">
-                <TabsTrigger value="conquistas" className="flex-1 rounded-xl">{t('profile.achievements') || "Conquistas"}</TabsTrigger>
-                <TabsTrigger value="estatisticas" className="flex-1 rounded-xl">{t('profile.stats') || "Estatísticas"}</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="conquistas" className="mt-4 space-y-4">
-                <AchievementList />
-              </TabsContent>
-              
-              <TabsContent value="estatisticas" className="mt-4 space-y-4">
-                <StatisticsTab />
-              </TabsContent>
-            </Tabs>
-            
-            <div className="mt-6 flex justify-center">
-              {isAuthenticated ? (
-                <Button variant="outline" className="rounded-xl" onClick={handleSignOut}>
-                  {t('auth.signOut') || "Sair"}
-                </Button>
-              ) : (
-                <Button 
-                  className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-xl"
-                  onClick={handleCreateAccount}
-                >
-                  {t('auth.createAccount') || "Criar Conta"}
-                </Button>
-              )}
-            </div>
+            <TabsContent value="estatisticas" className="mt-4 space-y-4">
+              <StatisticsTab />
+            </TabsContent>
+          </Tabs>
+          
+          <div className="mt-6 flex justify-center">
+            {isAuthenticated ? (
+              <Button variant="outline" className="rounded-xl" onClick={handleSignOut}>
+                {t('auth.signOut') || "Sair"}
+              </Button>
+            ) : (
+              <Button 
+                className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-xl"
+                onClick={handleCreateAccount}
+              >
+                {t('auth.createAccount') || "Criar Conta"}
+              </Button>
+            )}
           </div>
         </div>
       </div>
