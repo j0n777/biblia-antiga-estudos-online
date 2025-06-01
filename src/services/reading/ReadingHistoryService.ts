@@ -1,25 +1,28 @@
+
 import { isUserAuthenticated } from '../AuthService';
 import { ReadingHistory } from '@/types/bible.types';
 
 /**
- * Track reading progress
+ * Track reading progress with verse tracking
  * @param versionId Bible version ID
  * @param bookId Bible book ID
  * @param chapterNumber Chapter number
- * @param verseNumber Verse number
+ * @param verseNumber Verse number (last verse read or clicked)
+ * @param source Source of the reading (scroll, click, search)
  * @returns Promise resolving to success status
  */
 export async function trackReading(
   versionId: string,
   bookId: string,
   chapterNumber: number,
-  verseNumber: number | string = 1
+  verseNumber: number | string = 1,
+  source: 'scroll' | 'click' | 'search' = 'scroll'
 ): Promise<boolean> {
   try {
     // Ensure verseNumber is a number
     const verse = typeof verseNumber === 'string' ? parseInt(verseNumber, 10) : verseNumber;
     
-    console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verse}`);
+    console.log(`Tracking reading: ${versionId} ${bookId} ${chapterNumber}:${verse} (${source})`);
     
     // Check if user is authenticated - this uses localStorage for guest users
     const isAuth = await isUserAuthenticated();
@@ -36,20 +39,38 @@ export async function trackReading(
         readingHistory = [];
       }
       
-      // Add new entry
+      // Check if we already have an entry for this book today
+      const today = new Date().toDateString();
+      const existingIndex = readingHistory.findIndex(entry => 
+        entry.book_id === bookId && 
+        new Date(entry.timestamp).toDateString() === today
+      );
+      
       const newEntry: ReadingHistory = {
         version_id: versionId,
         book_id: bookId,
         chapter_number: chapterNumber,
+        verse_number: verse,
         timestamp: new Date().toISOString(),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        source: source
       };
       
-      readingHistory.push(newEntry);
+      if (existingIndex >= 0) {
+        // Update existing entry with latest verse/chapter if it's further along
+        const existing = readingHistory[existingIndex];
+        if (chapterNumber > existing.chapter_number || 
+           (chapterNumber === existing.chapter_number && verse > (existing.verse_number || 1))) {
+          readingHistory[existingIndex] = newEntry;
+        }
+      } else {
+        // Add new entry
+        readingHistory.unshift(newEntry); // Add to beginning for chronological order
+      }
       
-      // Limit history size
-      if (readingHistory.length > 100) {
-        readingHistory.shift();
+      // Limit history size to last 50 entries
+      if (readingHistory.length > 50) {
+        readingHistory = readingHistory.slice(0, 50);
       }
       
       localStorage.setItem('reading_history', JSON.stringify(readingHistory));
@@ -78,10 +99,28 @@ export async function trackReading(
 }
 
 /**
+ * Track reading from search results
+ * @param versionId Bible version ID
+ * @param bookId Bible book ID
+ * @param chapterNumber Chapter number
+ * @param verseNumber Verse number clicked
+ * @returns Promise resolving to success status
+ */
+export async function trackSearchClick(
+  versionId: string,
+  bookId: string,
+  chapterNumber: number,
+  verseNumber: number
+): Promise<boolean> {
+  return trackReading(versionId, bookId, chapterNumber, verseNumber, 'search');
+}
+
+/**
  * Get user's reading history
+ * @param limit Optional limit for number of entries
  * @returns Promise resolving to array of reading history items
  */
-export async function getReadingHistory(): Promise<ReadingHistory[]> {
+export async function getReadingHistory(limit?: number): Promise<ReadingHistory[]> {
   try {
     const isAuth = await isUserAuthenticated();
     
@@ -91,7 +130,8 @@ export async function getReadingHistory(): Promise<ReadingHistory[]> {
       if (!history) return [];
       
       try {
-        return JSON.parse(history) as ReadingHistory[];
+        const parsedHistory = JSON.parse(history) as ReadingHistory[];
+        return limit ? parsedHistory.slice(0, limit) : parsedHistory;
       } catch (e) {
         console.error('Error parsing reading history:', e);
         return [];
@@ -104,6 +144,14 @@ export async function getReadingHistory(): Promise<ReadingHistory[]> {
     console.error('Error getting reading history:', error);
     return [];
   }
+}
+
+/**
+ * Get last three readings for profile display
+ * @returns Promise resolving to array of last 3 reading history items
+ */
+export async function getLastThreeReadings(): Promise<ReadingHistory[]> {
+  return getReadingHistory(3);
 }
 
 /**

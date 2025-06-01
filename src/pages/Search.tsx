@@ -1,131 +1,110 @@
 
-import { useState, useCallback } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SearchInput from '@/components/search/SearchInput';
-import SearchSuggestions from '@/components/search/SearchSuggestions';
-import SearchHistory from '@/components/search/SearchHistory';
 import SearchResults from '@/components/search/SearchResults';
-import BibleStudiesSection from '@/components/studies/BibleStudiesSection';
-import BibleStudyDialog from '@/components/studies/BibleStudyDialog';
+import SearchHistory from '@/components/search/SearchHistory';
+import SearchSuggestions from '@/components/search/SearchSuggestions';
 import { useSearchBible } from '@/hooks/useSearchBible';
-import { BibleStudy } from '@/types/bible.types';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { trackSearchClick } from '@/services/reading/ReadingHistoryService';
+import { getUserProfile } from '@/services/ProfileService';
+import { determineBestBibleVersion } from '@/utils/language-utils';
 
 const Search = () => {
-  const { t } = useLanguage();
-  const [selectedStudy, setSelectedStudy] = useState<BibleStudy | null>(null);
-  const [isStudyDialogOpen, setIsStudyDialogOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+  const navigate = useNavigate();
+  const { t, language } = useLanguage();
   
-  // Popular search suggestions - simplified list
-  const searchSuggestions = [
-    'amor', 'paz', 'Jesus', 'fé', 'esperança'
-  ];
-
   const {
-    searchQuery,
-    searchResults,
-    isSearching,
-    hasSearched,
+    results,
+    isLoading,
+    error,
     searchHistory,
-    totalResults,
-    hasMoreResults,
-    wholeWordsOnly,
-    handleSearch,
-    handleLoadMore,
-    handleInputChange,
-    toggleWholeWordsOnly
+    clearHistory,
+    handleSearch: performSearch
   } = useSearchBible();
 
-  const handleSearchClick = () => {
-    if (searchQuery.trim().length >= 2) {
-      handleSearch(searchQuery);
-    }
-  };
-  
-  const handleSuggestionClick = (suggestion: string) => {
-    handleSearch(suggestion);
-  };
-  
-  const handleHistoryItemClick = (query: string) => {
-    handleSearch(query);
+  const handleSearch = (searchQuery: string) => {
+    setQuery(searchQuery);
+    setShowHistory(false);
+    performSearch(searchQuery);
   };
 
-  const handleStudyClick = (study: BibleStudy) => {
-    setSelectedStudy(study);
-    setIsStudyDialogOpen(true);
+  const handleVerseClick = async (bookId: string, chapterNumber: number, verseNumber: number) => {
+    try {
+      // Get user's preferred Bible version for tracking
+      const userProfile = await getUserProfile();
+      const versionId = determineBestBibleVersion(userProfile, language);
+      
+      // Track the search click
+      await trackSearchClick(versionId, bookId, chapterNumber, verseNumber);
+      
+      // Navigate to the verse
+      navigate(`/read?book=${bookId}&chapter=${chapterNumber}&verse=${verseNumber}`);
+    } catch (error) {
+      console.error('Error tracking search click:', error);
+      // Still navigate even if tracking fails
+      navigate(`/read?book=${bookId}&chapter=${chapterNumber}&verse=${verseNumber}`);
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (!query) {
+      setShowHistory(true);
+    }
+  };
+
+  const handleInputBlur = () => {
+    // Delay hiding to allow clicking on history items
+    setTimeout(() => setShowHistory(false), 200);
   };
 
   return (
     <PageLayout>
-      <div className="w-full max-w-4xl mx-auto space-y-6">
-        {/* Main Search Card */}
-        <Card className="parchment-container rounded-xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-2xl font-bold font-oldstyle text-scripture-heading">
-              {t('search.title') || 'Pesquisar na Bíblia'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <SearchInput 
-              searchQuery={searchQuery}
-              isSearching={isSearching}
-              onInputChange={handleInputChange}
-              onSearchClick={handleSearchClick}
+      <div className="py-6 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-2xl font-oldstyle text-scripture-heading mb-6 text-center">
+            {t('nav.search') || 'Buscar na Bíblia'}
+          </h1>
+          
+          <div className="relative mb-6">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              onSearch={handleSearch}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              placeholder={t('search.placeholder') || 'Digite uma palavra, versículo ou referência...'}
             />
             
-            {/* Simplified suggestions - only show when not searching and no results */}
-            {!hasSearched && !isSearching && (
-              <div className="space-y-4">
-                {searchSuggestions.length > 0 && (
-                  <SearchSuggestions
-                    suggestions={searchSuggestions}
-                    onSuggestionClick={handleSuggestionClick}
-                  />
-                )}
-                
-                {searchHistory.length > 0 && (
-                  <SearchHistory 
-                    searchHistory={searchHistory}
-                    onHistoryItemClick={handleHistoryItemClick}
-                  />
-                )}
+            {showHistory && searchHistory.length > 0 && (
+              <div className="absolute top-full left-0 right-0 z-10 mt-1">
+                <SearchHistory
+                  history={searchHistory}
+                  onItemClick={handleSearch}
+                  onClear={clearHistory}
+                />
               </div>
             )}
-          </CardContent>
-        </Card>
-        
-        {/* Results Card - only show when searching or has searched */}
-        {(isSearching || hasSearched) && (
-          <Card className="parchment-container rounded-xl">
-            <CardContent className="p-0">
-              <SearchResults
-                isSearching={isSearching}
-                hasSearched={hasSearched}
-                searchResults={searchResults}
-                totalResults={totalResults}
-                hasMoreResults={hasMoreResults}
-                onLoadMore={handleLoadMore}
-                wholeWordsOnly={wholeWordsOnly}
-                onToggleWholeWords={toggleWholeWordsOnly}
-              />
-            </CardContent>
-          </Card>
-        )}
+          </div>
 
-        {/* Bible Studies Section - show when not searching or no results */}
-        {(!hasSearched || (hasSearched && searchResults.length === 0)) && (
-          <BibleStudiesSection onStudyClick={handleStudyClick} />
-        )}
+          {!query && !showHistory && (
+            <SearchSuggestions onSuggestionClick={handleSearch} />
+          )}
 
-        {/* Bible Study Dialog */}
-        {selectedStudy && (
-          <BibleStudyDialog
-            study={selectedStudy}
-            open={isStudyDialogOpen}
-            onOpenChange={setIsStudyDialogOpen}
-          />
-        )}
+          {query && (
+            <SearchResults
+              results={results}
+              isLoading={isLoading}
+              error={error}
+              query={query}
+              onVerseClick={handleVerseClick}
+            />
+          )}
+        </div>
       </div>
     </PageLayout>
   );

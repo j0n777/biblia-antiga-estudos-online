@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
@@ -9,6 +8,7 @@ import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
 import { useVerseVisibility } from '@/hooks/bible/useVerseVisibility';
 import { saveReadingPosition } from '@/services';
+import { trackReading } from '@/services/reading/ReadingHistoryService';
 
 interface BibleChapterProps {
   bookId?: string;
@@ -44,7 +44,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   const isFetchingRef = useRef<boolean>(false);
   const verseElementsRef = useRef<Map<number, HTMLElement>>(new Map());
   
-  // Track which verse is currently visible
+  // Track which verse is currently visible and save reading progress
   const handleVerseVisible = React.useCallback((verseNumber: number) => {
     if (verseNumber !== currentReadingVerse) {
       setCurrentReadingVerse(verseNumber);
@@ -55,6 +55,9 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       // Save reading position when verse changes
       if (bookId && chapterNumber && versionId) {
         saveReadingPosition(versionId, bookId, chapterNumber, verseNumber);
+        
+        // Track reading progress with source 'scroll'
+        trackReading(versionId, bookId, chapterNumber, verseNumber, 'scroll');
       }
     }
   }, [currentReadingVerse, onCurrentVerseChange, bookId, chapterNumber, versionId]);
@@ -158,6 +161,11 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   };
   
   const handleVerseClick = async (verseNumber: number) => {
+    // Track verse click
+    if (bookId && chapterNumber && versionId) {
+      await trackReading(versionId, bookId, chapterNumber, verseNumber, 'click');
+    }
+    
     if (onVerseAction) {
       await onVerseAction(verseNumber);
     }
@@ -204,7 +212,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
     <div className="px-1 py-4 md:px-2">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold font-oldstyle text-scripture-heading">
-          {chapterContent.book_name} {chapterContent.chapter_number}
+          {chapterContent?.book_name} {chapterContent?.chapter_number}
         </h1>
         <div className="text-sm text-muted-foreground">
           Versículo atual: {currentReadingVerse}
@@ -213,7 +221,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
       
       <div className="pb-20">
         <div className={`font-ancient ${getFontSizeClass()} text-scripture-text dark:text-scripture-text px-1 py-1 md:px-2 md:py-2`}>
-          {chapterContent.verses && chapterContent.verses.length > 0 ? (
+          {chapterContent?.verses && chapterContent.verses.length > 0 ? (
             <div className="space-y-1">
               {chapterContent.verses.map((verse) => {
                 const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
@@ -232,7 +240,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
                     <BibleVerseComponent 
                       verse={verse}
                       isHighlighted={isSelected}
-                      onVerseClick={() => onVerseAction && onVerseAction(verse.verse_number)}
+                      onVerseClick={() => handleVerseClick(verse.verse_number)}
                     />
                   </div>
                 );

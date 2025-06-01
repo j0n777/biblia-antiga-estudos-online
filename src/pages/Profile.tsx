@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '@/components/achievements/AchievementList';
 import SettingsDialog from '@/components/profile/SettingsDialog';
 import HistoryDialog from '@/components/profile/HistoryDialog';
+import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import { getUserAchievements } from '@/services/AchievementService';
 import { getUserProfile } from '@/services/ProfileService';
 import { getSavedVerses } from '@/services/VersesService';
@@ -30,6 +31,7 @@ const ProfilePage = () => {
   const [savedVerses, setSavedVerses] = useState<SavedVerse[]>([]);
   const [bookNames, setBookNames] = useState<Record<string, string>>({});
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [recentReadings, setRecentReadings] = useState<ReadingHistory[]>([]);
   
   const navigate = useNavigate();
@@ -78,16 +80,26 @@ const ProfilePage = () => {
       setSavedVerses(recentVerses);
       setRecentReadings(lastReadings);
       setBookNames(bookNameLookup);
+      
+      // Check if onboarding should be shown
+      if (isAuthenticated && userProfile && !userProfile.has_completed_onboarding) {
+        setShowOnboarding(true);
+      }
     };
     
     if (isLoading === false) {
       fetchUserData();
     }
-  }, [isLoading, language]);
+  }, [isLoading, language, isAuthenticated]);
   
   const handleProfileUpdate = async () => {
     const userProfile = await getUserProfile();
     setProfile(userProfile);
+    
+    // Check if onboarding was just completed
+    if (userProfile?.has_completed_onboarding) {
+      setShowOnboarding(false);
+    }
   };
   
   const handleSignOut = async () => {
@@ -126,7 +138,18 @@ const ProfilePage = () => {
       <div className="py-6 px-2">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('profile.title') || "Perfil"}</h1>
-          <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
+          <div className="flex gap-2">
+            {isAuthenticated && profile && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowOnboarding(true)}
+                className="text-sm"
+              >
+                Configurar Onboarding
+              </Button>
+            )}
+            <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
+          </div>
         </div>
         
         {!isAuthenticated && <GuestModeAlert onCreateAccount={handleCreateAccount} />}
@@ -187,6 +210,14 @@ const ProfilePage = () => {
       <HistoryDialog 
         open={showHistoryDialog}
         onOpenChange={setShowHistoryDialog}
+      />
+      
+      {/* Onboarding Wizard */}
+      <OnboardingWizard
+        open={showOnboarding}
+        onOpenChange={setShowOnboarding}
+        profile={profile}
+        onProfileUpdate={handleProfileUpdate}
       />
     </PageLayout>
   );
