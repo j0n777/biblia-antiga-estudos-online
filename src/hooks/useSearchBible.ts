@@ -16,6 +16,7 @@ export const useSearchBible = () => {
   const [totalResults, setTotalResults] = useState<number>(0);
   const [hasMoreResults, setHasMoreResults] = useState<boolean>(false);
   const [wholeWordsOnly, setWholeWordsOnly] = useState<boolean>(true);
+  const [error, setError] = useState<any>(null);
   const isSearchingRef = useRef<boolean>(false);
 
   const pageSize = 10;
@@ -59,6 +60,12 @@ export const useSearchBible = () => {
     });
   };
 
+  // Clear search history
+  const clearHistory = useCallback(() => {
+    setSearchHistory([]);
+    localStorage.removeItem('searchHistory');
+  }, []);
+
   const handleSearch = useCallback(async (query: string, page: number = 1) => {
     // Prevent duplicate searches
     if (isSearchingRef.current || query.trim().length < 2) {
@@ -74,6 +81,7 @@ export const useSearchBible = () => {
     isSearchingRef.current = true;
     setIsSearching(true);
     setSearchQuery(query);
+    setError(null);
     
     // Reset results only for new search (page 1)
     if (page === 1) {
@@ -124,11 +132,12 @@ export const useSearchBible = () => {
           });
         }
       }
-    } catch (error) {
+    } catch (searchError) {
       console.error('=== SEARCH ERROR ===');
-      console.error('Search failed:', error);
+      console.error('Search failed:', searchError);
       setSearchResults([]);
       setHasSearched(true);
+      setError(searchError);
       
       toast({
         title: "Erro na busca",
@@ -168,9 +177,12 @@ export const useSearchBible = () => {
     totalResults,
     hasMoreResults,
     wholeWordsOnly,
+    error,
     handleSearch,
-    handleLoadMore,
+    handleLoadMore: handleLoadMore,
+    loadMore: handleLoadMore, // Alias for backward compatibility
     handleInputChange,
-    toggleWholeWordsOnly
+    toggleWholeWordsOnly,
+    clearHistory
   };
 };
