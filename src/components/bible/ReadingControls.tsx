@@ -32,7 +32,6 @@ const ReadingControls = ({
   const { t } = useLanguage();
   const [userFontSize, setUserFontSize] = useState<'large' | 'extra-large' | 'huge'>('large');
   
-  // Load user's preferred font size on component mount
   useEffect(() => {
     const loadUserFontSize = async () => {
       try {
@@ -50,7 +49,6 @@ const ReadingControls = ({
     loadUserFontSize();
   }, [onFontSizeChange]);
   
-  // Use memoized handlers to prevent rerendering
   const handleBookChange = useCallback((value: string) => {
     if (value !== bookId) {
       onBookChange(value);
@@ -69,18 +67,14 @@ const ReadingControls = ({
       onVersionChange(value);
       
       try {
-        // Save user's preferred version
         const userProfile = await getUserProfile();
         
-        // Update preferred version
         if (userProfile.preferred_bible_version !== value) {
-          // If we have a real user (not guest), update the database
           if (!userProfile.id.startsWith('guest-')) {
             await updateUserProfile({
               preferred_bible_version: value
             });
           } else {
-            // For guest users, update localStorage
             const guestProfile = {
               ...userProfile,
               preferred_bible_version: value
@@ -100,7 +94,6 @@ const ReadingControls = ({
       onFontSizeChange(size);
       
       try {
-        // Save user's preferred font size
         await updateUserProfile({
           font_size: size
         });
@@ -110,34 +103,52 @@ const ReadingControls = ({
     }
   }, [userFontSize, onFontSizeChange]);
 
-  return (
-    <div className="flex flex-col space-y-3">
-      {/* Version selector */}
-      <Select value={versionId} onValueChange={handleVersionChange}>
-        <SelectTrigger className="w-full border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select version">
-          <SelectValue placeholder="Select Version">
-            {versions.find(v => v.id === versionId)?.name || versionId}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="max-h-[300px] rounded-xl">
-          {versions.map((version) => (
-            <SelectItem key={version.id} value={version.id} className="rounded-lg">
-              {version.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+  // Get current version with language info
+  const currentVersion = versions.find(v => v.id === versionId);
+  const versionDisplayText = currentVersion 
+    ? `${currentVersion.name} (${currentVersion.language_name || currentVersion.language})`
+    : versionId;
 
-      {/* Book and chapter selector */}
-      <div className="flex space-x-2">
-        <div className="flex-1">
+  return (
+    <div className="space-y-4">
+      {/* Version selector with language info */}
+      <div>
+        <label className="block text-sm font-medium text-scripture-text mb-2">
+          {t('settings.language') || 'Versão da Bíblia'}
+        </label>
+        <Select value={versionId} onValueChange={handleVersionChange}>
+          <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+            <SelectValue>
+              {versionDisplayText}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="max-h-[300px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
+            {versions.map((version) => (
+              <SelectItem key={version.id} value={version.id} className="rounded-lg">
+                <div className="flex flex-col">
+                  <span className="font-medium">{version.name}</span>
+                  <span className="text-xs text-muted-foreground">{version.language_name || version.language}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Book, chapter and font size controls */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Book selector */}
+        <div>
+          <label className="block text-sm font-medium text-scripture-text mb-2">
+            {t('bible.book') || 'Livro'}
+          </label>
           <Select value={bookId} onValueChange={handleBookChange}>
-            <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select book">
-              <SelectValue placeholder={t('bible.selectBook') || 'Selecionar Livro'}>
+            <SelectTrigger className="h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <SelectValue>
                 {books.find(b => b.book_id === bookId)?.name || (t('bible.selectBook') || 'Selecionar Livro')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[400px] rounded-xl">
+            <SelectContent className="max-h-[400px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
               <SelectGroup>
                 <SelectLabel className="font-oldstyle font-bold text-ancient-brown">
                   {t('bible.oldTestament') || 'Antigo Testamento'}
@@ -166,18 +177,22 @@ const ReadingControls = ({
           </Select>
         </div>
         
-        <div className="w-24">
+        {/* Chapter selector */}
+        <div>
+          <label className="block text-sm font-medium text-scripture-text mb-2">
+            {t('bible.selectChapter') || 'Capítulo'}
+          </label>
           <Select 
             value={chapterNumber.toString()} 
             onValueChange={handleChapterChange}
             disabled={!bookId}
           >
-            <SelectTrigger className="border-parchment-darker/30 bg-parchment-light/90 h-12 rounded-xl shadow-sm" aria-label="Select chapter">
-              <SelectValue placeholder={t('bible.selectChapter') || 'Cap.'}>
+            <SelectTrigger className="h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+              <SelectValue>
                 {chapterNumber ? chapterNumber.toString() : (t('bible.selectChapter') || 'Cap.')}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[300px] rounded-xl">
+            <SelectContent className="max-h-[300px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
               {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
                 Array.from(
                   { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
@@ -191,7 +206,13 @@ const ReadingControls = ({
           </Select>
         </div>
         
-        <FontSizeControl onFontSizeChange={handleFontSizeChange} />
+        {/* Font size control */}
+        <div>
+          <label className="block text-sm font-medium text-scripture-text mb-2">
+            {t('settings.fontSize') || 'Tamanho da Fonte'}
+          </label>
+          <FontSizeControl onFontSizeChange={handleFontSizeChange} />
+        </div>
       </div>
     </div>
   );

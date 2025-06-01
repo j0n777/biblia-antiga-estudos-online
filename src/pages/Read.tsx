@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -10,7 +11,7 @@ import ReadingControls from '@/components/bible/ReadingControls';
 import ChapterNavigation from '@/components/bible/ChapterNavigation';
 
 const Read = () => {
-  const [fontSize, setFontSize] = useState<'large' | 'extra-large' | 'huge'>('large'); // Default to large
+  const [fontSize, setFontSize] = useState<'large' | 'extra-large' | 'huge'>('large');
   const [searchParams] = useSearchParams();
   const { t } = useLanguage();
   
@@ -44,15 +45,12 @@ const Read = () => {
       handleBookChange(urlBook);
       handleChapterChange(parseInt(urlChapter));
       
-      // Set verse to scroll to if provided
       if (urlVerse) {
-        // The scrollToVerse will be handled by the useBibleReading hook
         console.log(`Will scroll to verse ${urlVerse}`);
       }
     }
   }, [searchParams, bookId, handleBookChange, handleChapterChange]);
   
-  // Use memoized handlers to prevent loops
   const handleFontSizeChange = useCallback((size: 'large' | 'extra-large' | 'huge') => {
     setFontSize(size);
   }, []);
@@ -67,7 +65,6 @@ const Read = () => {
     }
   }, [handleSaveVerse, books, bookId, chapterNumber, t]);
 
-  // If still initializing reading position, show loading
   if (isInitialLoad) {
     return (
       <PageLayout>
@@ -78,15 +75,22 @@ const Read = () => {
     );
   }
 
-  // Get verse to scroll to from URL parameters
   const verseFromUrl = searchParams.get('verse') ? parseInt(searchParams.get('verse')!) : null;
   const finalScrollToVerse = verseFromUrl || scrollToVerse;
 
   return (
     <PageLayout>
-      <div className="py-2 sm:py-4 w-full max-w-full overflow-hidden">
-        <div className="flex flex-col space-y-3 sm:space-y-4 mb-2 sm:mb-4 px-0">
-          {/* Bible navigation controls */}
+      <div className="py-4 w-full max-w-4xl mx-auto px-4">
+        {/* Header with elegant title */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold font-oldstyle text-scripture-heading mb-2">
+            {t('nav.read') || 'Leitura Bíblica'}
+          </h1>
+          <div className="w-24 h-1 bg-gradient-to-r from-ancient-gold to-ancient-brown mx-auto rounded-full"></div>
+        </div>
+
+        {/* Controls container with elegant styling */}
+        <div className="bg-white/90 dark:bg-parchment-dark/90 backdrop-blur-sm rounded-xl shadow-lg border border-parchment-dark/20 dark:border-parchment-darker/30 p-6 mb-6">
           <ReadingControls
             books={books}
             versions={versions}
@@ -100,8 +104,20 @@ const Read = () => {
           />
         </div>
 
-        {/* Bible content container */}
-        <div className="parchment-container animate-fade-in card-shadow px-0 mx-0 w-full rounded-xl">
+        {/* Chapter title - centered and elegant */}
+        {!isLoading && chapter && (
+          <div className="text-center mb-6">
+            <h2 className="text-4xl font-bold font-oldstyle text-scripture-heading mb-2">
+              {books.find(b => b.book_id === bookId)?.name || bookId}
+            </h2>
+            <div className="text-2xl font-medium text-ancient-gold">
+              {t('bible.selectChapter') || 'Capítulo'} {chapterNumber}
+            </div>
+          </div>
+        )}
+
+        {/* Bible content container with enhanced styling */}
+        <div className="bg-white/95 dark:bg-parchment-dark/95 backdrop-blur-sm rounded-xl shadow-xl border border-parchment-dark/20 dark:border-parchment-darker/30 overflow-hidden">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -129,11 +145,14 @@ const Read = () => {
           )}
         </div>
 
-        <ChapterNavigation 
-          chapterNumber={chapterNumber}
-          onPreviousChapter={handlePreviousChapter}
-          onNextChapter={handleNextChapter}
-        />
+        {/* Navigation with elegant styling */}
+        <div className="mt-6">
+          <ChapterNavigation 
+            chapterNumber={chapterNumber}
+            onPreviousChapter={handlePreviousChapter}
+            onNextChapter={handleNextChapter}
+          />
+        </div>
       </div>
     </PageLayout>
   );
