@@ -19,33 +19,40 @@ const FontSizeControl: React.FC<FontSizeControlProps> = ({ onFontSizeChange }) =
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-full h-11 bg-bible-controls border border-gray-300 rounded-lg shadow-sm justify-center hover:bg-bible-controls/80"
+          className="w-full h-11 bg-bible-controls border border-gray-300 rounded-xl shadow-sm justify-center hover:bg-bible-controls/80 text-bible-title"
+          style={{
+            backgroundColor: '#f5f1e6',
+            color: '#5e4119',
+          }}
         >
-          <Type className="h-4 w-4 text-bible-title" />
+          <Type className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-full bg-bible-controls border border-gray-300 shadow-lg rounded-lg z-50"
-        style={{ backgroundColor: '#f5f1e6' }}
+        className="w-full bg-bible-controls border border-gray-300 shadow-lg rounded-xl z-50"
+        style={{ 
+          backgroundColor: '#f5f1e6',
+          color: '#5e4119',
+        }}
       >
         <DropdownMenuItem 
           onClick={() => onFontSizeChange('large')} 
-          className="rounded py-2 px-3 cursor-pointer hover:bg-gray-100"
+          className="rounded-xl py-2 px-3 cursor-pointer hover:bg-gray-100"
         >
-          <span className="text-sm text-bible-title">Normal</span>
+          <span className="text-sm">Normal</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => onFontSizeChange('extra-large')} 
-          className="rounded py-2 px-3 cursor-pointer hover:bg-gray-100"
+          className="rounded-xl py-2 px-3 cursor-pointer hover:bg-gray-100"
         >
-          <span className="text-base text-bible-title">Grande</span>
+          <span className="text-base">Grande</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => onFontSizeChange('huge')} 
-          className="rounded py-2 px-3 cursor-pointer hover:bg-gray-100"
+          className="rounded-xl py-2 px-3 cursor-pointer hover:bg-gray-100"
         >
-          <span className="text-lg text-bible-title">Extra Grande</span>
+          <span className="text-lg">Extra Grande</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

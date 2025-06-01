@@ -32,7 +32,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-oldstyle tracking-tighter;
+    @apply font-oldstyle tracking-tighter font-medium;
     color: #5e4119;
   }
 
@@ -67,11 +67,11 @@
   .dark input,
   .dark select,
   .dark textarea {
-    @apply bg-parchment-light border-parchment-darker;
+    @apply bg-parchment-light border-parchment-darker rounded-xl;
     color: hsl(var(--scripture-text));
   }
   
-  /* Fix select dropdown contrast */
+  /* Fix select dropdown contrast - all rounded */
   .dark [data-radix-select-content] {
     @apply bg-parchment-dark border-parchment-darker/40 rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
@@ -88,7 +88,7 @@
   
   /* Improve tabs contrast in dark mode */
   .dark [role="tablist"] {
-    @apply bg-parchment-dark/40;
+    @apply bg-parchment-dark/40 rounded-xl;
   }
   
   .dark [role="tab"][data-state="active"] {
@@ -100,7 +100,7 @@
     @apply hover:text-ancient-gold/80 rounded-xl;
   }
   
-  /* Ensure all popups have proper backgrounds */
+  /* Ensure all popups have proper backgrounds and rounded corners */
   .popup-content,
   [data-radix-popper-content],
   [data-state="open"],
@@ -148,5 +148,10 @@
   .kbd,
   .toast {
     @apply rounded-xl;
+  }
+
+  /* Global background for all pages */
+  .min-h-screen {
+    background: linear-gradient(to bottom, #ece5d4, #e0d7c4);
   }
 }
