@@ -19,8 +19,8 @@ const Search = () => {
   const { t, language } = useLanguage();
   
   const {
-    results,
-    isLoading,
+    searchResults: results,
+    isSearching: isLoading,
     error,
     searchHistory,
     clearHistory,

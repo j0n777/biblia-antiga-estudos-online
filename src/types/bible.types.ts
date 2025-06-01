@@ -1,3 +1,4 @@
+
 export interface BibleBook {
   book_id: string;
   name: string;
@@ -31,6 +32,20 @@ export interface BibleVerse {
   chapter_id: string;
   verse_number: number;
   text: string;
+  book_id?: string;
+  chapter_number?: number;
+  book_name?: string;
+  version_id?: string;
+}
+
+export interface WordDefinition {
+  id: string;
+  word: string;
+  original?: string;
+  transliteration?: string;
+  strongs_number?: string;
+  definition: string;
+  language: string;
 }
 
 export interface BookContent {
@@ -53,6 +68,8 @@ export interface UserProfile {
   id?: string;
   user_id?: string;
   display_name: string;
+  nickname?: string;
+  email?: string;
   avatar_url?: string;
   preferred_language: string;
   preferred_bible_version: string;
@@ -61,6 +78,15 @@ export interface UserProfile {
   updated_at?: string;
   reading_position?: ReadingPosition;
   has_completed_onboarding?: boolean;
+  experience_points?: number;
+  streak_count?: number;
+  streak_record?: number;
+  last_streak_date?: string | null;
+  font_size?: 'large' | 'extra-large' | 'huge';
+  country?: string;
+  birth_year?: number;
+  phone?: string;
+  username?: string;
 }
 
 export interface Achievement {
@@ -86,6 +112,22 @@ export interface DailyChallenge {
   description: string;
   points: number;
   completed: boolean;
+  is_completed?: boolean;
+  progress?: number;
+  icon?: string;
+  expires_at?: string;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  completed: boolean;
+  is_completed?: boolean;
+  progress?: number;
+  icon?: string;
+  expires_at?: string;
 }
 
 export interface SavedVerse {
@@ -111,4 +153,38 @@ export interface ReadingHistory {
   timestamp: string;
   created_at: string;
   source?: 'scroll' | 'click' | 'search'; // New field to track reading source
+}
+
+export interface UserStudyProgress {
+  id: string;
+  user_id: string;
+  study_id: string;
+  completed: boolean;
+  progress: number;
+  completed_at?: string;
+  points_earned?: number;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  display_name?: string;
+  nickname?: string;
+  avatar_url?: string;
+  experience_points: number;
+  streak_count?: number;
+  rank: number;
+}
+
+export interface BibleStudy {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  estimated_time: number;
+  points: number;
+  icon?: string;
+  content: any;
+  completed?: boolean;
+  progress?: number;
 }
