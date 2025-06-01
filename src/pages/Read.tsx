@@ -80,44 +80,44 @@ const Read = () => {
 
   return (
     <PageLayout>
-      <div className="py-4 w-full max-w-4xl mx-auto px-4">
-        {/* Header with elegant title */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold font-oldstyle text-scripture-heading mb-2">
-            {t('nav.read') || 'Leitura Bíblica'}
-          </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-ancient-gold to-ancient-brown mx-auto rounded-full"></div>
+      <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20">
+        {/* Header with title and version selector */}
+        <div className="px-4 pt-6 pb-4">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-amber-800 dark:text-amber-200 font-serif">
+              Leitura Bíblica
+            </h1>
+            
+            {/* Version selector matching the reference */}
+            <ReadingControls
+              books={books}
+              versions={versions}
+              bookId={bookId}
+              chapterNumber={chapterNumber}
+              versionId={versionId}
+              onBookChange={handleBookChange}
+              onChapterChange={handleChapterChange}
+              onVersionChange={handleVersionChange}
+              onFontSizeChange={handleFontSizeChange}
+              compact={true}
+            />
+          </div>
         </div>
 
-        {/* Controls container with elegant styling */}
-        <div className="bg-white/90 dark:bg-parchment-dark/90 backdrop-blur-sm rounded-xl shadow-lg border border-parchment-dark/20 dark:border-parchment-darker/30 p-6 mb-6">
-          <ReadingControls
-            books={books}
-            versions={versions}
-            bookId={bookId}
-            chapterNumber={chapterNumber}
-            versionId={versionId}
-            onBookChange={handleBookChange}
-            onChapterChange={handleChapterChange}
-            onVersionChange={handleVersionChange}
-            onFontSizeChange={handleFontSizeChange}
-          />
-        </div>
-
-        {/* Chapter title - centered and elegant */}
+        {/* Chapter title - centered and prominent */}
         {!isLoading && chapter && (
-          <div className="text-center mb-6">
-            <h2 className="text-4xl font-bold font-oldstyle text-scripture-heading mb-2">
+          <div className="text-center px-4 mb-6">
+            <h2 className="text-4xl font-bold text-amber-800 dark:text-amber-200 font-serif mb-2">
               {books.find(b => b.book_id === bookId)?.name || bookId}
             </h2>
-            <div className="text-2xl font-medium text-ancient-gold">
-              {t('bible.selectChapter') || 'Capítulo'} {chapterNumber}
+            <div className="text-xl text-amber-600 dark:text-amber-300 font-medium">
+              Capítulo {chapterNumber}
             </div>
           </div>
         )}
 
-        {/* Bible content container with enhanced styling */}
-        <div className="bg-white/95 dark:bg-parchment-dark/95 backdrop-blur-sm rounded-xl shadow-xl border border-parchment-dark/20 dark:border-parchment-darker/30 overflow-hidden">
+        {/* Bible content */}
+        <div className="bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/10 dark:to-gray-800/50 min-h-screen">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-ancient-gold" />
@@ -145,7 +145,7 @@ const Read = () => {
           )}
         </div>
 
-        {/* Navigation with elegant styling */}
+        {/* Navigation */}
         <div className="mt-6">
           <ChapterNavigation 
             chapterNumber={chapterNumber}

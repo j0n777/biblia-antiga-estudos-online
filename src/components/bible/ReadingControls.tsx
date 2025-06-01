@@ -5,6 +5,7 @@ import { BibleBook, BibleVersion } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import FontSizeControl from './FontSizeControl';
 import { getUserProfile, updateUserProfile } from '@/services/ProfileService';
+import { ChevronDown } from 'lucide-react';
 
 interface ReadingControlsProps {
   books: BibleBook[];
@@ -16,6 +17,7 @@ interface ReadingControlsProps {
   onChapterChange: (chapter: number) => void;
   onVersionChange: (version: string) => void;
   onFontSizeChange: (size: 'large' | 'extra-large' | 'huge') => void;
+  compact?: boolean;
 }
 
 const ReadingControls = ({
@@ -27,7 +29,8 @@ const ReadingControls = ({
   onBookChange,
   onChapterChange,
   onVersionChange,
-  onFontSizeChange
+  onFontSizeChange,
+  compact = false
 }: ReadingControlsProps) => {
   const { t } = useLanguage();
   const [userFontSize, setUserFontSize] = useState<'large' | 'extra-large' | 'huge'>('large');
@@ -109,67 +112,93 @@ const ReadingControls = ({
     ? `${currentVersion.name} (${currentVersion.language_name || currentVersion.language})`
     : versionId;
 
-  return (
-    <div className="space-y-4">
-      {/* Version selector with language info */}
-      <div>
-        <label className="block text-sm font-medium text-scripture-text mb-2">
-          {t('settings.language') || 'Versão da Bíblia'}
-        </label>
-        <Select value={versionId} onValueChange={handleVersionChange}>
-          <SelectTrigger className="w-full h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-            <SelectValue>
-              {versionDisplayText}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="max-h-[300px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
-            {versions.map((version) => (
-              <SelectItem key={version.id} value={version.id} className="rounded-lg">
-                <div className="flex flex-col">
-                  <span className="font-medium">{version.name}</span>
-                  <span className="text-xs text-muted-foreground">{version.language_name || version.language}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+  // Compact version for header
+  if (compact) {
+    return (
+      <Select value={versionId} onValueChange={handleVersionChange}>
+        <SelectTrigger className="w-auto min-w-[200px] h-10 bg-white/90 border border-amber-200 rounded-lg shadow-sm text-sm">
+          <SelectValue>
+            <span className="text-gray-700 font-medium">{versionDisplayText}</span>
+          </SelectValue>
+          <ChevronDown className="h-4 w-4 text-gray-500" />
+        </SelectTrigger>
+        <SelectContent className="bg-white border border-amber-200 rounded-lg shadow-lg">
+          {versions.map((version) => (
+            <SelectItem key={version.id} value={version.id} className="text-sm">
+              <div className="flex flex-col">
+                <span className="font-medium text-gray-800">{version.name}</span>
+                <span className="text-xs text-gray-500">{version.language_name || version.language}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
 
-      {/* Book, chapter and font size controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Book selector */}
+  // Full controls version
+  return (
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mx-4 mb-6 shadow-sm border border-amber-100">
+      <div className="space-y-6">
+        {/* Idioma */}
         <div>
-          <label className="block text-sm font-medium text-scripture-text mb-2">
-            {t('bible.book') || 'Livro'}
+          <label className="block text-base font-medium text-gray-800 mb-3">
+            Idioma
           </label>
-          <Select value={bookId} onValueChange={handleBookChange}>
-            <SelectTrigger className="h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+          <Select value={versionId} onValueChange={handleVersionChange}>
+            <SelectTrigger className="w-full h-14 bg-white border border-gray-200 rounded-xl shadow-sm text-base">
               <SelectValue>
-                {books.find(b => b.book_id === bookId)?.name || (t('bible.selectBook') || 'Selecionar Livro')}
+                <span className="text-gray-800">{versionDisplayText}</span>
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[400px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
+            <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-lg">
+              {versions.map((version) => (
+                <SelectItem key={version.id} value={version.id}>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-800">{version.name}</span>
+                    <span className="text-sm text-gray-500">{version.language_name || version.language}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Livros */}
+        <div>
+          <label className="block text-base font-medium text-gray-800 mb-3">
+            Livros
+          </label>
+          <Select value={bookId} onValueChange={handleBookChange}>
+            <SelectTrigger className="w-full h-14 bg-white border border-gray-200 rounded-xl shadow-sm text-base">
+              <SelectValue>
+                <span className="text-gray-800">
+                  {books.find(b => b.book_id === bookId)?.name || 'Selecionar Livro'}
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-lg max-h-[400px]">
               <SelectGroup>
-                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">
-                  {t('bible.oldTestament') || 'Antigo Testamento'}
+                <SelectLabel className="font-bold text-amber-800 text-base">
+                  Antigo Testamento
                 </SelectLabel>
                 {books
                   .filter(book => book.testament === 'old')
                   .map(book => (
-                    <SelectItem key={book.book_id} value={book.book_id} className="rounded-lg">
-                      {book.name}
+                    <SelectItem key={book.book_id} value={book.book_id}>
+                      <span className="text-gray-800">{book.name}</span>
                     </SelectItem>
                   ))}
               </SelectGroup>
               <SelectGroup>
-                <SelectLabel className="font-oldstyle font-bold text-ancient-brown">
-                  {t('bible.newTestament') || 'Novo Testamento'}
+                <SelectLabel className="font-bold text-amber-800 text-base">
+                  Novo Testamento
                 </SelectLabel>
                 {books
                   .filter(book => book.testament === 'new')
                   .map(book => (
-                    <SelectItem key={book.book_id} value={book.book_id} className="rounded-lg">
-                      {book.name}
+                    <SelectItem key={book.book_id} value={book.book_id}>
+                      <span className="text-gray-800">{book.name}</span>
                     </SelectItem>
                   ))}
               </SelectGroup>
@@ -177,39 +206,39 @@ const ReadingControls = ({
           </Select>
         </div>
         
-        {/* Chapter selector */}
+        {/* Cap. */}
         <div>
-          <label className="block text-sm font-medium text-scripture-text mb-2">
-            {t('bible.selectChapter') || 'Capítulo'}
+          <label className="block text-base font-medium text-gray-800 mb-3">
+            Cap.
           </label>
           <Select 
             value={chapterNumber.toString()} 
             onValueChange={handleChapterChange}
             disabled={!bookId}
           >
-            <SelectTrigger className="h-12 bg-white/80 dark:bg-parchment-light/80 border-2 border-parchment-dark/30 dark:border-parchment-darker/40 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+            <SelectTrigger className="w-full h-14 bg-white border border-gray-200 rounded-xl shadow-sm text-base">
               <SelectValue>
-                {chapterNumber ? chapterNumber.toString() : (t('bible.selectChapter') || 'Cap.')}
+                <span className="text-gray-800">{chapterNumber}</span>
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="max-h-[300px] rounded-xl border-2 border-parchment-dark/30 dark:border-parchment-darker/40 shadow-xl">
+            <SelectContent className="bg-white border border-gray-200 rounded-xl shadow-lg max-h-[300px]">
               {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
                 Array.from(
                   { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
                   (_, i) => i + 1
                 ).map(num => (
-                  <SelectItem key={num} value={num.toString()} className="rounded-lg">
-                    {num}
+                  <SelectItem key={num} value={num.toString()}>
+                    <span className="text-gray-800">{num}</span>
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
         </div>
         
-        {/* Font size control */}
+        {/* Tamanho da Fonte */}
         <div>
-          <label className="block text-sm font-medium text-scripture-text mb-2">
-            {t('settings.fontSize') || 'Tamanho da Fonte'}
+          <label className="block text-base font-medium text-gray-800 mb-3">
+            Tamanho da Fonte
           </label>
           <FontSizeControl onFontSizeChange={handleFontSizeChange} />
         </div>

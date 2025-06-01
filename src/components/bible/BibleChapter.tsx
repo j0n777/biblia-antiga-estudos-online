@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { BookContent, BibleChapter as BibleChapterType } from '@/types/bible.types';
 import { getBookContent } from '@/services/BibleDataService';
@@ -159,13 +158,13 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   const getFontSizeClass = () => {
     switch (fontSize) {
       case 'large':
-        return 'text-lg';
+        return 'text-lg leading-8';
       case 'extra-large':
-        return 'text-xl';
+        return 'text-xl leading-9';
       case 'huge':
-        return 'text-2xl';
+        return 'text-2xl leading-10';
       default:
-        return 'text-lg';
+        return 'text-lg leading-8';
     }
   };
   
@@ -194,31 +193,45 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   }
 
   return (
-    <div className="px-4 py-6 md:px-6">
+    <div className="px-6 py-8">
       <div className="pb-20">
-        <div className={`font-ancient ${getFontSizeClass()} text-scripture-text dark:text-scripture-text px-2 py-2 md:px-4 md:py-4`}>
+        <div className={`${getFontSizeClass()} text-gray-800 dark:text-gray-200 font-serif leading-relaxed`}>
           {chapterContent?.verses && chapterContent.verses.length > 0 ? (
-            <div className="space-y-2">
-              {chapterContent.verses.map((verse) => {
+            <div className="space-y-1">
+              {chapterContent.verses.map((verse, index) => {
                 const isSelected = isVerseSelected ? isVerseSelected(verse.verse_number) : selectedVerseId === verse.id;
                 const isHighlighted = scrollToVerse === verse.verse_number;
                 const isCurrentlyReading = currentReadingVerse === verse.verse_number;
+                const isFirstVerse = index === 0;
                 
                 return (
                   <div 
                     id={`verse-${verse.verse_number}`} 
                     key={verse.id} 
-                    className={`mb-4 p-3 rounded-xl transition-all duration-200 ${
-                      isHighlighted ? 'bg-amber-100/60 dark:bg-amber-900/30 shadow-md' : 
-                      isCurrentlyReading ? 'bg-ancient-gold/15 dark:bg-ancient-gold/10 shadow-sm' : 
-                      'hover:bg-parchment-light/30 dark:hover:bg-parchment-light/10'
+                    className={`transition-all duration-200 ${
+                      isHighlighted ? 'bg-yellow-100/60 dark:bg-yellow-900/30 rounded-lg p-2' : 
+                      isCurrentlyReading ? 'bg-amber-50/50 dark:bg-amber-900/20 rounded-lg p-2' : 
+                      'hover:bg-gray-50/50 dark:hover:bg-gray-800/20 rounded-lg p-2'
                     }`}
                   >
-                    <BibleVerseComponent 
-                      verse={verse}
-                      isHighlighted={isSelected}
-                      onVerseClick={() => handleVerseClick(verse.verse_number)}
-                    />
+                    <span className="inline">
+                      {isFirstVerse && (
+                        <span className="float-left text-6xl font-bold text-amber-700 dark:text-amber-400 mr-3 mt-1 leading-none font-serif">
+                          {verse.verse_number}
+                        </span>
+                      )}
+                      {!isFirstVerse && (
+                        <span className="text-sm font-bold text-amber-700 dark:text-amber-400 align-super mr-1">
+                          {verse.verse_number}
+                        </span>
+                      )}
+                      <span 
+                        className="cursor-pointer"
+                        onClick={() => handleVerseClick(verse.verse_number)}
+                      >
+                        {verse.text}
+                      </span>
+                    </span>
                   </div>
                 );
               })}
