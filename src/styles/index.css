@@ -8,4 +8,9 @@
 @import './global.css';
 @import './scripture.css';
 @import './components.css';
+@import './bible.css';
+@import './buttons.css';
+@import './forms.css';
+@import './dropdowns.css';
+@import './cards.css';
 @import './utilities.css';

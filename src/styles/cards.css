@@ -1,0 +1,30 @@
+
+@layer components {
+  .achievement-badge {
+    @apply flex items-center justify-center w-16 h-16 rounded-xl bg-ancient-gold text-white text-xl font-bold shadow-md;
+  }
+
+  .card-shadow {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl;
+    box-shadow: 0 4px 20px rgba(92, 63, 23, 0.1);
+  }
+
+  .dark .card-shadow {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Ensure cards and other elements have rounded corners */
+  .card,
+  .achievement-card,
+  .profile-card,
+  .verse-card,
+  .search-card,
+  .bible-study-card {
+    @apply rounded-xl;
+  }
+
+  /* Add consistent rounded borders */
+  .rounded-borders {
+    @apply rounded-xl;
+  }
+}

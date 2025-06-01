@@ -1,0 +1,48 @@
+
+@layer components {
+  .bible-button {
+    @apply bg-bible-controls hover:bg-bible-controls/80 rounded-xl p-3 border border-gray-300/50 shadow-sm transition-all duration-200;
+    background-color: #f5f1e6 !important;
+    color: #5e4119 !important;
+  }
+
+  .dark .bible-button {
+    @apply bg-parchment-light hover:bg-parchment-dark/90 border-parchment-darker/40 rounded-xl;
+  }
+
+  /* Improve dark mode visibility */
+  .dark button.bg-ancient-brown {
+    @apply bg-ancient-gold text-parchment-dark;
+  }
+
+  .dark button.hover\:bg-ancient-brown\/90:hover {
+    @apply hover:bg-ancient-gold/90;
+  }
+
+  /* Standardized colors for buttons and UI elements - all rounded */
+  .btn-primary {
+    @apply bg-ancient-gold text-white hover:bg-ancient-gold/90 border-ancient-gold rounded-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-bible-controls text-bible-title hover:bg-bible-controls/80 border-gray-300 rounded-xl;
+    background-color: #f5f1e6 !important;
+    color: #5e4119 !important;
+  }
+
+  .btn-outline {
+    @apply bg-transparent border-bible-title text-bible-title hover:bg-bible-title hover:text-white rounded-xl;
+  }
+
+  .dark .btn-primary {
+    @apply bg-ancient-gold text-parchment-dark hover:bg-ancient-gold/90 rounded-xl;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-parchment-light text-scripture-text hover:bg-parchment-dark/80 border-parchment-darker/40 rounded-xl;
+  }
+
+  .dark .btn-outline {
+    @apply border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-parchment-dark rounded-xl;
+  }
+}

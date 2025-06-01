@@ -1,0 +1,92 @@
+
+@layer components {
+  /* Fix all popup/dropdown backgrounds with solid colors and high z-index - all rounded */
+  [data-radix-select-content],
+  [data-radix-dropdown-content],
+  [data-radix-popper-content],
+  [data-radix-popover-content],
+  [data-radix-dialog-content],
+  [data-radix-alert-dialog-content],
+  .dropdown-content,
+  .popover-content,
+  .select-content,
+  .dialog-content,
+  .toast {
+    @apply bg-bible-controls border border-gray-300 shadow-xl rounded-xl;
+    background-color: #f5f1e6 !important;
+    backdrop-filter: none !important;
+    z-index: 9999 !important;
+    color: #5e4119 !important;
+  }
+  
+  .dark [data-radix-select-content],
+  .dark [data-radix-dropdown-content],
+  .dark [data-radix-popper-content],
+  .dark [data-radix-popover-content],
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-alert-dialog-content],
+  .dark .dropdown-content,
+  .dark .popover-content,
+  .dark .select-content,
+  .dark .dialog-content,
+  .dark .toast {
+    @apply bg-parchment-dark border border-parchment-darker/40 shadow-xl rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
+    backdrop-filter: none !important;
+    z-index: 9999 !important;
+    color: hsl(var(--scripture-text)) !important;
+  }
+
+  /* All dropdowns and popovers have solid backgrounds with high z-index and rounded corners */
+  [role="menu"],
+  [role="listbox"],
+  [role="combobox"],
+  [role="dialog"]:not(.toast),
+  [role="alertdialog"],
+  .dropdown-menu,
+  .popover,
+  .tooltip,
+  .select-dropdown,
+  .sonner-toast,
+  .sonner-toaster {
+    @apply bg-bible-controls border border-gray-300 shadow-xl rounded-xl;
+    background-color: #f5f1e6 !important;
+    z-index: 9999 !important;
+    backdrop-filter: none !important;
+    color: #5e4119 !important;
+  }
+  
+  .dark [role="menu"],
+  .dark [role="listbox"],
+  .dark [role="combobox"],
+  .dark [role="dialog"]:not(.toast),
+  .dark [role="alertdialog"],
+  .dark .dropdown-menu,
+  .dark .popover,
+  .dark .tooltip,
+  .dark .select-dropdown,
+  .dark .sonner-toast,
+  .dark .sonner-toaster {
+    @apply border border-parchment-darker/40 shadow-xl rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
+    z-index: 9999 !important;
+    backdrop-filter: none !important;
+    color: hsl(var(--scripture-text)) !important;
+  }
+
+  /* Toast specific fixes - rounded */
+  .toast,
+  .sonner-toast {
+    @apply bg-bible-controls border border-gray-300 text-bible-title rounded-xl;
+    background-color: #f5f1e6 !important;
+    z-index: 9999 !important;
+    color: #5e4119 !important;
+  }
+
+  .dark .toast,
+  .dark .sonner-toast {
+    @apply border border-parchment-darker/40 text-scripture-text rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
+    z-index: 9999 !important;
+  }
+}

@@ -1,0 +1,50 @@
+
+@layer components {
+  /* Radio buttons and form controls - rounded */
+  input[type="radio"]:checked {
+    @apply bg-ancient-gold border-ancient-gold;
+  }
+
+  input[type="radio"] {
+    @apply border-parchment-dark/50 rounded-xl;
+  }
+
+  .dark input[type="radio"] {
+    @apply border-parchment-darker/60;
+  }
+
+  .dark input[type="radio"]:checked {
+    @apply bg-ancient-gold border-ancient-gold;
+  }
+
+  /* Select dropdowns standardization - rounded */
+  select,
+  [data-radix-select-trigger] {
+    @apply bg-bible-controls border-gray-300 text-bible-title rounded-xl;
+    background-color: #f5f1e6 !important;
+    color: #5e4119 !important;
+  }
+
+  .dark select,
+  .dark [data-radix-select-trigger] {
+    @apply border-parchment-darker/40 text-scripture-text rounded-xl;
+    background-color: hsl(var(--parchment-dark)) !important;
+  }
+
+  /* Make all inputs and form elements rounded */
+  input,
+  textarea,
+  select,
+  button {
+    @apply rounded-xl;
+  }
+
+  /* Switch styling improvements - rounded */
+  .switch-root {
+    @apply rounded-full;
+  }
+  
+  .switch-thumb {
+    @apply rounded-full;
+  }
+}
