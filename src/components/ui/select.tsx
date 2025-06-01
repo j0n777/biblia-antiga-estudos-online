@@ -24,6 +24,7 @@ const SelectTrigger = React.forwardRef<
     style={{
       backgroundColor: '#f5f1e6',
       color: '#5e4119',
+      borderRadius: '0.75rem !important',
     }}
     {...props}
   >
@@ -88,6 +89,7 @@ const SelectContent = React.forwardRef<
         backgroundColor: '#f5f1e6',
         color: '#5e4119',
         zIndex: 9999,
+        borderRadius: '0.75rem !important',
       }}
       {...props}
     >
@@ -129,6 +131,7 @@ const SelectItem = React.forwardRef<
       "relative flex w-full cursor-default select-none items-center rounded-xl py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
+    style={{ borderRadius: '0.75rem !important' }}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

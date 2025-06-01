@@ -13,13 +13,24 @@ const ChapterNavigation = ({
   onPreviousChapter,
   onNextChapter
 }: ChapterNavigationProps) => {
+  
+  const handlePreviousClick = () => {
+    console.log('Previous chapter clicked');
+    onPreviousChapter();
+  };
+
+  const handleNextClick = () => {
+    console.log('Next chapter clicked');
+    onNextChapter();
+  };
+
   return (
     <div className="fixed bottom-20 left-0 right-0 flex justify-center px-4 pb-4">
       <div className="flex gap-1 bg-bible-controls/90 backdrop-blur-sm p-1 rounded-xl shadow-lg border border-gray-300/50">
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={onPreviousChapter}
+          onClick={handlePreviousClick}
           className="hover:bg-bible-controls/80 rounded-xl h-8 w-8 p-0"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -36,7 +47,7 @@ const ChapterNavigation = ({
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={onNextChapter}
+          onClick={handleNextClick}
           className="hover:bg-bible-controls/80 rounded-xl h-8 w-8 p-0"
         >
           <ChevronRight className="h-4 w-4" />

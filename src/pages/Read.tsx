@@ -58,12 +58,25 @@ const Read = () => {
   const onVerseAction = useCallback(async (verseNumber: number) => {
     const success = await handleSaveVerse(verseNumber);
     if (success) {
+      const bookName = books.find(b => b.book_id === bookId)?.name || bookId;
+      const isHighlighted = isVerseSelected(verseNumber);
+      
       toast({
-        title: t('bible.verseSaved'),
-        description: `${books.find(b => b.book_id === bookId)?.name || bookId} ${chapterNumber}:${verseNumber}`,
+        title: isHighlighted ? t('bible.verseRemoved') || 'Destaque removido' : t('bible.verseSaved') || 'Versículo destacado',
+        description: `${bookName} ${chapterNumber}:${verseNumber}`,
       });
     }
-  }, [handleSaveVerse, books, bookId, chapterNumber, t]);
+  }, [handleSaveVerse, books, bookId, chapterNumber, t, isVerseSelected]);
+
+  const onPreviousChapter = useCallback(() => {
+    console.log('Previous chapter requested from Read page');
+    handlePreviousChapter();
+  }, [handlePreviousChapter]);
+
+  const onNextChapter = useCallback(() => {
+    console.log('Next chapter requested from Read page');
+    handleNextChapter();
+  }, [handleNextChapter]);
 
   if (isInitialLoad) {
     return (
@@ -167,8 +180,8 @@ const Read = () => {
         <div className="mt-6 px-4 pb-6">
           <ChapterNavigation 
             chapterNumber={chapterNumber}
-            onPreviousChapter={handlePreviousChapter}
-            onNextChapter={handleNextChapter}
+            onPreviousChapter={onPreviousChapter}
+            onNextChapter={onNextChapter}
           />
         </div>
       </div>

@@ -33,14 +33,29 @@ export const useVerseManagement = ({
     try {
       // Import saveVerse dynamically to avoid circular dependencies
       const { saveVerse } = await import('@/services/VersesService');
-      const success = await saveVerse(bookId, chapterNumber, verseNumber, versionId, "yellow");
       
-      if (success) {
+      // Check if verse is already saved - if so, remove it
+      if (savedVerses[verseKey]) {
+        console.log('Removing verse highlight:', verseKey);
+        // For now, we'll just remove it from local state
+        // In a full implementation, you'd also call a removeVerse API
         setSavedVerses({
           ...savedVerses,
-          [verseKey]: true
+          [verseKey]: false
         });
         return true;
+      } else {
+        // Save the verse
+        console.log('Saving verse:', verseKey);
+        const success = await saveVerse(bookId, chapterNumber, verseNumber, versionId, "yellow");
+        
+        if (success) {
+          setSavedVerses({
+            ...savedVerses,
+            [verseKey]: true
+          });
+          return true;
+        }
       }
       return false;
     } catch (error) {

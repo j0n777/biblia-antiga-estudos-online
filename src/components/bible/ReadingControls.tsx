@@ -118,13 +118,16 @@ const ReadingControls = ({
   if (compact) {
     return (
       <Select value={versionId} onValueChange={handleVersionChange}>
-        <SelectTrigger className="w-auto min-w-[200px] h-9 bg-bible-controls border border-gray-300 rounded-lg shadow-sm text-sm">
+        <SelectTrigger 
+          className="w-auto min-w-[200px] h-9 bg-bible-controls border border-gray-300 rounded-xl shadow-sm text-sm"
+          style={{ borderRadius: '0.75rem !important' }}
+        >
           <SelectValue>
             <span className="text-bible-title font-medium">{versionDisplayText}</span>
           </SelectValue>
           <ChevronDown className="h-4 w-4 text-bible-title" />
         </SelectTrigger>
-        <SelectContent className="bg-bible-controls border border-gray-300 rounded-lg shadow-lg">
+        <SelectContent className="bg-bible-controls border border-gray-300 rounded-xl shadow-lg">
           {versions.map((version) => (
             <SelectItem key={version.id} value={version.id} className="text-sm">
               <div className="flex flex-col">
@@ -145,14 +148,17 @@ const ReadingControls = ({
         {/* Book selector */}
         <div className="flex-1">
           <Select value={bookId} onValueChange={handleBookChange}>
-            <SelectTrigger className="h-11 bg-bible-controls border border-gray-300 rounded-lg shadow-sm">
+            <SelectTrigger 
+              className="h-11 bg-bible-controls border border-gray-300 rounded-xl shadow-sm"
+              style={{ borderRadius: '0.75rem !important' }}
+            >
               <SelectValue>
                 <span className="text-bible-title font-medium">
                   {books.find(b => b.book_id === bookId)?.name || 'Livro'}
                 </span>
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-bible-controls border border-gray-300 rounded-lg shadow-lg max-h-[300px]">
+            <SelectContent className="bg-bible-controls border border-gray-300 rounded-xl shadow-lg max-h-[300px]">
               <SelectGroup>
                 <SelectLabel className="font-bold text-bible-title">
                   Antigo Testamento
@@ -188,12 +194,15 @@ const ReadingControls = ({
             onValueChange={handleChapterChange}
             disabled={!bookId}
           >
-            <SelectTrigger className="h-11 bg-bible-controls border border-gray-300 rounded-lg shadow-sm">
+            <SelectTrigger 
+              className="h-11 bg-bible-controls border border-gray-300 rounded-xl shadow-sm"
+              style={{ borderRadius: '0.75rem !important' }}
+            >
               <SelectValue>
                 <span className="text-bible-title font-medium">{chapterNumber}</span>
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-bible-controls border border-gray-300 rounded-lg shadow-lg max-h-[200px]">
+            <SelectContent className="bg-bible-controls border border-gray-300 rounded-xl shadow-lg max-h-[200px]">
               {bookId && books.find(b => b.book_id === bookId)?.chapters_count && 
                 Array.from(
                   { length: books.find(b => b.book_id === bookId)?.chapters_count || 0 },
