@@ -12,8 +12,8 @@
 
   body {
     @apply bg-bible-background font-dmsans antialiased tracking-modern leading-relaxed;
-    color: #5e4119;
-    background: linear-gradient(120deg, #f0e9d8, #e8dfc6);
+    color: #5e4119 !important;
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -24,14 +24,14 @@
   }
 
   .dark body {
-    color: hsl(var(--scripture-text));
-    background-color: hsl(var(--parchment-dark));
-    background-image: url('/parchment-dark.jpg');
+    color: hsl(var(--scripture-text)) !important;
+    background-color: hsl(var(--parchment-dark)) !important;
+    background-image: url('/parchment-dark.jpg') !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-oldstyle tracking-tighter font-normal;
-    color: #5e4119;
+    color: #5e4119 !important;
   }
 
   .dark h1, 
@@ -40,7 +40,7 @@
   .dark h4, 
   .dark h5, 
   .dark h6 {
-    color: hsl(var(--scripture-heading));
+    color: hsl(var(--scripture-heading)) !important;
   }
 
   .dark .text-muted-foreground {
@@ -49,7 +49,7 @@
   
   .dark .scripture-text,
   .dark .text-scripture-text {
-    color: hsl(var(--scripture-text));
+    color: hsl(var(--scripture-text)) !important;
     opacity: 0.95;
   }
 
@@ -64,7 +64,7 @@
   .dark select,
   .dark textarea {
     @apply bg-parchment-light border-parchment-darker rounded-xl;
-    color: hsl(var(--scripture-text));
+    color: hsl(var(--scripture-text)) !important;
   }
   
   .dark [data-radix-select-content] {
@@ -73,7 +73,7 @@
   }
   
   .dark [data-radix-select-item] {
-    color: hsl(var(--scripture-text));
+    color: hsl(var(--scripture-text)) !important;
     @apply hover:bg-parchment-light/20 rounded-xl;
   }
   
@@ -90,7 +90,7 @@
   }
   
   .dark [role="tab"] {
-    color: hsl(var(--scripture-text));
+    color: hsl(var(--scripture-text)) !important;
     @apply hover:text-ancient-gold/80 rounded-xl;
   }
   
@@ -140,43 +140,52 @@
   .toast {
     @apply rounded-xl;
   }
+}
 
-  /* Apply global background and colors to all pages */
+@layer components {
+  /* Padrões globais de página - aplicados com !important para garantir prioridade */
   .min-h-screen,
-  .page-background {
+  .page-background,
+  .page-container {
     background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
-    color: #5e4119;
+    color: #5e4119 !important;
   }
 
-  /* Global text colors */
-  .text-foreground {
-    color: #5e4119;
+  /* Textos globais - com !important para sobrescrever componentes específicos */
+  .text-foreground,
+  .text-bible-title,
+  .page-title {
+    color: #5e4119 !important;
   }
 
-  .text-muted-foreground {
-    color: #984b38;
+  .text-muted-foreground,
+  .text-bible-subtitle {
+    color: #984b38 !important;
   }
 
-  /* Global card and component styling */
+  /* Cards e componentes globais */
   .card,
-  .bg-card {
-    @apply bg-bible-controls border-gray-300/50 rounded-xl;
-    background-color: #f5f1e6;
+  .bg-card,
+  .content-box {
+    background-color: #e9e0cc !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+    @apply rounded-xl;
   }
 
   .bg-background {
     background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
   }
 
-  /* Global page styling - consistent with read page */
+  /* Layout padrão global para páginas */
   .page-container {
-    @apply min-h-screen;
-    background: linear-gradient(120deg, #f0e9d8, #e8dfc6);
+    @apply min-h-screen w-full overflow-x-hidden;
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
   }
 
   .content-box {
-    @apply bg-bible-box rounded-xl shadow-lg border border-gray-200/50;
-    background-color: #e9e0cc;
+    background-color: #e9e0cc !important;
+    @apply rounded-xl shadow-lg border;
+    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
   .page-header {
@@ -184,10 +193,34 @@
   }
 
   .page-title {
-    @apply text-xl font-medium text-bible-title font-serif;
+    @apply text-xl font-medium font-serif;
+    color: #5e4119 !important;
   }
 
   .page-content {
     @apply px-4 pb-4;
+  }
+
+  /* Garantir que todas as páginas tenham o fundo correto */
+  .container,
+  main,
+  div[class*="page"],
+  div[class*="min-h-screen"] {
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6) !important;
+  }
+
+  /* Override específico para componentes shadcn/ui */
+  [data-radix-dialog-content],
+  [data-radix-popover-content],
+  .radix-select-content {
+    background-color: #f5f1e6 !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-popover-content],
+  .dark .radix-select-content {
+    background-color: hsl(var(--parchment-dark)) !important;
+    border-color: rgba(156, 142, 99, 0.4) !important;
   }
 }
