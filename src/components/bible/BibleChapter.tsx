@@ -171,11 +171,11 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   if (loadError) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] text-center p-4">
-        <div className="w-16 h-16 bg-parchment-dark/20 rounded-xl flex items-center justify-center mb-4">
+        <div className="w-16 h-16 bg-bible-title/20 rounded-xl flex items-center justify-center mb-4">
           <span className="text-2xl">📖</span>
         </div>
-        <p className="text-scripture-heading font-medium mb-2">{loadError}</p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-bible-title font-medium mb-2">{loadError}</p>
+        <p className="text-sm text-bible-subtitle">
           {t('bible.tryAnotherChapter')}
         </p>
       </div>
@@ -185,17 +185,17 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   if (!chapterContent) {
     return (
       <div className="animate-pulse flex flex-col items-center justify-center h-[50vh]">
-        <div className="w-12 h-12 rounded-xl bg-parchment-dark/40 mb-4"></div>
-        <div className="h-4 w-36 bg-parchment-dark/40 rounded-lg mb-2"></div>
-        <div className="h-3 w-24 bg-parchment-dark/30 rounded-lg"></div>
+        <div className="w-12 h-12 rounded-xl bg-bible-title/40 mb-4"></div>
+        <div className="h-4 w-36 bg-bible-title/40 rounded-lg mb-2"></div>
+        <div className="h-3 w-24 bg-bible-title/30 rounded-lg"></div>
       </div>
     );
   }
 
   return (
-    <div className="px-6 py-8">
+    <div className="p-6">
       <div className="pb-20">
-        <div className={`${getFontSizeClass()} text-gray-800 dark:text-gray-200 font-serif leading-relaxed`}>
+        <div className={`${getFontSizeClass()} text-gray-800 font-serif leading-relaxed`}>
           {chapterContent?.verses && chapterContent.verses.length > 0 ? (
             <div className="space-y-1">
               {chapterContent.verses.map((verse, index) => {
@@ -209,24 +209,24 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
                     id={`verse-${verse.verse_number}`} 
                     key={verse.id} 
                     className={`transition-all duration-200 ${
-                      isHighlighted ? 'bg-yellow-100/60 dark:bg-yellow-900/30 rounded-lg p-2' : 
-                      isCurrentlyReading ? 'bg-amber-50/50 dark:bg-amber-900/20 rounded-lg p-2' : 
-                      'hover:bg-gray-50/50 dark:hover:bg-gray-800/20 rounded-lg p-2'
+                      isHighlighted ? 'bg-yellow-100/60 rounded-lg p-2' : 
+                      isCurrentlyReading ? 'bg-amber-50/50 rounded-lg p-2' : 
+                      'hover:bg-gray-50/50 rounded-lg p-2'
                     }`}
                   >
                     <span className="inline">
                       {isFirstVerse && (
-                        <span className="float-left text-6xl font-bold text-amber-700 dark:text-amber-400 mr-3 mt-1 leading-none font-serif">
+                        <span className="float-left text-6xl font-bold text-bible-subtitle mr-3 mt-1 leading-none font-serif">
                           {verse.verse_number}
                         </span>
                       )}
                       {!isFirstVerse && (
-                        <span className="text-sm font-bold text-amber-700 dark:text-amber-400 align-super mr-1">
+                        <span className="text-sm font-bold text-bible-subtitle align-super mr-1">
                           {verse.verse_number}
                         </span>
                       )}
                       <span 
-                        className="cursor-pointer"
+                        className="cursor-pointer text-gray-800"
                         onClick={() => handleVerseClick(verse.verse_number)}
                       >
                         {verse.text}
@@ -238,10 +238,10 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 bg-parchment-dark/20 rounded-xl flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-bible-title/20 rounded-xl flex items-center justify-center mb-4">
                 <span className="text-2xl">📖</span>
               </div>
-              <p>{t('bible.tryAnotherChapter')}</p>
+              <p className="text-bible-title">{t('bible.tryAnotherChapter')}</p>
             </div>
           )}
         </div>

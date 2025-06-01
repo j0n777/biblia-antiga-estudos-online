@@ -84,17 +84,25 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Bible app specific colors
+				// Bible app specific colors - Updated with new color scheme
+				bible: {
+					background: '#ece5d4',
+					box: '#e9e0cc',
+					controls: '#f5f1e6',
+					title: '#5e4119',
+					subtitle: '#984b38'
+				},
 				parchment: {
 					light: '#f5f1e6',
-					DEFAULT: '#e8e0cb',
-					dark: '#d3c7a6',
+					DEFAULT: '#e9e0cc',
+					dark: '#ece5d4',
 					darker: '#9e8e63'
 				},
 				scripture: {
-					heading: '#5c3f17',
+					heading: '#5e4119',
 					text: '#3a2a12',
-					verse: '#5c3f17',
+					verse: '#5e4119',
+					subtitle: '#984b38',
 					highlight: {
 						yellow: 'rgba(255, 213, 105, 0.4)',
 						green: 'rgba(152, 219, 150, 0.4)',
@@ -104,8 +112,8 @@ export default {
 					}
 				},
 				ancient: {
-					brown: '#5c3f17',
-					red: '#984a37',
+					brown: '#5e4119',
+					red: '#984b38',
 					gold: '#c19237',
 				}
 			},
@@ -161,6 +169,7 @@ export default {
 				'parchment-texture': "url('/parchment-texture.jpg')",
 				'parchment-dark': "url('/parchment-dark.jpg')",
 				'ornamental-border': "url('/ornamental-border.png')",
+				'bible-gradient': 'linear-gradient(to bottom, #ece5d4, #e0d7c4)',
 			},
 		}
 	},
