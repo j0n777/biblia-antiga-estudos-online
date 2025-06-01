@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { DailyChallenge } from '@/types/bible.types';
 import { getUserProfile } from './ProfileService';
@@ -14,24 +15,24 @@ export async function getDailyChallenges(): Promise<DailyChallenge[]> {
       id: '1',
       title: 'Leitura Diária',
       description: 'Leia um capítulo da Bíblia hoje',
-      type: 'reading',
-      target_value: 1,
-      is_completed: false,
       points: 10,
-      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+      completed: false,
+      is_completed: false,
       progress: 0,
+      target_value: 1,
+      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
       icon: '📖'
     },
     {
       id: '2',
       title: 'Estudo Bíblico',
       description: 'Complete um estudo bíblico',
-      type: 'study',
-      target_value: 1,
-      is_completed: false,
       points: 20,
-      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
+      completed: false,
+      is_completed: false,
       progress: 0,
+      target_value: 1,
+      expires_at: new Date(new Date().setHours(23, 59, 59, 999)).toISOString(),
       icon: '📚'
     }
   ];
@@ -141,10 +142,10 @@ export async function getChallengeProgress(challengeId: string): Promise<number>
     let progress = challenge.progress || 0;
     
     // Convert to percentage
-    const percentage = Math.round((progress / challenge.target_value) * 100);
+    const percentage = Math.round((progress / (challenge.target_value || 1)) * 100);
     
     // If challenge is completed, return 100%
-    if (challenge.is_completed) {
+    if (challenge.is_completed || challenge.completed) {
       return 100;
     }
     

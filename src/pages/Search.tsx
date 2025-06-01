@@ -19,12 +19,17 @@ const Search = () => {
   const { t, language } = useLanguage();
   
   const {
-    searchResults: results,
-    isSearching: isLoading,
+    searchResults,
+    isSearching,
     error,
     searchHistory,
     clearHistory,
-    handleSearch: performSearch
+    handleSearch: performSearch,
+    totalResults,
+    hasMoreResults,
+    loadMore,
+    wholeWordsOnly,
+    toggleWholeWordsOnly
   } = useSearchBible();
 
   const handleSearch = (searchQuery: string) => {
@@ -62,6 +67,11 @@ const Search = () => {
     setTimeout(() => setShowHistory(false), 200);
   };
 
+  const suggestionsList = [
+    "amor", "paz", "salvação", "fé", "esperança", 
+    "João 3:16", "Romanos 8:28", "Salmo 23", "Filipenses 4:13"
+  ];
+
   return (
     <PageLayout>
       <div className="py-6 px-4">
@@ -72,19 +82,20 @@ const Search = () => {
           
           <div className="relative mb-6">
             <SearchInput
-              value={query}
-              onChange={setQuery}
-              onSearch={handleSearch}
+              searchQuery={query}
+              isSearching={isSearching}
+              onInputChange={(e) => setQuery(e.target.value)}
+              onSearchClick={() => handleSearch(query)}
+              placeholder={t('search.placeholder') || 'Digite uma palavra, versículo ou referência...'}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
-              placeholder={t('search.placeholder') || 'Digite uma palavra, versículo ou referência...'}
             />
             
             {showHistory && searchHistory.length > 0 && (
               <div className="absolute top-full left-0 right-0 z-10 mt-1">
                 <SearchHistory
-                  history={searchHistory}
-                  onItemClick={handleSearch}
+                  searchHistory={searchHistory}
+                  onHistoryItemClick={handleSearch}
                   onClear={clearHistory}
                 />
               </div>
@@ -92,13 +103,22 @@ const Search = () => {
           </div>
 
           {!query && !showHistory && (
-            <SearchSuggestions onSuggestionClick={handleSearch} />
+            <SearchSuggestions 
+              suggestions={suggestionsList} 
+              onSuggestionClick={handleSearch} 
+            />
           )}
 
           {query && (
             <SearchResults
-              results={results}
-              isLoading={isLoading}
+              isSearching={isSearching}
+              hasSearched={!!query}
+              searchResults={searchResults}
+              totalResults={totalResults || searchResults.length}
+              hasMoreResults={hasMoreResults}
+              onLoadMore={loadMore}
+              wholeWordsOnly={wholeWordsOnly}
+              onToggleWholeWords={toggleWholeWordsOnly}
               error={error}
               query={query}
               onVerseClick={handleVerseClick}

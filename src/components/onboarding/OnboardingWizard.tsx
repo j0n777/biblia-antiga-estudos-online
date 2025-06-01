@@ -144,7 +144,8 @@ const OnboardingWizard = ({ open, onOpenChange, profile, onProfileUpdate }: Onbo
           book_id: selectedLanguage.startsWith('en') ? 'gn' : 'mt', // Genesis or Matthew
           chapter: 1,
           verse: 1,
-          version_id: finalBibleVersion
+          version_id: finalBibleVersion,
+          timestamp: new Date().toISOString() // Add missing timestamp property
         }
       };
       

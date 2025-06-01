@@ -1,4 +1,3 @@
-
 export interface BibleBook {
   book_id: string;
   name: string;
@@ -116,6 +115,8 @@ export interface DailyChallenge {
   progress?: number;
   icon?: string;
   expires_at?: string;
+  type?: string;
+  target_value?: number;
 }
 
 export interface Challenge {
@@ -178,6 +179,7 @@ export interface LeaderboardEntry {
 export interface BibleStudy {
   id: string;
   title: string;
+  title_key?: string;
   description: string;
   category: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';

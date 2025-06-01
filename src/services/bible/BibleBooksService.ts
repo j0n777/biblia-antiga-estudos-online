@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { BibleBook, BibleChapter } from '@/types/bible.types';
 
@@ -120,6 +119,7 @@ export const getBookChapters = async (bookId: string, versionId: string = 'kja')
       book_id: normalizedBookId,
       chapter_number: chapter.chapter_number,
       book_name: bookName,
+      verses: [], // Initialize with empty verses array, will be populated when needed
       verses_count: chapter.verses_count || 0,
       version_id: versionId
     }));

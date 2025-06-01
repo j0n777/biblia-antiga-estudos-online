@@ -7,7 +7,22 @@ interface SearchSuggestionsProps {
   onSuggestionClick: (suggestion: string) => void;
 }
 
-const SearchSuggestions = ({ suggestions, onSuggestionClick }: SearchSuggestionsProps) => {
+const defaultSuggestions = [
+  "amor",
+  "paz",
+  "salvação",
+  "fé",
+  "esperança",
+  "João 3:16",
+  "Romanos 8:28",
+  "Salmo 23",
+  "Filipenses 4:13"
+];
+
+const SearchSuggestions = ({ 
+  suggestions = defaultSuggestions, 
+  onSuggestionClick 
+}: SearchSuggestionsProps) => {
   if (!suggestions || suggestions.length === 0) return null;
 
   return (

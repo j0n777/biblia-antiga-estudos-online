@@ -27,6 +27,8 @@ export const recordChapterRead = async (
       id: `${bookId}-${chapterNumber}-${Date.now()}`,
       book_id: bookId,
       chapter_number: chapterNumber,
+      version_id: 'kja', // Default version
+      timestamp: new Date().toISOString(),
       created_at: new Date().toISOString(),
     };
     
