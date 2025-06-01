@@ -15,31 +15,31 @@ const ChapterNavigation = ({
 }: ChapterNavigationProps) => {
   return (
     <div className="fixed bottom-20 left-0 right-0 flex justify-center px-4 pb-4">
-      <div className="flex gap-2 bg-parchment-light/90 backdrop-blur-sm p-2 rounded-full shadow-lg border border-parchment-dark/30">
+      <div className="flex gap-1 bg-bible-controls/90 backdrop-blur-sm p-1 rounded-xl shadow-lg border border-gray-300/50">
         <Button 
           variant="ghost" 
-          size="icon"
+          size="sm"
           onClick={onPreviousChapter}
-          className="hover:bg-parchment-dark/20"
+          className="hover:bg-bible-controls/80 rounded-xl h-8 w-8 p-0"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
         
         <Button 
           variant="ghost" 
-          size="icon"
-          className="opacity-50 cursor-default hover:bg-transparent"
+          size="sm"
+          className="opacity-60 cursor-default hover:bg-transparent rounded-xl h-8 px-3 text-sm font-medium"
         >
           {chapterNumber}
         </Button>
         
         <Button 
           variant="ghost" 
-          size="icon"
+          size="sm"
           onClick={onNextChapter}
-          className="hover:bg-parchment-dark/20"
+          className="hover:bg-bible-controls/80 rounded-xl h-8 w-8 p-0"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

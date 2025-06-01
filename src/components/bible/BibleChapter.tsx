@@ -193,7 +193,7 @@ const BibleChapter: React.FC<BibleChapterProps> = ({
   }
 
   return (
-    <div className="px-6 pb-6">
+    <div className="px-3 pb-6">
       <div className="pb-20">
         <div className={`${getFontSizeClass()} text-gray-800 font-serif leading-relaxed`}>
           {chapterContent?.verses && chapterContent.verses.length > 0 ? (

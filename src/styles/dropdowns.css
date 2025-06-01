@@ -17,6 +17,7 @@
     backdrop-filter: none !important;
     z-index: 9999 !important;
     color: #5e4119 !important;
+    border-radius: 0.75rem !important;
   }
   
   .dark [data-radix-select-content],
@@ -35,6 +36,7 @@
     backdrop-filter: none !important;
     z-index: 9999 !important;
     color: hsl(var(--scripture-text)) !important;
+    border-radius: 0.75rem !important;
   }
 
   /* All dropdowns and popovers have solid backgrounds with high z-index and rounded corners */
@@ -54,6 +56,7 @@
     z-index: 9999 !important;
     backdrop-filter: none !important;
     color: #5e4119 !important;
+    border-radius: 0.75rem !important;
   }
   
   .dark [role="menu"],
@@ -72,6 +75,7 @@
     z-index: 9999 !important;
     backdrop-filter: none !important;
     color: hsl(var(--scripture-text)) !important;
+    border-radius: 0.75rem !important;
   }
 
   /* Toast specific fixes - rounded */
@@ -81,6 +85,7 @@
     background-color: #f5f1e6 !important;
     z-index: 9999 !important;
     color: #5e4119 !important;
+    border-radius: 0.75rem !important;
   }
 
   .dark .toast,
@@ -88,5 +93,15 @@
     @apply border border-parchment-darker/40 text-scripture-text rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
     z-index: 9999 !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* Force rounded corners on all dropdown items */
+  [data-radix-select-item],
+  [data-radix-dropdown-menu-item],
+  .dropdown-menu-item,
+  .select-item {
+    @apply rounded-xl;
+    border-radius: 0.75rem !important;
   }
 }

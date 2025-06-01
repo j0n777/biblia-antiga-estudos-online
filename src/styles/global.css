@@ -7,22 +7,20 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Hide scrollbars for app-like experience */
     overflow-x: hidden;
   }
 
   body {
     @apply bg-bible-background font-dmsans antialiased tracking-modern leading-relaxed;
     color: #5e4119;
-    background: linear-gradient(to bottom, #ece5d4, #e0d7c4);
-    /* Hide scrollbars but keep scrolling functionality */
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6);
     overflow-x: hidden;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
   body::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none;
   }
 
   .dark body {
@@ -32,7 +30,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-oldstyle tracking-tighter font-medium;
+    @apply font-oldstyle tracking-tighter font-normal;
     color: #5e4119;
   }
 
@@ -45,12 +43,10 @@
     color: hsl(var(--scripture-heading));
   }
 
-  /* Improve contrast in dark mode */
   .dark .text-muted-foreground {
     @apply text-gray-300 text-opacity-90;
   }
   
-  /* Fix for circular dependency - using direct color and opacity values */
   .dark .scripture-text,
   .dark .text-scripture-text {
     color: hsl(var(--scripture-text));
@@ -71,7 +67,6 @@
     color: hsl(var(--scripture-text));
   }
   
-  /* Fix select dropdown contrast - all rounded */
   .dark [data-radix-select-content] {
     @apply bg-parchment-dark border-parchment-darker/40 rounded-xl;
     background-color: hsl(var(--parchment-dark)) !important;
@@ -86,7 +81,6 @@
     @apply bg-parchment-light/30 rounded-xl;
   }
   
-  /* Improve tabs contrast in dark mode */
   .dark [role="tablist"] {
     @apply bg-parchment-dark/40 rounded-xl;
   }
@@ -100,7 +94,6 @@
     @apply hover:text-ancient-gold/80 rounded-xl;
   }
   
-  /* Ensure all popups have proper backgrounds and rounded corners */
   .popup-content,
   [data-radix-popper-content],
   [data-state="open"],
@@ -125,17 +118,15 @@
     background-color: hsl(var(--parchment-dark)) !important;
   }
   
-  /* Hide scrollbars globally but keep scroll functionality */
   * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   
   *::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none;
   }
   
-  /* All interactive elements should have rounded borders */
   .dialog,
   .dropdown,
   .button,
@@ -150,8 +141,30 @@
     @apply rounded-xl;
   }
 
-  /* Global background for all pages */
-  .min-h-screen {
-    background: linear-gradient(to bottom, #ece5d4, #e0d7c4);
+  /* Apply global background and colors to all pages */
+  .min-h-screen,
+  .page-background {
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6);
+    color: #5e4119;
+  }
+
+  /* Global text colors */
+  .text-foreground {
+    color: #5e4119;
+  }
+
+  .text-muted-foreground {
+    color: #984b38;
+  }
+
+  /* Global card and component styling */
+  .card,
+  .bg-card {
+    @apply bg-bible-controls border-gray-300/50 rounded-xl;
+    background-color: #f5f1e6;
+  }
+
+  .bg-background {
+    background: linear-gradient(120deg, #f0e9d8, #e8dfc6);
   }
 }

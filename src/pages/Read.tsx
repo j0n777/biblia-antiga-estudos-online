@@ -83,7 +83,7 @@ const Read = () => {
       <div className="min-h-screen bg-bible-gradient">
         {/* Header with title and version selector */}
         <div className="flex items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-bold text-bible-title font-serif">
+          <h1 className="text-xl font-medium text-bible-title font-serif">
             Leitura Bíblica
           </h1>
           
@@ -119,16 +119,16 @@ const Read = () => {
           />
         </div>
 
-        {/* Bible content in styled box with title inside */}
-        <div className="px-4 pb-4">
+        {/* Bible content in styled box with title inside - reduced margins */}
+        <div className="px-2 pb-4">
           <div className="bg-bible-box rounded-xl shadow-lg border border-gray-200/50 min-h-[400px]">
             {/* Chapter title - inside the box */}
             {!isLoading && chapter && (
-              <div className="text-center px-6 pt-6 pb-4">
-                <h2 className="text-3xl font-bold text-bible-title font-serif mb-1">
+              <div className="text-center px-4 pt-6 pb-4">
+                <h2 className="text-3xl font-medium text-bible-title font-serif mb-1">
                   {books.find(b => b.book_id === bookId)?.name || bookId}
                 </h2>
-                <div className="text-lg text-bible-subtitle font-medium">
+                <div className="text-lg text-bible-subtitle font-normal">
                   Capítulo {chapterNumber}
                 </div>
                 <div className="w-24 h-0.5 bg-bible-subtitle mx-auto mt-3"></div>
@@ -152,7 +152,7 @@ const Read = () => {
                 <div className="w-16 h-16 bg-bible-title/20 rounded-xl flex items-center justify-center mb-4">
                   <span className="text-2xl">📖</span>
                 </div>
-                <p className="text-bible-title font-medium mb-2">
+                <p className="text-bible-title font-normal mb-2">
                   {t('bible.chapterNotFound') || 'Capítulo não encontrado'}
                 </p>
                 <p className="text-sm text-bible-subtitle">

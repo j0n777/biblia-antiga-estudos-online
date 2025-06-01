@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -86,7 +85,7 @@ export default {
 				},
 				// Bible app specific colors - Updated with new color scheme
 				bible: {
-					background: '#ece5d4',
+					background: '#f0e9d8',
 					box: '#e9e0cc',
 					controls: '#f5f1e6',
 					title: '#5e4119',
@@ -169,7 +168,7 @@ export default {
 				'parchment-texture': "url('/parchment-texture.jpg')",
 				'parchment-dark': "url('/parchment-dark.jpg')",
 				'ornamental-border': "url('/ornamental-border.png')",
-				'bible-gradient': 'linear-gradient(to bottom, #ece5d4, #e0d7c4)',
+				'bible-gradient': 'linear-gradient(120deg, #f0e9d8, #e8dfc6)',
 			},
 		}
 	},
