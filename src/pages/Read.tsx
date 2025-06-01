@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -94,7 +93,7 @@ const Read = () => {
   return (
     <PageLayout>
       <div className="min-h-screen bg-bible-gradient">
-        {/* Header with title and version selector */}
+        {/* Header with title and version selector - consistent margins */}
         <div className="flex items-center justify-between px-4 py-4">
           <h1 className="text-xl font-medium text-bible-title font-serif">
             Leitura Bíblica
@@ -115,7 +114,7 @@ const Read = () => {
           />
         </div>
 
-        {/* Book and Chapter selectors */}
+        {/* Book and Chapter selectors - consistent margins */}
         <div className="px-4 mb-4">
           <ReadingControls
             books={books}
@@ -132,8 +131,8 @@ const Read = () => {
           />
         </div>
 
-        {/* Bible content in styled box with title inside - reduced margins */}
-        <div className="px-2 pb-4">
+        {/* Bible content in styled box with consistent margins */}
+        <div className="px-4 pb-4">
           <div className="bg-bible-box rounded-xl shadow-lg border border-gray-200/50 min-h-[400px]">
             {/* Chapter title - inside the box */}
             {!isLoading && chapter && (
@@ -176,7 +175,7 @@ const Read = () => {
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - consistent margins */}
         <div className="mt-6 px-4 pb-6">
           <ChapterNavigation 
             chapterNumber={chapterNumber}
