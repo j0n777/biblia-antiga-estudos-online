@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -101,7 +102,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
           <Settings2 size={20} className="text-scripture-heading" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="settings-dialog-content rounded-xl max-w-lg">
+      <DialogContent className="settings-dialog-content rounded-xl w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-oldstyle text-scripture-heading">
             {t('settings.title') || 'Configurações'}
@@ -114,7 +115,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
         <div className="py-4">
           <div className="flex border-b mb-6 w-full rounded-lg bg-parchment-light/50">
             <button
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-all rounded-lg ${
+              className={`flex-1 px-3 py-2 text-sm font-medium transition-all rounded-lg ${
                 activeTab === 'general' 
                   ? 'bg-ancient-gold text-white shadow-sm' 
                   : 'text-scripture-text hover:text-ancient-gold hover:bg-ancient-gold/10'
@@ -124,7 +125,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
               {t('settings.title') || 'Configurações'}
             </button>
             <button
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-all rounded-lg ${
+              className={`flex-1 px-3 py-2 text-sm font-medium transition-all rounded-lg ${
                 activeTab === 'profile' 
                   ? 'bg-ancient-gold text-white shadow-sm' 
                   : 'text-scripture-text hover:text-ancient-gold hover:bg-ancient-gold/10'
@@ -136,8 +137,8 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
           </div>
           
           {activeTab === 'general' && (
-            <div className="space-y-6 settings-container">
-              <div className="space-y-4 p-4 bg-parchment-light/30 rounded-xl">
+            <div className="space-y-4 settings-container max-h-[50vh] overflow-y-auto">
+              <div className="space-y-3 p-3 bg-parchment-light/30 rounded-xl">
                 <Label htmlFor="app-language" className="text-base font-medium text-scripture-heading">
                   {t('settings.language') || 'Idioma'}
                 </Label>
@@ -155,7 +156,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 </Select>
               </div>
               
-              <div className="space-y-4 p-4 bg-parchment-light/30 rounded-xl">
+              <div className="space-y-3 p-3 bg-parchment-light/30 rounded-xl">
                 <div className="flex items-center justify-between">
                   <Label className="text-base font-medium text-scripture-heading flex items-center">
                     <Type size={18} className="mr-2 text-ancient-gold" />
@@ -165,21 +166,21 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 <RadioGroup 
                   value={fontSize} 
                   onValueChange={handleFontSizeChange} 
-                  className="grid grid-cols-3 gap-3"
+                  className="grid grid-cols-1 gap-2"
                 >
-                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                  <div className="flex items-center space-x-2 p-2 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
                     <RadioGroupItem value="large" id="large" className="border-ancient-gold text-ancient-gold" />
                     <Label htmlFor="large" className="text-base cursor-pointer text-scripture-text">
                       {t('settings.fontSize.large') || 'Normal'}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                  <div className="flex items-center space-x-2 p-2 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
                     <RadioGroupItem value="extra-large" id="extra-large" className="border-ancient-gold text-ancient-gold" />
                     <Label htmlFor="extra-large" className="text-lg cursor-pointer text-scripture-text">
                       {t('settings.fontSize.extraLarge') || 'Grande'}
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-3 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
+                  <div className="flex items-center space-x-2 p-2 border border-parchment-dark/30 rounded-lg hover:bg-ancient-gold/5">
                     <RadioGroupItem value="huge" id="huge" className="border-ancient-gold text-ancient-gold" />
                     <Label htmlFor="huge" className="text-xl cursor-pointer text-scripture-text">
                       {t('settings.fontSize.huge') || 'Extra Grande'}
@@ -188,13 +189,13 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                 </RadioGroup>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="use-system-language" className="text-base font-medium text-scripture-heading">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5 flex-1">
+                    <Label htmlFor="use-system-language" className="text-sm font-medium text-scripture-heading">
                       {t('settings.systemLanguage') || 'Usar idioma do sistema'}
                     </Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Detectar automaticamente o idioma do dispositivo
                     </p>
                   </div>
@@ -206,12 +207,12 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="notifications" className="text-base font-medium text-scripture-heading">
+                <div className="flex items-center justify-between p-3 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5 flex-1">
+                    <Label htmlFor="notifications" className="text-sm font-medium text-scripture-heading">
                       {t('settings.notifications') || 'Notificações'}
                     </Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {t('settings.dailyReminders') || 'Receber lembretes de leitura diária'}
                     </p>
                   </div>
@@ -223,12 +224,12 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between p-4 bg-parchment-light/30 rounded-xl">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="auto-scroll" className="text-base font-medium text-scripture-heading">
+                <div className="flex items-center justify-between p-3 bg-parchment-light/30 rounded-xl">
+                  <div className="space-y-0.5 flex-1">
+                    <Label htmlFor="auto-scroll" className="text-sm font-medium text-scripture-heading">
                       {t('settings.autoScroll') || 'Auto-rolagem'}
                     </Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {t('settings.autoScrollReading') || 'Rolar automaticamente durante a leitura'}
                     </p>
                   </div>
@@ -244,7 +245,7 @@ const SettingsDialog = ({ profile, onProfileUpdate }: SettingsDialogProps) => {
           )}
           
           {activeTab === 'profile' && (
-            <div className="bg-parchment-light/30 rounded-xl p-4">
+            <div className="bg-parchment-light/30 rounded-xl p-3 max-h-[50vh] overflow-y-auto">
               <ProfileForm profile={profile} onProfileUpdate={onProfileUpdate} />
             </div>
           )}
