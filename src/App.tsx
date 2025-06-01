@@ -14,6 +14,8 @@ import { importInitialVersions } from './services/BibleImportService';
 import OnboardingWizard from './components/onboarding/OnboardingWizard';
 import { getUserProfile, updateUserProfile } from './services/ProfileService';
 import { UserProfile } from './types/bible.types';
+import { ThemeProvider } from './components/ThemeProvider';
+import { LanguageProvider } from './contexts/LanguageProvider';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -70,28 +72,30 @@ function App() {
   }
 
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/read" element={<ReadPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      
-      {showOnboarding && (
-        <OnboardingWizard 
-          open={showOnboarding} 
-          onOpenChange={setShowOnboarding}
-          profile={userProfile}
-          onProfileUpdate={handleProfileUpdate}
-        />
-      )}
-      
-      <Toaster />
-    </>
+    <ThemeProvider>
+      <LanguageProvider>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/read" element={<ReadPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+        
+        {showOnboarding && (
+          <OnboardingWizard 
+            open={showOnboarding} 
+            onOpenChange={setShowOnboarding}
+            profile={userProfile}
+            onProfileUpdate={handleProfileUpdate}
+          />
+        )}
+        
+        <Toaster />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 

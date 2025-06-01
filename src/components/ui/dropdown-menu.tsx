@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
@@ -49,7 +50,7 @@ const DropdownMenuSubContent = React.forwardRef<
       className
     )}
     style={{
-      backgroundColor: 'white',
+      backgroundColor: '#f5f1e6',
       zIndex: 9999,
     }}
     {...props}
@@ -70,7 +71,7 @@ const DropdownMenuContent = React.forwardRef<
         className
       )}
       style={{
-        backgroundColor: 'white',
+        backgroundColor: '#f5f1e6',
         zIndex: 9999,
       }}
       {...props}
