@@ -2,7 +2,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageProvider } from './contexts/LanguageProvider';
 import { ThemeProvider } from './components/ThemeProvider';
 import App from './App.tsx';
 import './styles/index.css';
@@ -13,11 +13,11 @@ const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <LanguageProvider>
-        <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light">
+        <LanguageProvider>
           <App />
-        </ThemeProvider>
-      </LanguageProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
