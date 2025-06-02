@@ -13,8 +13,8 @@ const PageLayout = ({ children, className = '', hideNavigation = false }: PageLa
   const isMobile = useIsMobile();
   
   return (
-    <div className={`page-container ${className}`}>
-      <main className={`w-full overflow-hidden ${isMobile ? 'px-2' : 'px-4'}`}>
+    <div className="min-h-screen w-full overflow-x-hidden bg-bible-background">
+      <main className={`w-full overflow-hidden pb-20 ${isMobile ? 'px-2' : 'px-4'} ${className}`}>
         {children}
       </main>
       {!hideNavigation && <BottomNavigation />}

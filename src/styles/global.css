@@ -6,7 +6,7 @@
     width: 100% !important;
     overflow-x: hidden !important;
     background: linear-gradient(120deg, var(--bible-background), #e8dfc6) !important;
-    padding-bottom: 4rem !important;
+    padding-bottom: 5rem !important; /* Espaço para navegação inferior */
   }
 
   .dark .page-container {
@@ -40,6 +40,13 @@
   .dark .content-box {
     background-color: var(--bible-box) !important;
     border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+
+  /* NAVEGAÇÃO INFERIOR - Garantir visibilidade */
+  nav[class*="fixed"][class*="bottom-0"] {
+    z-index: 50 !important;
+    display: block !important;
+    visibility: visible !important;
   }
 
   /* TEXTOS GLOBAIS */

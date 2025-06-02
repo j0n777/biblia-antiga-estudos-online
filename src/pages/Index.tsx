@@ -100,7 +100,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="page-container">
+    <PageLayout>
       {/* Header with consistent styling */}
       <div className="page-header">
         <div className="flex justify-between items-center">
@@ -192,7 +192,7 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
