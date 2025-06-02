@@ -100,7 +100,7 @@ const Index = () => {
   ];
 
   return (
-    <PageLayout>
+    <div className="page-container">
       {/* Header with consistent styling */}
       <div className="page-header">
         <div className="flex justify-between items-center">
@@ -131,14 +131,14 @@ const Index = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-oldstyle text-bible-title">Estudos Bíblicos</h2>
-                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold rounded-xl" onClick={() => navigate('/search')}>
+                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold" onClick={() => navigate('/search')}>
                   Ver todos
                 </Button>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bibleStudies.map(study => (
-                  <Card key={study.id} className="bg-parchment-light/50 border-parchment-dark/20 overflow-hidden rounded-xl hover:shadow-md transition-shadow">
+                  <Card key={study.id} className="overflow-hidden hover:shadow-md transition-shadow">
                     <CardContent className="p-4 flex items-center gap-3">
                       <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                         {study.icon}
@@ -147,7 +147,7 @@ const Index = () => {
                         <h3 className="font-oldstyle text-bible-title">{study.title}</h3>
                         <p className="text-sm text-muted-foreground">{study.description}</p>
                       </div>
-                      <Button variant="ghost" size="icon" className="shrink-0 hover:bg-ancient-gold/10 rounded-xl">
+                      <Button variant="ghost" size="icon" className="shrink-0 hover:bg-ancient-gold/10">
                         <ExternalLink className="h-5 w-5 text-ancient-brown" />
                       </Button>
                     </CardContent>
@@ -158,7 +158,7 @@ const Index = () => {
               <div className="flex justify-center">
                 <Button 
                   variant="outline" 
-                  className="flex gap-2 bg-parchment-light border-parchment-dark/30 hover:bg-ancient-gold/10 rounded-xl"
+                  className="flex gap-2"
                   onClick={() => navigate('/search')}
                 >
                   <BookOpen size={16} />
@@ -169,7 +169,7 @@ const Index = () => {
             
             {/* Incentives for registration */}
             {!profile?.id.startsWith('guest-') && (
-              <Card className="border-ancient-gold/20 bg-parchment-light/80 rounded-xl">
+              <Card className="border-ancient-gold/20">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-ancient-gold/20 text-ancient-gold">
@@ -180,7 +180,7 @@ const Index = () => {
                       <p className="text-sm text-muted-foreground">Crie uma conta para salvar seu progresso e participar do ranking</p>
                     </div>
                     <Button 
-                      className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-xl"
+                      className="bg-ancient-gold text-white hover:bg-ancient-gold/90"
                       onClick={() => navigate('/auth')}
                     >
                       Criar conta
@@ -192,7 +192,7 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </div>
   );
 };
 

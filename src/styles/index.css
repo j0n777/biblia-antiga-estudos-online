@@ -3,14 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import base CSS first to avoid circular dependencies */
+/* Import ordem correta para evitar conflitos */
 @import './base.css';
 @import './global.css';
-@import './scripture.css';
-@import './components.css';
-@import './bible.css';
 @import './buttons.css';
 @import './forms.css';
-@import './dropdowns.css';
 @import './cards.css';
+@import './dropdowns.css';
+@import './scripture.css';
+@import './bible.css';
+@import './components.css';
 @import './utilities.css';
