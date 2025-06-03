@@ -74,12 +74,16 @@ const Search = () => {
 
   return (
     <PageLayout>
-      <div className="py-6 px-4">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-oldstyle text-scripture-heading mb-6 text-center">
-            {t('nav.search') || 'Buscar na Bíblia'}
-          </h1>
-          
+      {/* Header with consistent styling */}
+      <div className="page-header">
+        <h1 className="page-title text-center">
+          {t('nav.search') || 'Buscar na Bíblia'}
+        </h1>
+      </div>
+      
+      {/* Content in styled box with consistent margins */}
+      <div className="page-content">
+        <div className="content-box">
           <div className="relative mb-6">
             <SearchInput
               searchQuery={query}

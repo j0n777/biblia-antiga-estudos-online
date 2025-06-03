@@ -24,7 +24,11 @@ const SearchHistory = ({
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 bg-parchment-light p-4 rounded-xl border border-parchment-dark/20"
+         style={{
+           backgroundColor: '#e9e0cc',
+           borderRadius: '0.75rem'
+         }}>
       <div className="flex justify-between items-center">
         <h3 className="text-sm font-medium text-scripture-heading flex items-center gap-2">
           <Clock className="h-4 w-4 text-ancient-gold" />
@@ -44,7 +48,13 @@ const SearchHistory = ({
           <Badge 
             key={index}
             variant="outline" 
-            className="bg-parchment-dark/5 hover:bg-parchment-dark/10 cursor-pointer rounded-lg border-parchment-dark/20 text-scripture-text/80 transition-colors"
+            className="cursor-pointer rounded-xl transition-colors"
+            style={{
+              backgroundColor: '#f5f1e6',
+              color: '#5e4119',
+              borderColor: 'rgba(156, 142, 99, 0.3)',
+              borderRadius: '0.75rem'
+            }}
             onClick={() => handleClick(historyItem)}
           >
             {historyItem}

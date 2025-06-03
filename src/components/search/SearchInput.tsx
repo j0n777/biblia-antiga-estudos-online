@@ -60,7 +60,12 @@ const SearchInput = ({
           onKeyDown={handleKeyDown}
           onFocus={onFocus}
           onBlur={onBlur}
-          className="bg-white border-parchment-dark/20 pr-10 rounded-lg text-base h-12"
+          className="border-parchment-dark/20 pr-10 rounded-xl text-base h-12"
+          style={{
+            backgroundColor: '#f5f1e6',
+            color: '#5e4119',
+            borderRadius: '0.75rem'
+          }}
         />
         {isSearching && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -71,7 +76,7 @@ const SearchInput = ({
       <Button 
         onClick={handleButtonClick}
         disabled={isSearching || query.trim().length < 2}
-        className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-lg h-12 px-6"
+        className="bg-ancient-gold hover:bg-ancient-gold/90 rounded-xl h-12 px-6"
       >
         <SearchIcon className="h-4 w-4 mr-2" />
         Buscar
