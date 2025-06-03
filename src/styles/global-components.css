@@ -1,0 +1,71 @@
+
+@layer components {
+  /* CARDS GLOBAIS - Força cor específica dos boxes */
+  .card,
+  .bg-card,
+  [data-radix-dialog-content],
+  [data-radix-popover-content] {
+    background-color: #e9e0cc !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .dark .card,
+  .dark .bg-card,
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-popover-content] {
+    background-color: var(--bible-box) !important;
+    border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+
+  /* FORÇA APLICAÇÃO EM ELEMENTOS ESPECÍFICOS DO SHADCN */
+  .bg-background {
+    background-color: var(--bible-background) !important;
+  }
+
+  .text-foreground {
+    color: var(--bible-title) !important;
+  }
+
+  .bg-muted {
+    background-color: #e9e0cc !important;
+  }
+
+  .dark .bg-background {
+    background-color: var(--bible-background) !important;
+  }
+
+  .dark .text-foreground {
+    color: var(--bible-title) !important;
+  }
+
+  .dark .bg-muted {
+    background-color: var(--bible-box) !important;
+  }
+
+  /* FORÇA ESPECÍFICA PARA COMPONENTES DE BUSCA */
+  .parchment-container {
+    background-color: #e9e0cc !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .dark .parchment-container {
+    background-color: var(--bible-box) !important;
+    border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+
+  /* RESULTADOS DE BUSCA - Bordas arredondadas */
+  .search-result-item {
+    background-color: #f5f1e6 !important;
+    border: 1px solid rgba(156, 142, 99, 0.2) !important;
+    border-radius: 0.75rem !important;
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .dark .search-result-item {
+    background-color: var(--bible-controls) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+}

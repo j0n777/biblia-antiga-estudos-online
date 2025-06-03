@@ -1,0 +1,28 @@
+
+@layer components {
+  /* TEXTOS GLOBAIS */
+  .text-bible-title,
+  h1, h2, h3, h4, h5, h6,
+  .page-title {
+    color: var(--bible-title) !important;
+    font-family: theme('fontFamily.oldstyle') !important;
+  }
+
+  .text-bible-subtitle,
+  .text-muted-foreground,
+  p, span, div:not(.card):not(.button) {
+    color: var(--bible-subtitle) !important;
+  }
+
+  .dark .text-bible-title,
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+  .dark .page-title {
+    color: var(--bible-title) !important;
+  }
+
+  .dark .text-bible-subtitle,
+  .dark .text-muted-foreground,
+  .dark p, .dark span, .dark div:not(.card):not(.button) {
+    color: var(--bible-subtitle) !important;
+  }
+}

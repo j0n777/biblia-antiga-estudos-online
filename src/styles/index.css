@@ -5,7 +5,11 @@
 
 /* Import ordem correta para evitar conflitos */
 @import './base.css';
-@import './global.css';
+@import './layout.css';
+@import './typography.css';
+@import './global-components.css';
+@import './global-buttons.css';
+@import './global-inputs.css';
 @import './buttons.css';
 @import './forms.css';
 @import './cards.css';

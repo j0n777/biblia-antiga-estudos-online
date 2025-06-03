@@ -1,0 +1,29 @@
+
+@layer components {
+  /* BOTÕES GLOBAIS */
+  button,
+  .button,
+  [role="button"] {
+    border-radius: 0.75rem !important;
+  }
+
+  .btn-primary,
+  button[class*="bg-ancient-gold"] {
+    background-color: var(--ancient-gold) !important;
+    color: white !important;
+  }
+
+  .btn-secondary,
+  button[class*="variant-outline"] {
+    background-color: #f5f1e6 !important;
+    color: var(--bible-title) !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+  }
+
+  .dark .btn-secondary,
+  .dark button[class*="variant-outline"] {
+    background-color: var(--bible-controls) !important;
+    color: var(--bible-title) !important;
+    border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+}

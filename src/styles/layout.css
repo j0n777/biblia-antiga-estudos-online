@@ -1,0 +1,51 @@
+
+@layer components {
+  /* LAYOUT GLOBAL - Estrutura de página padrão */
+  .page-container {
+    min-height: 100vh !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+    background: linear-gradient(120deg, var(--bible-background), #e8dfc6) !important;
+    padding-bottom: 5rem !important; /* Espaço para navegação inferior */
+  }
+
+  .dark .page-container {
+    background: var(--bible-background) !important;
+  }
+
+  .page-header {
+    padding: 1rem !important;
+  }
+
+  .page-title {
+    font-size: 1.875rem !important; /* Increased from 1.5rem to match /read page */
+    font-weight: 600 !important;
+    font-family: theme('fontFamily.oldstyle') !important;
+    color: var(--bible-title) !important;
+  }
+
+  .page-content {
+    padding: 0 1rem 1rem 1rem !important;
+  }
+
+  .content-box {
+    background-color: #e9e0cc !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(156, 142, 99, 0.3) !important;
+    padding: 1.5rem !important;
+    margin: 1rem !important;
+  }
+
+  .dark .content-box {
+    background-color: var(--bible-box) !important;
+    border-color: rgba(156, 142, 99, 0.4) !important;
+  }
+
+  /* NAVEGAÇÃO INFERIOR - Garantir visibilidade */
+  nav[class*="fixed"][class*="bottom-0"] {
+    z-index: 50 !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+}
