@@ -1,5 +1,4 @@
 
-
 @layer components {
   /* LAYOUT GLOBAL - Estrutura de página padrão */
   .page-container {
@@ -19,8 +18,8 @@
   }
 
   .page-title {
-    font-size: 1.25rem !important;
-    font-weight: 500 !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
     font-family: theme('fontFamily.oldstyle') !important;
     color: var(--bible-title) !important;
   }
@@ -204,5 +203,18 @@
     background-color: var(--bible-box) !important;
     border-color: rgba(156, 142, 99, 0.4) !important;
   }
-}
 
+  /* RESULTADOS DE BUSCA - Bordas arredondadas */
+  .search-result-item {
+    background-color: #f5f1e6 !important;
+    border: 1px solid rgba(156, 142, 99, 0.2) !important;
+    border-radius: 0.75rem !important;
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .dark .search-result-item {
+    background-color: var(--bible-controls) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+}

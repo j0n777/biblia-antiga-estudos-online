@@ -1,3 +1,4 @@
+
 import { Loader2, SearchIcon, BookOpen, Info, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BibleVerse } from '@/types/bible.types';
@@ -24,6 +25,22 @@ interface SearchResultsProps {
   onVerseClick?: (bookId: string, chapterNumber: number, verseNumber: number) => void;
 }
 
+// Ordem dos livros da Bíblia (simplificada)
+const BIBLE_BOOK_ORDER: Record<string, number> = {
+  // Antigo Testamento
+  'gn': 1, 'ex': 2, 'lv': 3, 'nm': 4, 'dt': 5, 'js': 6, 'jud': 7, 'rt': 8,
+  '1sm': 9, '2sm': 10, '1kgs': 11, '2kgs': 12, '1ch': 13, '2ch': 14, 'ezr': 15,
+  'ne': 16, 'et': 17, 'job': 18, 'ps': 19, 'prv': 20, 'ec': 21, 'so': 22,
+  'is': 23, 'jr': 24, 'lm': 25, 'ez': 26, 'dn': 27, 'ho': 28, 'jl': 29,
+  'am': 30, 'ob': 31, 'jn': 32, 'mi': 33, 'na': 34, 'hk': 35, 'zp': 36,
+  'hg': 37, 'zc': 38, 'ml': 39,
+  // Novo Testamento
+  'mt': 40, 'mk': 41, 'lk': 42, 'jo': 43, 'act': 44, 'rm': 45, '1co': 46,
+  '2co': 47, 'gl': 48, 'eph': 49, 'ph': 50, 'cl': 51, '1ts': 52, '2ts': 53,
+  '1tm': 54, '2tm': 55, 'tt': 56, 'phm': 57, 'hb': 58, 'jm': 59, '1pe': 60,
+  '2pe': 61, '1jo': 62, '2jo': 63, '3jo': 64, 'jd': 65, 're': 66
+};
+
 const SearchResults = ({ 
   isSearching, 
   hasSearched, 
@@ -46,6 +63,23 @@ const SearchResults = ({
   // Use either new or old props
   const finalIsSearching = isLoading || isSearching;
   const finalResults = results || searchResults || [];
+
+  // Sort results by biblical book order
+  const sortedResults = [...finalResults].sort((a, b) => {
+    const orderA = BIBLE_BOOK_ORDER[a.book_id?.toLowerCase() || ''] || 999;
+    const orderB = BIBLE_BOOK_ORDER[b.book_id?.toLowerCase() || ''] || 999;
+    
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    
+    // If same book, sort by chapter and verse
+    if (a.chapter_number !== b.chapter_number) {
+      return (a.chapter_number || 0) - (b.chapter_number || 0);
+    }
+    
+    return (a.verse_number || 0) - (b.verse_number || 0);
+  });
 
   const handleVerseClick = (verse: BibleVerse) => {
     if (onVerseClick) {
@@ -75,7 +109,7 @@ const SearchResults = ({
       return (
         <div className="p-6">
           {isFromDifferentVersion && (
-            <Alert className="mb-4 border-amber-200 bg-amber-50">
+            <Alert className="mb-4 border-amber-200 bg-amber-50 rounded-xl">
               <Info className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800">
                 Resultados encontrados em outra versão da Bíblia ({resultVersions.join(', ')}). 
@@ -103,7 +137,7 @@ const SearchResults = ({
             <div className="flex items-center gap-2">
               <Badge
                 variant={wholeWordsOnly ? "default" : "outline"}
-                className="cursor-pointer"
+                className="cursor-pointer rounded-xl"
                 onClick={onToggleWholeWords}
               >
                 {wholeWordsOnly ? "Palavras inteiras" : "Correspondência parcial"}
@@ -111,19 +145,19 @@ const SearchResults = ({
             </div>
           </div>
           
-          <div className="space-y-6">
-            {finalResults.map((verse) => (
-              <div key={verse.id} className="bg-white/50 rounded-lg p-4 border border-parchment-dark/10 hover:shadow-sm transition-shadow">
+          <div className="space-y-4">
+            {sortedResults.map((verse) => (
+              <div key={verse.id} className="search-result-item hover:shadow-sm transition-shadow">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <button
                     onClick={() => handleVerseClick(verse)}
-                    className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-2 py-1 rounded hover:bg-ancient-gold/20 transition-colors flex items-center gap-1"
+                    className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-3 py-1.5 rounded-xl hover:bg-ancient-gold/20 transition-colors flex items-center gap-1"
                   >
                     {verse.book_name} {verse.chapter_number}:{verse.verse_number}
                     <ExternalLink className="h-3 w-3" />
                   </button>
                   {verse.version_id && (
-                    <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">
+                    <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-xl">
                       {verse.version_id.toUpperCase()}
                     </span>
                   )}
@@ -139,7 +173,7 @@ const SearchResults = ({
                 onClick={onLoadMore}
                 disabled={finalIsSearching}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-xl"
               >
                 {finalIsSearching ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -172,7 +206,7 @@ const SearchResults = ({
             <span className="text-sm text-muted-foreground">Modo de busca:</span>
             <Badge
               variant={wholeWordsOnly ? "default" : "outline"}
-              className="cursor-pointer"
+              className="cursor-pointer rounded-xl"
               onClick={onToggleWholeWords}
             >
               {wholeWordsOnly ? "Palavras inteiras" : "Correspondência parcial"}
