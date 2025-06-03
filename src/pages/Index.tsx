@@ -106,7 +106,7 @@ const Index = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Home size={24} className="text-ancient-gold" />
-            <h1 className="page-title">Bíblia de Estudos Original</h1>
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">Bíblia de Estudos Original</h1>
           </div>
           <ThemeToggle />
         </div>

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -78,7 +79,7 @@ const Search = () => {
       <div className="page-header">
         <div className="flex items-center gap-2">
           <SearchIcon size={24} className="text-ancient-gold" />
-          <h1 className="page-title">
+          <h1 className="text-2xl font-oldstyle text-scripture-heading">
             {t('nav.search') || 'Buscar na Bíblia'}
           </h1>
         </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -140,7 +141,7 @@ const ProfilePage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <User size={24} className="text-ancient-gold" />
-            <h1 className="page-title">{t('profile.title') || "Perfil"}</h1>
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('profile.title') || "Perfil"}</h1>
           </div>
           <div className="flex gap-2">
             {isAuthenticated && profile && (

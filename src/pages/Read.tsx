@@ -1,6 +1,7 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2, BookOpen } from 'lucide-react';
 import PageLayout from '@/components/layout/PageLayout';
 import BibleChapter from '@/components/bible/BibleChapter';
 import { useBibleReading } from '@/hooks/useBibleReading';
@@ -94,10 +95,13 @@ const Read = () => {
     <PageLayout>
       <div className="min-h-screen bg-bible-gradient">
         {/* Header with title and version selector - consistent margins */}
-        <div className="flex items-center justify-between px-4 py-4">
-          <h1 className="text-xl font-medium text-bible-title font-serif">
-            Leitura Bíblica
-          </h1>
+        <div className="flex items-center justify-between px-4 py-6">
+          <div className="flex items-center gap-2">
+            <BookOpen size={24} className="text-ancient-gold" />
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">
+              Leitura Bíblica
+            </h1>
+          </div>
           
           {/* Version selector compact */}
           <ReadingControls

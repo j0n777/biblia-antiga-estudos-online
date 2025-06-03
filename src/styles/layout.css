@@ -14,11 +14,11 @@
   }
 
   .page-header {
-    padding: 1rem !important;
+    padding: 1.5rem 1rem 1rem 1rem !important; /* Increased top padding for better spacing */
   }
 
   .page-title {
-    font-size: 1.875rem !important; /* Increased from 1.5rem to match /read page */
+    font-size: 2rem !important; /* Updated to match community page size (text-2xl) */
     font-weight: 600 !important;
     font-family: theme('fontFamily.oldstyle') !important;
     color: var(--bible-title) !important;
