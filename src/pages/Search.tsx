@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -11,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { trackSearchClick } from '@/services/reading/ReadingHistoryService';
 import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
+import { Search as SearchIcon } from 'lucide-react';
 
 const Search = () => {
   const [query, setQuery] = useState('');
@@ -76,9 +76,12 @@ const Search = () => {
     <PageLayout>
       {/* Header with consistent styling */}
       <div className="page-header">
-        <h1 className="page-title text-center">
-          {t('nav.search') || 'Buscar na Bíblia'}
-        </h1>
+        <div className="flex items-center gap-2">
+          <SearchIcon size={24} className="text-ancient-gold" />
+          <h1 className="page-title">
+            {t('nav.search') || 'Buscar na Bíblia'}
+          </h1>
+        </div>
       </div>
       
       {/* Content in styled box with consistent margins */}

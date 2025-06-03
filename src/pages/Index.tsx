@@ -8,7 +8,7 @@ import BadgeProgress from '@/components/achievements/BadgeProgress';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Trophy, ExternalLink } from 'lucide-react';
+import { BookOpen, Trophy, ExternalLink, Home } from 'lucide-react';
 import { getUserProfile } from '@/services';
 import { UserProfile } from '@/types/bible.types';
 
@@ -104,7 +104,10 @@ const Index = () => {
       {/* Header with consistent styling */}
       <div className="page-header">
         <div className="flex justify-between items-center">
-          <h1 className="page-title">Bíblia de Estudos Original</h1>
+          <div className="flex items-center gap-2">
+            <Home size={24} className="text-ancient-gold" />
+            <h1 className="page-title">Bíblia de Estudos Original</h1>
+          </div>
           <ThemeToggle />
         </div>
       </div>

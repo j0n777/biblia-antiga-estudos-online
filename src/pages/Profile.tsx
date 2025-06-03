@@ -20,6 +20,7 @@ import RecentReadingSection from '@/components/profile/RecentReadingSection';
 import SavedVersesSection from '@/components/profile/SavedVersesSection';
 import StatisticsTab from '@/components/profile/StatisticsTab';
 import GuestModeAlert from '@/components/profile/GuestModeAlert';
+import { User } from 'lucide-react';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('conquistas');
@@ -137,7 +138,10 @@ const ProfilePage = () => {
       {/* Header with consistent styling */}
       <div className="page-header">
         <div className="flex items-center justify-between">
-          <h1 className="page-title">{t('profile.title') || "Perfil"}</h1>
+          <div className="flex items-center gap-2">
+            <User size={24} className="text-ancient-gold" />
+            <h1 className="page-title">{t('profile.title') || "Perfil"}</h1>
+          </div>
           <div className="flex gap-2">
             {isAuthenticated && profile && (
               <Button 
