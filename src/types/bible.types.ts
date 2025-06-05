@@ -1,4 +1,3 @@
-
 export interface BibleBook {
   book_id: string;
   name: string;
@@ -105,15 +104,15 @@ export interface Achievement {
   requirement_type: 'book_completion' | 'streak_days' | 'chapters_read' | 'verses_saved';
   requirement_value: string;
   created_at?: string;
-  // User-specific fields when fetched with user data
+  // Progress tracking fields
   progress?: number;
   total?: number;
-  unlocked?: boolean;
-  unlockedAt?: string | null;
-  earned?: boolean;
-  earned_at?: string;
   maxProgress?: number;
+  unlocked?: boolean;
+  earned?: boolean;
   is_completed?: boolean;
+  earned_at?: string;
+  unlockedAt?: string;
 }
 
 export interface UserAchievement {

@@ -12,7 +12,8 @@ export {
 export {
   getReadingHistory,
   trackReading,
-  clearReadingHistory
+  clearReadingHistory,
+  trackSearchClick
 } from './ReadingHistoryService';
 
 // Reading metadata services

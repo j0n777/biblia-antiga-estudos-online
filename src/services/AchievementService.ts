@@ -19,7 +19,10 @@ export async function getAllAchievements(): Promise<Achievement[]> {
       return [];
     }
 
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      category: item.category as 'book' | 'streak' | 'milestone' | 'special'
+    }));
   } catch (error) {
     console.error('Error in getAllAchievements:', error);
     return [];
@@ -61,6 +64,7 @@ export async function getUserAchievements(): Promise<Achievement[]> {
     // Transform data to match Achievement interface
     return achievementsData.map(achievement => ({
       ...achievement,
+      category: achievement.category as 'book' | 'streak' | 'milestone' | 'special',
       progress: achievement.user_achievements?.[0]?.progress || 0,
       total: parseInt(achievement.requirement_value) || 1,
       maxProgress: parseInt(achievement.requirement_value) || 1,

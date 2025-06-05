@@ -39,21 +39,44 @@ export async function trackReading(
       return;
     }
 
-    // For authenticated users, save to database and track achievements
-    const { error } = await supabase.from('reading_sessions').insert({
+    // For authenticated users, track reading session for today
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+    // Insert or update reading session for today
+    const { error } = await supabase.from('reading_sessions').upsert({
       user_id: userId,
-      version_id: versionId,
-      book_id: bookId,
-      chapter_number: chapterNumber,
-      verse_number: verseNumber,
-      timestamp: new Date().toISOString(),
-      source
+      session_date: today,
+      chapters_read: 1,
+      verses_read: verseNumber ? 1 : 0,
+      reading_time_minutes: 5, // Estimate 5 minutes per chapter
+      xp_earned: 1
+    }, {
+      onConflict: 'user_id,session_date'
     });
 
     if (error) {
       console.error('Error tracking reading:', error);
       return;
     }
+
+    // Also save to localStorage for reading history display
+    const historyEntry = {
+      id: Date.now().toString(),
+      version_id: versionId,
+      book_id: bookId,
+      chapter_number: chapterNumber,
+      verse_number: verseNumber,
+      timestamp: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      source
+    };
+    
+    const userHistory = JSON.parse(localStorage.getItem(`userReadingHistory_${userId}`) || '[]');
+    userHistory.unshift(historyEntry);
+    if (userHistory.length > 100) {
+      userHistory.splice(100);
+    }
+    localStorage.setItem(`userReadingHistory_${userId}`, JSON.stringify(userHistory));
 
     // Track reading session for achievements (async to not block UI)
     trackReadingSession(bookId, chapterNumber, 1).catch(error => {
@@ -91,28 +114,9 @@ export async function getReadingHistory(): Promise<ReadingHistory[]> {
       return guestHistory;
     }
 
-    const { data, error } = await supabase
-      .from('reading_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(100);
-
-    if (error) {
-      console.error('Error getting reading history:', error);
-      return [];
-    }
-
-    return data.map(item => ({
-      id: item.id,
-      version_id: item.version_id,
-      book_id: item.book_id,
-      chapter_number: item.chapter_number,
-      verse_number: item.verse_number,
-      timestamp: item.timestamp || item.created_at,
-      created_at: item.created_at,
-      source: item.source
-    }));
+    // For authenticated users, get from localStorage (since reading_sessions doesn't store the same data)
+    const userHistory = JSON.parse(localStorage.getItem(`userReadingHistory_${userId}`) || '[]');
+    return userHistory;
 
   } catch (error) {
     console.error('Error in getReadingHistory:', error);
@@ -141,14 +145,7 @@ export async function clearReadingHistory(): Promise<void> {
       return;
     }
 
-    const { error } = await supabase
-      .from('reading_sessions')
-      .delete()
-      .eq('user_id', userId);
-
-    if (error) {
-      console.error('Error clearing reading history:', error);
-    }
+    localStorage.removeItem(`userReadingHistory_${userId}`);
 
   } catch (error) {
     console.error('Error in clearReadingHistory:', error);
