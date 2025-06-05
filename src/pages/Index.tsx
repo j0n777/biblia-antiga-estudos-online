@@ -1,15 +1,15 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import VerseOfTheDay from '@/components/home/VerseOfTheDay';
-import ReadingStreak from '@/components/achievements/ReadingStreak';
+import StreakDisplay from '@/components/achievements/StreakDisplay';
 import BadgeProgress from '@/components/achievements/BadgeProgress';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Trophy, ExternalLink, Home } from 'lucide-react';
 import { getUserProfile } from '@/services';
+import { getUserStreak } from '@/services/AchievementService';
 import { UserProfile } from '@/types/bible.types';
 
 const bibleStudies = [
@@ -46,14 +46,19 @@ const bibleStudies = [
 const Index = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [streakData, setStreakData] = useState({ current: 5, longest: 14 });
   
   useEffect(() => {
-    const loadUserProfile = async () => {
+    const loadUserData = async () => {
       const userProfile = await getUserProfile();
       setProfile(userProfile);
+      
+      // Get real streak data
+      const streakInfo = await getUserStreak();
+      setStreakData(streakInfo);
     };
     
-    loadUserProfile();
+    loadUserData();
   }, []);
   
   // In a real app, this data would come from an API or local storage
@@ -61,12 +66,6 @@ const Index = () => {
     reference: "João 3:16",
     text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
     version: "King James Atualizada"
-  };
-
-  const mockStreak = {
-    currentStreak: profile?.streak_count || 5,
-    longestStreak: profile?.streak_count || 14,
-    goalProgress: 75,
   };
 
   const mockBadges = [
@@ -83,9 +82,9 @@ const Index = () => {
       id: "2",
       name: "Estudioso",
       description: "7 dias consecutivos de leitura",
-      progress: (profile?.streak_count || 5),
+      progress: streakData.current,
       maxProgress: 7,
-      unlocked: (profile?.streak_count || 0) >= 7,
+      unlocked: streakData.current >= 7,
       icon: "🔍"
     },
     {
@@ -122,10 +121,9 @@ const Index = () => {
               version={mockVerseOfDay.version}
             />
             
-            <ReadingStreak 
-              currentStreak={mockStreak.currentStreak}
-              longestStreak={mockStreak.longestStreak}
-              goalProgress={mockStreak.goalProgress}
+            <StreakDisplay 
+              currentStreak={streakData.current}
+              longestStreak={streakData.longest}
             />
             
             <BadgeProgress badges={mockBadges} />
@@ -171,7 +169,7 @@ const Index = () => {
             </div>
             
             {/* Incentives for registration */}
-            {!profile?.id.startsWith('guest-') && (
+            {!profile?.id || profile?.id.startsWith('guest-') ? (
               <Card className="border-ancient-gold/20">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
@@ -191,7 +189,7 @@ const Index = () => {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 export interface BibleBook {
   book_id: string;
   name: string;
@@ -86,6 +87,11 @@ export interface UserProfile {
   birth_year?: number;
   phone?: string;
   username?: string;
+  // New streak and XP fields
+  current_streak?: number;
+  longest_streak?: number;
+  total_xp?: number;
+  streak_freeze_count?: number;
 }
 
 export interface Achievement {
@@ -94,15 +100,51 @@ export interface Achievement {
   title: string;
   description: string;
   icon: string;
-  progress: number;
-  total: number;
+  category: 'book' | 'streak' | 'milestone' | 'special';
   points: number;
-  unlocked: boolean;
+  requirement_type: 'book_completion' | 'streak_days' | 'chapters_read' | 'verses_saved';
+  requirement_value: string;
+  created_at?: string;
+  // User-specific fields when fetched with user data
+  progress?: number;
+  total?: number;
+  unlocked?: boolean;
   unlockedAt?: string | null;
-  earned: boolean;
-  category: string;
+  earned?: boolean;
   earned_at?: string;
-  maxProgress: number;
+  maxProgress?: number;
+  is_completed?: boolean;
+}
+
+export interface UserAchievement {
+  id: string;
+  user_id: string;
+  achievement_id: string;
+  earned_at: string;
+  progress: number;
+  is_completed: boolean;
+  achievement?: Achievement;
+}
+
+export interface ReadingSession {
+  id: string;
+  user_id: string;
+  session_date: string;
+  chapters_read: number;
+  verses_read: number;
+  reading_time_minutes: number;
+  xp_earned: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookCompletion {
+  id: string;
+  user_id: string;
+  book_id: string;
+  version_id: string;
+  completed_at: string;
+  chapters_completed: number;
 }
 
 export interface DailyChallenge {
@@ -174,6 +216,11 @@ export interface LeaderboardEntry {
   experience_points: number;
   streak_count?: number;
   rank: number;
+  // New fields for extended ranking
+  user_id?: string;
+  points?: number;
+  current_streak?: number;
+  total_xp?: number;
 }
 
 export interface BibleStudy {

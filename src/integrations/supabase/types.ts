@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points: number
+          requirement_type: string
+          requirement_value: string | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          icon?: string
+          id?: string
+          name: string
+          points?: number
+          requirement_type: string
+          requirement_value?: string | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points?: number
+          requirement_type?: string
+          requirement_value?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       bible_books: {
         Row: {
           book_id: string
@@ -204,6 +243,33 @@ export type Database = {
         }
         Relationships: []
       }
+      book_completions: {
+        Row: {
+          book_id: string
+          chapters_completed: number
+          completed_at: string
+          id: string
+          user_id: string
+          version_id: string
+        }
+        Insert: {
+          book_id: string
+          chapters_completed: number
+          completed_at?: string
+          id?: string
+          user_id: string
+          version_id: string
+        }
+        Update: {
+          book_id?: string
+          chapters_completed?: number
+          completed_at?: string
+          id?: string
+          user_id?: string
+          version_id?: string
+        }
+        Relationships: []
+      }
       followers: {
         Row: {
           created_at: string | null
@@ -288,6 +354,42 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
           verse_number?: number
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          chapters_read: number | null
+          created_at: string
+          id: string
+          reading_time_minutes: number | null
+          session_date: string
+          updated_at: string
+          user_id: string
+          verses_read: number | null
+          xp_earned: number | null
+        }
+        Insert: {
+          chapters_read?: number | null
+          created_at?: string
+          id?: string
+          reading_time_minutes?: number | null
+          session_date: string
+          updated_at?: string
+          user_id: string
+          verses_read?: number | null
+          xp_earned?: number | null
+        }
+        Update: {
+          chapters_read?: number | null
+          created_at?: string
+          id?: string
+          reading_time_minutes?: number | null
+          session_date?: string
+          updated_at?: string
+          user_id?: string
+          verses_read?: number | null
+          xp_earned?: number | null
         }
         Relationships: []
       }
@@ -389,23 +491,62 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          is_completed: boolean | null
+          progress: number | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
           birth_year: number | null
           country: string | null
           created_at: string | null
+          current_streak: number | null
           display_name: string | null
           email: string | null
           experience_points: number | null
           font_size: string | null
           id: string
           last_streak_date: string | null
+          longest_streak: number | null
           nickname: string | null
           phone: string | null
           preferred_bible_version: string | null
           preferred_language: string | null
           streak_count: number | null
+          streak_freeze_count: number | null
+          total_xp: number | null
           updated_at: string | null
           username: string | null
         }
@@ -414,17 +555,21 @@ export type Database = {
           birth_year?: number | null
           country?: string | null
           created_at?: string | null
+          current_streak?: number | null
           display_name?: string | null
           email?: string | null
           experience_points?: number | null
           font_size?: string | null
           id: string
           last_streak_date?: string | null
+          longest_streak?: number | null
           nickname?: string | null
           phone?: string | null
           preferred_bible_version?: string | null
           preferred_language?: string | null
           streak_count?: number | null
+          streak_freeze_count?: number | null
+          total_xp?: number | null
           updated_at?: string | null
           username?: string | null
         }
@@ -433,17 +578,21 @@ export type Database = {
           birth_year?: number | null
           country?: string | null
           created_at?: string | null
+          current_streak?: number | null
           display_name?: string | null
           email?: string | null
           experience_points?: number | null
           font_size?: string | null
           id?: string
           last_streak_date?: string | null
+          longest_streak?: number | null
           nickname?: string | null
           phone?: string | null
           preferred_bible_version?: string | null
           preferred_language?: string | null
           streak_count?: number | null
+          streak_freeze_count?: number | null
+          total_xp?: number | null
           updated_at?: string | null
           username?: string | null
         }
@@ -486,7 +635,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_and_award_achievements: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
+      update_user_streak_and_xp: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

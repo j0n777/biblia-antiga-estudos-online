@@ -5,8 +5,14 @@ export { isUserAuthenticated } from './AuthService';
 // Profile
 export { getUserProfile, updateUserProfile } from './ProfileService';
 
-// Achievements
-export { getUserAchievements } from './AchievementService';
+// Achievements - Updated exports
+export { 
+  getUserAchievements, 
+  getAllAchievements,
+  trackReadingSession,
+  checkBookCompletion,
+  getUserStreak
+} from './AchievementService';
 
 // Challenges
 export { getDailyChallenges } from './ChallengeService';
@@ -24,7 +30,8 @@ export {
   clearReadingPosition,
   getReadingHistory,
   getLastThreeReadings,
-  clearReadingHistory
+  clearReadingHistory,
+  trackSearchClick
 } from './reading';
 
 // Verses
@@ -33,8 +40,15 @@ export {
   saveVerse 
 } from './VersesService';
 
-// Leaderboard
-export { getLeaderboard } from './LeaderboardService';
+// Leaderboard - Updated exports
+export { 
+  getLeaderboard,
+  getXPLeaderboard,
+  getStreakLeaderboard,
+  getUserRank,
+  getUserXPRank,
+  getUserStreakRank
+} from './LeaderboardService';
 
 // Re-export from BibleService
 export * from './BibleService';
