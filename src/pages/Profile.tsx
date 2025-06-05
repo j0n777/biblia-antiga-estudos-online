@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -25,7 +24,7 @@ import { User } from 'lucide-react';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('conquistas');
-  const [achievements, setAchievements] = useState([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -191,7 +190,7 @@ const ProfilePage = () => {
             </TabsList>
             
             <TabsContent value="conquistas" className="mt-4 space-y-4">
-              <AchievementList />
+              <AchievementList achievements={achievements} />
             </TabsContent>
             
             <TabsContent value="estatisticas" className="mt-4 space-y-4">

@@ -102,7 +102,7 @@ export interface Achievement {
   category: 'book' | 'streak' | 'milestone' | 'special';
   points: number;
   requirement_type: 'book_completion' | 'streak_days' | 'chapters_read' | 'verses_saved';
-  requirement_value: string;
+  requirement_value: string | null;
   created_at?: string;
   // Progress tracking fields
   progress?: number;

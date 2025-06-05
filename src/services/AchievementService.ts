@@ -21,7 +21,8 @@ export async function getAllAchievements(): Promise<Achievement[]> {
 
     return (data || []).map(item => ({
       ...item,
-      category: item.category as 'book' | 'streak' | 'milestone' | 'special'
+      category: item.category as 'book' | 'streak' | 'milestone' | 'special',
+      requirement_type: item.requirement_type as 'book_completion' | 'streak_days' | 'chapters_read' | 'verses_saved'
     }));
   } catch (error) {
     console.error('Error in getAllAchievements:', error);
@@ -65,9 +66,10 @@ export async function getUserAchievements(): Promise<Achievement[]> {
     return achievementsData.map(achievement => ({
       ...achievement,
       category: achievement.category as 'book' | 'streak' | 'milestone' | 'special',
+      requirement_type: achievement.requirement_type as 'book_completion' | 'streak_days' | 'chapters_read' | 'verses_saved',
       progress: achievement.user_achievements?.[0]?.progress || 0,
-      total: parseInt(achievement.requirement_value) || 1,
-      maxProgress: parseInt(achievement.requirement_value) || 1,
+      total: parseInt(achievement.requirement_value || '1') || 1,
+      maxProgress: parseInt(achievement.requirement_value || '1') || 1,
       unlocked: achievement.user_achievements?.[0]?.is_completed || false,
       earned: achievement.user_achievements?.[0]?.is_completed || false,
       is_completed: achievement.user_achievements?.[0]?.is_completed || false,

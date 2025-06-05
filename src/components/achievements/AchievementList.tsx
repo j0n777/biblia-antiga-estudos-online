@@ -8,11 +8,11 @@ import { Lock, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AchievementListProps {
-  achievements: Achievement[];
+  achievements?: Achievement[];
   showCompleted?: boolean;
 }
 
-const AchievementList = ({ achievements, showCompleted = true }: AchievementListProps) => {
+const AchievementList = ({ achievements = [], showCompleted = true }: AchievementListProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const categories = [

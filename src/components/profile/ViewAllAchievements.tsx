@@ -1,15 +1,36 @@
 
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import AchievementList from '../achievements/AchievementList';
+import { getUserAchievements } from '@/services/AchievementService';
+import { Achievement } from '@/types/bible.types';
 
 // Define the interface for the component props
 interface ViewAllAchievementsProps {
-  showAll?: boolean;
+  showCompleted?: boolean;
 }
 
-const ViewAllAchievements = ({ showAll = true }: ViewAllAchievementsProps) => {
+const ViewAllAchievements = ({ showCompleted = true }: ViewAllAchievementsProps) => {
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAchievements = async () => {
+      try {
+        const userAchievements = await getUserAchievements();
+        setAchievements(userAchievements);
+      } catch (error) {
+        console.error('Error fetching achievements:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAchievements();
+  }, []);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -30,7 +51,13 @@ const ViewAllAchievements = ({ showAll = true }: ViewAllAchievementsProps) => {
         
         <div className="py-4">
           <TooltipProvider>
-            <AchievementList showAll={showAll} />
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p>Carregando conquistas...</p>
+              </div>
+            ) : (
+              <AchievementList achievements={achievements} showCompleted={showCompleted} />
+            )}
           </TooltipProvider>
         </div>
       </DialogContent>
