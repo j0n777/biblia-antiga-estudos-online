@@ -12,12 +12,12 @@ const GuestModeAlert = ({ onCreateAccount }: GuestModeAlertProps) => {
   const { t } = useLanguage();
   
   return (
-    <Alert className="mb-6 bg-gradient-to-r from-ancient-gold/10 to-ancient-brown/5 border-ancient-gold/40">
+    <Alert className="mb-4">
       <AlertCircle className="h-5 w-5 text-ancient-gold" />
-      <AlertTitle className="text-ancient-brown font-semibold">
+      <AlertTitle className="text-ancient-brown">
         {t('auth.guestMode')} - Experiência Limitada
       </AlertTitle>
-      <AlertDescription className="text-sm text-scripture-text">
+      <AlertDescription className="text-secondary">
         <p className="mb-3">
           {t('auth.guestModeDescription')} Crie uma conta para desbloquear todas as funcionalidades.
         </p>

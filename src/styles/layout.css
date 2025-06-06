@@ -1,5 +1,4 @@
 
-
 @layer components {
   /* LAYOUT GLOBAL - Estrutura de página padrão */
   .page-container {
@@ -7,7 +6,7 @@
     width: 100% !important;
     overflow-x: hidden !important;
     background: linear-gradient(120deg, var(--bible-background), #e8dfc6) !important;
-    padding-bottom: 5rem !important; /* Espaço para navegação inferior */
+    padding-bottom: 5rem !important;
   }
 
   .dark .page-container {
@@ -15,12 +14,12 @@
   }
 
   .page-header {
-    padding: 2rem 1rem 1rem 1rem !important; /* Increased top padding for better spacing and safety margin */
+    padding: 2rem 1rem 1rem 1rem !important;
   }
 
   .page-title {
-    font-size: 2rem !important; /* Updated to match community page size (text-2xl) */
-    font-weight: 600 !important;
+    font-size: 1.25rem !important;
+    font-weight: 400 !important;
     font-family: theme('fontFamily.oldstyle') !important;
     color: var(--bible-title) !important;
   }
@@ -30,24 +29,23 @@
   }
 
   .content-box {
-    background-color: #e9e0cc !important;
+    background-color: #f5f1e6 !important;
     border-radius: 0.75rem !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.08) !important;
     border: 1px solid rgba(156, 142, 99, 0.3) !important;
     padding: 1.5rem !important;
     margin: 1rem !important;
   }
 
   .dark .content-box {
-    background-color: var(--bible-box) !important;
+    background-color: var(--bible-controls) !important;
     border-color: rgba(156, 142, 99, 0.4) !important;
   }
 
-  /* NAVEGAÇÃO INFERIOR - Garantir visibilidade */
+  /* NAVEGAÇÃO INFERIOR */
   nav[class*="fixed"][class*="bottom-0"] {
     z-index: 50 !important;
     display: block !important;
     visibility: visible !important;
   }
 }
-

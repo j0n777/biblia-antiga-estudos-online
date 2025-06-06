@@ -22,7 +22,7 @@ const RecentReadingSection = ({
 
   if (recentReadings.length === 0) {
     return (
-      <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+      <Card className="p-4 mb-3">
         <div className="text-center py-4">
           <BookOpen className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
           <h3 className="mb-1">
@@ -39,7 +39,7 @@ const RecentReadingSection = ({
   const limitedReadings = recentReadings.slice(0, 2);
 
   return (
-    <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+    <Card className="p-4 mb-3">
       <div className="flex items-center justify-between mb-3">
         <h3 className="flex items-center gap-2">
           <Clock size={16} className="text-ancient-gold" />
@@ -66,7 +66,7 @@ const RecentReadingSection = ({
           return (
             <Card 
               key={`${bookId}-${chapterNum}-${index}`} 
-              className="p-3 bg-white/80 border-ancient-gold/30 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
+              className="p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
               onClick={() => onOpenChapter(bookId, chapterNum)}
             >
               <div className="flex justify-between items-center">

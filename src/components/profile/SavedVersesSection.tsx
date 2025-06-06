@@ -22,7 +22,7 @@ const SavedVersesSection = ({
 
   if (savedVerses.length === 0) {
     return (
-      <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+      <Card className="p-4 mb-3">
         <div className="text-center py-4">
           <Bookmark className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
           <h3 className="mb-1">
@@ -39,7 +39,7 @@ const SavedVersesSection = ({
   const limitedVerses = savedVerses.slice(0, 2);
 
   return (
-    <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+    <Card className="p-4 mb-3">
       <div className="flex items-center justify-between mb-3">
         <h3 className="flex items-center gap-2">
           <Heart size={16} className="text-ancient-gold" />
@@ -58,7 +58,7 @@ const SavedVersesSection = ({
         {limitedVerses.map((verse) => (
           <Card 
             key={verse.id} 
-            className="p-3 bg-white/80 border-ancient-gold/30 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
+            className="p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
             onClick={() => onReadVerse(verse.book_id, verse.chapter_number, verse.verse_number)}
           >
             <div className="flex justify-between items-start">

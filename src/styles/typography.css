@@ -7,29 +7,29 @@
   Qualquer exceção deve ser discutida antes de implementar.
   */
 
-  /* HIERARQUIA DE TÍTULOS GLOBAL - USE APENAS ESTAS */
+  /* SISTEMA DE TIPOGRAFIA GLOBAL - 4 TAMANHOS APENAS */
   
   /* Título principal de página */
   .page-title,
   h1 {
-    @apply text-2xl font-oldstyle text-scripture-heading;
+    @apply text-xl font-oldstyle font-normal text-scripture-heading;
   }
 
   /* Título de seção */
   .section-title,
   h2 {
-    @apply text-lg font-oldstyle text-scripture-heading;
+    @apply text-lg font-oldstyle font-normal text-scripture-heading;
   }
 
   /* Título de card/componente */
   .card-title,
   h3 {
-    @apply text-base font-oldstyle text-scripture-heading;
+    @apply text-base font-oldstyle font-normal text-scripture-heading;
   }
 
   /* Subtítulo menor */
-  h4 {
-    @apply text-sm font-oldstyle text-scripture-heading;
+  h4, h5, h6 {
+    @apply text-sm font-oldstyle font-normal text-scripture-heading;
   }
 
   /* Texto do corpo */
@@ -49,6 +49,8 @@
   .dark h2, 
   .dark h3,
   .dark h4,
+  .dark h5,
+  .dark h6,
   .dark .page-title,
   .dark .section-title,
   .dark .card-title {

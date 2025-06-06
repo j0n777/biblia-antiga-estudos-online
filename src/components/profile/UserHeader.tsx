@@ -17,7 +17,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
   const { t } = useLanguage();
 
   return (
-    <Card className="p-4 mb-4 bg-gradient-to-br from-ancient-gold/10 to-ancient-brown/5 border-ancient-gold/30">
+    <Card className="p-4 mb-4">
       <div className="flex flex-col items-center">
         <button 
           className="w-20 h-20 rounded-full mb-3 cursor-pointer focus:outline-none transition-transform hover:scale-105"
@@ -37,7 +37,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
         
         <div className="flex items-center gap-2 mb-3 bg-ancient-gold/20 px-3 py-1.5 rounded-xl">
           <Trophy size={16} className="text-ancient-gold" />
-          <span className="text-base text-ancient-brown">
+          <span className="text-sm text-ancient-brown">
             {profile?.experience_points || 0} {t('profile.points')}
           </span>
         </div>
@@ -46,7 +46,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-xs bg-parchment-light border-ancient-gold/40 hover:bg-ancient-gold/10"
+            className="text-xs"
             onClick={onOpenHistoryDialog}
           >
             <History size={14} className="mr-1" /> {t('profile.history')}
@@ -54,7 +54,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
           <Button 
             variant="outline" 
             size="sm" 
-            className="text-xs bg-parchment-light border-ancient-gold/40 hover:bg-ancient-gold/10"
+            className="text-xs"
           >
             <Share2 size={14} className="mr-1" /> {t('common.share')}
           </Button>

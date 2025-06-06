@@ -1,24 +1,31 @@
 
 @layer components {
-  /* CARDS GLOBAIS - Força cor específica dos boxes */
+  /* SISTEMA DE CARDS GLOBAL - UMA COR PADRÃO APENAS */
+  
+  /* TODOS OS CARDS E CONTAINERS USAM A MESMA COR CLARA */
   .card,
   .bg-card,
   [data-radix-dialog-content],
-  [data-radix-popover-content] {
-    background-color: #e9e0cc !important;
+  [data-radix-popover-content],
+  .parchment-container,
+  .content-box {
+    background-color: #f5f1e6 !important;
     border: 1px solid rgba(156, 142, 99, 0.3) !important;
     border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.08) !important;
   }
 
   .dark .card,
   .dark .bg-card,
   .dark [data-radix-dialog-content],
-  .dark [data-radix-popover-content] {
-    background-color: var(--bible-box) !important;
+  .dark [data-radix-popover-content],
+  .dark .parchment-container,
+  .dark .content-box {
+    background-color: var(--bible-controls) !important;
     border-color: rgba(156, 142, 99, 0.4) !important;
   }
 
-  /* FORÇA APLICAÇÃO EM ELEMENTOS ESPECÍFICOS DO SHADCN */
+  /* REMOVE TODAS AS VARIAÇÕES DE CORES DE CARDS */
   .bg-background {
     background-color: var(--bible-background) !important;
   }
@@ -28,7 +35,7 @@
   }
 
   .bg-muted {
-    background-color: #e9e0cc !important;
+    background-color: #f5f1e6 !important;
   }
 
   .dark .bg-background {
@@ -40,32 +47,17 @@
   }
 
   .dark .bg-muted {
-    background-color: var(--bible-box) !important;
-  }
-
-  /* FORÇA ESPECÍFICA PARA COMPONENTES DE BUSCA */
-  .parchment-container {
-    background-color: #e9e0cc !important;
-    border: 1px solid rgba(156, 142, 99, 0.3) !important;
-    border-radius: 0.75rem !important;
-  }
-
-  .dark .parchment-container {
-    background-color: var(--bible-box) !important;
-    border-color: rgba(156, 142, 99, 0.4) !important;
-  }
-
-  /* RESULTADOS DE BUSCA - Bordas arredondadas */
-  .search-result-item {
-    background-color: #f5f1e6 !important;
-    border: 1px solid rgba(156, 142, 99, 0.2) !important;
-    border-radius: 0.75rem !important;
-    padding: 1rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .dark .search-result-item {
     background-color: var(--bible-controls) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* REMOVE GRADIENTES ESPECIAIS - TODOS CARDS IGUAIS */
+  .bg-gradient-to-br,
+  .bg-gradient-to-r {
+    background: #f5f1e6 !important;
+  }
+
+  .dark .bg-gradient-to-br,
+  .dark .bg-gradient-to-r {
+    background: var(--bible-controls) !important;
   }
 }
