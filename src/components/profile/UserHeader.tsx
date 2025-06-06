@@ -17,7 +17,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
   const { t } = useLanguage();
 
   return (
-    <Card className="p-4 mb-4">
+    <div className="card p-4 mb-4">
       <div className="flex flex-col items-center">
         <button 
           className="w-20 h-20 rounded-full mb-3 cursor-pointer focus:outline-none transition-transform hover:scale-105"
@@ -60,7 +60,7 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
           </Button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

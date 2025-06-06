@@ -18,7 +18,7 @@ const ProfileTabs = ({ activeTab, onTabChange, achievements }: ProfileTabsProps)
 
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="mt-4">
-      <TabsList className="w-full bg-parchment-light rounded-xl">
+      <TabsList className="w-full card rounded-xl">
         <TabsTrigger value="conquistas" className="flex-1 rounded-xl text-sm">
           {t('profile.achievements') || "Conquistas"}
         </TabsTrigger>

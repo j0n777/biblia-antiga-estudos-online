@@ -1,4 +1,5 @@
 
+
 @layer components {
   .achievement-badge {
     @apply flex items-center justify-center w-16 h-16 rounded-xl bg-ancient-gold text-white text-xl font-bold shadow-md;
@@ -12,6 +13,13 @@
   .dark .card-shadow {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
+
+  /* 
+  ⚠️ AVISO IMPORTANTE ⚠️
+  NÃO CRIAR REGRAS DE COR ESPECÍFICAS PARA CARDS AQUI!
+  Todas as cores de cards são definidas em global-components.css
+  Este arquivo só deve conter utilidades gerais sem cores específicas.
+  */
 
   /* Ensure cards and other elements have rounded corners */
   .card,
@@ -28,3 +36,4 @@
     @apply rounded-xl;
   }
 }
+

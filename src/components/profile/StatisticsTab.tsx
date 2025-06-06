@@ -1,5 +1,5 @@
 
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { LineChart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -7,7 +7,7 @@ const StatisticsTab = () => {
   const { t } = useLanguage();
   
   return (
-    <Card className="parchment-container overflow-hidden">
+    <div className="card overflow-hidden">
       <CardContent className="p-4 space-y-4">
         <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2">
           <LineChart size={18} className="text-primary" />
@@ -49,7 +49,7 @@ const StatisticsTab = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 };
 

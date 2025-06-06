@@ -1,5 +1,4 @@
 
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Clock, BookOpen } from 'lucide-react';
 import { ReadingHistory } from '@/types/bible.types';
@@ -22,7 +21,7 @@ const RecentReadingSection = ({
 
   if (recentReadings.length === 0) {
     return (
-      <Card className="p-4 mb-3">
+      <div className="card p-4 mb-3">
         <div className="text-center py-4">
           <BookOpen className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
           <h3 className="mb-1">
@@ -32,14 +31,14 @@ const RecentReadingSection = ({
             Suas leituras recentes aparecerão aqui
           </p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   const limitedReadings = recentReadings.slice(0, 2);
 
   return (
-    <Card className="p-4 mb-3">
+    <div className="card p-4 mb-3">
       <div className="flex items-center justify-between mb-3">
         <h3 className="flex items-center gap-2">
           <Clock size={16} className="text-ancient-gold" />
@@ -64,9 +63,9 @@ const RecentReadingSection = ({
           const chapterNum = history.chapter_number || history.chapter || 1;
           
           return (
-            <Card 
+            <div 
               key={`${bookId}-${chapterNum}-${index}`} 
-              className="p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
+              className="card p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
               onClick={() => onOpenChapter(bookId, chapterNum)}
             >
               <div className="flex justify-between items-center">
@@ -87,11 +86,11 @@ const RecentReadingSection = ({
                   Cap. {chapterNum}
                 </div>
               </div>
-            </Card>
+            </div>
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 

@@ -12,31 +12,33 @@ const GuestModeAlert = ({ onCreateAccount }: GuestModeAlertProps) => {
   const { t } = useLanguage();
   
   return (
-    <Alert className="mb-4">
-      <AlertCircle className="h-5 w-5 text-ancient-gold" />
-      <AlertTitle className="text-ancient-brown">
-        {t('auth.guestMode')} - Experiência Limitada
-      </AlertTitle>
-      <AlertDescription className="text-secondary">
-        <p className="mb-3">
-          {t('auth.guestModeDescription')} Crie uma conta para desbloquear todas as funcionalidades.
-        </p>
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">✨ Conquistas</span>
-          <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">📊 Estatísticas</span>
-          <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">🔖 Versículos Salvos</span>
-          <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">📚 Histórico de Leitura</span>
+    <div className="card mb-4 p-4">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-ancient-gold mt-0.5" />
+        <div className="flex-1">
+          <h3 className="text-ancient-brown mb-1">
+            {t('auth.guestMode')} - Experiência Limitada
+          </h3>
+          <p className="text-secondary mb-3">
+            {t('auth.guestModeDescription')} Crie uma conta para desbloquear todas as funcionalidades.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-3">
+            <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">✨ Conquistas</span>
+            <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">📊 Estatísticas</span>
+            <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">🔖 Versículos Salvos</span>
+            <span className="text-xs bg-ancient-gold/20 px-2 py-1 rounded">📚 Histórico de Leitura</span>
+          </div>
+          <Button 
+            onClick={onCreateAccount} 
+            className="bg-ancient-gold text-white hover:bg-ancient-gold/90 shadow-sm"
+            size="sm"
+          >
+            <UserPlus size={16} className="mr-2" />
+            {t('auth.createAccount')}
+          </Button>
         </div>
-        <Button 
-          onClick={onCreateAccount} 
-          className="bg-ancient-gold text-white hover:bg-ancient-gold/90 shadow-sm"
-          size="sm"
-        >
-          <UserPlus size={16} className="mr-2" />
-          {t('auth.createAccount')}
-        </Button>
-      </AlertDescription>
-    </Alert>
+      </div>
+    </div>
   );
 };
 

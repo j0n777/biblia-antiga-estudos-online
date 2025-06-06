@@ -1,4 +1,5 @@
 
+
 @layer components {
   /* SISTEMA DE CARDS GLOBAL - COR PADRÃO COM CONTRASTE ADEQUADO */
   
@@ -8,7 +9,15 @@
   [data-radix-dialog-content],
   [data-radix-popover-content],
   .parchment-container,
-  .content-box {
+  .content-box,
+  .achievement-card,
+  .profile-card,
+  .verse-card,
+  .search-card,
+  .bible-study-card,
+  [class*="bg-card"],
+  [class*="parchment"],
+  .alert {
     background-color: #f8f5ea !important;
     border: 1px solid rgba(156, 142, 99, 0.25) !important;
     border-radius: 0.75rem !important;
@@ -20,7 +29,15 @@
   .dark [data-radix-dialog-content],
   .dark [data-radix-popover-content],
   .dark .parchment-container,
-  .dark .content-box {
+  .dark .content-box,
+  .dark .achievement-card,
+  .dark .profile-card,
+  .dark .verse-card,
+  .dark .search-card,
+  .dark .bible-study-card,
+  .dark [class*="bg-card"],
+  .dark [class*="parchment"],
+  .dark .alert {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
@@ -60,4 +77,18 @@
   .dark .bg-gradient-to-r {
     background: rgba(48, 35, 20, 0.8) !important;
   }
+
+  /* GARANTIR QUE TABS TAMBÉM USEM A COR GLOBAL */
+  [data-radix-tabs-list],
+  .bg-tabs-list {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+  }
+
+  .dark [data-radix-tabs-list],
+  .dark .bg-tabs-list {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
 }
+

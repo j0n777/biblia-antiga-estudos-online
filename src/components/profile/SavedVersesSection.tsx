@@ -1,5 +1,4 @@
 
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bookmark, Heart } from 'lucide-react';
 import { SavedVerse } from '@/types/bible.types';
@@ -22,7 +21,7 @@ const SavedVersesSection = ({
 
   if (savedVerses.length === 0) {
     return (
-      <Card className="p-4 mb-3">
+      <div className="card p-4 mb-3">
         <div className="text-center py-4">
           <Bookmark className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
           <h3 className="mb-1">
@@ -32,14 +31,14 @@ const SavedVersesSection = ({
             Versículos salvos aparecerão aqui
           </p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   const limitedVerses = savedVerses.slice(0, 2);
 
   return (
-    <Card className="p-4 mb-3">
+    <div className="card p-4 mb-3">
       <div className="flex items-center justify-between mb-3">
         <h3 className="flex items-center gap-2">
           <Heart size={16} className="text-ancient-gold" />
@@ -56,9 +55,9 @@ const SavedVersesSection = ({
       
       <div className="space-y-2">
         {limitedVerses.map((verse) => (
-          <Card 
+          <div 
             key={verse.id} 
-            className="p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
+            className="card p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
             onClick={() => onReadVerse(verse.book_id, verse.chapter_number, verse.verse_number)}
           >
             <div className="flex justify-between items-start">
@@ -84,10 +83,10 @@ const SavedVersesSection = ({
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 };
 
