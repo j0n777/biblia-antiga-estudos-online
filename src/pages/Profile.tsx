@@ -2,18 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AchievementList from '@/components/achievements/AchievementList';
-import SettingsDialog from '@/components/profile/SettingsDialog';
+import ProfileHeader from '@/components/profile/ProfileHeader';
+import ProfileContent from '@/components/profile/ProfileContent';
+import ProfileTabs from '@/components/profile/ProfileTabs';
+import ProfileActions from '@/components/profile/ProfileActions';
 import HistoryDialog from '@/components/profile/HistoryDialog';
-import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
-import UserHeader from '@/components/profile/UserHeader';
-import RecentReadingSection from '@/components/profile/RecentReadingSection';
-import SavedVersesSection from '@/components/profile/SavedVersesSection';
-import StatisticsTab from '@/components/profile/StatisticsTab';
-import GuestModeAlert from '@/components/profile/GuestModeAlert';
 import { getUserAchievements } from '@/services/AchievementService';
 import { getUserProfile } from '@/services/ProfileService';
 import { getSavedVerses } from '@/services/VersesService';
@@ -22,7 +16,6 @@ import { UserProfile, SavedVerse, ReadingHistory, Achievement } from '@/types/bi
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBibleBooks } from '../services/BibleDataService';
-import { User } from 'lucide-react';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('conquistas');
@@ -137,97 +130,46 @@ const ProfilePage = () => {
 
   return (
     <PageLayout>
-      {/* Header with consistent styling */}
-      <div className="page-header">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <User size={24} className="text-ancient-gold" />
-            <h1 className="text-2xl font-oldstyle text-scripture-heading">{t('profile.title') || "Perfil"}</h1>
-          </div>
-          <div className="flex gap-2">
-            {isAuthenticated && profile && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowOnboarding(true)}
-                className="text-sm rounded-xl"
-              >
-                Configurar Onboarding
-              </Button>
-            )}
-            <SettingsDialog profile={profile} onProfileUpdate={handleProfileUpdate} />
-          </div>
-        </div>
-      </div>
+      <ProfileHeader
+        profile={profile}
+        isAuthenticated={isAuthenticated}
+        onProfileUpdate={handleProfileUpdate}
+        onShowOnboarding={() => setShowOnboarding(true)}
+      />
       
-      {/* Content in styled box with consistent margins */}
       <div className="page-content">
         <div className="content-box">
-          {!isAuthenticated && <GuestModeAlert onCreateAccount={handleCreateAccount} />}
-          
-          <UserHeader 
+          <ProfileContent
             profile={profile}
             isAuthenticated={isAuthenticated}
-            onOpenHistoryDialog={() => setShowHistoryDialog(true)}
-            onCreateAccount={handleCreateAccount}
-          />
-          
-          <RecentReadingSection 
+            savedVerses={savedVerses}
             recentReadings={recentReadings}
             bookNames={bookNames}
-            onViewAllHistory={() => setShowHistoryDialog(true)}
+            onOpenHistoryDialog={() => setShowHistoryDialog(true)}
+            onCreateAccount={handleCreateAccount}
+            onReadVerse={handleReadVerse}
             onOpenChapter={handleOpenChapter}
           />
           
-          <SavedVersesSection 
-            savedVerses={savedVerses}
-            bookNames={bookNames}
-            onViewAllVerses={() => setShowHistoryDialog(true)}
-            onReadVerse={handleReadVerse}
+          <ProfileTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            achievements={achievements}
           />
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-            <TabsList className="w-full bg-parchment-light rounded-xl">
-              <TabsTrigger value="conquistas" className="flex-1 rounded-xl">{t('profile.achievements') || "Conquistas"}</TabsTrigger>
-              <TabsTrigger value="estatisticas" className="flex-1 rounded-xl">{t('profile.stats') || "Estatísticas"}</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="conquistas" className="mt-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-oldstyle text-scripture-heading">Suas Conquistas</h3>
-                <ViewAllAchievements />
-              </div>
-              <AchievementList achievements={achievements.slice(0, 6)} />
-            </TabsContent>
-            
-            <TabsContent value="estatisticas" className="mt-4 space-y-4">
-              <StatisticsTab />
-            </TabsContent>
-          </Tabs>
-          
-          <div className="mt-6 flex justify-center">
-            {isAuthenticated ? (
-              <Button variant="outline" className="rounded-xl" onClick={handleSignOut}>
-                {t('auth.signOut') || "Sair"}
-              </Button>
-            ) : (
-              <Button 
-                className="bg-ancient-gold text-white hover:bg-ancient-gold/90 rounded-xl"
-                onClick={handleCreateAccount}
-              >
-                {t('auth.createAccount') || "Criar Conta"}
-              </Button>
-            )}
-          </div>
+          <ProfileActions
+            isAuthenticated={isAuthenticated}
+            onSignOut={handleSignOut}
+            onCreateAccount={handleCreateAccount}
+          />
         </div>
       </div>
       
-      {/* History Dialog */}
       <HistoryDialog 
         open={showHistoryDialog}
         onOpenChange={setShowHistoryDialog}
       />
       
-      {/* Onboarding Wizard */}
       <OnboardingWizard
         open={showOnboarding}
         onOpenChange={setShowOnboarding}
