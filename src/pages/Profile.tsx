@@ -9,6 +9,11 @@ import SettingsDialog from '@/components/profile/SettingsDialog';
 import HistoryDialog from '@/components/profile/HistoryDialog';
 import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
+import UserHeader from '@/components/profile/UserHeader';
+import RecentReadingSection from '@/components/profile/RecentReadingSection';
+import SavedVersesSection from '@/components/profile/SavedVersesSection';
+import StatisticsTab from '@/components/profile/StatisticsTab';
+import GuestModeAlert from '@/components/profile/GuestModeAlert';
 import { getUserAchievements } from '@/services/AchievementService';
 import { getUserProfile } from '@/services/ProfileService';
 import { getSavedVerses } from '@/services/VersesService';
@@ -17,11 +22,6 @@ import { UserProfile, SavedVerse, ReadingHistory, Achievement } from '@/types/bi
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBibleBooks } from '../services/BibleDataService';
-import UserHeader from '@/components/profile/UserHeader';
-import RecentReadingSection from '@/components/profile/RecentReadingSection';
-import SavedVersesSection from '@/components/profile/SavedVersesSection';
-import StatisticsTab from '@/components/profile/StatisticsTab';
-import GuestModeAlert from '@/components/profile/GuestModeAlert';
 import { User } from 'lucide-react';
 
 const ProfilePage = () => {
