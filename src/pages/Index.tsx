@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -9,8 +10,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Trophy, ExternalLink, Home } from 'lucide-react';
 import { getUserProfile } from '@/services';
-import { getUserStreak } from '@/services/AchievementService';
-import { UserProfile } from '@/types/bible.types';
+import { getUserStreak, getUserAchievements } from '@/services/AchievementService';
+import { UserProfile, Achievement } from '@/types/bible.types';
 
 const bibleStudies = [
   {
@@ -46,7 +47,8 @@ const bibleStudies = [
 const Index = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [streakData, setStreakData] = useState({ current: 5, longest: 14 });
+  const [streakData, setStreakData] = useState({ current: 0, longest: 0 });
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   
   useEffect(() => {
     const loadUserData = async () => {
@@ -56,10 +58,25 @@ const Index = () => {
       // Get real streak data
       const streakInfo = await getUserStreak();
       setStreakData(streakInfo);
+      
+      // Get real achievements data
+      const userAchievements = await getUserAchievements();
+      setAchievements(userAchievements);
     };
     
     loadUserData();
   }, []);
+  
+  // Convert achievements to badge format for BadgeProgress component
+  const badges = achievements.slice(0, 3).map(achievement => ({
+    id: achievement.id,
+    name: achievement.title,
+    description: achievement.description,
+    progress: achievement.progress || 0,
+    maxProgress: achievement.total || 1,
+    unlocked: achievement.earned || false,
+    icon: achievement.icon
+  }));
   
   // In a real app, this data would come from an API or local storage
   const mockVerseOfDay = {
@@ -67,36 +84,6 @@ const Index = () => {
     text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
     version: "King James Atualizada"
   };
-
-  const mockBadges = [
-    {
-      id: "1",
-      name: "Gênesis",
-      description: "Completou a leitura de Gênesis",
-      progress: 50,
-      maxProgress: 50,
-      unlocked: true,
-      icon: "📖"
-    },
-    {
-      id: "2",
-      name: "Estudioso",
-      description: "7 dias consecutivos de leitura",
-      progress: streakData.current,
-      maxProgress: 7,
-      unlocked: streakData.current >= 7,
-      icon: "🔍"
-    },
-    {
-      id: "3",
-      name: "Compartilhador",
-      description: "Compartilhou 10 versículos",
-      progress: 3,
-      maxProgress: 10,
-      unlocked: false,
-      icon: "📤"
-    },
-  ];
 
   return (
     <PageLayout>
@@ -126,7 +113,7 @@ const Index = () => {
               longestStreak={streakData.longest}
             />
             
-            <BadgeProgress badges={mockBadges} />
+            <BadgeProgress badges={badges} />
             
             {/* Bible Studies Section */}
             <div className="space-y-4">

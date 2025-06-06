@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -191,6 +190,10 @@ const ProfilePage = () => {
             </TabsList>
             
             <TabsContent value="conquistas" className="mt-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-oldstyle text-scripture-heading">Suas Conquistas</h3>
+                <ViewAllAchievements />
+              </div>
               <AchievementList achievements={achievements} />
             </TabsContent>
             
