@@ -196,7 +196,7 @@ const ProfilePage = () => {
                 <h3 className="text-lg font-oldstyle text-scripture-heading">Suas Conquistas</h3>
                 <ViewAllAchievements />
               </div>
-              <AchievementList achievements={achievements} />
+              <AchievementList achievements={achievements.slice(0, 6)} />
             </TabsContent>
             
             <TabsContent value="estatisticas" className="mt-4 space-y-4">
