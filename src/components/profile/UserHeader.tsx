@@ -2,7 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Share2, LineChart, History, Trophy } from 'lucide-react';
+import { Share2, History, Trophy } from 'lucide-react';
 import { UserProfile } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -31,13 +31,13 @@ const UserHeader = ({ profile, onOpenHistoryDialog, onCreateAccount, isAuthentic
           </Avatar>
         </button>
         
-        <h2 className="text-xl font-oldstyle text-ancient-brown mb-2">
+        <h2 className="mb-2">
           {profile?.nickname || profile?.display_name || t('auth.guest')}
         </h2>
         
         <div className="flex items-center gap-2 mb-3 bg-ancient-gold/20 px-3 py-1.5 rounded-xl">
           <Trophy size={16} className="text-ancient-gold" />
-          <span className="text-base font-semibold text-ancient-brown">
+          <span className="text-base text-ancient-brown">
             {profile?.experience_points || 0} {t('profile.points')}
           </span>
         </div>

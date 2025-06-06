@@ -29,7 +29,7 @@ const ProfileTabs = ({ activeTab, onTabChange, achievements }: ProfileTabsProps)
       
       <TabsContent value="conquistas" className="mt-3 space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-oldstyle text-ancient-brown font-bold flex items-center gap-2">
+          <h3 className="flex items-center gap-2">
             <Trophy size={18} className="text-ancient-gold" />
             Suas Conquistas
           </h3>

@@ -22,13 +22,13 @@ const RecentReadingSection = ({
 
   if (recentReadings.length === 0) {
     return (
-      <Card className="p-4 mb-4 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
-        <div className="text-center py-6">
-          <BookOpen className="h-8 w-8 mx-auto mb-3 text-ancient-gold/60" />
-          <h3 className="font-oldstyle text-base text-scripture-heading mb-1">
+      <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+        <div className="text-center py-4">
+          <BookOpen className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
+          <h3 className="mb-1">
             Comece sua jornada de leitura
           </h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-secondary">
             Suas leituras recentes aparecerão aqui
           </p>
         </div>
@@ -36,12 +36,12 @@ const RecentReadingSection = ({
     );
   }
 
-  const limitedReadings = recentReadings.slice(0, 3);
+  const limitedReadings = recentReadings.slice(0, 2);
 
   return (
-    <Card className="p-4 mb-4 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+    <Card className="p-4 mb-3 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-oldstyle text-base text-scripture-heading flex items-center gap-2">
+        <h3 className="flex items-center gap-2">
           <Clock size={16} className="text-ancient-gold" />
           {t('profile.recentReading') || "Leituras Recentes"}
         </h3>
@@ -71,19 +71,19 @@ const RecentReadingSection = ({
             >
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-ancient-gold/20 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/30 transition-colors">
-                    <BookOpen size={12} className="text-ancient-gold" />
+                  <div className="w-6 h-6 bg-ancient-gold/20 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/30 transition-colors">
+                    <BookOpen size={10} className="text-ancient-gold" />
                   </div>
                   <div>
-                    <span className="font-medium text-ancient-brown text-sm block">
+                    <span className="text-sm text-ancient-brown block">
                       {displayName} {chapterNum}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-secondary">
                       {new Date(history.timestamp || history.created_at).toLocaleDateString('pt-BR')}
                     </span>
                   </div>
                 </div>
-                <div className="text-xs text-ancient-gold font-medium">
+                <div className="text-secondary text-ancient-gold">
                   Cap. {chapterNum}
                 </div>
               </div>

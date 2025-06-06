@@ -1,28 +1,67 @@
 
 @layer components {
-  /* TEXTOS GLOBAIS */
-  .text-bible-title,
-  h1, h2, h3, h4, h5, h6,
-  .page-title {
-    color: var(--bible-title) !important;
-    font-family: theme('fontFamily.oldstyle') !important;
+  /* 
+  ⚠️ AVISO IMPORTANTE ⚠️
+  NÃO CRIAR REGRAS ESPECIAIS PARA TÍTULOS ESPECÍFICOS!
+  Use apenas as classes globais abaixo para manter consistência visual.
+  Qualquer exceção deve ser discutida antes de implementar.
+  */
+
+  /* HIERARQUIA DE TÍTULOS GLOBAL - USE APENAS ESTAS */
+  
+  /* Título principal de página */
+  .page-title,
+  h1 {
+    @apply text-2xl font-oldstyle text-scripture-heading;
   }
 
-  .text-bible-subtitle,
-  .text-muted-foreground,
-  p, span, div:not(.card):not(.button) {
-    color: var(--bible-subtitle) !important;
+  /* Título de seção */
+  .section-title,
+  h2 {
+    @apply text-lg font-oldstyle text-scripture-heading;
   }
 
-  .dark .text-bible-title,
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
-  .dark .page-title {
-    color: var(--bible-title) !important;
+  /* Título de card/componente */
+  .card-title,
+  h3 {
+    @apply text-base font-oldstyle text-scripture-heading;
   }
 
-  .dark .text-bible-subtitle,
-  .dark .text-muted-foreground,
-  .dark p, .dark span, .dark div:not(.card):not(.button) {
-    color: var(--bible-subtitle) !important;
+  /* Subtítulo menor */
+  h4 {
+    @apply text-sm font-oldstyle text-scripture-heading;
+  }
+
+  /* Texto do corpo */
+  .body-text,
+  p {
+    @apply text-sm text-scripture-text;
+  }
+
+  /* Texto secundário/muted */
+  .text-secondary,
+  .text-muted-foreground {
+    @apply text-xs text-muted-foreground;
+  }
+
+  /* MODO DARK - mantém as mesmas cores */
+  .dark h1,
+  .dark h2, 
+  .dark h3,
+  .dark h4,
+  .dark .page-title,
+  .dark .section-title,
+  .dark .card-title {
+    color: var(--scripture-heading) !important;
+  }
+
+  .dark p,
+  .dark .body-text {
+    color: var(--scripture-text) !important;
+  }
+
+  .dark .text-secondary,
+  .dark .text-muted-foreground {
+    color: var(--muted-foreground) !important;
   }
 }
