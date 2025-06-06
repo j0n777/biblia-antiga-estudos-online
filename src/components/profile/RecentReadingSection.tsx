@@ -22,13 +22,13 @@ const RecentReadingSection = ({
 
   if (recentReadings.length === 0) {
     return (
-      <Card className="p-6 mb-6 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
-        <div className="text-center py-8">
-          <BookOpen className="h-12 w-12 mx-auto mb-4 text-ancient-gold/60" />
-          <h3 className="font-oldstyle text-lg text-scripture-heading mb-2">
+      <Card className="p-4 mb-4 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+        <div className="text-center py-6">
+          <BookOpen className="h-8 w-8 mx-auto mb-3 text-ancient-gold/60" />
+          <h3 className="font-oldstyle text-base text-scripture-heading mb-1">
             Comece sua jornada de leitura
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Suas leituras recentes aparecerão aqui
           </p>
         </div>
@@ -36,25 +36,25 @@ const RecentReadingSection = ({
     );
   }
 
-  const limitedReadings = recentReadings.slice(0, 5);
+  const limitedReadings = recentReadings.slice(0, 3);
 
   return (
-    <Card className="p-6 mb-6 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-oldstyle text-lg text-scripture-heading flex items-center gap-2">
-          <Clock size={18} className="text-ancient-gold" />
+    <Card className="p-4 mb-4 bg-gradient-to-br from-parchment-light to-parchment border-ancient-gold/20">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-oldstyle text-base text-scripture-heading flex items-center gap-2">
+          <Clock size={16} className="text-ancient-gold" />
           {t('profile.recentReading') || "Leituras Recentes"}
         </h3>
         <Button 
           variant="link" 
-          className="text-sm text-ancient-gold hover:text-ancient-gold/80"
+          className="text-xs text-ancient-gold hover:text-ancient-gold/80 p-0 h-auto"
           onClick={onViewAllHistory}
         >
           Ver todas
         </Button>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         {limitedReadings.map((history, index) => {
           const bookId = typeof history.book_id === 'string' 
             ? history.book_id.toLowerCase() 
@@ -66,16 +66,16 @@ const RecentReadingSection = ({
           return (
             <Card 
               key={`${bookId}-${chapterNum}-${index}`} 
-              className="p-4 bg-white/80 border-ancient-gold/30 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
+              className="p-3 bg-white/80 border-ancient-gold/30 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
               onClick={() => onOpenChapter(bookId, chapterNum)}
             >
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-ancient-gold/20 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/30 transition-colors">
-                    <BookOpen size={16} className="text-ancient-gold" />
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-ancient-gold/20 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/30 transition-colors">
+                    <BookOpen size={12} className="text-ancient-gold" />
                   </div>
                   <div>
-                    <span className="font-semibold text-ancient-brown block">
+                    <span className="font-medium text-ancient-brown text-sm block">
                       {displayName} {chapterNum}
                     </span>
                     <span className="text-xs text-muted-foreground">
@@ -84,7 +84,7 @@ const RecentReadingSection = ({
                   </div>
                 </div>
                 <div className="text-xs text-ancient-gold font-medium">
-                  Capítulo {chapterNum}
+                  Cap. {chapterNum}
                 </div>
               </div>
             </Card>
