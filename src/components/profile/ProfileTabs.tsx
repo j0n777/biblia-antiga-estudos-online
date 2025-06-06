@@ -5,6 +5,7 @@ import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
 import StatisticsTab from '@/components/profile/StatisticsTab';
 import { Achievement } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Trophy } from 'lucide-react';
 
 interface ProfileTabsProps {
   activeTab: string;
@@ -28,7 +29,10 @@ const ProfileTabs = ({ activeTab, onTabChange, achievements }: ProfileTabsProps)
       
       <TabsContent value="conquistas" className="mt-3 space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-oldstyle text-scripture-heading font-semibold">Suas Conquistas</h3>
+          <h3 className="text-lg font-oldstyle text-ancient-brown font-bold flex items-center gap-2">
+            <Trophy size={18} className="text-ancient-gold" />
+            Suas Conquistas
+          </h3>
           <ViewAllAchievements />
         </div>
         <AchievementList achievements={achievements.slice(0, 4)} />
