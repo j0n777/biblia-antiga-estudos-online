@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -6,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '@/components/achievements/AchievementList';
 import SettingsDialog from '@/components/profile/SettingsDialog';
 import HistoryDialog from '@/components/profile/HistoryDialog';
+import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import { getUserAchievements } from '@/services/AchievementService';
 import { getUserProfile } from '@/services/ProfileService';
