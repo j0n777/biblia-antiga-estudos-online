@@ -55,43 +55,78 @@ const StudyCreditsInfo = ({ onBack }: StudyCreditsInfoProps) => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-ancient-brown">R$ 14,90</div>
+              <div className="text-3xl font-bold text-ancient-brown">R$ 24,00</div>
               <div className="text-sm text-scripture-text">por mês</div>
             </div>
             <div className="space-y-2 text-scripture-text">
-              <p>✅ <strong>90 estudos por mês</strong></p>
+              <p>✅ <strong>30 estudos por mês</strong></p>
               <p>✅ Renovação automática</p>
               <p>✅ Cancele quando quiser</p>
               <p>✅ Melhor custo-benefício</p>
             </div>
             <Button 
               className="w-full bg-ancient-gold hover:bg-ancient-gold/90 text-white"
-              onClick={() => handlePurchase('monthly_90')}
+              onClick={() => handlePurchase('monthly_30')}
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              Assinar por R$ 14,90/mês
+              Assinar por R$ 24,00/mês
             </Button>
             <div className="text-xs text-center text-muted-foreground">
-              ~R$ 0,17 por estudo
+              R$ 0,80 por estudo (20% desconto)
             </div>
           </CardContent>
         </Card>
 
-        {/* Pacote 90 estudos */}
+        {/* Assinatura Semestral */}
+        <Card className="border-2 border-green-500 bg-green-50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-green-700">
+                <Calendar className="w-5 h-5" />
+                Assinatura Semestral
+              </CardTitle>
+              <Badge className="bg-green-500 text-white">MELHOR VALOR</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-green-700">R$ 126,00</div>
+              <div className="text-sm text-green-600">por 6 meses</div>
+            </div>
+            <div className="space-y-2 text-green-600">
+              <p>✅ <strong>180 estudos (6 meses)</strong></p>
+              <p>✅ Renovação automática</p>
+              <p>✅ Cancele quando quiser</p>
+              <p>✅ Maior economia</p>
+            </div>
+            <Button 
+              className="w-full bg-green-500 hover:bg-green-600 text-white"
+              onClick={() => handlePurchase('semiannual_180')}
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              Assinar por R$ 126,00/6 meses
+            </Button>
+            <div className="text-xs text-center text-muted-foreground">
+              R$ 0,70 por estudo (30% desconto)
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pacote 50 estudos */}
         <Card className="border border-gray-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-ancient-brown">
               <Package className="w-5 h-5" />
-              Pacote 90 Estudos
+              Pacote 50 Estudos
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-ancient-brown">R$ 19,90</div>
+              <div className="text-3xl font-bold text-ancient-brown">R$ 45,00</div>
               <div className="text-sm text-scripture-text">pagamento único</div>
             </div>
             <div className="space-y-2 text-scripture-text">
-              <p>✅ <strong>90 estudos</strong></p>
+              <p>✅ <strong>50 estudos</strong></p>
               <p>✅ Sem renovação automática</p>
               <p>✅ Válido por 1 ano</p>
               <p>✅ Flexibilidade total</p>
@@ -99,32 +134,32 @@ const StudyCreditsInfo = ({ onBack }: StudyCreditsInfoProps) => {
             <Button 
               variant="outline"
               className="w-full border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white"
-              onClick={() => handlePurchase('pack_90')}
+              onClick={() => handlePurchase('pack_50')}
             >
               <Package className="w-4 h-4 mr-2" />
-              Comprar por R$ 19,90
+              Comprar por R$ 45,00
             </Button>
             <div className="text-xs text-center text-muted-foreground">
-              ~R$ 0,22 por estudo
+              R$ 0,90 por estudo (10% desconto)
             </div>
           </CardContent>
         </Card>
 
-        {/* Pacote 180 estudos */}
+        {/* Pacote 100 estudos */}
         <Card className="border border-gray-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-ancient-brown">
               <Package className="w-5 h-5" />
-              Pacote 180 Estudos
+              Pacote 100 Estudos
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-ancient-brown">R$ 27,90</div>
+              <div className="text-3xl font-bold text-ancient-brown">R$ 90,00</div>
               <div className="text-sm text-scripture-text">pagamento único</div>
             </div>
             <div className="space-y-2 text-scripture-text">
-              <p>✅ <strong>180 estudos</strong></p>
+              <p>✅ <strong>100 estudos</strong></p>
               <p>✅ Sem renovação automática</p>
               <p>✅ Válido por 1 ano</p>
               <p>✅ Melhor valor por estudo</p>
@@ -132,30 +167,17 @@ const StudyCreditsInfo = ({ onBack }: StudyCreditsInfoProps) => {
             <Button 
               variant="outline"
               className="w-full border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white"
-              onClick={() => handlePurchase('pack_180')}
+              onClick={() => handlePurchase('pack_100')}
             >
               <Package className="w-4 h-4 mr-2" />
-              Comprar por R$ 27,90
+              Comprar por R$ 90,00
             </Button>
             <div className="text-xs text-center text-muted-foreground">
-              ~R$ 0,16 por estudo
+              R$ 0,90 por estudo (10% desconto)
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Informações sobre custos */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-6">
-          <h4 className="font-semibold text-blue-900 mb-3">💰 Sobre os custos</h4>
-          <div className="text-sm text-blue-800 space-y-2">
-            <p>• Cada estudo consome ~3000 tokens da OpenAI GPT-4o-mini</p>
-            <p>• Custo estimado: US$ 0,0045 por estudo (~R$ 0,02)</p>
-            <p>• Margem para manutenção e desenvolvimento da plataforma</p>
-            <p>• Preços justos para sustentabilidade do serviço</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
