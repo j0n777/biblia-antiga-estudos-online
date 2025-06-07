@@ -1,8 +1,8 @@
-
 import { Loader2, SearchIcon, BookOpen, Info, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BibleVerse } from '@/types/bible.types';
 import BibleVerseComponent from '@/components/bible/BibleVerse';
+import BibleStudyButton from '@/components/studies/BibleStudyButton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -146,25 +146,44 @@ const SearchResults = ({
           </div>
           
           <div className="space-y-4">
-            {sortedResults.map((verse) => (
-              <div key={verse.id} className="search-result-item hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <button
-                    onClick={() => handleVerseClick(verse)}
-                    className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-3 py-1.5 rounded-xl hover:bg-ancient-gold/20 transition-colors flex items-center gap-1"
-                  >
-                    {verse.book_name} {verse.chapter_number}:{verse.verse_number}
-                    <ExternalLink className="h-3 w-3" />
-                  </button>
-                  {verse.version_id && (
-                    <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-xl">
-                      {verse.version_id.toUpperCase()}
-                    </span>
-                  )}
+            {sortedResults.map((verse) => {
+              const verseReference = `${verse.book_name} ${verse.chapter_number}:${verse.verse_number}`;
+              
+              return (
+                <div key={verse.id} className="search-result-item hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <button
+                      onClick={() => handleVerseClick(verse)}
+                      className="text-sm font-semibold text-ancient-gold bg-ancient-gold/10 px-3 py-1.5 rounded-xl hover:bg-ancient-gold/20 transition-colors flex items-center gap-1"
+                    >
+                      {verse.book_name} {verse.chapter_number}:{verse.verse_number}
+                      <ExternalLink className="h-3 w-3" />
+                    </button>
+                    
+                    <div className="flex items-center gap-2">
+                      {verse.version_id && (
+                        <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded-xl">
+                          {verse.version_id.toUpperCase()}
+                        </span>
+                      )}
+                      
+                      {/* Botão de estudo bíblico */}
+                      <BibleStudyButton
+                        verseReference={verseReference}
+                        bookId={verse.book_id || ''}
+                        chapterNumber={verse.chapter_number || 0}
+                        verseNumber={verse.verse_number}
+                        versionId={verse.version_id || 'kja'}
+                        verseText={verse.text}
+                        size="sm"
+                        variant="outline"
+                      />
+                    </div>
+                  </div>
+                  <BibleVerseComponent verse={verse} />
                 </div>
-                <BibleVerseComponent verse={verse} />
-              </div>
-            ))}
+              );
+            })}
           </div>
           
           {hasMoreResults && (

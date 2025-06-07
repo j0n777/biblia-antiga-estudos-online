@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { BibleVerse as BibleVerseType, WordDefinition } from '@/types/bible.types';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
-import { Copy, Share2, Highlighter } from 'lucide-react';
+import { Copy, Share2, Highlighter, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import BibleStudyButton from '@/components/studies/BibleStudyButton';
 
 export interface BibleVerseProps {
   verse: BibleVerseType;
@@ -52,12 +53,15 @@ const BibleVerse = ({
     }
   };
   
+  // Criar referência do versículo
+  const verseReference = `${verse.book_name || verse.book_id} ${verse.chapter_number}:${verse.verse_number}`;
+  
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div 
           id={`verse-${verse.verse_number}`}
-          className={`transition-all duration-200 rounded-xl cursor-pointer ${
+          className={`group relative transition-all duration-200 rounded-xl cursor-pointer ${
             isHighlighted ? 'bg-yellow-100/60 p-2' : 'hover:bg-gray-50/50 p-2'
           }`}
           onClick={onVerseClick}
@@ -77,6 +81,20 @@ const BibleVerse = ({
               {verse.text}
             </span>
           </span>
+          
+          {/* Botão de estudo bíblico que aparece no hover */}
+          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <BibleStudyButton
+              verseReference={verseReference}
+              bookId={verse.book_id || ''}
+              chapterNumber={verse.chapter_number || 0}
+              verseNumber={verse.verse_number}
+              versionId={verse.version_id || 'kja'}
+              verseText={verse.text}
+              size="sm"
+              variant="ghost"
+            />
+          </div>
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48 bg-bible-controls rounded-xl border border-gray-300 shadow-lg">

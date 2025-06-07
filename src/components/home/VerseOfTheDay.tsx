@@ -8,6 +8,7 @@ import { getUserProfile } from '@/services/ProfileService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { searchBibleVerses } from '@/services/bible';
 import { supabase } from '@/integrations/supabase/client';
+import BibleStudyButton from '@/components/studies/BibleStudyButton';
 
 type VerseOfTheDayProps = {
   reference?: string;
@@ -21,6 +22,12 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
   const [text, setText] = useState(initialText || "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.");
   const [version, setVersion] = useState(initialVersion || "KJA");
   const [bookName, setBookName] = useState<string | null>(null);
+  const [verseData, setVerseData] = useState<{
+    bookId: string;
+    chapterNumber: number;
+    verseNumber: number;
+    versionId: string;
+  } | null>(null);
   const { language, t } = useLanguage();
 
   useEffect(() => {
@@ -67,12 +74,28 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
           setBookName(safeBookName);
           setText(verse.text || "Versículo do dia não disponível");
           setVersion(versionData?.name || preferredVersion.toUpperCase());
+          
+          // Store verse data for Bible study
+          setVerseData({
+            bookId: verse.book_id || '',
+            chapterNumber: safeChapterNumber,
+            verseNumber: safeVerseNumber,
+            versionId: preferredVersion
+          });
         } else {
           console.warn(`No results found for reference: ${randomReference} in version: ${preferredVersion}`);
           // Fallback to default verse if search doesn't work
           setReference("Romanos 8:28");
           setText("Sabemos que todas as coisas cooperam para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.");
           setVersion(preferredVersion.toUpperCase());
+          
+          // Default verse data
+          setVerseData({
+            bookId: 'rm',
+            chapterNumber: 8,
+            verseNumber: 28,
+            versionId: preferredVersion
+          });
         }
       } catch (error) {
         console.error('Error fetching verse of the day:', error);
@@ -131,6 +154,21 @@ const VerseOfTheDay = ({ reference: initialReference, text: initialText, version
         >
           <Share2 size={20} />
         </Button>
+        
+        {/* Botão de estudo bíblico */}
+        {verseData && (
+          <BibleStudyButton
+            verseReference={reference}
+            bookId={verseData.bookId}
+            chapterNumber={verseData.chapterNumber}
+            verseNumber={verseData.verseNumber}
+            versionId={verseData.versionId}
+            verseText={text}
+            size="sm"
+            variant="ghost"
+          />
+        )}
+        
         <Button
           variant="ghost"
           size="sm"
