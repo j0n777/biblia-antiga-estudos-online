@@ -649,8 +649,8 @@ export type Database = {
       user_study_credits: {
         Row: {
           created_at: string
-          free_studies_reset_date: string
-          free_studies_used_today: number
+          free_studies_reset_month: string
+          free_studies_used_this_month: number
           id: string
           paid_studies_remaining: number
           subscription_expires_at: string | null
@@ -660,8 +660,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          free_studies_reset_date?: string
-          free_studies_used_today?: number
+          free_studies_reset_month?: string
+          free_studies_used_this_month?: number
           id?: string
           paid_studies_remaining?: number
           subscription_expires_at?: string | null
@@ -671,8 +671,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          free_studies_reset_date?: string
-          free_studies_used_today?: number
+          free_studies_reset_month?: string
+          free_studies_used_this_month?: number
           id?: string
           paid_studies_remaining?: number
           subscription_expires_at?: string | null
@@ -724,6 +724,10 @@ export type Database = {
         Returns: undefined
       }
       reset_daily_free_studies: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      reset_monthly_free_studies: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

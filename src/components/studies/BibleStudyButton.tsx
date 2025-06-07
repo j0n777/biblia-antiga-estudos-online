@@ -110,7 +110,7 @@ const BibleStudyButton = ({
   };
 
   const hasCredits = credits ? 
-    (credits.free_studies_used_today < 1 || credits.paid_studies_remaining > 0) : 
+    (credits.free_studies_used_this_month < 3 || credits.paid_studies_remaining > 0) : 
     false;
 
   return (
@@ -168,7 +168,7 @@ const BibleStudyButton = ({
                     💎 Seus créditos
                   </h4>
                   <div className="text-sm text-blue-800">
-                    <p>• Estudos gratuitos hoje: {1 - credits.free_studies_used_today}/1</p>
+                    <p>• Estudos gratuitos este mês: {3 - credits.free_studies_used_this_month}/3</p>
                     <p>• Estudos pagos: {credits.paid_studies_remaining}</p>
                   </div>
                 </div>

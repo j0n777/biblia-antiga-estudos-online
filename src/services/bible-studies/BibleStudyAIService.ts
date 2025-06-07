@@ -71,8 +71,8 @@ export interface AIBibleStudy {
 export interface UserStudyCredits {
   id: string;
   user_id: string;
-  free_studies_used_today: number;
-  free_studies_reset_date: string;
+  free_studies_used_this_month: number;
+  free_studies_reset_month: string;
   paid_studies_remaining: number;
   subscription_type?: string;
   subscription_expires_at?: string;

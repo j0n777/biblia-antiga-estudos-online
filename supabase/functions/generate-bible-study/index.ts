@@ -109,7 +109,7 @@ serve(async (req) => {
     const userId = userData.user.id;
 
     // Verificar se usuário tem créditos disponíveis
-    await supabase.rpc('reset_daily_free_studies');
+    await supabase.rpc('reset_monthly_free_studies');
     
     const { data: credits, error: creditsError } = await supabase
       .from('user_study_credits')
@@ -123,12 +123,12 @@ serve(async (req) => {
         .from('user_study_credits')
         .insert({
           user_id: userId,
-          free_studies_used_today: 0,
-          free_studies_reset_date: new Date().toISOString().split('T')[0]
+          free_studies_used_this_month: 0,
+          free_studies_reset_month: new Date().toISOString().split('T')[0]
         });
     }
 
-    const hasCredits = (credits?.free_studies_used_today || 0) < 1 || 
+    const hasCredits = (credits?.free_studies_used_this_month || 0) < 3 || 
                       (credits?.paid_studies_remaining || 0) > 0;
 
     if (!hasCredits) {
@@ -234,7 +234,7 @@ serve(async (req) => {
       await supabase
         .from('user_study_credits')
         .update({ 
-          free_studies_used_today: (credits?.free_studies_used_today || 0) + 1,
+          free_studies_used_this_month: (credits?.free_studies_used_this_month || 0) + 1,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', userId);

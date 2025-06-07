@@ -33,7 +33,7 @@ const StudyCreditsInfo = ({ onBack }: StudyCreditsInfoProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-scripture-text">
-          <p>• <strong>1 estudo gratuito por dia</strong> para usuários cadastrados</p>
+          <p>• <strong>3 estudos gratuitos por mês</strong> para usuários cadastrados</p>
           <p>• <strong>Estudos pagos</strong> para uso ilimitado</p>
           <p>• <strong>Cada estudo</strong> é único e personalizado com IA</p>
           <p>• <strong>Salvo no seu histórico</strong> para consulta posterior</p>
