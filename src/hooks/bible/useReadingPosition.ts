@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { getLastReadingPosition } from '@/services';
+import { getLastReadingPosition } from '@/services/reading/ReadingPositionService';
 import { useSearchParams } from 'react-router-dom';
 
 interface UseReadingPositionProps {

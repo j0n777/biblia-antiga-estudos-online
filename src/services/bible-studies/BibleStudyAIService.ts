@@ -152,7 +152,7 @@ export const getUserStudies = async (limit = 10): Promise<AIBibleStudy[]> => {
     // Type assertion to handle the Json type from Supabase
     return (data || []).map(study => ({
       ...study,
-      study_content: study.study_content as BibleStudyContent
+      study_content: study.study_content as unknown as BibleStudyContent
     }));
   } catch (error) {
     console.error('Erro ao buscar estudos:', error);
@@ -176,7 +176,7 @@ export const getStudyById = async (studyId: string): Promise<AIBibleStudy | null
     // Type assertion to handle the Json type from Supabase
     return {
       ...data,
-      study_content: data.study_content as BibleStudyContent
+      study_content: data.study_content as unknown as BibleStudyContent
     };
   } catch (error) {
     console.error('Erro ao buscar estudo:', error);
