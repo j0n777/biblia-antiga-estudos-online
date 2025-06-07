@@ -52,7 +52,7 @@ export interface BibleStudyContent {
   };
 }
 
-export interface BibleStudy {
+export interface AIBibleStudy {
   id: string;
   user_id: string;
   verse_reference: string;
@@ -88,7 +88,7 @@ export const generateBibleStudy = async (
   verseNumber: number,
   versionId: string,
   verseText: string
-): Promise<{ study?: BibleStudy; error?: string; needsCredits?: boolean; fromCache?: boolean }> => {
+): Promise<{ study?: AIBibleStudy; error?: string; needsCredits?: boolean; fromCache?: boolean }> => {
   try {
     const { data, error } = await supabase.functions.invoke('generate-bible-study', {
       body: {
@@ -139,10 +139,10 @@ export const getUserStudyCredits = async (): Promise<UserStudyCredits | null> =>
 /**
  * Busca estudos do usuário
  */
-export const getUserStudies = async (limit = 10): Promise<BibleStudy[]> => {
+export const getUserStudies = async (limit = 10): Promise<AIBibleStudy[]> => {
   try {
     const { data, error } = await supabase
-      .from('bible_studies')
+      .from('ai_bible_studies')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -159,10 +159,10 @@ export const getUserStudies = async (limit = 10): Promise<BibleStudy[]> => {
 /**
  * Busca um estudo específico por ID
  */
-export const getStudyById = async (studyId: string): Promise<BibleStudy | null> => {
+export const getStudyById = async (studyId: string): Promise<AIBibleStudy | null> => {
   try {
     const { data, error } = await supabase
-      .from('bible_studies')
+      .from('ai_bible_studies')
       .select('*')
       .eq('id', studyId)
       .single();

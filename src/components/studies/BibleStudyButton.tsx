@@ -4,11 +4,10 @@ import { BookOpen, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { generateBibleStudy, getUserStudyCredits } from '@/services/BibleStudyService';
+import { generateBibleStudy, getUserStudyCredits, AIBibleStudy, UserStudyCredits } from '@/services/BibleStudyService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import BibleStudyViewer from './BibleStudyViewer';
 import StudyCreditsInfo from './StudyCreditsInfo';
-import { BibleStudy, UserStudyCredits } from '@/services/BibleStudyService';
 
 interface BibleStudyButtonProps {
   verseReference: string;
@@ -17,7 +16,7 @@ interface BibleStudyButtonProps {
   verseNumber: number;
   versionId: string;
   verseText: string;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'lg';
   variant?: 'default' | 'ghost' | 'outline';
 }
 
@@ -33,7 +32,7 @@ const BibleStudyButton = ({
 }: BibleStudyButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [study, setStudy] = useState<BibleStudy | null>(null);
+  const [study, setStudy] = useState<AIBibleStudy | null>(null);
   const [credits, setCredits] = useState<UserStudyCredits | null>(null);
   const [showCreditsInfo, setShowCreditsInfo] = useState(false);
   const { t } = useLanguage();
@@ -124,7 +123,7 @@ const BibleStudyButton = ({
           className="gap-1"
         >
           <Sparkles className="w-4 h-4" />
-          {size === 'md' && 'Estudo IA'}
+          {size === 'lg' && 'Estudo IA'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">

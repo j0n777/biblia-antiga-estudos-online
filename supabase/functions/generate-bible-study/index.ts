@@ -143,7 +143,7 @@ serve(async (req) => {
 
     // Verificar se já existe estudo para este versículo
     const { data: existingStudy } = await supabase
-      .from('bible_studies')
+      .from('ai_bible_studies')
       .select('*')
       .eq('user_id', userId)
       .eq('book_id', book_id)
@@ -200,7 +200,7 @@ serve(async (req) => {
 
     // Salvar estudo no banco
     const { data: newStudy, error: studyError } = await supabase
-      .from('bible_studies')
+      .from('ai_bible_studies')
       .insert({
         user_id: userId,
         verse_reference,

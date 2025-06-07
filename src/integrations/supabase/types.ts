@@ -48,6 +48,54 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_bible_studies: {
+        Row: {
+          book_id: string
+          chapter_number: number
+          cost_usd: number | null
+          created_at: string
+          id: string
+          status: string
+          study_content: Json
+          tokens_used: number | null
+          user_id: string
+          verse_number: number
+          verse_reference: string
+          verse_text: string
+          version_id: string
+        }
+        Insert: {
+          book_id: string
+          chapter_number: number
+          cost_usd?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          study_content: Json
+          tokens_used?: number | null
+          user_id: string
+          verse_number: number
+          verse_reference: string
+          verse_text: string
+          version_id: string
+        }
+        Update: {
+          book_id?: string
+          chapter_number?: number
+          cost_usd?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          study_content?: Json
+          tokens_used?: number | null
+          user_id?: string
+          verse_number?: number
+          verse_reference?: string
+          verse_text?: string
+          version_id?: string
+        }
+        Relationships: []
+      }
       bible_books: {
         Row: {
           book_id: string
@@ -598,6 +646,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_study_credits: {
+        Row: {
+          created_at: string
+          free_studies_reset_date: string
+          free_studies_used_today: number
+          id: string
+          paid_studies_remaining: number
+          subscription_expires_at: string | null
+          subscription_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          free_studies_reset_date?: string
+          free_studies_used_today?: number
+          id?: string
+          paid_studies_remaining?: number
+          subscription_expires_at?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          free_studies_reset_date?: string
+          free_studies_used_today?: number
+          id?: string
+          paid_studies_remaining?: number
+          subscription_expires_at?: string | null
+          subscription_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_study_progress: {
         Row: {
           completed_at: string | null
@@ -637,6 +721,10 @@ export type Database = {
     Functions: {
       check_and_award_achievements: {
         Args: { user_uuid: string }
+        Returns: undefined
+      }
+      reset_daily_free_studies: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       update_user_streak_and_xp: {

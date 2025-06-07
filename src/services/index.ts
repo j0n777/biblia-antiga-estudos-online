@@ -1,57 +1,17 @@
 
-// Authentication
-export { isUserAuthenticated } from './AuthService';
+// Export only the necessary services to avoid conflicts
+export * from './bible';
+export * from './reading';
+export { generateBibleStudy, getUserStudyCredits, getUserStudies, getStudyById } from './bible-studies/BibleStudyAIService';
+export type { AIBibleStudy, BibleStudyContent, UserStudyCredits } from './bible-studies/BibleStudyAIService';
 
-// Profile
-export { getUserProfile, updateUserProfile } from './ProfileService';
-
-// Achievements - Updated exports
-export { 
-  getUserAchievements, 
-  getAllAchievements,
-  trackReadingSession,
-  checkBookCompletion,
-  getUserStreak
-} from './AchievementService';
-
-// Challenges
-export { getDailyChallenges } from './ChallengeService';
-
-// Reading Progress
-export { 
-  trackReading, 
-  getReadingStreak 
-} from './ReadingProgressService';
-
-// Reading Services - updated imports from refactored modules
-export { 
-  saveReadingPosition,
-  getLastReadingPosition,
-  clearReadingPosition,
-  getReadingHistory,
-  getLastThreeReadings,
-  clearReadingHistory,
-  trackSearchClick
-} from './reading';
-
-// Verses
-export { 
-  getSavedVerses, 
-  saveVerse 
-} from './VersesService';
-
-// Leaderboard - Updated exports
-export { 
-  getLeaderboard,
-  getXPLeaderboard,
-  getStreakLeaderboard,
-  getUserRank,
-  getUserXPRank,
-  getUserStreakRank
-} from './LeaderboardService';
-
-// Re-export from BibleService
-export * from './BibleService';
-
-// Re-export from BibleStudyService
-export * from './BibleStudyService';
+// Re-export other services
+export * from './AuthService';
+export * from './ProfileService';
+export * from './AchievementService';
+export * from './ChallengeService';
+export * from './LeaderboardService';
+export * from './ReadingProgressService';
+export * from './VersesService';
+export * from './BibleDataService';
+export * from './BibleImportService';

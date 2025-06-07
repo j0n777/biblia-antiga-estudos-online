@@ -86,7 +86,7 @@ const VerseOfTheDay = ({ reference, text, version }: VerseOfTheDayProps) => {
               verseNumber={verseNumber}
               versionId="kja"
               verseText={text}
-              size="md"
+              size="lg"
               variant="outline"
             />
             <Button
