@@ -3,11 +3,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { BibleStudy } from '@/services/BibleStudyService';
+import { AIBibleStudy } from '@/services/BibleStudyService';
 import { Book, Globe, MessageSquare, Heart, User, Calendar } from 'lucide-react';
 
 interface BibleStudyViewerProps {
-  study: BibleStudy;
+  study: AIBibleStudy;
 }
 
 const BibleStudyViewer = ({ study }: BibleStudyViewerProps) => {

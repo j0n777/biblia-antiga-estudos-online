@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import SearchInput from '@/components/search/SearchInput';
-import SearchResults from '@/components/search/SearchResults';
+import SearchResults, { SearchResult } from '@/components/search/SearchResults';
 import SearchHistory from '@/components/search/SearchHistory';
 import SearchSuggestions from '@/components/search/SearchSuggestions';
 import { useSearchBible } from '@/hooks/useSearchBible';
@@ -73,6 +73,16 @@ const Search = () => {
     "João 3:16", "Romanos 8:28", "Salmo 23", "Filipenses 4:13"
   ];
 
+  // Convert BibleVerse[] to SearchResult[] to match the expected interface
+  const formattedSearchResults: SearchResult[] = searchResults.map(verse => ({
+    book_id: verse.book_id || '',
+    book_name: verse.book_name || '',
+    chapter_number: verse.chapter_number || 0,
+    verse_number: verse.verse_number,
+    text: verse.text,
+    version_id: verse.version_id || ''
+  }));
+
   return (
     <PageLayout>
       {/* Header with consistent styling */}
@@ -121,7 +131,7 @@ const Search = () => {
             <SearchResults
               isSearching={isSearching}
               hasSearched={!!query}
-              searchResults={searchResults}
+              searchResults={formattedSearchResults}
               totalResults={totalResults || searchResults.length}
               hasMoreResults={hasMoreResults}
               onLoadMore={loadMore}

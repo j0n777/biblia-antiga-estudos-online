@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/contexts/LanguageContext';
 import BibleStudyButton from '@/components/studies/BibleStudyButton';
 
-interface SearchResult {
+export interface SearchResult {
   book_id: string;
   book_name: string;
   chapter_number: number;
