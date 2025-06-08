@@ -16,6 +16,7 @@ import { UserProfile, SavedVerse, ReadingHistory, Achievement } from '@/types/bi
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBibleBooks } from '../services/BibleDataService';
+import { User } from 'lucide-react';
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('conquistas');
@@ -119,9 +120,17 @@ const ProfilePage = () => {
   if (isLoading) {
     return (
       <PageLayout>
-        <div className="page-container">
-          <div className="h-96 flex items-center justify-center">
-            <p>{t('common.loading')}</p>
+        <div className="page-header">
+          <div className="flex items-center gap-2">
+            <User size={24} className="text-ancient-gold" />
+            <h1 className="text-2xl font-oldstyle text-scripture-heading">Perfil</h1>
+          </div>
+        </div>
+        <div className="page-content">
+          <div className="content-box">
+            <div className="h-96 flex items-center justify-center">
+              <p>{t('common.loading')}</p>
+            </div>
           </div>
         </div>
       </PageLayout>

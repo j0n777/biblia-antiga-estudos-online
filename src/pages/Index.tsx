@@ -115,10 +115,12 @@ const Index = () => {
             
             <BadgeProgress badges={badges} />
             
-            {/* Bible Studies Section */}
+            {/* Bible Studies Section with subtitle box */}
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-oldstyle text-bible-title">Estudos Bíblicos</h2>
+              <div className="subtitle-box">
+                <BookOpen size={20} className="text-ancient-gold" />
+                <h2 className="text-xl subtitle-text">Estudos Bíblicos</h2>
+                <div className="flex-1"></div>
                 <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold" onClick={() => navigate('/search')}>
                   Ver todos
                 </Button>

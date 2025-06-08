@@ -1,5 +1,4 @@
 
-
 @layer components {
   /* SISTEMA DE CARDS GLOBAL - COR PADRÃO COM CONTRASTE ADEQUADO */
   
@@ -17,7 +16,8 @@
   .bible-study-card,
   [class*="bg-card"],
   [class*="parchment"],
-  .alert {
+  .alert,
+  .subtitle-box {
     background-color: #f8f5ea !important;
     border: 1px solid rgba(156, 142, 99, 0.25) !important;
     border-radius: 0.75rem !important;
@@ -37,9 +37,28 @@
   .dark .bible-study-card,
   .dark [class*="bg-card"],
   .dark [class*="parchment"],
-  .dark .alert {
+  .dark .alert,
+  .dark .subtitle-box {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* PADRÃO PARA SUBTÍTULOS EM BOXES */
+  .subtitle-box {
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .subtitle-box h2,
+  .subtitle-box h3,
+  .subtitle-box .subtitle-text {
+    color: var(--bible-title) !important;
+    font-family: theme('fontFamily.oldstyle') !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
   }
 
   /* FUNDO DA PÁGINA MANTÉM A COR ORIGINAL */
@@ -91,4 +110,3 @@
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
 }
-

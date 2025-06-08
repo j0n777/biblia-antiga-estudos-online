@@ -24,7 +24,7 @@ const SavedVersesSection = ({
       <div className="card p-4 mb-3">
         <div className="text-center py-4">
           <Bookmark className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
-          <h3 className="mb-1">
+          <h3 className="mb-1 font-oldstyle text-bible-title">
             Salve seus versículos favoritos
           </h3>
           <p className="text-secondary">
@@ -38,12 +38,11 @@ const SavedVersesSection = ({
   const limitedVerses = savedVerses.slice(0, 2);
 
   return (
-    <div className="card p-4 mb-3">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="flex items-center gap-2">
-          <Heart size={16} className="text-ancient-gold" />
-          {t('profile.savedVerses')}
-        </h3>
+    <div className="space-y-3">
+      <div className="subtitle-box">
+        <Heart size={16} className="text-ancient-gold" />
+        <h3 className="subtitle-text">{t('profile.savedVerses')}</h3>
+        <div className="flex-1"></div>
         <Button 
           variant="link" 
           className="text-xs text-ancient-gold hover:text-ancient-gold/80 p-0 h-auto"

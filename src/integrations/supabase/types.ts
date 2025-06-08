@@ -723,10 +723,6 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: undefined
       }
-      reset_daily_free_studies: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       reset_monthly_free_studies: {
         Args: Record<PropertyKey, never>
         Returns: undefined
