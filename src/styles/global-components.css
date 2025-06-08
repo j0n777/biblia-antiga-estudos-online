@@ -50,6 +50,15 @@
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+  }
+
+  .dark .subtitle-box {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
   .subtitle-box h2,
@@ -90,11 +99,14 @@
   .bg-gradient-to-br,
   .bg-gradient-to-r {
     background: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
   }
 
   .dark .bg-gradient-to-br,
   .dark .bg-gradient-to-r {
     background: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
   /* GARANTIR QUE TABS TAMBÉM USEM A COR GLOBAL */
@@ -106,6 +118,23 @@
 
   .dark [data-radix-tabs-list],
   .dark .bg-tabs-list {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* FORCE OVERRIDE FOR CARD COMPONENTS */
+  div[class*="card"],
+  section[class*="card"],
+  article[class*="card"] {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+  }
+
+  .dark div[class*="card"],
+  .dark section[class*="card"],
+  .dark article[class*="card"] {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }

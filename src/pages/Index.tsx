@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -102,18 +101,24 @@ const Index = () => {
       <div className="page-content">
         <div className="content-box">
           <div className="space-y-6">
-            <VerseOfTheDay 
-              reference={mockVerseOfDay.reference}
-              text={mockVerseOfDay.text}
-              version={mockVerseOfDay.version}
-            />
+            <div className="card">
+              <VerseOfTheDay 
+                reference={mockVerseOfDay.reference}
+                text={mockVerseOfDay.text}
+                version={mockVerseOfDay.version}
+              />
+            </div>
             
-            <StreakDisplay 
-              currentStreak={streakData.current}
-              longestStreak={streakData.longest}
-            />
+            <div className="card">
+              <StreakDisplay 
+                currentStreak={streakData.current}
+                longestStreak={streakData.longest}
+              />
+            </div>
             
-            <BadgeProgress badges={badges} />
+            <div className="card">
+              <BadgeProgress badges={badges} />
+            </div>
             
             {/* Bible Studies Section with subtitle box */}
             <div className="space-y-4">
@@ -128,7 +133,7 @@ const Index = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bibleStudies.map(study => (
-                  <Card key={study.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow">
                     <CardContent className="p-4 flex items-center gap-3">
                       <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                         {study.icon}
@@ -141,7 +146,7 @@ const Index = () => {
                         <ExternalLink className="h-5 w-5 text-ancient-brown" />
                       </Button>
                     </CardContent>
-                  </Card>
+                  </div>
                 ))}
               </div>
               
@@ -159,7 +164,7 @@ const Index = () => {
             
             {/* Incentives for registration */}
             {!profile?.id || profile?.id.startsWith('guest-') ? (
-              <Card className="border-ancient-gold/20">
+              <div className="card border-ancient-gold/20">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-ancient-gold/20 text-ancient-gold">
@@ -177,7 +182,7 @@ const Index = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
+              </div>
             ) : null}
           </div>
         </div>

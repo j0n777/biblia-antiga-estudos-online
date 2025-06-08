@@ -3,13 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import ordem correta para evitar conflitos */
+/* Import base styles first */
 @import './base.css';
+
+/* Import layout and typography next */
 @import './layout.css';
 @import './typography.css';
-@import './global-components.css';
-@import './global-buttons.css';
-@import './global-inputs.css';
+
+/* Import specific component styles */
 @import './buttons.css';
 @import './forms.css';
 @import './cards.css';
@@ -17,4 +18,9 @@
 @import './scripture.css';
 @import './bible.css';
 @import './components.css';
+
+/* Import global styles LAST to ensure they override other styles */
+@import './global-components.css';
+@import './global-buttons.css';
+@import './global-inputs.css';
 @import './utilities.css';
