@@ -55,7 +55,7 @@ const VerseOfTheDay = ({ reference, text, version }: VerseOfTheDayProps) => {
   const { bookId, chapterNumber, verseNumber } = parseReference(reference);
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="card overflow-hidden">
       <CardContent className="p-6">
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-2 mb-4">

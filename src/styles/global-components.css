@@ -1,6 +1,6 @@
 
 @layer components {
-  /* SISTEMA DE CARDS GLOBAL - COR PADRÃO COM CONTRASTE ADEQUADO */
+  /* SISTEMA DE CARDS GLOBAL - FORÇA APLICAÇÃO COM MAIOR ESPECIFICIDADE */
   
   /* TODOS OS CARDS E CONTAINERS USAM UMA COR LIGEIRAMENTE MAIS CLARA QUE O FUNDO */
   .card,
@@ -17,7 +17,10 @@
   [class*="bg-card"],
   [class*="parchment"],
   .alert,
-  .subtitle-box {
+  .subtitle-box,
+  div[class*="card"],
+  section[class*="card"],
+  article[class*="card"] {
     background-color: #f8f5ea !important;
     border: 1px solid rgba(156, 142, 99, 0.25) !important;
     border-radius: 0.75rem !important;
@@ -38,13 +41,17 @@
   .dark [class*="bg-card"],
   .dark [class*="parchment"],
   .dark .alert,
-  .dark .subtitle-box {
+  .dark .subtitle-box,
+  .dark div[class*="card"],
+  .dark section[class*="card"],
+  .dark article[class*="card"] {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
-  /* PADRÃO PARA SUBTÍTULOS EM BOXES */
-  .subtitle-box {
+  /* PADRÃO PARA SUBTÍTULOS EM BOXES - FORÇA APLICAÇÃO */
+  .subtitle-box,
+  .page-header + .page-content .subtitle-box {
     padding: 0.75rem 1rem !important;
     margin-bottom: 1rem !important;
     display: flex !important;
@@ -56,7 +63,8 @@
     box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
   }
 
-  .dark .subtitle-box {
+  .dark .subtitle-box,
+  .dark .page-header + .page-content .subtitle-box {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
@@ -68,6 +76,55 @@
     font-family: theme('fontFamily.oldstyle') !important;
     font-weight: 400 !important;
     margin: 0 !important;
+  }
+
+  /* CONTENT-BOX STYLING */
+  .content-box {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .dark .content-box {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* FORÇA OVERRIDE PARA COMPONENTES SHADCN */
+  [data-radix-tabs-list],
+  .bg-tabs-list {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .dark [data-radix-tabs-list],
+  .dark .bg-tabs-list {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* REMOVE TODOS OS GRADIENTES E FORÇA COR PADRÃO */
+  .bg-gradient-to-br,
+  .bg-gradient-to-r,
+  .bg-gradient-to-l,
+  .bg-gradient-to-t,
+  .bg-gradient-to-b {
+    background: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .dark .bg-gradient-to-br,
+  .dark .bg-gradient-to-r,
+  .dark .bg-gradient-to-l,
+  .dark .bg-gradient-to-t,
+  .dark .bg-gradient-to-b {
+    background: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
   /* FUNDO DA PÁGINA MANTÉM A COR ORIGINAL */
@@ -93,49 +150,5 @@
 
   .dark .bg-muted {
     background-color: rgba(40, 30, 15, 0.6) !important;
-  }
-
-  /* REMOVE GRADIENTES ESPECIAIS - TODOS CARDS IGUAIS */
-  .bg-gradient-to-br,
-  .bg-gradient-to-r {
-    background: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-  }
-
-  .dark .bg-gradient-to-br,
-  .dark .bg-gradient-to-r {
-    background: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  /* GARANTIR QUE TABS TAMBÉM USEM A COR GLOBAL */
-  [data-radix-tabs-list],
-  .bg-tabs-list {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-  }
-
-  .dark [data-radix-tabs-list],
-  .dark .bg-tabs-list {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  /* FORCE OVERRIDE FOR CARD COMPONENTS */
-  div[class*="card"],
-  section[class*="card"],
-  article[class*="card"] {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
-  }
-
-  .dark div[class*="card"],
-  .dark section[class*="card"],
-  .dark article[class*="card"] {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 }

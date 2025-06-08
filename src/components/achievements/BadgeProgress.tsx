@@ -20,15 +20,15 @@ const BadgeProgress = ({ badges }: BadgeProgressProps) => {
   const displayBadges = badges.slice(0, 3);
   
   return (
-    <div className="parchment-container space-y-4">
+    <div className="card space-y-4 p-4">
       <h3 className="font-oldstyle text-lg text-scripture-heading">Conquistas Recentes</h3>
       
       <div className="grid grid-cols-3 gap-4">
         {displayBadges.map((badge) => (
           <div key={badge.id} className="flex flex-col items-center">
             <div 
-              className={`achievement-badge ${
-                badge.unlocked ? 'bg-ancient-gold' : 'bg-muted text-muted-foreground opacity-50'
+              className={`w-12 h-12 rounded-full flex items-center justify-center text-lg transition-colors ${
+                badge.unlocked ? 'bg-ancient-gold text-white' : 'bg-muted text-muted-foreground opacity-50'
               }`}
             >
               {badge.icon}

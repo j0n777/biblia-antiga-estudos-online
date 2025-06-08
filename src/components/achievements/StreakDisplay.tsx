@@ -27,7 +27,7 @@ const StreakDisplay = ({ currentStreak, longestStreak, className }: StreakDispla
   const nextMilestone = getNextMilestone(currentStreak);
 
   return (
-    <Card className={cn("p-6 bg-gradient-to-br from-ancient-gold/10 to-ancient-brown/10 border-ancient-gold/20", className)}>
+    <Card className={cn("card p-6", className)}>
       <div className="space-y-4">
         {/* Main streak display */}
         <div className="text-center space-y-2">
