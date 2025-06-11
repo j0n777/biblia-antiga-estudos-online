@@ -26,14 +26,18 @@ const StyleDebug = () => {
     sheets.forEach((sheet, sheetIndex) => {
       try {
         const rules = Array.from(sheet.cssRules || sheet.rules || []);
-        const cardRules = rules.filter(rule => 
-          rule.selectorText && rule.selectorText.includes('.card')
-        );
+        const cardRules = rules.filter(rule => {
+          // Verificar se a regra é do tipo CSSStyleRule antes de acessar selectorText
+          if (rule instanceof CSSStyleRule && rule.selectorText) {
+            return rule.selectorText.includes('.card');
+          }
+          return false;
+        });
         if (cardRules.length > 0) {
-          console.log(`Sheet ${sheetIndex} - Regras .card:`, cardRules.map(r => r.selectorText));
+          console.log(`Sheet ${sheetIndex} - Regras .card:`, cardRules.map(r => (r as CSSStyleRule).selectorText));
         }
       } catch (e) {
-        console.log(`Não foi possível acessar regras da sheet ${sheetIndex}:`, e.message);
+        console.log(`Não foi possível acessar regras da sheet ${sheetIndex}:`, (e as Error).message);
       }
     });
   }, []);
