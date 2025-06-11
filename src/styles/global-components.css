@@ -20,7 +20,11 @@
   .subtitle-box,
   div[class*="card"],
   section[class*="card"],
-  article[class*="card"] {
+  article[class*="card"],
+  /* Adicionar seletores mais específicos para forçar aplicação */
+  div.card,
+  section.card,
+  article.card {
     background-color: #f8f5ea !important;
     border: 1px solid rgba(156, 142, 99, 0.25) !important;
     border-radius: 0.75rem !important;
@@ -44,14 +48,36 @@
   .dark .subtitle-box,
   .dark div[class*="card"],
   .dark section[class*="card"],
-  .dark article[class*="card"] {
+  .dark article[class*="card"],
+  /* Adicionar seletores mais específicos para modo escuro */
+  .dark div.card,
+  .dark section.card,
+  .dark article.card {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
+  }
+
+  /* FORÇAR APLICAÇÃO ESPECÍFICA PARA COMPONENTES SHADCN/UI */
+  [data-radix-collection-item],
+  .ui-card,
+  .shadcn-card {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+  }
+
+  .dark [data-radix-collection-item],
+  .dark .ui-card,
+  .dark .shadcn-card {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
 
   /* PADRÃO PARA SUBTÍTULOS EM BOXES - FORÇA APLICAÇÃO */
   .subtitle-box,
-  .page-header + .page-content .subtitle-box {
+  .page-header + .page-content .subtitle-box,
+  div.subtitle-box {
     padding: 0.75rem 1rem !important;
     margin-bottom: 1rem !important;
     display: flex !important;
@@ -64,7 +90,8 @@
   }
 
   .dark .subtitle-box,
-  .dark .page-header + .page-content .subtitle-box {
+  .dark .page-header + .page-content .subtitle-box,
+  .dark div.subtitle-box {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
@@ -79,7 +106,8 @@
   }
 
   /* CONTENT-BOX STYLING */
-  .content-box {
+  .content-box,
+  div.content-box {
     background-color: #f8f5ea !important;
     border: 1px solid rgba(156, 142, 99, 0.25) !important;
     border-radius: 0.75rem !important;
@@ -88,7 +116,8 @@
     margin-bottom: 1rem !important;
   }
 
-  .dark .content-box {
+  .dark .content-box,
+  .dark div.content-box {
     background-color: rgba(48, 35, 20, 0.8) !important;
     border-color: rgba(156, 142, 99, 0.3) !important;
   }
@@ -150,5 +179,18 @@
 
   .dark .bg-muted {
     background-color: rgba(40, 30, 15, 0.6) !important;
+  }
+
+  /* FORÇAR APLICAÇÃO EM TODOS OS ELEMENTOS COM CLASSE CARD, INDEPENDENTE DE OUTRAS CLASSES */
+  *[class*="card"] {
+    background-color: #f8f5ea !important;
+    border: 1px solid rgba(156, 142, 99, 0.25) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+  }
+
+  .dark *[class*="card"] {
+    background-color: rgba(48, 35, 20, 0.8) !important;
+    border-color: rgba(156, 142, 99, 0.3) !important;
   }
 }
