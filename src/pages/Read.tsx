@@ -81,7 +81,7 @@ const Read = () => {
   return <PageLayout>
       <div className="min-h-screen bg-bible-gradient">
         {/* Header with title and version selector - consistent margins */}
-        <div className="flex items-center justify-between py-[12px] px-[12px]">
+        <div className="flex items-center justify-between py-[12px] px-[18px]">
           <div className="flex items-center gap-2">
             <BookOpen size={24} className="text-ancient-gold" />
             <h1 className="text-2xl font-oldstyle text-scripture-heading">
