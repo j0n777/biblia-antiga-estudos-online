@@ -5,6 +5,7 @@ import VerseOfTheDay from '@/components/home/VerseOfTheDay';
 import StreakDisplay from '@/components/achievements/StreakDisplay';
 import BadgeProgress from '@/components/achievements/BadgeProgress';
 import ThemeToggle from '@/components/ThemeToggle';
+import StyleDebug from '@/components/debug/StyleDebug';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Trophy, ExternalLink, Home } from 'lucide-react';
@@ -77,7 +78,11 @@ const Index = () => {
     text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
     version: "King James Atualizada"
   };
+  console.log('=== INDEX RENDER DEBUG ===');
+  console.log('Renderizando Index page');
   return <PageLayout>
+      <StyleDebug />
+      
       {/* Header with consistent styling */}
       <div className="page-header">
         <div className="flex justify-between items-center py-[10px]">
@@ -93,21 +98,21 @@ const Index = () => {
       <div className="page-content">
         <div className="content-box">
           <div className="space-y-6">
-            <div className="card">
+            <div className="card" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem'}}>
               <VerseOfTheDay reference={mockVerseOfDay.reference} text={mockVerseOfDay.text} version={mockVerseOfDay.version} />
             </div>
             
-            <div className="card">
+            <div className="card" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem'}}>
               <StreakDisplay currentStreak={streakData.current} longestStreak={streakData.longest} />
             </div>
             
-            <div className="card">
+            <div className="card" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem'}}>
               <BadgeProgress badges={badges} />
             </div>
             
             {/* Bible Studies Section with subtitle box */}
             <div className="space-y-4">
-              <div className="subtitle-box">
+              <div className="subtitle-box" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                 <BookOpen size={20} className="text-ancient-gold" />
                 <h2 className="text-xl subtitle-text">Estudos Bíblicos</h2>
                 <div className="flex-1"></div>
@@ -117,7 +122,8 @@ const Index = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {bibleStudies.map(study => <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow">
+                {bibleStudies.map(study => (
+                  <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem'}}>
                     <CardContent className="p-4 flex items-center gap-3">
                       <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                         {study.icon}
@@ -130,7 +136,8 @@ const Index = () => {
                         <ExternalLink className="h-5 w-5 text-ancient-brown" />
                       </Button>
                     </CardContent>
-                  </div>)}
+                  </div>
+                ))}
               </div>
               
               <div className="flex justify-center">
@@ -142,7 +149,8 @@ const Index = () => {
             </div>
             
             {/* Incentives for registration */}
-            {!profile?.id || profile?.id.startsWith('guest-') ? <div className="card border-ancient-gold/20">
+            {!profile?.id || profile?.id.startsWith('guest-') ? (
+              <div className="card border-ancient-gold/20" style={{backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem'}}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-ancient-gold/20 text-ancient-gold">
@@ -157,7 +165,8 @@ const Index = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </div> : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
