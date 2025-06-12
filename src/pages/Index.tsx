@@ -85,7 +85,7 @@ const Index = () => {
       
       {/* Header with consistent styling */}
       <div className="page-header">
-        <div className="flex justify-between items-center py-[16px] px-[12px]">
+        <div className="flex justify-between items-center py-[12px] px-[16px]">
           <div className="flex items-center gap-2">
             <Home size={24} className="text-ancient-gold" />
             <h1 className="text-2xl font-oldstyle text-scripture-heading">Bíblia de Estudos Original</h1>
