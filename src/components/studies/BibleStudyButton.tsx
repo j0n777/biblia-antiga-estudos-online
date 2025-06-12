@@ -100,7 +100,7 @@ const BibleStudyButton = ({
           {size === 'lg' && 'Estudo IA'}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col px-0 mx-[12px] my-[12px] rounded">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-ancient-gold" />
