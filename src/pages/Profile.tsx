@@ -127,7 +127,7 @@ const ProfilePage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="content-box">
+          <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
             <div className="h-96 flex items-center justify-center">
               <p>{t('common.loading')}</p>
             </div>
@@ -147,7 +147,7 @@ const ProfilePage = () => {
       />
       
       <div className="page-content">
-        <div className="content-box">
+        <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
           <ProfileContent
             profile={profile}
             isAuthenticated={isAuthenticated}

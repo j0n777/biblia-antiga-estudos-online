@@ -45,7 +45,7 @@ const RankingPage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="content-box">
+          <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
             <div className="h-96 flex items-center justify-center">
               <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
             </div>
@@ -65,9 +65,9 @@ const RankingPage = () => {
       </div>
 
       <div className="page-content">
-        <div className="content-box">
+        <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
           {!isAuthenticated && (
-            <Alert className="mb-6 bg-ancient-gold/10 border-ancient-gold/40 rounded-xl">
+            <Alert className="mb-6 rounded-xl" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.4)' }}>
               <div className="flex items-start">
                 <Medal className="h-5 w-5 text-ancient-gold mt-1" />
                 <div className="ml-3">
@@ -91,22 +91,22 @@ const RankingPage = () => {
           <div className="space-y-6">
             {/* Daily Challenges Section */}
             <div className="animate-slide-up">
-              <div className="subtitle-box">
+              <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Award size={20} className="text-ancient-gold" />
-                <h2 className="text-xl subtitle-text">Desafios Diários</h2>
+                <h2 className="text-xl font-oldstyle text-scripture-heading">Desafios Diários</h2>
               </div>
-              <div className="card">
+              <div className="card" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
                 <DailyChallenges />
               </div>
             </div>
             
             {/* Leaderboard Section */}
             <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <div className="subtitle-box">
+              <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Users size={20} className="text-ancient-gold" />
-                <h2 className="text-xl subtitle-text">Classificação</h2>
+                <h2 className="text-xl font-oldstyle text-scripture-heading">Classificação</h2>
               </div>
-              <div className="card p-4">
+              <div className="card p-4" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
                 <Leaderboard />
               </div>
             </div>

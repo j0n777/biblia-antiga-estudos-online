@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+
 interface PrayerRequest {
   id: string;
   user_id: string;
@@ -124,7 +125,8 @@ const CommunityPage = () => {
     } : req));
   };
   if (isLoading) {
-    return <PageLayout>
+    return (
+      <PageLayout>
         <div className="page-header">
           <div className="flex items-center gap-2">
             <Users size={24} className="text-ancient-gold" />
@@ -132,15 +134,17 @@ const CommunityPage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="content-box">
+          <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
             <div className="h-96 flex items-center justify-center">
               <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
             </div>
           </div>
         </div>
-      </PageLayout>;
+      </PageLayout>
+    );
   }
-  return <PageLayout>
+  return (
+    <PageLayout>
       <div className="page-header">
         <div className="flex items-center gap-2 py-[12px] px-[16px]">
           <Users size={24} className="text-ancient-gold" />
@@ -149,8 +153,9 @@ const CommunityPage = () => {
       </div>
 
       <div className="page-content">
-        <div className="content-box">
-          {!isAuthenticated && <Alert className="mb-6 bg-ancient-gold/10 border-ancient-gold/40 rounded-xl ">
+        <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
+          {!isAuthenticated && (
+            <Alert className="mb-6 rounded-xl" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.4)' }}>
               <div className="flex items-start">
                 <Medal className="h-5 w-5 text-ancient-gold mt-1" />
                 <div className="ml-3">
@@ -158,25 +163,47 @@ const CommunityPage = () => {
                   <AlertDescription className="text-sm">
                     Você está navegando como visitante. Crie uma conta para salvar seu progresso, conquistas e participar na comunidade.
                     <div className="mt-2">
-                      <Button onClick={handleCreateAccount} className="bg-ancient-gold hover:bg-ancient-gold/90 text-white">
+                      <Button
+                        onClick={handleCreateAccount}
+                        className="bg-ancient-gold hover:bg-ancient-gold/90 text-white"
+                      >
                         Criar Conta
                       </Button>
                     </div>
                   </AlertDescription>
                 </div>
               </div>
-            </Alert>}
+            </Alert>
+          )}
 
           <div className="grid md:grid-cols-[250px_1fr] gap-6 py-[12px] px-[16px]">
             <div className="space-y-2 hidden md:block">
-              <CommunityMenuItem title="Desafios Diários" description="Complete desafios para ganhar XP" icon={Award} active={activeTab === 'challenges'} onClick={() => setActiveTab('challenges')} />
-              <CommunityMenuItem title="Classificação" description="Veja quem mais está estudando" icon={Trophy} active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')} />
-              <CommunityMenuItem title="Pedidos de Oração" description="Compartilhe e ore pelos pedidos" icon={Heart} active={activeTab === 'prayers'} onClick={() => setActiveTab('prayers')} />
+              <CommunityMenuItem
+                title="Desafios Diários"
+                description="Complete desafios para ganhar XP"
+                icon={Award}
+                active={activeTab === 'challenges'}
+                onClick={() => setActiveTab('challenges')}
+              />
+              <CommunityMenuItem
+                title="Classificação"
+                description="Veja quem mais está estudando"
+                icon={Trophy}
+                active={activeTab === 'leaderboard'}
+                onClick={() => setActiveTab('leaderboard')}
+              />
+              <CommunityMenuItem
+                title="Pedidos de Oração"
+                description="Compartilhe e ore pelos pedidos"
+                icon={Heart}
+                active={activeTab === 'prayers'}
+                onClick={() => setActiveTab('prayers')}
+              />
             </div>
             
             <div className="md:hidden mb-4">
-              <Tabs value={activeTab} onValueChange={v => setActiveTab(v as any)} className="w-full">
-                <TabsList className="grid grid-cols-3 bg-parchment-light/80">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                <TabsList className="grid grid-cols-3" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
                   <TabsTrigger value="challenges" className="text-xs">
                     <Award className="h-4 w-4 mr-1" /> Desafios
                   </TabsTrigger>
@@ -191,26 +218,31 @@ const CommunityPage = () => {
             </div>
             
             <div className="space-y-6">
-              {activeTab === 'challenges' && <div className="animate-slide-up">
-                  <div className="flex items-center gap-2 mb-4">
+              {activeTab === 'challenges' && (
+                <div className="animate-slide-up">
+                  <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Award size={20} className="text-ancient-gold" />
                     <h2 className="text-xl font-oldstyle text-scripture-heading">Desafios Diários</h2>
                   </div>
                   <DailyChallenges />
-                </div>}
+                </div>
+              )}
               
-              {activeTab === 'leaderboard' && <div className="animate-slide-up">
-                  <div className="flex items-center gap-2 mb-4">
+              {activeTab === 'leaderboard' && (
+                <div className="animate-slide-up">
+                  <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Trophy size={20} className="text-ancient-gold" />
                     <h2 className="text-xl font-oldstyle text-scripture-heading">Classificação</h2>
                   </div>
                   <Leaderboard />
-                </div>}
+                </div>
+              )}
 
-              {activeTab === 'prayers' && <div className="animate-slide-up">
+              {activeTab === 'prayers' && (
+                <div className="animate-slide-up">
                   <h2 className="text-xl font-oldstyle text-scripture-heading mb-4">Pedidos de Oração</h2>
                   
-                  <Card className="mb-6 bg-parchment-light border-parchment-dark/20">
+                  <Card className="mb-6" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
                     <form onSubmit={handlePrayerSubmit}>
                       <CardHeader>
                         <CardTitle className="text-base">Compartilhe seu pedido de oração</CardTitle>
@@ -237,7 +269,8 @@ const CommunityPage = () => {
                   </Card>
                   
                   <div className="space-y-4">
-                    {prayerRequests.map(request => <Card key={request.id} className="bg-parchment-light border-parchment-dark/20">
+                    {prayerRequests.map((request) => (
+                      <Card key={request.id} style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
                         <CardHeader className="pb-2">
                           <div className="flex justify-between items-center">
                             <div className="flex items-center">
@@ -266,13 +299,17 @@ const CommunityPage = () => {
                             <span>{request.prayers_count} {request.prayers_count === 1 ? 'pessoa' : 'pessoas'} oraram por isto</span>
                           </Button>
                         </CardFooter>
-                      </Card>)}
+                      </Card>
+                    ))}
                   </div>
-                </div>}
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </PageLayout>;
+    </PageLayout>
+  );
 };
+
 export default CommunityPage;

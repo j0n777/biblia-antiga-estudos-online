@@ -24,11 +24,15 @@ const SearchHistory = ({
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="space-y-3 bg-parchment-light p-4 rounded-xl border border-parchment-dark/20"
-         style={{
-           backgroundColor: '#e9e0cc',
-           borderRadius: '0.75rem'
-         }}>
+    <div 
+      className="space-y-3 p-4 rounded-xl border"
+      style={{
+        backgroundColor: '#f8f5ea',
+        border: '1px solid rgba(156, 142, 99, 0.25)',
+        borderRadius: '0.75rem',
+        boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)'
+      }}
+    >
       <div className="flex justify-between items-center">
         <h3 className="text-sm font-medium text-scripture-heading flex items-center gap-2">
           <Clock className="h-4 w-4 text-ancient-gold" />
