@@ -127,10 +127,8 @@ const ProfilePage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
-            <div className="h-96 flex items-center justify-center">
-              <p>{t('common.loading')}</p>
-            </div>
+          <div className="h-96 flex items-center justify-center" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1.5rem', marginBottom: '1rem' }}>
+            <p>{t('common.loading')}</p>
           </div>
         </div>
       </PageLayout>
@@ -146,26 +144,28 @@ const ProfilePage = () => {
         onShowOnboarding={() => setShowOnboarding(true)}
       />
       
-      <div className="page-content">
-        <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
-          <ProfileContent
-            profile={profile}
-            isAuthenticated={isAuthenticated}
-            savedVerses={savedVerses}
-            recentReadings={recentReadings}
-            bookNames={bookNames}
-            onOpenHistoryDialog={() => setShowHistoryDialog(true)}
-            onCreateAccount={handleCreateAccount}
-            onReadVerse={handleReadVerse}
-            onOpenChapter={handleOpenChapter}
-          />
-          
+      <div className="page-content space-y-4">
+        <ProfileContent
+          profile={profile}
+          isAuthenticated={isAuthenticated}
+          savedVerses={savedVerses}
+          recentReadings={recentReadings}
+          bookNames={bookNames}
+          onOpenHistoryDialog={() => setShowHistoryDialog(true)}
+          onCreateAccount={handleCreateAccount}
+          onReadVerse={handleReadVerse}
+          onOpenChapter={handleOpenChapter}
+        />
+        
+        <div style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
           <ProfileTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
             achievements={achievements}
           />
-          
+        </div>
+        
+        <div style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1rem' }}>
           <ProfileActions
             isAuthenticated={isAuthenticated}
             onSignOut={handleSignOut}

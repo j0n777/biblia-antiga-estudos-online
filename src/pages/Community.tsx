@@ -134,10 +134,8 @@ const CommunityPage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
-            <div className="h-96 flex items-center justify-center">
-              <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
-            </div>
+          <div className="h-96 flex items-center justify-center" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1.5rem', marginBottom: '1rem' }}>
+            <div className="w-8 h-8 border-t-2 border-ancient-gold rounded-full animate-spin mb-2"></div>
           </div>
         </div>
       </PageLayout>
@@ -152,159 +150,157 @@ const CommunityPage = () => {
         </div>
       </div>
 
-      <div className="page-content">
-        <div className="content-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
-          {!isAuthenticated && (
-            <Alert className="mb-6 rounded-xl" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.4)' }}>
-              <div className="flex items-start">
-                <Medal className="h-5 w-5 text-ancient-gold mt-1" />
-                <div className="ml-3">
-                  <AlertTitle className="text-ancient-brown text-base">Modo Visitante</AlertTitle>
-                  <AlertDescription className="text-sm">
-                    Você está navegando como visitante. Crie uma conta para salvar seu progresso, conquistas e participar na comunidade.
-                    <div className="mt-2">
-                      <Button
-                        onClick={handleCreateAccount}
-                        className="bg-ancient-gold hover:bg-ancient-gold/90 text-white"
-                      >
-                        Criar Conta
-                      </Button>
-                    </div>
-                  </AlertDescription>
-                </div>
+      <div className="page-content space-y-4">
+        {!isAuthenticated && (
+          <Alert className="rounded-xl" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.4)' }}>
+            <div className="flex items-start">
+              <Medal className="h-5 w-5 text-ancient-gold mt-1" />
+              <div className="ml-3">
+                <AlertTitle className="text-ancient-brown text-base">Modo Visitante</AlertTitle>
+                <AlertDescription className="text-sm">
+                  Você está navegando como visitante. Crie uma conta para salvar seu progresso, conquistas e participar na comunidade.
+                  <div className="mt-2">
+                    <Button
+                      onClick={handleCreateAccount}
+                      className="bg-ancient-gold hover:bg-ancient-gold/90 text-white"
+                    >
+                      Criar Conta
+                    </Button>
+                  </div>
+                </AlertDescription>
               </div>
-            </Alert>
-          )}
-
-          <div className="grid md:grid-cols-[250px_1fr] gap-6 py-[12px] px-[16px]">
-            <div className="space-y-2 hidden md:block">
-              <CommunityMenuItem
-                title="Desafios Diários"
-                description="Complete desafios para ganhar XP"
-                icon={Award}
-                active={activeTab === 'challenges'}
-                onClick={() => setActiveTab('challenges')}
-              />
-              <CommunityMenuItem
-                title="Classificação"
-                description="Veja quem mais está estudando"
-                icon={Trophy}
-                active={activeTab === 'leaderboard'}
-                onClick={() => setActiveTab('leaderboard')}
-              />
-              <CommunityMenuItem
-                title="Pedidos de Oração"
-                description="Compartilhe e ore pelos pedidos"
-                icon={Heart}
-                active={activeTab === 'prayers'}
-                onClick={() => setActiveTab('prayers')}
-              />
             </div>
-            
-            <div className="md:hidden mb-4">
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-                <TabsList className="grid grid-cols-3" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
-                  <TabsTrigger value="challenges" className="text-xs">
-                    <Award className="h-4 w-4 mr-1" /> Desafios
-                  </TabsTrigger>
-                  <TabsTrigger value="leaderboard" className="text-xs">
-                    <Trophy className="h-4 w-4 mr-1" /> Ranking
-                  </TabsTrigger>
-                  <TabsTrigger value="prayers" className="text-xs">
-                    <Heart className="h-4 w-4 mr-1" /> Orações
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            
-            <div className="space-y-6">
-              {activeTab === 'challenges' && (
-                <div className="animate-slide-up">
-                  <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Award size={20} className="text-ancient-gold" />
-                    <h2 className="text-xl font-oldstyle text-scripture-heading">Desafios Diários</h2>
-                  </div>
-                  <DailyChallenges />
-                </div>
-              )}
-              
-              {activeTab === 'leaderboard' && (
-                <div className="animate-slide-up">
-                  <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Trophy size={20} className="text-ancient-gold" />
-                    <h2 className="text-xl font-oldstyle text-scripture-heading">Classificação</h2>
-                  </div>
-                  <Leaderboard />
-                </div>
-              )}
+          </Alert>
+        )}
 
-              {activeTab === 'prayers' && (
-                <div className="animate-slide-up">
-                  <h2 className="text-xl font-oldstyle text-scripture-heading mb-4">Pedidos de Oração</h2>
-                  
-                  <Card className="mb-6" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
-                    <form onSubmit={handlePrayerSubmit}>
-                      <CardHeader>
-                        <CardTitle className="text-base">Compartilhe seu pedido de oração</CardTitle>
-                        <CardDescription>Conecte-se com a comunidade através da oração</CardDescription>
+        <div className="grid md:grid-cols-[250px_1fr] gap-6" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1.5rem' }}>
+          <div className="space-y-2 hidden md:block">
+            <CommunityMenuItem
+              title="Desafios Diários"
+              description="Complete desafios para ganhar XP"
+              icon={Award}
+              active={activeTab === 'challenges'}
+              onClick={() => setActiveTab('challenges')}
+            />
+            <CommunityMenuItem
+              title="Classificação"
+              description="Veja quem mais está estudando"
+              icon={Trophy}
+              active={activeTab === 'leaderboard'}
+              onClick={() => setActiveTab('leaderboard')}
+            />
+            <CommunityMenuItem
+              title="Pedidos de Oração"
+              description="Compartilhe e ore pelos pedidos"
+              icon={Heart}
+              active={activeTab === 'prayers'}
+              onClick={() => setActiveTab('prayers')}
+            />
+          </div>
+          
+          <div className="md:hidden mb-4">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+              <TabsList className="grid grid-cols-3" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
+                <TabsTrigger value="challenges" className="text-xs">
+                  <Award className="h-4 w-4 mr-1" /> Desafios
+                </TabsTrigger>
+                <TabsTrigger value="leaderboard" className="text-xs">
+                  <Trophy className="h-4 w-4 mr-1" /> Ranking
+                </TabsTrigger>
+                <TabsTrigger value="prayers" className="text-xs">
+                  <Heart className="h-4 w-4 mr-1" /> Orações
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          
+          <div className="space-y-6">
+            {activeTab === 'challenges' && (
+              <div className="animate-slide-up">
+                <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Award size={20} className="text-ancient-gold" />
+                  <h2 className="text-xl font-oldstyle text-scripture-heading">Desafios Diários</h2>
+                </div>
+                <DailyChallenges />
+              </div>
+            )}
+            
+            {activeTab === 'leaderboard' && (
+              <div className="animate-slide-up">
+                <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Trophy size={20} className="text-ancient-gold" />
+                  <h2 className="text-xl font-oldstyle text-scripture-heading">Classificação</h2>
+                </div>
+                <Leaderboard />
+              </div>
+            )}
+
+            {activeTab === 'prayers' && (
+              <div className="animate-slide-up">
+                <h2 className="text-xl font-oldstyle text-scripture-heading mb-4">Pedidos de Oração</h2>
+                
+                <Card className="mb-6" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
+                  <form onSubmit={handlePrayerSubmit}>
+                    <CardHeader>
+                      <CardTitle className="text-base">Compartilhe seu pedido de oração</CardTitle>
+                      <CardDescription>Conecte-se com a comunidade através da oração</CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <Textarea placeholder="Escreva seu pedido de oração aqui..." value={newPrayer} onChange={e => setNewPrayer(e.target.value)} className="resize-none bg-parchment-dark/5" />
+                      
+                      <div className="flex items-center mt-4">
+                        <input type="checkbox" id="anonymous" checked={isAnonymous} onChange={() => setIsAnonymous(!isAnonymous)} className="mr-2" />
+                        <label htmlFor="anonymous" className="text-sm text-muted-foreground">
+                          Publicar anonimamente
+                        </label>
+                      </div>
+                    </CardContent>
+                    
+                    <CardFooter>
+                      <Button type="submit" className="bg-ancient-gold hover:bg-ancient-gold/90 w-full" disabled={!newPrayer.trim()}>
+                        <PenLine className="h-4 w-4 mr-2" /> Compartilhar Pedido
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </Card>
+                
+                <div className="space-y-4">
+                  {prayerRequests.map((request) => (
+                    <Card key={request.id} style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            {!request.is_anonymous && <Avatar className="h-8 w-8 mr-2">
+                                {request.avatar_url ? <AvatarImage src={request.avatar_url} /> : <AvatarFallback className="bg-ancient-gold/20 text-ancient-brown">
+                                    {request.user_name.substring(0, 2).toUpperCase()}
+                                  </AvatarFallback>}
+                              </Avatar>}
+                            <CardTitle className="text-sm font-medium">
+                              {request.is_anonymous ? 'Anônimo' : request.user_name}
+                            </CardTitle>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(request.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
                       </CardHeader>
                       
-                      <CardContent>
-                        <Textarea placeholder="Escreva seu pedido de oração aqui..." value={newPrayer} onChange={e => setNewPrayer(e.target.value)} className="resize-none bg-parchment-dark/5" />
-                        
-                        <div className="flex items-center mt-4">
-                          <input type="checkbox" id="anonymous" checked={isAnonymous} onChange={() => setIsAnonymous(!isAnonymous)} className="mr-2" />
-                          <label htmlFor="anonymous" className="text-sm text-muted-foreground">
-                            Publicar anonimamente
-                          </label>
-                        </div>
+                      <CardContent className="py-2">
+                        <p className="text-sm">{request.content}</p>
                       </CardContent>
                       
-                      <CardFooter>
-                        <Button type="submit" className="bg-ancient-gold hover:bg-ancient-gold/90 w-full" disabled={!newPrayer.trim()}>
-                          <PenLine className="h-4 w-4 mr-2" /> Compartilhar Pedido
+                      <CardFooter className="pt-2">
+                        <Button variant="ghost" className="text-xs flex items-center gap-1" onClick={() => handlePray(request.id)}>
+                          <Heart className="h-3 w-3 text-rose-500" />
+                          <span>{request.prayers_count} {request.prayers_count === 1 ? 'pessoa' : 'pessoas'} oraram por isto</span>
                         </Button>
                       </CardFooter>
-                    </form>
-                  </Card>
-                  
-                  <div className="space-y-4">
-                    {prayerRequests.map((request) => (
-                      <Card key={request.id} style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)' }}>
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              {!request.is_anonymous && <Avatar className="h-8 w-8 mr-2">
-                                  {request.avatar_url ? <AvatarImage src={request.avatar_url} /> : <AvatarFallback className="bg-ancient-gold/20 text-ancient-brown">
-                                      {request.user_name.substring(0, 2).toUpperCase()}
-                                    </AvatarFallback>}
-                                </Avatar>}
-                              <CardTitle className="text-sm font-medium">
-                                {request.is_anonymous ? 'Anônimo' : request.user_name}
-                              </CardTitle>
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(request.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent className="py-2">
-                          <p className="text-sm">{request.content}</p>
-                        </CardContent>
-                        
-                        <CardFooter className="pt-2">
-                          <Button variant="ghost" className="text-xs flex items-center gap-1" onClick={() => handlePray(request.id)}>
-                            <Heart className="h-3 w-3 text-rose-500" />
-                            <span>{request.prayers_count} {request.prayers_count === 1 ? 'pessoa' : 'pessoas'} oraram por isto</span>
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
+                    </Card>
+                  ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
