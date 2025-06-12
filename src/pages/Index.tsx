@@ -1,17 +1,20 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import VerseOfTheDay from '@/components/home/VerseOfTheDay';
 import StreakDisplay from '@/components/achievements/StreakDisplay';
 import BadgeProgress from '@/components/achievements/BadgeProgress';
+import DailyChallenges from '@/components/achievements/DailyChallenges';
 import ThemeToggle from '@/components/ThemeToggle';
 import StyleDebug from '@/components/debug/StyleDebug';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Trophy, ExternalLink, Home } from 'lucide-react';
+import { BookOpen, Trophy, ExternalLink, Home, Award } from 'lucide-react';
 import { getUserProfile } from '@/services';
 import { getUserStreak, getUserAchievements } from '@/services/AchievementService';
 import { UserProfile, Achievement } from '@/types/bible.types';
+
 const bibleStudies = [{
   id: '1',
   title: 'Por onde começar a ler a Bíblia?',
@@ -37,6 +40,7 @@ const bibleStudies = [{
   icon: '🙏',
   category: 'devotional'
 }];
+
 const Index = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -45,6 +49,7 @@ const Index = () => {
     longest: 0
   });
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+
   useEffect(() => {
     const loadUserData = async () => {
       const userProfile = await getUserProfile();
@@ -78,9 +83,12 @@ const Index = () => {
     text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
     version: "King James Atualizada"
   };
+
   console.log('=== INDEX RENDER DEBUG ===');
   console.log('Renderizando Index page');
-  return <PageLayout>
+
+  return (
+    <PageLayout>
       <StyleDebug />
       
       {/* Header with consistent styling */}
@@ -99,40 +107,68 @@ const Index = () => {
         <div className="content-box">
           <div className="space-y-6">
             <div className="card" style={{
-            backgroundColor: '#f8f5ea',
-            border: '1px solid rgba(156, 142, 99, 0.25)',
-            borderRadius: '0.75rem'
-          }}>
+              backgroundColor: '#f8f5ea',
+              border: '1px solid rgba(156, 142, 99, 0.25)',
+              borderRadius: '0.75rem'
+            }}>
               <VerseOfTheDay reference={mockVerseOfDay.reference} text={mockVerseOfDay.text} version={mockVerseOfDay.version} />
             </div>
             
             <div className="card" style={{
-            backgroundColor: '#f8f5ea',
-            border: '1px solid rgba(156, 142, 99, 0.25)',
-            borderRadius: '0.75rem'
-          }}>
+              backgroundColor: '#f8f5ea',
+              border: '1px solid rgba(156, 142, 99, 0.25)',
+              borderRadius: '0.75rem'
+            }}>
               <StreakDisplay currentStreak={streakData.current} longestStreak={streakData.longest} />
             </div>
             
             <div className="card" style={{
-            backgroundColor: '#f8f5ea',
-            border: '1px solid rgba(156, 142, 99, 0.25)',
-            borderRadius: '0.75rem'
-          }}>
+              backgroundColor: '#f8f5ea',
+              border: '1px solid rgba(156, 142, 99, 0.25)',
+              borderRadius: '0.75rem'
+            }}>
               <BadgeProgress badges={badges} />
+            </div>
+            
+            {/* Daily Challenges Section */}
+            <div className="space-y-4">
+              <div className="subtitle-box" style={{
+                backgroundColor: '#f8f5ea',
+                border: '1px solid rgba(156, 142, 99, 0.25)',
+                borderRadius: '0.75rem',
+                padding: '0.75rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <Award size={20} className="text-ancient-gold" />
+                <h2 className="text-xl subtitle-text">Desafios Diários</h2>
+                <div className="flex-1"></div>
+                <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold" onClick={() => navigate('/community')}>
+                  Ver todos
+                </Button>
+              </div>
+              
+              <div className="card" style={{
+                backgroundColor: '#f8f5ea',
+                border: '1px solid rgba(156, 142, 99, 0.25)',
+                borderRadius: '0.75rem'
+              }}>
+                <DailyChallenges />
+              </div>
             </div>
             
             {/* Bible Studies Section with subtitle box */}
             <div className="space-y-4">
               <div className="subtitle-box" style={{
-              backgroundColor: '#f8f5ea',
-              border: '1px solid rgba(156, 142, 99, 0.25)',
-              borderRadius: '0.75rem',
-              padding: '0.75rem 1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
+                backgroundColor: '#f8f5ea',
+                border: '1px solid rgba(156, 142, 99, 0.25)',
+                borderRadius: '0.75rem',
+                padding: '0.75rem 1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
                 <BookOpen size={20} className="text-ancient-gold" />
                 <h2 className="text-xl subtitle-text">Estudos Bíblicos</h2>
                 <div className="flex-1"></div>
@@ -142,11 +178,12 @@ const Index = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {bibleStudies.map(study => <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow" style={{
-                backgroundColor: '#f8f5ea',
-                border: '1px solid rgba(156, 142, 99, 0.25)',
-                borderRadius: '0.75rem'
-              }}>
+                {bibleStudies.map(study => (
+                  <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow" style={{
+                    backgroundColor: '#f8f5ea',
+                    border: '1px solid rgba(156, 142, 99, 0.25)',
+                    borderRadius: '0.75rem'
+                  }}>
                     <CardContent className="p-4 flex items-center gap-3">
                       <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                         {study.icon}
@@ -159,7 +196,8 @@ const Index = () => {
                         <ExternalLink className="h-5 w-5 text-ancient-brown" />
                       </Button>
                     </CardContent>
-                  </div>)}
+                  </div>
+                ))}
               </div>
               
               <div className="flex justify-center">
@@ -171,11 +209,12 @@ const Index = () => {
             </div>
             
             {/* Incentives for registration */}
-            {!profile?.id || profile?.id.startsWith('guest-') ? <div className="card border-ancient-gold/20" style={{
-            backgroundColor: '#f8f5ea',
-            border: '1px solid rgba(156, 142, 99, 0.25)',
-            borderRadius: '0.75rem'
-          }}>
+            {!profile?.id || profile?.id.startsWith('guest-') ? (
+              <div className="card border-ancient-gold/20" style={{
+                backgroundColor: '#f8f5ea',
+                border: '1px solid rgba(156, 142, 99, 0.25)',
+                borderRadius: '0.75rem'
+              }}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-ancient-gold/20 text-ancient-gold">
@@ -190,10 +229,13 @@ const Index = () => {
                     </Button>
                   </div>
                 </CardContent>
-              </div> : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
-    </PageLayout>;
+    </PageLayout>
+  );
 };
+
 export default Index;
