@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
@@ -12,13 +11,14 @@ import { trackSearchClick } from '@/services/reading/ReadingHistoryService';
 import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
 import { Search as SearchIcon } from 'lucide-react';
-
 const Search = () => {
   const [query, setQuery] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
-  
+  const {
+    t,
+    language
+  } = useLanguage();
   const {
     searchResults,
     isSearching,
@@ -32,22 +32,20 @@ const Search = () => {
     wholeWordsOnly,
     toggleWholeWordsOnly
   } = useSearchBible();
-
   const handleSearch = (searchQuery: string) => {
     setQuery(searchQuery);
     setShowHistory(false);
     performSearch(searchQuery);
   };
-
   const handleVerseClick = async (bookId: string, chapterNumber: number, verseNumber: number) => {
     try {
       // Get user's preferred Bible version for tracking
       const userProfile = await getUserProfile();
       const versionId = determineBestBibleVersion(userProfile, language);
-      
+
       // Track the search click
       await trackSearchClick(versionId, bookId, chapterNumber, verseNumber);
-      
+
       // Navigate to the verse
       navigate(`/read?book=${bookId}&chapter=${chapterNumber}&verse=${verseNumber}`);
     } catch (error) {
@@ -56,22 +54,16 @@ const Search = () => {
       navigate(`/read?book=${bookId}&chapter=${chapterNumber}&verse=${verseNumber}`);
     }
   };
-
   const handleInputFocus = () => {
     if (!query) {
       setShowHistory(true);
     }
   };
-
   const handleInputBlur = () => {
     // Delay hiding to allow clicking on history items
     setTimeout(() => setShowHistory(false), 200);
   };
-
-  const suggestionsList = [
-    "amor", "paz", "salvação", "fé", "esperança", 
-    "João 3:16", "Romanos 8:28", "Salmo 23", "Filipenses 4:13"
-  ];
+  const suggestionsList = ["amor", "paz", "salvação", "fé", "esperança", "João 3:16", "Romanos 8:28", "Salmo 23", "Filipenses 4:13"];
 
   // Convert BibleVerse[] to SearchResult[] to match the expected interface
   const formattedSearchResults: SearchResult[] = searchResults.map(verse => ({
@@ -82,12 +74,10 @@ const Search = () => {
     text: verse.text,
     version_id: verse.version_id || ''
   }));
-
-  return (
-    <PageLayout>
+  return <PageLayout>
       {/* Header with consistent styling */}
       <div className="page-header">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 py-[12px] px-[16px]">
           <SearchIcon size={24} className="text-ancient-gold" />
           <h1 className="text-2xl font-oldstyle text-scripture-heading">
             {t('nav.search') || 'Buscar na Bíblia'}
@@ -97,55 +87,20 @@ const Search = () => {
       
       {/* Content in styled box with consistent margins */}
       <div className="page-content">
-        <div className="content-box">
+        <div className="content-box py-[12px] px-[16px]">
           <div className="relative mb-6">
-            <SearchInput
-              searchQuery={query}
-              isSearching={isSearching}
-              onInputChange={(e) => setQuery(e.target.value)}
-              onSearchClick={() => handleSearch(query)}
-              placeholder={t('search.placeholder') || 'Digite uma palavra, versículo ou referência...'}
-              onFocus={handleInputFocus}
-              onBlur={handleInputBlur}
-            />
+            <SearchInput searchQuery={query} isSearching={isSearching} onInputChange={e => setQuery(e.target.value)} onSearchClick={() => handleSearch(query)} placeholder={t('search.placeholder') || 'Digite uma palavra, versículo ou referência...'} onFocus={handleInputFocus} onBlur={handleInputBlur} />
             
-            {showHistory && searchHistory.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-10 mt-1">
-                <SearchHistory
-                  searchHistory={searchHistory}
-                  onHistoryItemClick={handleSearch}
-                  onClear={clearHistory}
-                />
-              </div>
-            )}
+            {showHistory && searchHistory.length > 0 && <div className="absolute top-full left-0 right-0 z-10 mt-1">
+                <SearchHistory searchHistory={searchHistory} onHistoryItemClick={handleSearch} onClear={clearHistory} />
+              </div>}
           </div>
 
-          {!query && !showHistory && (
-            <SearchSuggestions 
-              suggestions={suggestionsList} 
-              onSuggestionClick={handleSearch} 
-            />
-          )}
+          {!query && !showHistory && <SearchSuggestions suggestions={suggestionsList} onSuggestionClick={handleSearch} />}
 
-          {query && (
-            <SearchResults
-              isSearching={isSearching}
-              hasSearched={!!query}
-              searchResults={formattedSearchResults}
-              totalResults={totalResults || searchResults.length}
-              hasMoreResults={hasMoreResults}
-              onLoadMore={loadMore}
-              wholeWordsOnly={wholeWordsOnly}
-              onToggleWholeWords={toggleWholeWordsOnly}
-              error={error}
-              query={query}
-              onVerseClick={handleVerseClick}
-            />
-          )}
+          {query && <SearchResults isSearching={isSearching} hasSearched={!!query} searchResults={formattedSearchResults} totalResults={totalResults || searchResults.length} hasMoreResults={hasMoreResults} onLoadMore={loadMore} wholeWordsOnly={wholeWordsOnly} onToggleWholeWords={toggleWholeWordsOnly} error={error} query={query} onVerseClick={handleVerseClick} />}
         </div>
       </div>
-    </PageLayout>
-  );
+    </PageLayout>;
 };
-
 export default Search;
