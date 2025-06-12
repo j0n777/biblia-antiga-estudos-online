@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '../achievements/AchievementList';
 import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
@@ -6,18 +5,20 @@ import StatisticsTab from '@/components/profile/StatisticsTab';
 import { Achievement } from '@/types/bible.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Trophy } from 'lucide-react';
-
 interface ProfileTabsProps {
   activeTab: string;
   onTabChange: (value: string) => void;
   achievements: Achievement[];
 }
-
-const ProfileTabs = ({ activeTab, onTabChange, achievements }: ProfileTabsProps) => {
-  const { t } = useLanguage();
-
-  return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="mt-4">
+const ProfileTabs = ({
+  activeTab,
+  onTabChange,
+  achievements
+}: ProfileTabsProps) => {
+  const {
+    t
+  } = useLanguage();
+  return <Tabs value={activeTab} onValueChange={onTabChange} className="mt-4 py-[12px] px-[16px]">
       <TabsList className="w-full card rounded-xl">
         <TabsTrigger value="conquistas" className="flex-1 rounded-xl text-sm">
           {t('profile.achievements') || "Conquistas"}
@@ -41,8 +42,6 @@ const ProfileTabs = ({ activeTab, onTabChange, achievements }: ProfileTabsProps)
       <TabsContent value="estatisticas" className="mt-3 space-y-3">
         <StatisticsTab />
       </TabsContent>
-    </Tabs>
-  );
+    </Tabs>;
 };
-
 export default ProfileTabs;
