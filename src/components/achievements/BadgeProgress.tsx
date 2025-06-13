@@ -1,5 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from 'react-router-dom';
 
 type BadgeType = {
   id: string;
@@ -16,8 +17,17 @@ type BadgeProgressProps = {
 };
 
 const BadgeProgress = ({ badges }: BadgeProgressProps) => {
-  // Display just the most recent or in-progress badges
-  const displayBadges = badges.slice(0, 3);
+  const navigate = useNavigate();
+  
+  // Show completed badges first, then in-progress ones
+  const sortedBadges = badges.sort((a, b) => {
+    if (a.unlocked && !b.unlocked) return -1;
+    if (!a.unlocked && b.unlocked) return 1;
+    return b.progress - a.progress;
+  });
+  
+  // Display up to 6 badges instead of just 3
+  const displayBadges = sortedBadges.slice(0, 6);
   
   return (
     <div className="card space-y-4 p-4">
@@ -46,9 +56,10 @@ const BadgeProgress = ({ badges }: BadgeProgressProps) => {
       <div className="flex justify-center">
         <Badge 
           variant="outline" 
-          className="bg-transparent border-parchment-darker/30 text-scripture-heading hover:text-ancient-gold"
+          className="bg-transparent border-parchment-darker/30 text-scripture-heading hover:text-ancient-gold cursor-pointer"
+          onClick={() => navigate('/profile')}
         >
-          <a href="/profile">Ver todas</a>
+          Ver todas
         </Badge>
       </div>
     </div>

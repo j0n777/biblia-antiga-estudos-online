@@ -34,19 +34,16 @@ const BibleStudiesSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-4">
-      <div className="subtitle-box" style={{
-        backgroundColor: '#f8f5ea',
-        border: '1px solid rgba(156, 142, 99, 0.25)',
-        borderRadius: '0.75rem',
-        padding: '0.75rem 1rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem'
-      }}>
-        <BookOpen size={20} className="text-ancient-gold" />
-        <h2 className="text-xl subtitle-text">Estudos Bíblicos</h2>
-        <div className="flex-1"></div>
+    <div className="card space-y-4 p-4" style={{
+      backgroundColor: '#f8f5ea',
+      border: '1px solid rgba(156, 142, 99, 0.25)',
+      borderRadius: '0.75rem'
+    }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <BookOpen size={20} className="text-ancient-gold" />
+          <h2 className="text-xl subtitle-text">Estudos Bíblicos</h2>
+        </div>
         <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold" onClick={() => navigate('/search')}>
           Ver todos
         </Button>
@@ -54,7 +51,7 @@ const BibleStudiesSection = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {bibleStudies.map(study => (
-          <div key={study.id} className="card overflow-hidden hover:shadow-md transition-shadow" style={{
+          <div key={study.id} className="overflow-hidden hover:shadow-md transition-shadow" style={{
             backgroundColor: '#f8f5ea',
             border: '1px solid rgba(156, 142, 99, 0.25)',
             borderRadius: '0.75rem'
@@ -75,7 +72,7 @@ const BibleStudiesSection = () => {
         ))}
       </div>
       
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-2">
         <Button variant="outline" className="flex gap-2" onClick={() => navigate('/search')}>
           <BookOpen size={16} />
           <span>Buscar estudos</span>

@@ -31,29 +31,22 @@ const DailyChallengesSection = () => {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="subtitle-box" style={{
-        backgroundColor: '#f8f5ea',
-        border: '1px solid rgba(156, 142, 99, 0.25)',
-        borderRadius: '0.75rem',
-        padding: '0.75rem 1rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem'
-      }}>
-        <Award size={20} className="text-ancient-gold" />
-        <h2 className="text-xl subtitle-text">Desafios Diários</h2>
-        <div className="flex-1"></div>
+    <div className="card space-y-4 p-4" style={{
+      backgroundColor: '#f8f5ea',
+      border: '1px solid rgba(156, 142, 99, 0.25)',
+      borderRadius: '0.75rem'
+    }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Award size={20} className="text-ancient-gold" />
+          <h2 className="text-xl subtitle-text">Desafios Diários</h2>
+        </div>
         <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-ancient-gold" onClick={() => navigate('/community')}>
           Ver todos
         </Button>
       </div>
       
-      <div className="card space-y-4 p-4" style={{
-        backgroundColor: '#f8f5ea',
-        border: '1px solid rgba(156, 142, 99, 0.25)',
-        borderRadius: '0.75rem'
-      }}>
+      <div className="space-y-4">
         {mockChallenges.map((challenge) => (
           <Card key={challenge.id} className="p-4 rounded-xl overflow-hidden border-parchment-dark/20 bg-parchment-light/60">
             <div className="flex justify-between items-start mb-3">

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { BookOpen, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { generateBibleStudy, getUserStudyCredits, AIBibleStudy, UserStudyCredits
 import { useLanguage } from '@/contexts/LanguageContext';
 import BibleStudyViewer from './BibleStudyViewer';
 import StudyCreditsInfo from './StudyCreditsInfo';
+
 interface BibleStudyButtonProps {
   verseReference: string;
   bookId: string;
@@ -17,6 +19,7 @@ interface BibleStudyButtonProps {
   size?: 'sm' | 'lg';
   variant?: 'default' | 'ghost' | 'outline';
 }
+
 const BibleStudyButton = ({
   verseReference,
   bookId,
@@ -32,17 +35,18 @@ const BibleStudyButton = ({
   const [study, setStudy] = useState<AIBibleStudy | null>(null);
   const [credits, setCredits] = useState<UserStudyCredits | null>(null);
   const [showCreditsInfo, setShowCreditsInfo] = useState(false);
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
+
   const loadCredits = async () => {
     const userCredits = await getUserStudyCredits();
     setCredits(userCredits);
   };
+
   const handleOpenDialog = async () => {
     setIsOpen(true);
     await loadCredits();
   };
+
   const handleGenerateStudy = async () => {
     setIsGenerating(true);
     try {
@@ -92,12 +96,15 @@ const BibleStudyButton = ({
       setIsGenerating(false);
     }
   };
+
   const hasCredits = credits ? credits.free_studies_used_this_month < 3 || credits.paid_studies_remaining > 0 : false;
-  return <Dialog open={isOpen} onOpenChange={setIsOpen}>
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} size={size} onClick={handleOpenDialog} className="flex items-center gap-2 ">
+        <Button variant={variant} size={size} onClick={handleOpenDialog} className="flex items-center gap-2">
           <Sparkles className="w-4 h-4" />
-          {size === 'lg' && 'Estudo IA'}
+          {size === 'lg' && 'Estudo Completo'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col px-0 mx-[12px] my-[12px] rounded">
@@ -109,7 +116,8 @@ const BibleStudyButton = ({
         </DialogHeader>
         
         <div className="flex-1 overflow-auto">
-          {!study && !showCreditsInfo && <div className="space-y-6 p-4">
+          {!study && !showCreditsInfo && (
+            <div className="space-y-6 p-4">
               {/* Informações sobre o estudo */}
               <div className="bg-ancient-gold/5 rounded-xl p-4 border border-ancient-gold/20">
                 <h3 className="font-semibold text-ancient-brown mb-3">
@@ -135,7 +143,8 @@ const BibleStudyButton = ({
               </div>
 
               {/* Status dos créditos */}
-              {credits && <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+              {credits && (
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                   <h4 className="font-semibold text-blue-900 mb-2">
                     💎 Seus créditos
                   </h4>
@@ -143,30 +152,56 @@ const BibleStudyButton = ({
                     <p>• Estudos gratuitos este mês: {3 - credits.free_studies_used_this_month}/3</p>
                     <p>• Estudos pagos: {credits.paid_studies_remaining}</p>
                   </div>
-                </div>}
+                </div>
+              )}
 
               {/* Botão para gerar estudo */}
               <div className="flex justify-center pt-4">
-                {hasCredits ? <Button onClick={handleGenerateStudy} disabled={isGenerating} className="bg-ancient-gold hover:bg-ancient-gold/90 text-white px-8 py-3" size="lg">
-                    {isGenerating ? <>
+                {hasCredits ? (
+                  <Button 
+                    onClick={handleGenerateStudy} 
+                    disabled={isGenerating} 
+                    className="bg-ancient-gold hover:bg-ancient-gold/90 text-white px-8 py-3" 
+                    size="lg"
+                  >
+                    {isGenerating ? (
+                      <>
                         <div className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full mr-2" />
                         Gerando estudo...
-                      </> : <>
+                      </>
+                    ) : (
+                      <>
                         <Sparkles className="w-5 h-5 mr-2" />
                         Gerar Estudo Bíblico
-                      </>}
-                  </Button> : <Button onClick={() => setShowCreditsInfo(true)} variant="outline" className="border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white px-8 py-3" size="lg">
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => setShowCreditsInfo(true)} 
+                    variant="outline" 
+                    className="border-ancient-gold text-ancient-gold hover:bg-ancient-gold hover:text-white px-8 py-3" 
+                    size="lg"
+                  >
                     <Lock className="w-5 h-5 mr-2" />
                     Obter Créditos
-                  </Button>}
+                  </Button>
+                )}
               </div>
-            </div>}
+            </div>
+          )}
 
-          {showCreditsInfo && <StudyCreditsInfo onBack={() => setShowCreditsInfo(false)} />}
+          {showCreditsInfo && (
+            <StudyCreditsInfo onBack={() => setShowCreditsInfo(false)} />
+          )}
 
-          {study && <BibleStudyViewer study={study} />}
+          {study && (
+            <BibleStudyViewer study={study} />
+          )}
         </div>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default BibleStudyButton;
