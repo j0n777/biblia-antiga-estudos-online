@@ -78,7 +78,7 @@ const VerseOfTheDay = ({ reference, text, version }: VerseOfTheDayProps) => {
             </p>
           </div>
           
-          <div className="flex justify-center gap-2 pt-2">
+          <div className="flex flex-wrap justify-center gap-2 pt-2 px-2">
             <BibleStudyButton
               verseReference={reference}
               bookId={bookId}
@@ -86,26 +86,26 @@ const VerseOfTheDay = ({ reference, text, version }: VerseOfTheDayProps) => {
               verseNumber={verseNumber}
               versionId="kja"
               verseText={text}
-              size="lg"
+              size="sm"
               variant="outline"
             />
             <Button
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-w-0 flex-shrink"
             >
-              <Copy className="w-4 h-4" />
-              {t('bible.copy') || 'Copiar'}
+              <Copy className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">{t('bible.copy') || 'Copiar'}</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleShare}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-w-0 flex-shrink"
             >
-              <Share2 className="w-4 h-4" />
-              {t('bible.share') || 'Compartilhar'}
+              <Share2 className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">{t('bible.share') || 'Compartilhar'}</span>
             </Button>
           </div>
         </div>
