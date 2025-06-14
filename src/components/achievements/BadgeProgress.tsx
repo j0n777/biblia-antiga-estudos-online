@@ -1,6 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from 'react-router-dom';
+import ViewAllAchievements from '@/components/profile/ViewAllAchievements';
 
 type BadgeType = {
   id: string;
@@ -17,8 +17,6 @@ type BadgeProgressProps = {
 };
 
 const BadgeProgress = ({ badges }: BadgeProgressProps) => {
-  const navigate = useNavigate();
-  
   // Show completed badges first, then in-progress ones
   const sortedBadges = badges.sort((a, b) => {
     if (a.unlocked && !b.unlocked) return -1;
@@ -54,13 +52,7 @@ const BadgeProgress = ({ badges }: BadgeProgressProps) => {
       </div>
       
       <div className="flex justify-center">
-        <Badge 
-          variant="outline" 
-          className="bg-transparent border-parchment-darker/30 text-scripture-heading hover:text-ancient-gold cursor-pointer"
-          onClick={() => navigate('/profile')}
-        >
-          Ver todas
-        </Badge>
+        <ViewAllAchievements showCompleted={true} />
       </div>
     </div>
   );
