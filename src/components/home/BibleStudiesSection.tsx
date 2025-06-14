@@ -34,11 +34,7 @@ const BibleStudiesSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="card space-y-4 p-4" style={{
-      backgroundColor: '#f8f5ea',
-      border: '1px solid rgba(156, 142, 99, 0.25)',
-      borderRadius: '0.75rem'
-    }}>
+    <div className="card space-y-4 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BookOpen size={20} className="text-ancient-gold" />
@@ -51,11 +47,7 @@ const BibleStudiesSection = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {bibleStudies.map(study => (
-          <div key={study.id} className="overflow-hidden hover:shadow-md transition-shadow" style={{
-            backgroundColor: '#f8f5ea',
-            border: '1px solid rgba(156, 142, 99, 0.25)',
-            borderRadius: '0.75rem'
-          }}>
+          <Card key={study.id} className="overflow-hidden hover:shadow-md transition-shadow">
             <CardContent className="p-4 flex items-center gap-3">
               <div className="h-12 w-12 flex items-center justify-center text-2xl bg-ancient-gold/20 rounded-xl">
                 {study.icon}
@@ -68,7 +60,7 @@ const BibleStudiesSection = () => {
                 <ExternalLink className="h-5 w-5 text-ancient-brown" />
               </Button>
             </CardContent>
-          </div>
+          </Card>
         ))}
       </div>
       

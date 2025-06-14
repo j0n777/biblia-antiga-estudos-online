@@ -17,11 +17,7 @@ const RegistrationIncentive = ({ profile }: RegistrationIncentiveProps) => {
   }
 
   return (
-    <div className="card border-ancient-gold/20" style={{
-      backgroundColor: '#f8f5ea',
-      border: '1px solid rgba(156, 142, 99, 0.25)',
-      borderRadius: '0.75rem'
-    }}>
+    <div className="card border-ancient-gold/20">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-ancient-gold/20 text-ancient-gold">

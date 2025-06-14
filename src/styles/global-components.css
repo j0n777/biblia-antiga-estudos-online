@@ -1,8 +1,8 @@
 
 @layer components {
-  /* SISTEMA DE CARDS GLOBAL - FORÇA APLICAÇÃO COM MAIOR ESPECIFICIDADE */
+  /* SISTEMA DE CARDS GLOBAL - USA VARIÁVEIS CSS NATIVAS */
   
-  /* TODOS OS CARDS E CONTAINERS USAM UMA COR LIGEIRAMENTE MAIS CLARA QUE O FUNDO */
+  /* TODOS OS CARDS USAM AS VARIÁVEIS CSS DO TEMA */
   .card,
   .bg-card,
   [data-radix-dialog-content],
@@ -21,176 +21,86 @@
   div[class*="card"],
   section[class*="card"],
   article[class*="card"],
-  /* Adicionar seletores mais específicos para forçar aplicação */
   div.card,
   section.card,
   article.card {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
-  }
-
-  .dark .card,
-  .dark .bg-card,
-  .dark [data-radix-dialog-content],
-  .dark [data-radix-popover-content],
-  .dark .parchment-container,
-  .dark .content-box,
-  .dark .achievement-card,
-  .dark .profile-card,
-  .dark .verse-card,
-  .dark .search-card,
-  .dark .bible-study-card,
-  .dark [class*="bg-card"],
-  .dark [class*="parchment"],
-  .dark .alert,
-  .dark .subtitle-box,
-  .dark div[class*="card"],
-  .dark section[class*="card"],
-  .dark article[class*="card"],
-  /* Adicionar seletores mais específicos para modo escuro */
-  .dark div.card,
-  .dark section.card,
-  .dark article.card {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
   }
 
   /* FORÇAR APLICAÇÃO ESPECÍFICA PARA COMPONENTES SHADCN/UI */
   [data-radix-collection-item],
   .ui-card,
   .shadcn-card {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
   }
 
-  .dark [data-radix-collection-item],
-  .dark .ui-card,
-  .dark .shadcn-card {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  /* PADRÃO PARA SUBTÍTULOS EM BOXES - FORÇA APLICAÇÃO */
+  /* PADRÃO PARA SUBTÍTULOS EM BOXES */
   .subtitle-box,
   .page-header + .page-content .subtitle-box,
   div.subtitle-box {
-    padding: 0.75rem 1rem !important;
-    margin-bottom: 1rem !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
-  }
-
-  .dark .subtitle-box,
-  .dark .page-header + .page-content .subtitle-box,
-  .dark div.subtitle-box {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
   }
 
   .subtitle-box h2,
   .subtitle-box h3,
   .subtitle-box .subtitle-text {
-    color: var(--bible-title) !important;
-    font-family: theme('fontFamily.oldstyle') !important;
-    font-weight: 400 !important;
-    margin: 0 !important;
+    color: hsl(var(--foreground));
+    font-family: theme('fontFamily.oldstyle');
+    font-weight: 400;
+    margin: 0;
   }
 
   /* CONTENT-BOX STYLING */
   .content-box,
   div.content-box {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
-    padding: 1.5rem !important;
-    margin-bottom: 1rem !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
   }
 
-  .dark .content-box,
-  .dark div.content-box {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  /* FORÇA OVERRIDE PARA COMPONENTES SHADCN */
+  /* COMPONENTES SHADCN */
   [data-radix-tabs-list],
   .bg-tabs-list {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-  }
-
-  .dark [data-radix-tabs-list],
-  .dark .bg-tabs-list {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
-  }
-
-  /* REMOVE TODOS OS GRADIENTES E FORÇA COR PADRÃO */
-  .bg-gradient-to-br,
-  .bg-gradient-to-r,
-  .bg-gradient-to-l,
-  .bg-gradient-to-t,
-  .bg-gradient-to-b {
-    background: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-  }
-
-  .dark .bg-gradient-to-br,
-  .dark .bg-gradient-to-r,
-  .dark .bg-gradient-to-l,
-  .dark .bg-gradient-to-t,
-  .dark .bg-gradient-to-b {
-    background: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
   }
 
   /* FUNDO DA PÁGINA MANTÉM A COR ORIGINAL */
   .bg-background {
-    background-color: var(--bible-background) !important;
+    background-color: hsl(var(--background));
   }
 
   .text-foreground {
-    color: var(--bible-title) !important;
+    color: hsl(var(--foreground));
   }
 
   .bg-muted {
-    background-color: #f0e9d8 !important;
+    background-color: hsl(var(--muted));
   }
 
-  .dark .bg-background {
-    background-color: var(--bible-background) !important;
-  }
-
-  .dark .text-foreground {
-    color: var(--bible-title) !important;
-  }
-
-  .dark .bg-muted {
-    background-color: rgba(40, 30, 15, 0.6) !important;
-  }
-
-  /* FORÇAR APLICAÇÃO EM TODOS OS ELEMENTOS COM CLASSE CARD, INDEPENDENTE DE OUTRAS CLASSES */
+  /* FORÇAR APLICAÇÃO EM TODOS OS ELEMENTOS COM CLASSE CARD */
   *[class*="card"] {
-    background-color: #f8f5ea !important;
-    border: 1px solid rgba(156, 142, 99, 0.25) !important;
-    border-radius: 0.75rem !important;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06) !important;
-  }
-
-  .dark *[class*="card"] {
-    background-color: rgba(48, 35, 20, 0.8) !important;
-    border-color: rgba(156, 142, 99, 0.3) !important;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
   }
 }

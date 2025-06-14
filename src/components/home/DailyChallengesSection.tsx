@@ -31,11 +31,7 @@ const DailyChallengesSection = () => {
   ];
 
   return (
-    <div className="card space-y-4 p-4" style={{
-      backgroundColor: '#f8f5ea',
-      border: '1px solid rgba(156, 142, 99, 0.25)',
-      borderRadius: '0.75rem'
-    }}>
+    <div className="card space-y-4 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Award size={20} className="text-ancient-gold" />

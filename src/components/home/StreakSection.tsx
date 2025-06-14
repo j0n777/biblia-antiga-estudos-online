@@ -8,11 +8,7 @@ interface StreakSectionProps {
 
 const StreakSection = ({ currentStreak, longestStreak }: StreakSectionProps) => {
   return (
-    <div className="card" style={{
-      backgroundColor: '#f8f5ea',
-      border: '1px solid rgba(156, 142, 99, 0.25)',
-      borderRadius: '0.75rem'
-    }}>
+    <div className="card">
       <StreakDisplay currentStreak={currentStreak} longestStreak={longestStreak} />
     </div>
   );
