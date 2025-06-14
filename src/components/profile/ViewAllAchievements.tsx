@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AchievementList from '../achievements/AchievementList';
-import { getUserAchievements } from '@/services/AchievementService';
+import { getAllAvailableAchievements } from '@/services/achievements/AllAchievementsService';
 import { Achievement } from '@/types/bible.types';
 
 // Define the interface for the component props
@@ -21,8 +21,8 @@ const ViewAllAchievements = ({ showCompleted = true }: ViewAllAchievementsProps)
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
-        const userAchievements = await getUserAchievements();
-        setAchievements(userAchievements);
+        const allAchievements = await getAllAvailableAchievements();
+        setAchievements(allAchievements);
       } catch (error) {
         console.error('Error fetching achievements:', error);
       } finally {
