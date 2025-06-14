@@ -21,13 +21,18 @@ const SavedVersesSection = ({
 
   if (savedVerses.length === 0) {
     return (
-      <div className="card p-4 mb-3" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
-        <div className="text-center py-4">
-          <Bookmark className="h-6 w-6 mx-auto mb-2 text-ancient-gold/60" />
-          <h3 className="mb-1 font-oldstyle text-bible-title">
+      <div className="p-4">
+        <div className="subtitle-box mb-3">
+          <Heart size={16} className="text-ancient-gold" />
+          <h3 className="subtitle-text">{t('profile.savedVerses') || "Versículos Salvos"}</h3>
+        </div>
+        
+        <div className="text-center py-6">
+          <Bookmark className="h-8 w-8 mx-auto mb-2 text-ancient-gold/60" />
+          <h4 className="mb-1 font-oldstyle text-bible-title">
             Salve seus versículos favoritos
-          </h3>
-          <p className="text-secondary">
+          </h4>
+          <p className="text-secondary text-sm">
             Versículos salvos aparecerão aqui
           </p>
         </div>
@@ -38,10 +43,10 @@ const SavedVersesSection = ({
   const limitedVerses = savedVerses.slice(0, 2);
 
   return (
-    <div className="space-y-3 py-[12px] px-[16px]">
-      <div className="subtitle-box" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '0.75rem 1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="p-4">
+      <div className="subtitle-box mb-3">
         <Heart size={16} className="text-ancient-gold" />
-        <h3 className="subtitle-text">{t('profile.savedVerses')}</h3>
+        <h3 className="subtitle-text">{t('profile.savedVerses') || "Versículos Salvos"}</h3>
         <div className="flex-1"></div>
         <Button
           variant="link"
@@ -56,29 +61,28 @@ const SavedVersesSection = ({
         {limitedVerses.map((verse) => (
           <div
             key={verse.id}
-            className="card p-3 hover:bg-ancient-gold/5 transition-colors cursor-pointer group"
-            style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}
+            className="bg-ancient-gold/10 p-3 rounded-lg hover:bg-ancient-gold/15 transition-colors cursor-pointer group border border-ancient-gold/20"
             onClick={() => onReadVerse(verse.book_id, verse.chapter_number, verse.verse_number)}
           >
             <div className="flex justify-between items-start">
-              <div className="flex items-start gap-2 flex-1">
-                <div className="w-6 h-6 bg-ancient-gold/20 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/30 transition-colors mt-0.5">
-                  <Bookmark size={10} className="text-ancient-gold" />
+              <div className="flex items-start gap-3 flex-1">
+                <div className="w-8 h-8 bg-ancient-gold/30 rounded-lg flex items-center justify-center group-hover:bg-ancient-gold/40 transition-colors mt-0.5">
+                  <Bookmark size={14} className="text-ancient-gold" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm text-ancient-brown">
+                    <span className="text-sm font-medium text-ancient-brown">
                       {bookNames[verse.book_id] || verse.book_id} {verse.chapter_number}:{verse.verse_number}
                     </span>
                     {verse.highlight_color && (
                       <div
-                        className="w-2 h-2 rounded-full border border-white shadow-sm"
+                        className="w-3 h-3 rounded-full border border-white shadow-sm"
                         style={{ backgroundColor: verse.highlight_color }}
                       ></div>
                     )}
                   </div>
                   {verse.note && (
-                    <p className="text-secondary italic line-clamp-2">"{verse.note}"</p>
+                    <p className="text-xs text-secondary italic line-clamp-2">"{verse.note}"</p>
                   )}
                 </div>
               </div>

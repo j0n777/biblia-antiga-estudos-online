@@ -29,30 +29,40 @@ const ProfileContent = ({
   onOpenChapter
 }: ProfileContentProps) => {
   return (
-    <>
-      {!isAuthenticated && <GuestModeAlert onCreateAccount={onCreateAccount} />}
+    <div className="space-y-4">
+      {!isAuthenticated && (
+        <div className="card p-4">
+          <GuestModeAlert onCreateAccount={onCreateAccount} />
+        </div>
+      )}
       
-      <UserHeader 
-        profile={profile}
-        isAuthenticated={isAuthenticated}
-        onOpenHistoryDialog={onOpenHistoryDialog}
-        onCreateAccount={onCreateAccount}
-      />
+      <div className="card p-4">
+        <UserHeader 
+          profile={profile}
+          isAuthenticated={isAuthenticated}
+          onOpenHistoryDialog={onOpenHistoryDialog}
+          onCreateAccount={onCreateAccount}
+        />
+      </div>
       
-      <RecentReadingSection 
-        recentReadings={recentReadings}
-        bookNames={bookNames}
-        onViewAllHistory={onOpenHistoryDialog}
-        onOpenChapter={onOpenChapter}
-      />
+      <div className="card">
+        <RecentReadingSection 
+          recentReadings={recentReadings}
+          bookNames={bookNames}
+          onViewAllHistory={onOpenHistoryDialog}
+          onOpenChapter={onOpenChapter}
+        />
+      </div>
       
-      <SavedVersesSection 
-        savedVerses={savedVerses}
-        bookNames={bookNames}
-        onViewAllVerses={onOpenHistoryDialog}
-        onReadVerse={onReadVerse}
-      />
-    </>
+      <div className="card">
+        <SavedVersesSection 
+          savedVerses={savedVerses}
+          bookNames={bookNames}
+          onViewAllVerses={onOpenHistoryDialog}
+          onReadVerse={onReadVerse}
+        />
+      </div>
+    </div>
   );
 };
 

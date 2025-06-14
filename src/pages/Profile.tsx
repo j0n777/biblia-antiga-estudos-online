@@ -127,8 +127,10 @@ const ProfilePage = () => {
           </div>
         </div>
         <div className="page-content">
-          <div className="h-96 flex items-center justify-center" style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1.5rem', marginBottom: '1rem' }}>
-            <p>{t('common.loading')}</p>
+          <div className="card p-6">
+            <div className="flex items-center justify-center">
+              <p>{t('common.loading')}</p>
+            </div>
           </div>
         </div>
       </PageLayout>
@@ -157,7 +159,7 @@ const ProfilePage = () => {
           onOpenChapter={handleOpenChapter}
         />
         
-        <div style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)' }}>
+        <div className="card">
           <ProfileTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -165,7 +167,7 @@ const ProfilePage = () => {
           />
         </div>
         
-        <div style={{ backgroundColor: '#f8f5ea', border: '1px solid rgba(156, 142, 99, 0.25)', borderRadius: '0.75rem', boxShadow: '0 2px 8px rgba(92, 63, 23, 0.06)', padding: '1rem' }}>
+        <div className="card p-4">
           <ProfileActions
             isAuthenticated={isAuthenticated}
             onSignOut={handleSignOut}
