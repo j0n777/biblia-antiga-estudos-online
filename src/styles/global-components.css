@@ -27,7 +27,7 @@
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
   /* FORÇAR APLICAÇÃO ESPECÍFICA PARA COMPONENTES SHADCN/UI */
@@ -37,7 +37,7 @@
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
   /* PADRÃO PARA SUBTÍTULOS EM BOXES */
@@ -52,7 +52,7 @@
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
   .subtitle-box h2,
@@ -70,7 +70,7 @@
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
     padding: 1.5rem;
     margin-bottom: 1rem;
   }
@@ -101,6 +101,17 @@
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 0.75rem;
-    box-shadow: 0 2px 8px rgba(92, 63, 23, 0.06);
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
+  }
+
+  /* SOMBRA MAIS INTENSA PARA MODO ESCURO */
+  .dark .card,
+  .dark .bg-card,
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-popover-content],
+  .dark .content-box,
+  .dark .subtitle-box,
+  .dark *[class*="card"] {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 }

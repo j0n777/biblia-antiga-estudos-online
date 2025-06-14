@@ -8,7 +8,7 @@
     --background: 43 43% 96%;
     --foreground: 30 36% 12%;
 
-    --card: 43 31% 97%; /* Ajustado para um tom mais claro */
+    --card: 43 36% 94%; /* Bege claro saturado para contraste */
     --card-foreground: 30 36% 12%;
 
     --popover: 255 255 255;
@@ -74,7 +74,7 @@
     --background: 30 25% 12%;
     --foreground: 40 30% 90%;
 
-    --card: 30 20% 18%; /* Ajustado para maior contraste */
+    --card: 30 25% 16%; /* Mais claro que o background em modo escuro */
     --card-foreground: 40 30% 90%;
 
     --popover: 30 10% 10%;
