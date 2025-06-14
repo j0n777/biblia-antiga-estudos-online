@@ -29,6 +29,23 @@ const AchievementList = ({ achievements = [], showCompleted = true }: Achievemen
     return categoryMatch && completionMatch;
   });
 
+  // Sort achievements: completed first, then by progress descending, then by points
+  const sortedAchievements = filteredAchievements.sort((a, b) => {
+    // First priority: completed achievements first
+    if (a.earned && !b.earned) return -1;
+    if (!a.earned && b.earned) return 1;
+    
+    // Second priority: for incomplete achievements, sort by progress percentage
+    if (!a.earned && !b.earned) {
+      const aProgress = a.total ? (a.progress || 0) / a.total : 0;
+      const bProgress = b.total ? (b.progress || 0) / b.total : 0;
+      if (aProgress !== bProgress) return bProgress - aProgress;
+    }
+    
+    // Third priority: sort by points (higher first)
+    return b.points - a.points;
+  });
+
   const getProgressPercentage = (achievement: Achievement) => {
     if (!achievement.total || achievement.total === 0) return 0;
     return Math.min((achievement.progress || 0) / achievement.total * 100, 100);
@@ -66,7 +83,7 @@ const AchievementList = ({ achievements = [], showCompleted = true }: Achievemen
 
       {/* Achievements Grid */}
       <div className="space-y-2">
-        {filteredAchievements.map((achievement) => (
+        {sortedAchievements.map((achievement) => (
           <Card 
             key={achievement.id} 
             className={cn(
@@ -153,7 +170,7 @@ const AchievementList = ({ achievements = [], showCompleted = true }: Achievemen
       </div>
 
       {/* Empty State */}
-      {filteredAchievements.length === 0 && (
+      {sortedAchievements.length === 0 && (
         <Card className="p-6 bg-gradient-to-r from-muted/30 to-muted/10">
           <div className="text-center text-muted-foreground">
             <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />

@@ -1,6 +1,8 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { BibleVerse } from '@/types/bible.types';
 import { getUserProfile } from '@/services/ProfileService';
+import { getBiblicalOrder } from '@/utils/bible-mappings';
 
 export interface SearchResult {
   verses: BibleVerse[];
@@ -50,6 +52,7 @@ export const searchBibleVerses = async (
       console.log('Reference search detected');
       const [, bookName, chapter, verse] = referenceMatch;
       const result = await searchByReference(bookName.trim(), parseInt(chapter), verse ? parseInt(verse) : undefined, versionId);
+      // Reference searches are already ordered, so no need to sort
       return {
         verses: result,
         totalCount: result.length,
@@ -92,18 +95,27 @@ export const searchBibleVerses = async (
           console.log(`Total count in ${versionId}: ${totalCount}`);
         }
         
-        // Get paginated results using text search
+        // Get ALL results for sorting, then paginate manually
         const { data: versionVerses, error } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .eq('version_id', versionId)
           .not('book_id', 'is', null)
           .not('text', 'is', null)
-          .textSearch('text', `"${searchTerm}"`)
-          .range(offset, offset + pageSize - 1);
+          .textSearch('text', `"${searchTerm}"`);
         
         if (!error && versionVerses && versionVerses.length > 0) {
-          verses = versionVerses;
+          // Sort verses by biblical order first
+          const sortedVerses = versionVerses.sort((a, b) => {
+            const aOrder = getBiblicalOrder(a.book_id);
+            const bOrder = getBiblicalOrder(b.book_id);
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            if (a.chapter_number !== b.chapter_number) return a.chapter_number - b.chapter_number;
+            return a.verse_number - b.verse_number;
+          });
+          
+          // Apply pagination to sorted results
+          verses = sortedVerses.slice(offset, offset + pageSize);
           console.log(`Found ${verses.length} verses in ${versionId} (page ${page})`);
         } else {
           console.log(`No results in ${versionId}`);
@@ -127,18 +139,27 @@ export const searchBibleVerses = async (
           console.log(`Total count in ${versionId}: ${totalCount}`);
         }
         
-        // Get paginated results
+        // Get ALL results for sorting, then paginate manually
         const { data: versionVerses, error } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .eq('version_id', versionId)
           .not('book_id', 'is', null)
           .not('text', 'is', null)
-          .ilike('text', searchPattern)
-          .range(offset, offset + pageSize - 1);
+          .ilike('text', searchPattern);
         
         if (!error && versionVerses && versionVerses.length > 0) {
-          verses = versionVerses;
+          // Sort verses by biblical order first
+          const sortedVerses = versionVerses.sort((a, b) => {
+            const aOrder = getBiblicalOrder(a.book_id);
+            const bOrder = getBiblicalOrder(b.book_id);
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            if (a.chapter_number !== b.chapter_number) return a.chapter_number - b.chapter_number;
+            return a.verse_number - b.verse_number;
+          });
+          
+          // Apply pagination to sorted results
+          verses = sortedVerses.slice(offset, offset + pageSize);
           console.log(`Found ${verses.length} verses in ${versionId} (page ${page})`);
         } else {
           console.log(`No results in ${versionId}`);
@@ -165,18 +186,27 @@ export const searchBibleVerses = async (
           console.log(`Total count in any version: ${totalCount}`);
         }
         
-        // Get paginated results
+        // Get ALL results for sorting, then paginate manually
         const { data: anyVersionVerses, error: altError } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .not('version_id', 'is', null)
           .not('book_id', 'is', null)
           .not('text', 'is', null)
-          .textSearch('text', `"${searchTerm}"`)
-          .range(offset, offset + pageSize - 1);
+          .textSearch('text', `"${searchTerm}"`);
         
         if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
-          verses = anyVersionVerses;
+          // Sort verses by biblical order first
+          const sortedVerses = anyVersionVerses.sort((a, b) => {
+            const aOrder = getBiblicalOrder(a.book_id);
+            const bOrder = getBiblicalOrder(b.book_id);
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            if (a.chapter_number !== b.chapter_number) return a.chapter_number - b.chapter_number;
+            return a.verse_number - b.verse_number;
+          });
+          
+          // Apply pagination to sorted results
+          verses = sortedVerses.slice(offset, offset + pageSize);
           console.log(`Found ${verses.length} verses in alternative versions (page ${page})`);
         }
       } else {
@@ -197,18 +227,27 @@ export const searchBibleVerses = async (
           console.log(`Total count in any version: ${totalCount}`);
         }
         
-        // Get paginated results
+        // Get ALL results for sorting, then paginate manually
         const { data: anyVersionVerses, error: altError } = await supabase
           .from('bible_verses')
           .select('id, text, book_id, chapter_number, verse_number, version_id, chapter_id')
           .not('version_id', 'is', null)
           .not('book_id', 'is', null)
           .not('text', 'is', null)
-          .ilike('text', searchPattern)
-          .range(offset, offset + pageSize - 1);
+          .ilike('text', searchPattern);
         
         if (!altError && anyVersionVerses && anyVersionVerses.length > 0) {
-          verses = anyVersionVerses;
+          // Sort verses by biblical order first
+          const sortedVerses = anyVersionVerses.sort((a, b) => {
+            const aOrder = getBiblicalOrder(a.book_id);
+            const bOrder = getBiblicalOrder(b.book_id);
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            if (a.chapter_number !== b.chapter_number) return a.chapter_number - b.chapter_number;
+            return a.verse_number - b.verse_number;
+          });
+          
+          // Apply pagination to sorted results
+          verses = sortedVerses.slice(offset, offset + pageSize);
           console.log(`Found ${verses.length} verses in alternative versions (page ${page})`);
         }
       }
@@ -224,6 +263,7 @@ export const searchBibleVerses = async (
     // Add book names to results
     const versesWithBookNames = await addBookNamesToVerses(verses, versionId || 'unknown');
     
+    // Calculate hasMore based on total results and current pagination
     const hasMore = totalCount > offset + verses.length;
     
     return {

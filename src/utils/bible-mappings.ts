@@ -73,3 +73,82 @@ export const bookIdMapping: Record<string, string> = {
 export const reverseBookIdMapping: Record<string, string> = Object.fromEntries(
   Object.entries(bookIdMapping).map(([k, v]) => [v, k])
 );
+
+// Biblical order mapping for sorting search results
+export const biblicalBookOrder: Record<string, number> = {
+  // Old Testament
+  'gn': 1, 'genesis': 1,
+  'ex': 2, 'exodus': 2,
+  'lv': 3, 'leviticus': 3,
+  'nm': 4, 'numbers': 4,
+  'dt': 5, 'deuteronomy': 5,
+  'js': 6, 'joshua': 6,
+  'jud': 7, 'judges': 7,
+  'rt': 8, 'ruth': 8,
+  '1sm': 9, '1samuel': 9,
+  '2sm': 10, '2samuel': 10,
+  '1kgs': 11, '1kings': 11,
+  '2kgs': 12, '2kings': 12,
+  '1ch': 13, '1chronicles': 13,
+  '2ch': 14, '2chronicles': 14,
+  'ezr': 15, 'ezra': 15,
+  'ne': 16, 'nehemiah': 16,
+  'et': 17, 'esther': 17,
+  'job': 18, 'job': 18,
+  'ps': 19, 'psalms': 19,
+  'prv': 20, 'proverbs': 20,
+  'ec': 21, 'ecclesiastes': 21,
+  'so': 22, 'songofsolomon': 22,
+  'is': 23, 'isaiah': 23,
+  'jr': 24, 'jeremiah': 24,
+  'lm': 25, 'lamentations': 25,
+  'ez': 26, 'ezekiel': 26,
+  'dn': 27, 'daniel': 27,
+  'ho': 28, 'hosea': 28,
+  'jl': 29, 'joel': 29,
+  'am': 30, 'amos': 30,
+  'ob': 31, 'obadiah': 31,
+  'jn': 32, 'jonah': 32,
+  'mi': 33, 'micah': 33,
+  'na': 34, 'nahum': 34,
+  'hk': 35, 'habakkuk': 35,
+  'zp': 36, 'zephaniah': 36,
+  'hg': 37, 'haggai': 37,
+  'zc': 38, 'zechariah': 38,
+  'ml': 39, 'malachi': 39,
+  
+  // New Testament
+  'mt': 40, 'matthew': 40,
+  'mk': 41, 'mark': 41,
+  'lk': 42, 'luke': 42,
+  'jo': 43, 'john': 43,
+  'act': 44, 'acts': 44,
+  'rm': 45, 'romans': 45,
+  '1co': 46, '1corinthians': 46,
+  '2co': 47, '2corinthians': 47,
+  'gl': 48, 'galatians': 48,
+  'eph': 49, 'ephesians': 49,
+  'ph': 50, 'philippians': 50,
+  'cl': 51, 'colossians': 51,
+  '1ts': 52, '1thessalonians': 52,
+  '2ts': 53, '2thessalonians': 53,
+  '1tm': 54, '1timothy': 54,
+  '2tm': 55, '2timothy': 55,
+  'tt': 56, 'titus': 56,
+  'phm': 57, 'philemon': 57,
+  'hb': 58, 'hebreus': 58,
+  'jm': 59, 'james': 59,
+  '1pe': 60, '1peter': 60,
+  '2pe': 61, '2peter': 61,
+  '1jo': 62, '1john': 62,
+  '2jo': 63, '2john': 63,
+  '3jo': 64, '3john': 64,
+  'jd': 65, 'jude': 65,
+  're': 66, 'revelation': 66,
+};
+
+// Helper function to get biblical order for a book
+export const getBiblicalOrder = (bookId: string): number => {
+  if (!bookId) return 999;
+  return biblicalBookOrder[bookId.toLowerCase()] || 999;
+};
