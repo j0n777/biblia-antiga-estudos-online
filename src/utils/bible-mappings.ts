@@ -1,5 +1,4 @@
 
-
 // Map between API book IDs and database book IDs
 export const bookIdMapping: Record<string, string> = {
   'gn': 'genesis',
@@ -75,7 +74,7 @@ export const reverseBookIdMapping: Record<string, string> = Object.fromEntries(
   Object.entries(bookIdMapping).map(([k, v]) => [v, k])
 );
 
-// Biblical order mapping for sorting search results
+// Biblical order mapping for sorting search results - simplified version
 export const biblicalBookOrder: Record<string, number> = {
   // Old Testament
   'gn': 1, 'genesis': 1,
@@ -95,7 +94,7 @@ export const biblicalBookOrder: Record<string, number> = {
   'ezr': 15, 'ezra': 15,
   'ne': 16, 'nehemiah': 16,
   'et': 17, 'esther': 17,
-  'job': 18, 'job': 18,
+  'job': 18,
   'ps': 19, 'psalms': 19,
   'prv': 20, 'proverbs': 20,
   'ec': 21, 'ecclesiastes': 21,
@@ -153,4 +152,3 @@ export const getBiblicalOrder = (bookId: string): number => {
   if (!bookId) return 999;
   return biblicalBookOrder[bookId.toLowerCase()] || 999;
 };
-
