@@ -1,4 +1,5 @@
 
+
 // Map between API book IDs and database book IDs
 export const bookIdMapping: Record<string, string> = {
   'gn': 'genesis',
@@ -136,7 +137,7 @@ export const biblicalBookOrder: Record<string, number> = {
   '2tm': 55, '2timothy': 55,
   'tt': 56, 'titus': 56,
   'phm': 57, 'philemon': 57,
-  'hb': 58, 'hebreus': 58,
+  'hb': 58, 'hebrews': 58,
   'jm': 59, 'james': 59,
   '1pe': 60, '1peter': 60,
   '2pe': 61, '2peter': 61,
@@ -152,3 +153,4 @@ export const getBiblicalOrder = (bookId: string): number => {
   if (!bookId) return 999;
   return biblicalBookOrder[bookId.toLowerCase()] || 999;
 };
+
