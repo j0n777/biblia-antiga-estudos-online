@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -83,7 +84,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Bible app specific colors - Updated with new color scheme
+				// Bible app specific colors - Cores mais jovens e vibrantes
 				bible: {
 					background: '#f0e9d8',
 					box: '#e9e0cc',
@@ -103,17 +104,32 @@ export default {
 					verse: '#5e4119',
 					subtitle: '#984b38',
 					highlight: {
-						yellow: 'rgba(255, 213, 105, 0.4)',
-						green: 'rgba(152, 219, 150, 0.4)',
-						blue: 'rgba(145, 190, 242, 0.4)',
-						purple: 'rgba(187, 155, 228, 0.4)',
-						red: 'rgba(229, 146, 146, 0.4)',
+						yellow: 'rgba(255, 213, 105, 0.6)',
+						green: 'rgba(152, 219, 150, 0.6)',
+						blue: 'rgba(145, 190, 242, 0.6)',
+						purple: 'rgba(187, 155, 228, 0.6)',
+						red: 'rgba(229, 146, 146, 0.6)',
 					}
 				},
 				ancient: {
 					brown: '#5e4119',
 					red: '#984b38',
-					gold: '#c19237',
+					gold: '#f59e0b', // Mais vibrante
+				},
+				// Cores jovens adicionais
+				vibrant: {
+					purple: '#8b5cf6',
+					pink: '#ec4899',
+					blue: '#3b82f6',
+					green: '#10b981',
+					orange: '#f97316',
+					yellow: '#eab308',
+					indigo: '#6366f1',
+					teal: '#14b8a6',
+					rose: '#f43f5e',
+					emerald: '#059669',
+					cyan: '#06b6d4',
+					lime: '#65a30d',
 				}
 			},
 			borderRadius: {
@@ -155,6 +171,32 @@ export default {
 				'slide-up': {
 					'0%': { transform: 'translateY(10px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
+				'bounce-gentle': {
+					'0%, 100%': { 
+						transform: 'translateY(0)', 
+						animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' 
+					},
+					'50%': { 
+						transform: 'translateY(-10%)', 
+						animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' 
+					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 0 0 rgba(139, 92, 246, 0.7)' 
+					},
+					'70%': { 
+						boxShadow: '0 0 0 10px rgba(139, 92, 246, 0)' 
+					}
+				},
+				'shimmer': {
+					'0%': { 
+						backgroundPosition: '-200% 0' 
+					},
+					'100%': { 
+						backgroundPosition: '200% 0' 
+					}
 				}
 			},
 			animation: {
@@ -162,13 +204,20 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'page-turn': 'page-turn 0.5s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'slide-up': 'slide-up 0.3s ease-out'
+				'slide-up': 'slide-up 0.3s ease-out',
+				'bounce-gentle': 'bounce-gentle 2s infinite',
+				'pulse-glow': 'pulse-glow 2s infinite',
+				'shimmer': 'shimmer 2s infinite linear'
 			},
 			backgroundImage: {
 				'parchment-texture': "url('/parchment-texture.jpg')",
 				'parchment-dark': "url('/parchment-dark.jpg')",
 				'ornamental-border': "url('/ornamental-border.png')",
-				'bible-gradient': 'linear-gradient(120deg, #f0e9d8, #e8dfc6)',
+				'bible-gradient': 'linear-gradient(135deg, #f0e9d8, #faf5f0)',
+				'vibrant-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+				'young-gradient': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+				'fresh-gradient': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+				'shimmer-gradient': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
 			},
 		}
 	},

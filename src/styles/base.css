@@ -14,7 +14,7 @@
     --popover: 255 255 255;
     --popover-foreground: 30 36% 12%;
 
-    --primary: 36 56% 49%;
+    --primary: 260 75% 60%; /* Purple mais vibrante */
     --primary-foreground: 255 255 255;
 
     --secondary: 43 31% 91%;
@@ -23,7 +23,7 @@
     --muted: 43 15% 85%;
     --muted-foreground: 30 10% 40%;
 
-    --accent: 36 40% 65%;
+    --accent: 280 65% 65%; /* Accent mais vibrante */
     --accent-foreground: 30 65% 23%;
 
     --destructive: 0 84.2% 60.2%;
@@ -31,21 +31,21 @@
 
     --border: 30 30% 80%;
     --input: 30 30% 80%;
-    --ring: 36 56% 49%;
+    --ring: 260 75% 60%; /* Ring mais vibrante */
 
     --radius: 1rem;
 
     --sidebar-background: 43 43% 96%;
     --sidebar-foreground: 30 36% 12%;
-    --sidebar-primary: 36 56% 49%;
+    --sidebar-primary: 260 75% 60%;
     --sidebar-primary-foreground: 255 255 255;
     --sidebar-accent: 43 31% 91%;
     --sidebar-accent-foreground: 30 36% 12%;
     --sidebar-border: 30 30% 80%;
-    --sidebar-ring: 36 56% 49%;
+    --sidebar-ring: 260 75% 60%;
     
-    /* Bible App Theme Colors */
-    --bible-background: #f0e9d8;
+    /* Bible App Theme Colors - Mais jovens e vibrantes */
+    --bible-background: linear-gradient(135deg, #f0e9d8, #faf5f0);
     --bible-box: #e9e0cc;
     --bible-controls: #f5f1e6;
     --bible-title: #5e4119;
@@ -56,18 +56,19 @@
     --scripture-verse: #5e4119;
     --ancient-brown: #5e4119;
     --ancient-red: #984b38;
-    --ancient-gold: #c19237;
+    --ancient-gold: #f59e0b; /* Mais vibrante */
 
     --parchment: #e9e0cc;
     --parchment-light: #f5f1e6;
     --parchment-dark: #ece5d4;
     --parchment-darker: #9e8e63;
     
-    --scripture-highlight-yellow: rgba(255, 213, 105, 0.4);
-    --scripture-highlight-green: rgba(152, 219, 150, 0.4);
-    --scripture-highlight-blue: rgba(145, 190, 242, 0.4);
-    --scripture-highlight-purple: rgba(187, 155, 228, 0.4);
-    --scripture-highlight-red: rgba(229, 146, 146, 0.4);
+    /* Highlights mais vibrantes */
+    --scripture-highlight-yellow: rgba(255, 213, 105, 0.6);
+    --scripture-highlight-green: rgba(152, 219, 150, 0.6);
+    --scripture-highlight-blue: rgba(145, 190, 242, 0.6);
+    --scripture-highlight-purple: rgba(187, 155, 228, 0.6);
+    --scripture-highlight-red: rgba(229, 146, 146, 0.6);
   }
 
   .dark {
@@ -80,7 +81,7 @@
     --popover: 30 10% 10%;
     --popover-foreground: 40 30% 90%;
 
-    --primary: 36 56% 65%;
+    --primary: 260 75% 70%; /* Purple mais claro no dark */
     --primary-foreground: 30 25% 12%;
 
     --secondary: 30 15% 22%;
@@ -89,7 +90,7 @@
     --muted: 30 15% 22%;
     --muted-foreground: 40 30% 75%;
 
-    --accent: 36 30% 45%;
+    --accent: 280 65% 75%; /* Accent mais claro no dark */
     --accent-foreground: 40 30% 90%;
 
     --destructive: 0 62.8% 30.6%;
@@ -97,16 +98,16 @@
 
     --border: 30 15% 30%;
     --input: 30 15% 30%;
-    --ring: 36 56% 65%;
+    --ring: 260 75% 70%;
 
     --sidebar-background: 30 25% 12%;
     --sidebar-foreground: 40 30% 90%;
-    --sidebar-primary: 36 56% 65%;
+    --sidebar-primary: 260 75% 70%;
     --sidebar-primary-foreground: 30 25% 12%;
     --sidebar-accent: 30 15% 22%;
     --sidebar-accent-foreground: 40 30% 90%;
     --sidebar-border: 30 15% 30%;
-    --sidebar-ring: 36 56% 65%;
+    --sidebar-ring: 260 75% 70%;
     
     /* Dark Mode Bible App Theme Colors */
     --bible-background: hsl(30, 25%, 12%);
@@ -127,11 +128,11 @@
     --parchment-dark: hsl(30, 10%, 10%);
     --parchment-darker: hsl(30, 15%, 5%);
     
-    --scripture-highlight-yellow: rgba(255, 213, 105, 0.2);
-    --scripture-highlight-green: rgba(152, 219, 150, 0.2);
-    --scripture-highlight-blue: rgba(145, 190, 242, 0.2);
-    --scripture-highlight-purple: rgba(187, 155, 228, 0.2);
-    --scripture-highlight-red: rgba(229, 146, 146, 0.2);
+    --scripture-highlight-yellow: rgba(255, 213, 105, 0.3);
+    --scripture-highlight-green: rgba(152, 219, 150, 0.3);
+    --scripture-highlight-blue: rgba(145, 190, 242, 0.3);
+    --scripture-highlight-purple: rgba(187, 155, 228, 0.3);
+    --scripture-highlight-red: rgba(229, 146, 146, 0.3);
   }
 
   /* Global Base Styles */
@@ -154,7 +155,7 @@
   body {
     @apply font-dmsans antialiased tracking-modern leading-relaxed;
     color: var(--bible-title) !important;
-    background: linear-gradient(120deg, var(--bible-background), #e8dfc6) !important;
+    background: linear-gradient(135deg, #f0e9d8, #faf5f0) !important;
     overflow-x: hidden;
   }
 
