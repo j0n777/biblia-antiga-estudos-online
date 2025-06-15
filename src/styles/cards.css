@@ -1,39 +1,55 @@
 
-
 @layer components {
+  /* APENAS UTILIDADES ESPECÍFICAS - SEM CORES */
+  
   .achievement-badge {
-    @apply flex items-center justify-center w-16 h-16 rounded-xl bg-ancient-gold text-white text-xl font-bold shadow-md;
+    @apply flex items-center justify-center w-16 h-16 rounded-xl text-white text-xl font-bold shadow-md;
+    background-color: hsl(var(--ancient-gold)) !important;
   }
 
   .card-shadow {
-    @apply shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl;
-    box-shadow: 0 4px 20px rgba(92, 63, 23, 0.1);
+    @apply transition-shadow duration-300 rounded-xl;
+    box-shadow: 0 8px 24px rgba(74, 55, 40, 0.15), 0 2px 8px rgba(74, 55, 40, 0.08) !important;
   }
 
   .dark .card-shadow {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   }
 
-  /* 
-  ⚠️ AVISO IMPORTANTE ⚠️
-  NÃO CRIAR REGRAS DE COR ESPECÍFICAS PARA CARDS AQUI!
-  Todas as cores de cards são definidas em global-components.css
-  Este arquivo só deve conter utilidades gerais sem cores específicas.
-  */
-
-  /* Ensure cards and other elements have rounded corners */
+  /* GARANTIR BORDAS ARREDONDADAS */
   .card,
   .achievement-card,
   .profile-card,
   .verse-card,
   .search-card,
-  .bible-study-card {
-    @apply rounded-xl;
-  }
-
-  /* Add consistent rounded borders */
+  .bible-study-card,
   .rounded-borders {
     @apply rounded-xl;
   }
-}
 
+  /* EFEITOS ESPECIAIS PARA CARDS JOVIAIS */
+  .card-jovial {
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--secondary)));
+    border: 2px solid hsl(var(--border));
+    border-radius: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-jovial::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+  }
+}

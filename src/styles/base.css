@@ -5,137 +5,143 @@
 
 @layer base {
   :root {
-    --background: 43 43% 96%;
-    --foreground: 30 36% 12%;
+    /* CORES DE FUNDO PRINCIPAIS - Fixadas para garantir contraste */
+    --background: 240 10% 98%; /* Quase branco com leve tom bege */
+    --foreground: 30 36% 12%; /* Marrom escuro para texto */
 
-    --card: 43 36% 94%; /* Bege claro saturado para contraste */
+    /* CARDS - Bege claro com MUITO mais contraste */
+    --card: 35 25% 88%; /* Bege bem mais escuro e saturado */
     --card-foreground: 30 36% 12%;
 
-    --popover: 255 255 255;
+    /* COMPONENTES UI */
+    --popover: 0 0% 100%; /* Branco puro */
     --popover-foreground: 30 36% 12%;
 
-    --primary: 260 75% 60%; /* Purple mais vibrante */
-    --primary-foreground: 255 255 255;
+    --primary: 260 75% 60%; /* Roxo vibrante */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 43 31% 91%;
+    --secondary: 35 20% 85%; /* Bege médio */
     --secondary-foreground: 30 36% 12%;
 
-    --muted: 43 15% 85%;
-    --muted-foreground: 30 10% 40%;
+    --muted: 35 15% 82%; /* Bege acinzentado */
+    --muted-foreground: 30 15% 45%;
 
-    --accent: 280 65% 65%; /* Accent mais vibrante */
-    --accent-foreground: 30 65% 23%;
+    --accent: 280 65% 65%; /* Accent vibrante */
+    --accent-foreground: 30 36% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 30 30% 80%;
-    --input: 30 30% 80%;
-    --ring: 260 75% 60%; /* Ring mais vibrante */
+    /* BORDAS E INPUTS */
+    --border: 35 30% 75%; /* Borda visível em bege médio */
+    --input: 35 25% 88%; /* Mesmo tom dos cards */
+    --ring: 260 75% 60%;
 
     --radius: 1rem;
 
-    --sidebar-background: 43 43% 96%;
+    /* SIDEBAR */
+    --sidebar-background: 240 10% 98%;
     --sidebar-foreground: 30 36% 12%;
     --sidebar-primary: 260 75% 60%;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 43 31% 91%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 35 20% 85%;
     --sidebar-accent-foreground: 30 36% 12%;
-    --sidebar-border: 30 30% 80%;
+    --sidebar-border: 35 30% 75%;
     --sidebar-ring: 260 75% 60%;
     
-    /* Bible App Theme Colors - Mais jovens e vibrantes */
-    --bible-background: linear-gradient(135deg, #f0e9d8, #faf5f0);
-    --bible-box: #e9e0cc;
-    --bible-controls: #f5f1e6;
-    --bible-title: #5e4119;
-    --bible-subtitle: #984b38;
+    /* CORES ESPECÍFICAS DO APP BÍBLICO */
+    --bible-background: linear-gradient(135deg, #faf8f5, #f5f1ea);
+    --bible-box: #e8dcc6; /* Tom mais escuro para cards */
+    --bible-controls: #f0e6d3;
+    --bible-title: #4a3728;
+    --bible-subtitle: #8b4513;
     
-    --scripture-heading: #5e4119;
-    --scripture-text: #3a2a12;
-    --scripture-verse: #5e4119;
-    --ancient-brown: #5e4119;
-    --ancient-red: #984b38;
-    --ancient-gold: #f59e0b; /* Mais vibrante */
+    --scripture-heading: #4a3728;
+    --scripture-text: #2d1810;
+    --scripture-verse: #4a3728;
+    --ancient-brown: #4a3728;
+    --ancient-red: #8b4513;
+    --ancient-gold: #d4a574;
 
-    --parchment: #e9e0cc;
-    --parchment-light: #f5f1e6;
-    --parchment-dark: #ece5d4;
-    --parchment-darker: #9e8e63;
+    /* TONS DE PERGAMINHO */
+    --parchment: #e8dcc6;
+    --parchment-light: #f0e6d3;
+    --parchment-dark: #ddd1bb;
+    --parchment-darker: #8b7355;
     
-    /* Highlights mais vibrantes */
-    --scripture-highlight-yellow: rgba(255, 213, 105, 0.6);
-    --scripture-highlight-green: rgba(152, 219, 150, 0.6);
-    --scripture-highlight-blue: rgba(145, 190, 242, 0.6);
-    --scripture-highlight-purple: rgba(187, 155, 228, 0.6);
-    --scripture-highlight-red: rgba(229, 146, 146, 0.6);
+    /* DESTAQUES MAIS VIBRANTES */
+    --scripture-highlight-yellow: rgba(255, 235, 59, 0.4);
+    --scripture-highlight-green: rgba(76, 175, 80, 0.4);
+    --scripture-highlight-blue: rgba(33, 150, 243, 0.4);
+    --scripture-highlight-purple: rgba(156, 39, 176, 0.4);
+    --scripture-highlight-red: rgba(244, 67, 54, 0.4);
   }
 
   .dark {
-    --background: 30 25% 12%;
-    --foreground: 40 30% 90%;
+    --background: 30 25% 8%; /* Fundo bem escuro */
+    --foreground: 40 30% 92%;
 
-    --card: 30 25% 16%; /* Mais claro que o background em modo escuro */
-    --card-foreground: 40 30% 90%;
+    --card: 30 20% 12%; /* Cards mais claros que o fundo */
+    --card-foreground: 40 30% 92%;
 
-    --popover: 30 10% 10%;
-    --popover-foreground: 40 30% 90%;
+    --popover: 30 15% 10%;
+    --popover-foreground: 40 30% 92%;
 
-    --primary: 260 75% 70%; /* Purple mais claro no dark */
-    --primary-foreground: 30 25% 12%;
+    --primary: 260 75% 75%; /* Roxo mais claro no escuro */
+    --primary-foreground: 30 25% 8%;
 
-    --secondary: 30 15% 22%;
-    --secondary-foreground: 40 30% 90%;
+    --secondary: 30 15% 18%;
+    --secondary-foreground: 40 30% 92%;
 
-    --muted: 30 15% 22%;
-    --muted-foreground: 40 30% 75%;
+    --muted: 30 10% 15%;
+    --muted-foreground: 40 20% 70%;
 
-    --accent: 280 65% 75%; /* Accent mais claro no dark */
-    --accent-foreground: 40 30% 90%;
+    --accent: 280 65% 80%;
+    --accent-foreground: 40 30% 92%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 40 30% 90%;
+    --destructive: 0 75% 65%;
+    --destructive-foreground: 40 30% 92%;
 
-    --border: 30 15% 30%;
-    --input: 30 15% 30%;
-    --ring: 260 75% 70%;
+    --border: 30 15% 25%;
+    --input: 30 20% 12%;
+    --ring: 260 75% 75%;
 
-    --sidebar-background: 30 25% 12%;
-    --sidebar-foreground: 40 30% 90%;
-    --sidebar-primary: 260 75% 70%;
-    --sidebar-primary-foreground: 30 25% 12%;
-    --sidebar-accent: 30 15% 22%;
-    --sidebar-accent-foreground: 40 30% 90%;
-    --sidebar-border: 30 15% 30%;
-    --sidebar-ring: 260 75% 70%;
+    --sidebar-background: 30 25% 8%;
+    --sidebar-foreground: 40 30% 92%;
+    --sidebar-primary: 260 75% 75%;
+    --sidebar-primary-foreground: 30 25% 8%;
+    --sidebar-accent: 30 15% 18%;
+    --sidebar-accent-foreground: 40 30% 92%;
+    --sidebar-border: 30 15% 25%;
+    --sidebar-ring: 260 75% 75%;
     
-    /* Dark Mode Bible App Theme Colors */
-    --bible-background: hsl(30, 25%, 12%);
-    --bible-box: hsl(30, 20%, 15%);
-    --bible-controls: hsl(30, 15%, 22%);
-    --bible-title: hsl(36, 30%, 80%);
-    --bible-subtitle: hsl(40, 15%, 95%);
+    /* Dark Mode Bible Colors */
+    --bible-background: hsl(30, 25%, 8%);
+    --bible-box: hsl(30, 20%, 12%);
+    --bible-controls: hsl(30, 15%, 18%);
+    --bible-title: hsl(36, 30%, 85%);
+    --bible-subtitle: hsl(40, 25%, 90%);
     
-    --scripture-heading: hsl(36, 30%, 80%);
-    --scripture-text: hsl(40, 15%, 95%);
-    --scripture-verse: hsl(36, 30%, 80%);
-    --ancient-brown: hsl(36, 30%, 80%);
-    --ancient-red: hsl(12, 45%, 70%);
-    --ancient-gold: hsl(36, 56%, 65%);
+    --scripture-heading: hsl(36, 30%, 85%);
+    --scripture-text: hsl(40, 25%, 90%);
+    --scripture-verse: hsl(36, 30%, 85%);
+    --ancient-brown: hsl(36, 30%, 85%);
+    --ancient-red: hsl(12, 45%, 75%);
+    --ancient-gold: hsl(36, 56%, 70%);
 
-    --parchment: hsl(30, 20%, 15%);
-    --parchment-light: hsl(30, 15%, 22%);
-    --parchment-dark: hsl(30, 10%, 10%);
-    --parchment-darker: hsl(30, 15%, 5%);
+    --parchment: hsl(30, 20%, 12%);
+    --parchment-light: hsl(30, 15%, 18%);
+    --parchment-dark: hsl(30, 10%, 8%);
+    --parchment-darker: hsl(30, 5%, 5%);
     
-    --scripture-highlight-yellow: rgba(255, 213, 105, 0.3);
-    --scripture-highlight-green: rgba(152, 219, 150, 0.3);
-    --scripture-highlight-blue: rgba(145, 190, 242, 0.3);
-    --scripture-highlight-purple: rgba(187, 155, 228, 0.3);
-    --scripture-highlight-red: rgba(229, 146, 146, 0.3);
+    --scripture-highlight-yellow: rgba(255, 235, 59, 0.2);
+    --scripture-highlight-green: rgba(76, 175, 80, 0.2);
+    --scripture-highlight-blue: rgba(33, 150, 243, 0.2);
+    --scripture-highlight-purple: rgba(156, 39, 176, 0.2);
+    --scripture-highlight-red: rgba(244, 67, 54, 0.2);
   }
 
-  /* Global Base Styles */
+  /* ESTILOS GLOBAIS BASE */
   * {
     @apply border-border;
     scrollbar-width: none;
@@ -154,18 +160,13 @@
 
   body {
     @apply font-dmsans antialiased tracking-modern leading-relaxed;
-    color: var(--bible-title) !important;
-    background: linear-gradient(135deg, #f0e9d8, #faf5f0) !important;
+    color: hsl(var(--foreground)) !important;
+    background: hsl(var(--background)) !important;
     overflow-x: hidden;
-  }
-
-  .dark body {
-    color: var(--bible-title) !important;
-    background: var(--bible-background) !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-oldstyle tracking-tighter font-normal;
-    color: var(--bible-title) !important;
+    color: hsl(var(--foreground)) !important;
   }
 }

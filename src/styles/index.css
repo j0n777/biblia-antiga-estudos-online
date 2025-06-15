@@ -3,24 +3,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import base styles first */
+/* ORDEM CORRETA DE IMPORTAÇÃO - FUNDAMENTAL PARA FUNCIONAMENTO */
+
+/* 1. Base styles primeiro */
 @import './base.css';
 
-/* Import layout and typography next */
+/* 2. Layout e typography */
 @import './layout.css';
 @import './typography.css';
 
-/* Import specific component styles */
+/* 3. Componentes específicos */
 @import './buttons.css';
 @import './forms.css';
-@import './cards.css';
 @import './dropdowns.css';
 @import './scripture.css';
 @import './bible.css';
-@import './components.css';
 
-/* Import global styles LAST to ensure they override other styles */
+/* 4. Estilos globais POR ÚLTIMO para sobrescrever tudo */
 @import './global-components.css';
 @import './global-buttons.css';
 @import './global-inputs.css';
+
+/* 5. Cards e utilities por último */
+@import './cards.css';
 @import './utilities.css';
+
+/* 6. Componentes genéricos por último de tudo */
+@import './components.css';

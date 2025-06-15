@@ -84,39 +84,39 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Bible app specific colors - Cores mais jovens e vibrantes
+				// CORES ESPECÍFICAS DO APP BÍBLICO - USANDO HSL
 				bible: {
-					background: '#f0e9d8',
-					box: '#e9e0cc',
-					controls: '#f5f1e6',
-					title: '#5e4119',
-					subtitle: '#984b38'
+					background: 'hsl(var(--background))',
+					box: 'hsl(var(--card))',
+					controls: 'hsl(var(--muted))',
+					title: 'hsl(var(--foreground))',
+					subtitle: 'hsl(var(--muted-foreground))'
 				},
 				parchment: {
-					light: '#f5f1e6',
-					DEFAULT: '#e9e0cc',
-					dark: '#ece5d4',
-					darker: '#9e8e63'
+					light: 'hsl(var(--muted))',
+					DEFAULT: 'hsl(var(--card))',
+					dark: 'hsl(var(--secondary))',
+					darker: 'hsl(var(--border))'
 				},
 				scripture: {
-					heading: '#5e4119',
-					text: '#3a2a12',
-					verse: '#5e4119',
-					subtitle: '#984b38',
+					heading: 'hsl(var(--foreground))',
+					text: 'hsl(var(--foreground))',
+					verse: 'hsl(var(--foreground))',
+					subtitle: 'hsl(var(--muted-foreground))',
 					highlight: {
-						yellow: 'rgba(255, 213, 105, 0.6)',
-						green: 'rgba(152, 219, 150, 0.6)',
-						blue: 'rgba(145, 190, 242, 0.6)',
-						purple: 'rgba(187, 155, 228, 0.6)',
-						red: 'rgba(229, 146, 146, 0.6)',
+						yellow: 'rgba(255, 235, 59, 0.4)',
+						green: 'rgba(76, 175, 80, 0.4)',
+						blue: 'rgba(33, 150, 243, 0.4)',
+						purple: 'rgba(156, 39, 176, 0.4)',
+						red: 'rgba(244, 67, 54, 0.4)',
 					}
 				},
 				ancient: {
-					brown: '#5e4119',
-					red: '#984b38',
-					gold: '#f59e0b', // Mais vibrante
+					brown: 'hsl(var(--foreground))',
+					red: 'hsl(var(--destructive))',
+					gold: '#d4a574',
 				},
-				// Cores jovens adicionais
+				// CORES JOVIAIS E VIBRANTES
 				vibrant: {
 					purple: '#8b5cf6',
 					pink: '#ec4899',
@@ -197,6 +197,14 @@ export default {
 					'100%': { 
 						backgroundPosition: '200% 0' 
 					}
+				},
+				'wiggle': {
+					'0%, 100%': { transform: 'rotate(-3deg)' },
+					'50%': { transform: 'rotate(3deg)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
@@ -207,13 +215,15 @@ export default {
 				'slide-up': 'slide-up 0.3s ease-out',
 				'bounce-gentle': 'bounce-gentle 2s infinite',
 				'pulse-glow': 'pulse-glow 2s infinite',
-				'shimmer': 'shimmer 2s infinite linear'
+				'shimmer': 'shimmer 2s infinite linear',
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'parchment-texture': "url('/parchment-texture.jpg')",
 				'parchment-dark': "url('/parchment-dark.jpg')",
 				'ornamental-border': "url('/ornamental-border.png')",
-				'bible-gradient': 'linear-gradient(135deg, #f0e9d8, #faf5f0)',
+				'bible-gradient': 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--card)))',
 				'vibrant-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 				'young-gradient': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
 				'fresh-gradient': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
