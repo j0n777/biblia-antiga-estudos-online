@@ -1,10 +1,8 @@
 
 @layer components {
-  /* =================================
-     SISTEMA DE CARDS GLOBAL - VERSÃO CORRIGIDA
-     ================================= */
+  /* SISTEMA DE CARDS GLOBAL - USA VARIÁVEIS CSS NATIVAS */
   
-  /* FORÇA APLICAÇÃO DE ESTILOS EM TODOS OS CARDS */
+  /* TODOS OS CARDS USAM AS VARIÁVEIS CSS DO TEMA */
   .card,
   .bg-card,
   [data-radix-dialog-content],
@@ -16,124 +14,104 @@
   .verse-card,
   .search-card,
   .bible-study-card,
-  [class*="card"],
+  [class*="bg-card"],
+  [class*="parchment"],
+  .alert,
+  .subtitle-box,
   div[class*="card"],
   section[class*="card"],
-  article[class*="card"] {
-    background-color: hsl(var(--card)) !important;
-    border: 2px solid hsl(var(--border)) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 8px 24px rgba(74, 55, 40, 0.15), 0 2px 8px rgba(74, 55, 40, 0.08) !important;
-    position: relative;
-    overflow: hidden;
+  article[class*="card"],
+  div.card,
+  section.card,
+  article.card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
-  /* GRADIENTE SUTIL PARA CARDS */
-  .card::before,
-  .bg-card::before,
-  .content-box::before,
-  [class*="card"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, 
-      hsla(var(--card), 0.95) 0%, 
-      hsla(var(--card), 1) 100%);
-    z-index: -1;
-    pointer-events: none;
+  /* FORÇAR APLICAÇÃO ESPECÍFICA PARA COMPONENTES SHADCN/UI */
+  [data-radix-collection-item],
+  .ui-card,
+  .shadcn-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
-  /* ESTILO ESPECIAL PARA SUBTITLE-BOX */
-  .subtitle-box {
-    padding: 1rem !important;
-    margin-bottom: 1.5rem !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--card)) 100%) !important;
-    border: 2px solid hsl(var(--border)) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 4px 16px rgba(74, 55, 40, 0.12) !important;
+  /* PADRÃO PARA SUBTÍTULOS EM BOXES */
+  .subtitle-box,
+  .page-header + .page-content .subtitle-box,
+  div.subtitle-box {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
   }
 
   .subtitle-box h2,
   .subtitle-box h3,
   .subtitle-box .subtitle-text {
-    color: hsl(var(--foreground)) !important;
-    font-family: theme('fontFamily.oldstyle') !important;
-    font-weight: 600 !important;
-    margin: 0 !important;
+    color: hsl(var(--foreground));
+    font-family: theme('fontFamily.oldstyle');
+    font-weight: 400;
+    margin: 0;
   }
 
-  /* CONTENT-BOX COM ESTILO ESPECIAL */
-  .content-box {
-    background: linear-gradient(135deg, 
-      hsl(var(--background)) 0%, 
-      hsl(var(--card)) 100%) !important;
-    padding: 2rem !important;
-    margin-bottom: 1.5rem !important;
-    border: 2px solid hsl(var(--border)) !important;
-    border-radius: 1rem !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 8px 24px rgba(74, 55, 40, 0.15) !important;
+  /* CONTENT-BOX STYLING */
+  .content-box,
+  div.content-box {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
   }
 
-  /* COMPONENTES SHADCN/UI */
-  [data-radix-tabs-list] {
-    background-color: hsl(var(--muted)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    border-radius: 0.75rem !important;
-    padding: 0.25rem !important;
+  /* COMPONENTES SHADCN */
+  [data-radix-tabs-list],
+  .bg-tabs-list {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
   }
 
-  /* HOVER EFFECTS PARA CARDS */
-  .card:hover,
-  .bg-card:hover,
-  [class*="card"]:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 12px 32px rgba(74, 55, 40, 0.2), 0 4px 12px rgba(74, 55, 40, 0.12) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-
-  /* MODO ESCURO - SOMBRAS MAIS INTENSAS */
-  .dark .card,
-  .dark .bg-card,
-  .dark .content-box,
-  .dark .subtitle-box,
-  .dark [class*="card"] {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-    border-color: hsl(var(--border)) !important;
-  }
-
-  .dark .card:hover,
-  .dark .bg-card:hover,
-  .dark [class*="card"]:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  }
-
-  /* GARANTIR QUE BACKGROUNDS SEJAM APLICADOS */
+  /* FUNDO DA PÁGINA MANTÉM A COR ORIGINAL */
   .bg-background {
-    background-color: hsl(var(--background)) !important;
+    background-color: hsl(var(--background));
   }
 
   .text-foreground {
-    color: hsl(var(--foreground)) !important;
+    color: hsl(var(--foreground));
   }
 
   .bg-muted {
-    background-color: hsl(var(--muted)) !important;
+    background-color: hsl(var(--muted));
   }
 
-  /* FORÇAR APLICAÇÃO EM COMPONENTES ESPECÍFICOS */
-  .ui-card,
-  .shadcn-card,
-  [data-radix-collection-item] {
-    background-color: hsl(var(--card)) !important;
-    border: 2px solid hsl(var(--border)) !important;
-    border-radius: 1rem !important;
-    box-shadow: 0 8px 24px rgba(74, 55, 40, 0.15) !important;
+  /* FORÇAR APLICAÇÃO EM TODOS OS ELEMENTOS COM CLASSE CARD */
+  *[class*="card"] {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(92, 63, 23, 0.12);
+  }
+
+  /* SOMBRA MAIS INTENSA PARA MODO ESCURO */
+  .dark .card,
+  .dark .bg-card,
+  .dark [data-radix-dialog-content],
+  .dark [data-radix-popover-content],
+  .dark .content-box,
+  .dark .subtitle-box,
+  .dark *[class*="card"] {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 }

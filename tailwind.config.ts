@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -84,52 +83,37 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// CORES ESPECÍFICAS DO APP BÍBLICO - USANDO HSL
+				// Bible app specific colors - Updated with new color scheme
 				bible: {
-					background: 'hsl(var(--background))',
-					box: 'hsl(var(--card))',
-					controls: 'hsl(var(--muted))',
-					title: 'hsl(var(--foreground))',
-					subtitle: 'hsl(var(--muted-foreground))'
+					background: '#f0e9d8',
+					box: '#e9e0cc',
+					controls: '#f5f1e6',
+					title: '#5e4119',
+					subtitle: '#984b38'
 				},
 				parchment: {
-					light: 'hsl(var(--muted))',
-					DEFAULT: 'hsl(var(--card))',
-					dark: 'hsl(var(--secondary))',
-					darker: 'hsl(var(--border))'
+					light: '#f5f1e6',
+					DEFAULT: '#e9e0cc',
+					dark: '#ece5d4',
+					darker: '#9e8e63'
 				},
 				scripture: {
-					heading: 'hsl(var(--foreground))',
-					text: 'hsl(var(--foreground))',
-					verse: 'hsl(var(--foreground))',
-					subtitle: 'hsl(var(--muted-foreground))',
+					heading: '#5e4119',
+					text: '#3a2a12',
+					verse: '#5e4119',
+					subtitle: '#984b38',
 					highlight: {
-						yellow: 'rgba(255, 235, 59, 0.4)',
-						green: 'rgba(76, 175, 80, 0.4)',
-						blue: 'rgba(33, 150, 243, 0.4)',
-						purple: 'rgba(156, 39, 176, 0.4)',
-						red: 'rgba(244, 67, 54, 0.4)',
+						yellow: 'rgba(255, 213, 105, 0.4)',
+						green: 'rgba(152, 219, 150, 0.4)',
+						blue: 'rgba(145, 190, 242, 0.4)',
+						purple: 'rgba(187, 155, 228, 0.4)',
+						red: 'rgba(229, 146, 146, 0.4)',
 					}
 				},
 				ancient: {
-					brown: 'hsl(var(--foreground))',
-					red: 'hsl(var(--destructive))',
-					gold: '#d4a574',
-				},
-				// CORES JOVIAIS E VIBRANTES
-				vibrant: {
-					purple: '#8b5cf6',
-					pink: '#ec4899',
-					blue: '#3b82f6',
-					green: '#10b981',
-					orange: '#f97316',
-					yellow: '#eab308',
-					indigo: '#6366f1',
-					teal: '#14b8a6',
-					rose: '#f43f5e',
-					emerald: '#059669',
-					cyan: '#06b6d4',
-					lime: '#65a30d',
+					brown: '#5e4119',
+					red: '#984b38',
+					gold: '#c19237',
 				}
 			},
 			borderRadius: {
@@ -171,40 +155,6 @@ export default {
 				'slide-up': {
 					'0%': { transform: 'translateY(10px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
-				},
-				'bounce-gentle': {
-					'0%, 100%': { 
-						transform: 'translateY(0)', 
-						animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' 
-					},
-					'50%': { 
-						transform: 'translateY(-10%)', 
-						animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' 
-					}
-				},
-				'pulse-glow': {
-					'0%, 100%': { 
-						boxShadow: '0 0 0 0 rgba(139, 92, 246, 0.7)' 
-					},
-					'70%': { 
-						boxShadow: '0 0 0 10px rgba(139, 92, 246, 0)' 
-					}
-				},
-				'shimmer': {
-					'0%': { 
-						backgroundPosition: '-200% 0' 
-					},
-					'100%': { 
-						backgroundPosition: '200% 0' 
-					}
-				},
-				'wiggle': {
-					'0%, 100%': { transform: 'rotate(-3deg)' },
-					'50%': { transform: 'rotate(3deg)' }
-				},
-				'float': {
-					'0%, 100%': { transform: 'translateY(0px)' },
-					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
@@ -212,22 +162,13 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'page-turn': 'page-turn 0.5s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
-				'slide-up': 'slide-up 0.3s ease-out',
-				'bounce-gentle': 'bounce-gentle 2s infinite',
-				'pulse-glow': 'pulse-glow 2s infinite',
-				'shimmer': 'shimmer 2s infinite linear',
-				'wiggle': 'wiggle 1s ease-in-out infinite',
-				'float': 'float 3s ease-in-out infinite'
+				'slide-up': 'slide-up 0.3s ease-out'
 			},
 			backgroundImage: {
 				'parchment-texture': "url('/parchment-texture.jpg')",
 				'parchment-dark': "url('/parchment-dark.jpg')",
 				'ornamental-border': "url('/ornamental-border.png')",
-				'bible-gradient': 'linear-gradient(135deg, hsl(var(--background)), hsl(var(--card)))',
-				'vibrant-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				'young-gradient': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-				'fresh-gradient': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-				'shimmer-gradient': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+				'bible-gradient': 'linear-gradient(120deg, #f0e9d8, #e8dfc6)',
 			},
 		}
 	},
