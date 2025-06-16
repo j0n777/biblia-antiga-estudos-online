@@ -266,28 +266,103 @@ export type Database = {
       }
       bible_word_definitions: {
         Row: {
+          created_at: string | null
           definition: string
+          definition_es: string | null
+          definition_fr: string | null
+          definition_pt: string | null
+          etymology: string | null
           id: string
           language: string
+          part_of_speech: string | null
+          pronunciation: string | null
           strongs_number: string | null
+          strongs_type: string | null
           transliteration: string | null
+          updated_at: string | null
+          usage_notes: string | null
           word: string
         }
         Insert: {
+          created_at?: string | null
           definition: string
+          definition_es?: string | null
+          definition_fr?: string | null
+          definition_pt?: string | null
+          etymology?: string | null
           id?: string
           language: string
+          part_of_speech?: string | null
+          pronunciation?: string | null
           strongs_number?: string | null
+          strongs_type?: string | null
           transliteration?: string | null
+          updated_at?: string | null
+          usage_notes?: string | null
           word: string
         }
         Update: {
+          created_at?: string | null
           definition?: string
+          definition_es?: string | null
+          definition_fr?: string | null
+          definition_pt?: string | null
+          etymology?: string | null
           id?: string
           language?: string
+          part_of_speech?: string | null
+          pronunciation?: string | null
           strongs_number?: string | null
+          strongs_type?: string | null
           transliteration?: string | null
+          updated_at?: string | null
+          usage_notes?: string | null
           word?: string
+        }
+        Relationships: []
+      }
+      bible_word_mappings: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          source_book_id: string
+          source_chapter_number: number
+          source_verse_number: number
+          source_version_id: string
+          source_word: string
+          source_word_position: number
+          strongs_number: string | null
+          target_version_id: string
+          target_word: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          source_book_id: string
+          source_chapter_number: number
+          source_verse_number: number
+          source_version_id: string
+          source_word: string
+          source_word_position: number
+          strongs_number?: string | null
+          target_version_id: string
+          target_word: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          source_book_id?: string
+          source_chapter_number?: number
+          source_verse_number?: number
+          source_version_id?: string
+          source_word?: string
+          source_word_position?: number
+          strongs_number?: string | null
+          target_version_id?: string
+          target_word?: string
         }
         Relationships: []
       }
@@ -714,6 +789,36 @@ export type Database = {
           },
         ]
       }
+      word_definition_cache: {
+        Row: {
+          created_at: string | null
+          definition_data: Json
+          expires_at: string | null
+          id: string
+          language: string
+          version_id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string | null
+          definition_data: Json
+          expires_at?: string | null
+          id?: string
+          language: string
+          version_id: string
+          word: string
+        }
+        Update: {
+          created_at?: string | null
+          definition_data?: Json
+          expires_at?: string | null
+          id?: string
+          language?: string
+          version_id?: string
+          word?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -721,6 +826,10 @@ export type Database = {
     Functions: {
       check_and_award_achievements: {
         Args: { user_uuid: string }
+        Returns: undefined
+      }
+      clean_expired_word_cache: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       reset_monthly_free_studies: {

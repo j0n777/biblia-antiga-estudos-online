@@ -6,6 +6,7 @@ import { Copy, Share2, Highlighter, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import BibleStudyButton from '@/components/studies/BibleStudyButton';
+import ClickableWord from './ClickableWord';
 
 export interface BibleVerseProps {
   verse: BibleVerseType;
@@ -56,6 +57,37 @@ const BibleVerse = ({
   // Criar referência do versículo
   const verseReference = `${verse.book_name || verse.book_id} ${verse.chapter_number}:${verse.verse_number}`;
   
+  // Função para renderizar texto com palavras clicáveis
+  const renderClickableText = (text: string) => {
+    const words = text.split(/(\s+)/);
+    
+    return words.map((word, index) => {
+      // Se for apenas espaço em branco, retornar como está
+      if (/^\s+$/.test(word)) {
+        return word;
+      }
+      
+      // Se a palavra tiver mais de 2 caracteres, torná-la clicável
+      const cleanWord = word.replace(/[^\w\u00C0-\u017F]/g, '');
+      if (cleanWord.length > 2) {
+        return (
+          <ClickableWord
+            key={index}
+            word={cleanWord}
+            versionId={verse.version_id || 'kja'}
+            bookId={verse.book_id || ''}
+            chapterNumber={verse.chapter_number || 0}
+            verseNumber={verse.verse_number}
+          >
+            {word}
+          </ClickableWord>
+        );
+      }
+      
+      return word;
+    });
+  };
+  
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -78,7 +110,7 @@ const BibleVerse = ({
               </span>
             )}
             <span className="text-gray-800">
-              {verse.text}
+              {renderClickableText(verse.text)}
             </span>
           </span>
           
