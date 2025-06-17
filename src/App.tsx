@@ -7,6 +7,7 @@ import SearchPage from './pages/Search';
 import ProfilePage from './pages/Profile';
 import AuthPage from './pages/Auth';
 import CommunityPage from './pages/Community';
+import AdminImportPage from './pages/AdminImport';
 import NotFoundPage from './pages/NotFound';
 import { Toaster } from '@/components/ui/toaster';
 import { supabase } from '@/integrations/supabase/client';
@@ -78,6 +79,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/admin-import" element={<AdminImportPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       

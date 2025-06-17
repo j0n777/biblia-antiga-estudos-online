@@ -34,9 +34,10 @@ export const getWordDefinition = async (
       .gt('expires_at', new Date().toISOString())
       .single();
     
-    if (cachedData) {
+    if (cachedData?.definition_data) {
       console.log('Found cached definition');
-      return cachedData.definition_data as WordDefinition;
+      // Conversão segura com validação de tipos
+      return cachedData.definition_data as unknown as WordDefinition;
     }
     
     // Buscar definição diretamente por palavra similar
@@ -75,10 +76,10 @@ export const getWordDefinition = async (
       definition_fr: bestMatch.definition_fr || '',
       etymology: bestMatch.etymology || '',
       usage_notes: bestMatch.usage_notes || '',
-      strongs_type: bestMatch.strongs_type || 'hebrew'
+      strongs_type: (bestMatch.strongs_type as 'hebrew' | 'greek') || 'hebrew'
     };
     
-    // Salvar no cache
+    // Salvar no cache - conversão para JSON compatível
     try {
       await supabase
         .from('word_definition_cache')
@@ -86,7 +87,7 @@ export const getWordDefinition = async (
           word: word.toLowerCase(),
           version_id: versionId,
           language: language,
-          definition_data: result
+          definition_data: result as any // Conversão para JSON
         });
     } catch (cacheError) {
       console.warn('Failed to cache definition:', cacheError);

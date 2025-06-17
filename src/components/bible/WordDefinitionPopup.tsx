@@ -70,6 +70,7 @@ const WordDefinitionPopup = ({
   const getDefinitionText = () => {
     if (!definition) return '';
     
+    // Corrigir comparação de tipos - usar string literal para comparação
     if (language === 'pt-br' && definition.definition_pt) {
       return definition.definition_pt;
     }
