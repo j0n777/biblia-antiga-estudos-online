@@ -71,7 +71,13 @@ const WordDefinitionPopup = ({
     if (!definition) return '';
     
     // Verificar se o idioma atual é português brasileiro
-    const currentLanguage = typeof language === 'string' ? language : language?.code || 'en';
+    let currentLanguage = 'en'; // default
+    if (typeof language === 'string') {
+      currentLanguage = language;
+    } else if (language && typeof language === 'object' && 'code' in language) {
+      currentLanguage = (language as any).code;
+    }
+    
     if (currentLanguage === 'pt-br' && definition.definition_pt) {
       return definition.definition_pt;
     }

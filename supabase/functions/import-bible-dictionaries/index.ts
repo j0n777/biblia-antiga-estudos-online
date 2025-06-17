@@ -44,92 +44,88 @@ serve(async (req) => {
     console.log(`Processing action: ${action}`);
 
     if (action === 'import-dictionaries') {
-      const baseUrl = 'https://raw.githubusercontent.com/j0n777/bibledb/main';
+      // URLs diretas para os arquivos de dicionário
+      const baseUrl = 'https://raw.githubusercontent.com/openscriptures/strongs/master';
       
       // Importar dicionário hebraico
       console.log('Fetching Hebrew dictionary...');
       let hebrewResponse;
       try {
-        hebrewResponse = await fetch(`${baseUrl}/strongs-hebrew-dictionary.js`);
+        hebrewResponse = await fetch(`${baseUrl}/HebrewStrong.json`);
         console.log('Hebrew response status:', hebrewResponse.status);
       } catch (fetchError) {
         console.error('Failed to fetch Hebrew dictionary:', fetchError);
-        throw new Error(`Failed to fetch Hebrew dictionary: ${fetchError.message}`);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to fetch Hebrew dictionary: ${fetchError.message}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
       }
       
       if (!hebrewResponse.ok) {
-        throw new Error(`Failed to fetch Hebrew dictionary: HTTP ${hebrewResponse.status}`);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to fetch Hebrew dictionary: HTTP ${hebrewResponse.status}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
       }
       
-      const hebrewText = await hebrewResponse.text();
-      console.log('Hebrew text length:', hebrewText.length);
-      
-      const hebrewMatches = hebrewText.match(/const strongsHebrewDictionary = (\{[\s\S]*?\});/);
-      if (!hebrewMatches) {
-        console.error('Could not find Hebrew dictionary pattern in:', hebrewText.substring(0, 500));
-        throw new Error('Could not parse Hebrew dictionary structure');
-      }
-      
-      let hebrewDict;
-      try {
-        hebrewDict = eval(`(${hebrewMatches[1]})`);
-        console.log('Hebrew dictionary entries:', Object.keys(hebrewDict).length);
-      } catch (evalError) {
-        console.error('Failed to evaluate Hebrew dictionary:', evalError);
-        throw new Error('Failed to parse Hebrew dictionary data');
-      }
+      const hebrewDict = await hebrewResponse.json();
+      console.log('Hebrew dictionary entries:', Object.keys(hebrewDict).length);
       
       // Importar dicionário grego
       console.log('Fetching Greek dictionary...');
       let greekResponse;
       try {
-        greekResponse = await fetch(`${baseUrl}/strongs-greek-dictionary.js`);
+        greekResponse = await fetch(`${baseUrl}/GreekStrong.json`);
         console.log('Greek response status:', greekResponse.status);
       } catch (fetchError) {
         console.error('Failed to fetch Greek dictionary:', fetchError);
-        throw new Error(`Failed to fetch Greek dictionary: ${fetchError.message}`);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to fetch Greek dictionary: ${fetchError.message}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
       }
       
       if (!greekResponse.ok) {
-        throw new Error(`Failed to fetch Greek dictionary: HTTP ${greekResponse.status}`);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to fetch Greek dictionary: HTTP ${greekResponse.status}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
       }
       
-      const greekText = await greekResponse.text();
-      console.log('Greek text length:', greekText.length);
-      
-      const greekMatches = greekText.match(/const strongsGreekDictionary = (\{[\s\S]*?\});/);
-      if (!greekMatches) {
-        console.error('Could not find Greek dictionary pattern in:', greekText.substring(0, 500));
-        throw new Error('Could not parse Greek dictionary structure');
-      }
-      
-      let greekDict;
-      try {
-        greekDict = eval(`(${greekMatches[1]})`);
-        console.log('Greek dictionary entries:', Object.keys(greekDict).length);
-      } catch (evalError) {
-        console.error('Failed to evaluate Greek dictionary:', evalError);
-        throw new Error('Failed to parse Greek dictionary data');
-      }
+      const greekDict = await greekResponse.json();
+      console.log('Greek dictionary entries:', Object.keys(greekDict).length);
       
       // Processar e inserir entradas hebraicas
       console.log('Processing Hebrew dictionary entries...');
       let hebrewCount = 0;
       for (const [strongsNumber, entry] of Object.entries(hebrewDict)) {
         try {
+          const entryData = entry as any;
           const { error } = await supabase
             .from('bible_word_definitions')
             .upsert({
               strongs_number: strongsNumber,
               strongs_type: 'hebrew',
               language: 'en',
-              word: entry.lemma || '',
-              transliteration: entry.translit || '',
-              pronunciation: entry.phonetic || '',
-              part_of_speech: entry.morph || '',
-              definition: entry.definition || '',
-              etymology: entry.derivation || '',
-              usage_notes: entry.usage || ''
+              word: entryData.lemma || entryData.word || '',
+              transliteration: entryData.translit || entryData.transliteration || '',
+              pronunciation: entryData.phonetic || entryData.pronunciation || '',
+              part_of_speech: entryData.morph || entryData.part_of_speech || '',
+              definition: entryData.definition || entryData.strongs_def || '',
+              etymology: entryData.derivation || entryData.etymology || '',
+              usage_notes: entryData.usage || entryData.usage_notes || ''
             });
           
           if (error) {
@@ -147,19 +143,20 @@ serve(async (req) => {
       let greekCount = 0;
       for (const [strongsNumber, entry] of Object.entries(greekDict)) {
         try {
+          const entryData = entry as any;
           const { error } = await supabase
             .from('bible_word_definitions')
             .upsert({
               strongs_number: strongsNumber,
               strongs_type: 'greek',
               language: 'en',
-              word: entry.lemma || '',
-              transliteration: entry.translit || '',
-              pronunciation: entry.phonetic || '',
-              part_of_speech: entry.morph || '',
-              definition: entry.definition || '',
-              etymology: entry.derivation || '',
-              usage_notes: entry.usage || ''
+              word: entryData.lemma || entryData.word || '',
+              transliteration: entryData.translit || entryData.transliteration || '',
+              pronunciation: entryData.phonetic || entryData.pronunciation || '',
+              part_of_speech: entryData.morph || entryData.part_of_speech || '',
+              definition: entryData.definition || entryData.strongs_def || '',
+              etymology: entryData.derivation || entryData.etymology || '',
+              usage_notes: entryData.usage || entryData.usage_notes || ''
             });
           
           if (error) {
