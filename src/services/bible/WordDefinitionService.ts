@@ -102,16 +102,24 @@ export const getWordDefinition = async (
 
 export const importDictionaries = async (): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await fetch('/api/import-bible-dictionaries', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    console.log('Calling import-bible-dictionaries function...');
+    
+    const response = await supabase.functions.invoke('import-bible-dictionaries', {
       body: JSON.stringify({ action: 'import-dictionaries' }),
     });
     
-    const result = await response.json();
-    return result;
+    console.log('Function response:', response);
+    
+    if (response.error) {
+      console.error('Function error:', response.error);
+      throw new Error(response.error.message || 'Erro na função');
+    }
+    
+    if (!response.data) {
+      throw new Error('Resposta vazia da função');
+    }
+    
+    return response.data;
   } catch (error) {
     console.error('Error importing dictionaries:', error);
     return {
