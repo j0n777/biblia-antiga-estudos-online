@@ -44,14 +44,15 @@ serve(async (req) => {
     console.log(`Processing action: ${action}`);
 
     if (action === 'import-dictionaries') {
-      // URLs diretas para os arquivos de dicionário
-      const baseUrl = 'https://raw.githubusercontent.com/openscriptures/strongs/master';
+      // URLs corretas para os arquivos de dicionário
+      const hebrewUrl = 'https://raw.githubusercontent.com/j0n777/bibledb/4106af1f340d00a54bbb12a48a09554817c74c63/strongs-hebrew-dictionary.js';
+      const greekUrl = 'https://raw.githubusercontent.com/j0n777/bibledb/4106af1f340d00a54bbb12a48a09554817c74c63/strongs-greek-dictionary.js';
       
       // Importar dicionário hebraico
       console.log('Fetching Hebrew dictionary...');
       let hebrewResponse;
       try {
-        hebrewResponse = await fetch(`${baseUrl}/HebrewStrong.json`);
+        hebrewResponse = await fetch(hebrewUrl);
         console.log('Hebrew response status:', hebrewResponse.status);
       } catch (fetchError) {
         console.error('Failed to fetch Hebrew dictionary:', fetchError);
@@ -74,14 +75,14 @@ serve(async (req) => {
         });
       }
       
-      const hebrewDict = await hebrewResponse.json();
-      console.log('Hebrew dictionary entries:', Object.keys(hebrewDict).length);
+      const hebrewText = await hebrewResponse.text();
+      console.log('Hebrew text length:', hebrewText.length);
       
       // Importar dicionário grego
       console.log('Fetching Greek dictionary...');
       let greekResponse;
       try {
-        greekResponse = await fetch(`${baseUrl}/GreekStrong.json`);
+        greekResponse = await fetch(greekUrl);
         console.log('Greek response status:', greekResponse.status);
       } catch (fetchError) {
         console.error('Failed to fetch Greek dictionary:', fetchError);
@@ -104,8 +105,66 @@ serve(async (req) => {
         });
       }
       
-      const greekDict = await greekResponse.json();
-      console.log('Greek dictionary entries:', Object.keys(greekDict).length);
+      const greekText = await greekResponse.text();
+      console.log('Greek text length:', greekText.length);
+      
+      // Função para extrair dados do JavaScript
+      function parseJsDictionary(jsText: string): Record<string, any> {
+        try {
+          // Remover comentários e declarações de variáveis
+          let cleanedText = jsText
+            .replace(/\/\*[\s\S]*?\*\//g, '') // Remove comentários multilinhas
+            .replace(/\/\/.*$/gm, '') // Remove comentários de linha
+            .replace(/^\s*(?:var|let|const)\s+\w+\s*=\s*/m, '') // Remove declaração de variável
+            .replace(/;\s*$/, ''); // Remove ponto e vírgula final
+          
+          // Procurar por padrões de objeto JavaScript
+          const objectMatch = cleanedText.match(/\{[\s\S]*\}/);
+          if (objectMatch) {
+            cleanedText = objectMatch[0];
+          }
+          
+          console.log('Attempting to parse cleaned text (first 500 chars):', cleanedText.substring(0, 500));
+          
+          // Tentar avaliar como JavaScript
+          const result = eval(`(${cleanedText})`);
+          return result;
+        } catch (error) {
+          console.error('Error parsing JS dictionary:', error);
+          console.log('Raw text sample (first 1000 chars):', jsText.substring(0, 1000));
+          throw new Error(`Could not parse dictionary structure: ${error.message}`);
+        }
+      }
+      
+      let hebrewDict, greekDict;
+      
+      try {
+        hebrewDict = parseJsDictionary(hebrewText);
+        console.log('Hebrew dictionary entries:', Object.keys(hebrewDict).length);
+      } catch (error) {
+        console.error('Failed to parse Hebrew dictionary:', error);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to parse Hebrew dictionary: ${error.message}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
+      }
+      
+      try {
+        greekDict = parseJsDictionary(greekText);
+        console.log('Greek dictionary entries:', Object.keys(greekDict).length);
+      } catch (error) {
+        console.error('Failed to parse Greek dictionary:', error);
+        return new Response(JSON.stringify({
+          success: false,
+          message: `Failed to parse Greek dictionary: ${error.message}`
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        });
+      }
       
       // Processar e inserir entradas hebraicas
       console.log('Processing Hebrew dictionary entries...');
@@ -113,19 +172,21 @@ serve(async (req) => {
       for (const [strongsNumber, entry] of Object.entries(hebrewDict)) {
         try {
           const entryData = entry as any;
+          
+          // Adaptar aos campos do arquivo específico
           const { error } = await supabase
             .from('bible_word_definitions')
             .upsert({
               strongs_number: strongsNumber,
               strongs_type: 'hebrew',
               language: 'en',
-              word: entryData.lemma || entryData.word || '',
-              transliteration: entryData.translit || entryData.transliteration || '',
-              pronunciation: entryData.phonetic || entryData.pronunciation || '',
-              part_of_speech: entryData.morph || entryData.part_of_speech || '',
-              definition: entryData.definition || entryData.strongs_def || '',
-              etymology: entryData.derivation || entryData.etymology || '',
-              usage_notes: entryData.usage || entryData.usage_notes || ''
+              word: entryData.lemma || entryData.word || entryData.hebrew || '',
+              transliteration: entryData.translit || entryData.transliteration || entryData.xlit || '',
+              pronunciation: entryData.phonetic || entryData.pronunciation || entryData.pronounce || '',
+              part_of_speech: entryData.morph || entryData.part_of_speech || entryData.pos || '',
+              definition: entryData.definition || entryData.strongs_def || entryData.brief || entryData.long || '',
+              etymology: entryData.derivation || entryData.etymology || entryData.derive || '',
+              usage_notes: entryData.usage || entryData.usage_notes || entryData.comment || ''
             });
           
           if (error) {
@@ -144,19 +205,21 @@ serve(async (req) => {
       for (const [strongsNumber, entry] of Object.entries(greekDict)) {
         try {
           const entryData = entry as any;
+          
+          // Adaptar aos campos do arquivo específico
           const { error } = await supabase
             .from('bible_word_definitions')
             .upsert({
               strongs_number: strongsNumber,
               strongs_type: 'greek',
               language: 'en',
-              word: entryData.lemma || entryData.word || '',
-              transliteration: entryData.translit || entryData.transliteration || '',
-              pronunciation: entryData.phonetic || entryData.pronunciation || '',
-              part_of_speech: entryData.morph || entryData.part_of_speech || '',
-              definition: entryData.definition || entryData.strongs_def || '',
-              etymology: entryData.derivation || entryData.etymology || '',
-              usage_notes: entryData.usage || entryData.usage_notes || ''
+              word: entryData.lemma || entryData.word || entryData.greek || '',
+              transliteration: entryData.translit || entryData.transliteration || entryData.xlit || '',
+              pronunciation: entryData.phonetic || entryData.pronunciation || entryData.pronounce || '',
+              part_of_speech: entryData.morph || entryData.part_of_speech || entryData.pos || '',
+              definition: entryData.definition || entryData.strongs_def || entryData.brief || entryData.long || '',
+              etymology: entryData.derivation || entryData.etymology || entryData.derive || '',
+              usage_notes: entryData.usage || entryData.usage_notes || entryData.comment || ''
             });
           
           if (error) {
