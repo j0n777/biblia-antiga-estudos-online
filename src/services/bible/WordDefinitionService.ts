@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface WordDefinition {
@@ -21,7 +20,7 @@ export const getWordDefinition = async (
   versionId: string,
   language: string = 'en'
 ): Promise<WordDefinition | null> => {
-  console.log(`Searching definition for word: ${word} in version: ${versionId}, language: ${language}`);
+  console.log(`Searching Strong's definition for word: ${word} in version: ${versionId}, language: ${language}`);
   
   try {
     // Primeiro, verificar se existe no cache
@@ -35,34 +34,47 @@ export const getWordDefinition = async (
       .single();
     
     if (cachedData?.definition_data) {
-      console.log('Found cached definition');
-      // Conversão segura com validação de tipos
+      console.log('Found cached Strong\'s definition for:', word);
       return cachedData.definition_data as unknown as WordDefinition;
     }
     
-    // Buscar definição diretamente por palavra similar
+    // Buscar definição diretamente no dicionário Strong's
+    console.log('Searching Strong\'s database for:', word);
     const { data: definitions, error } = await supabase
       .from('bible_word_definitions')
       .select('*')
       .or(`word.ilike.%${word}%,transliteration.ilike.%${word}%`)
-      .eq('language', 'en') // Por enquanto, só temos definições em inglês
-      .limit(5);
+      .eq('language', 'en') // Definições em inglês do Strong's
+      .limit(10);
     
     if (error) {
-      console.error('Error fetching word definition:', error);
+      console.error('Error fetching Strong\'s definition:', error);
       throw error;
     }
     
     if (!definitions || definitions.length === 0) {
-      console.log('No definition found for word:', word);
+      console.log('No Strong\'s definition found for word:', word);
       return null;
     }
     
+    console.log(`Found ${definitions.length} potential Strong's matches for: ${word}`);
+    
     // Encontrar a melhor correspondência
-    const bestMatch = definitions.find(def => 
-      def.word?.toLowerCase() === word.toLowerCase() ||
+    const exactMatch = definitions.find(def => 
+      def.word?.toLowerCase() === word.toLowerCase()
+    );
+    
+    const transliterationMatch = definitions.find(def => 
       def.transliteration?.toLowerCase() === word.toLowerCase()
-    ) || definitions[0];
+    );
+    
+    const bestMatch = exactMatch || transliterationMatch || definitions[0];
+    
+    console.log('Selected Strong\'s match:', {
+      word: bestMatch.word,
+      strongs_number: bestMatch.strongs_number,
+      strongs_type: bestMatch.strongs_type
+    });
     
     const result: WordDefinition = {
       strongs_number: bestMatch.strongs_number || '',
@@ -79,7 +91,7 @@ export const getWordDefinition = async (
       strongs_type: (bestMatch.strongs_type as 'hebrew' | 'greek') || 'hebrew'
     };
     
-    // Salvar no cache - conversão para JSON compatível
+    // Salvar no cache para futuras consultas
     try {
       await supabase
         .from('word_definition_cache')
@@ -87,10 +99,12 @@ export const getWordDefinition = async (
           word: word.toLowerCase(),
           version_id: versionId,
           language: language,
-          definition_data: result as any // Conversão para JSON
+          definition_data: result as any,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 dias
         });
+      console.log('Cached Strong\'s definition for:', word);
     } catch (cacheError) {
-      console.warn('Failed to cache definition:', cacheError);
+      console.warn('Failed to cache Strong\'s definition:', cacheError);
     }
     
     return result;
