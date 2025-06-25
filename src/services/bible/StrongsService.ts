@@ -67,7 +67,16 @@ export const getSampleStrongsWords = async (limit: number = 10): Promise<Strongs
       return [];
     }
     
-    return data || [];
+    // Properly cast the data to match our interface
+    return (data || []).map(item => ({
+      id: item.id,
+      word: item.word,
+      transliteration: item.transliteration || '',
+      strongs_number: item.strongs_number || '',
+      strongs_type: (item.strongs_type as 'hebrew' | 'greek') || 'hebrew',
+      definition: item.definition,
+      part_of_speech: item.part_of_speech || ''
+    }));
   } catch (error) {
     console.error('Error in getSampleStrongsWords:', error);
     return [];
