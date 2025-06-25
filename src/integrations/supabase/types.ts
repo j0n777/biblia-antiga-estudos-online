@@ -96,6 +96,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_prompts: {
+        Row: {
+          context_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          language: string
+          name: string
+          prompt: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          context_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          name: string
+          prompt: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          context_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          language?: string
+          name?: string
+          prompt?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       bible_books: {
         Row: {
           book_id: string
@@ -613,6 +649,56 @@ export type Database = {
           verse_numbers?: number[]
         }
         Relationships: []
+      }
+      translation_operations: {
+        Row: {
+          batch_id: string
+          cost_usd: number | null
+          created_at: string
+          duration_ms: number | null
+          error_count: number
+          id: string
+          prompt_id: string | null
+          strongs_numbers: string[]
+          success_count: number
+          target_language: string
+          total_tokens: number | null
+        }
+        Insert: {
+          batch_id: string
+          cost_usd?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error_count?: number
+          id?: string
+          prompt_id?: string | null
+          strongs_numbers: string[]
+          success_count?: number
+          target_language?: string
+          total_tokens?: number | null
+        }
+        Update: {
+          batch_id?: string
+          cost_usd?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error_count?: number
+          id?: string
+          prompt_id?: string | null
+          strongs_numbers?: string[]
+          success_count?: number
+          target_language?: string
+          total_tokens?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translation_operations_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "ai_prompts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_achievements: {
         Row: {

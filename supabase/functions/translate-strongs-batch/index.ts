@@ -12,6 +12,10 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  const startTime = Date.now();
+  let batchId = '';
+  let promptId = '';
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -19,10 +23,32 @@ serve(async (req) => {
     )
 
     const { strongsNumbers, targetLanguage = 'pt' } = await req.json()
+    batchId = `batch_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     if (!strongsNumbers || !Array.isArray(strongsNumbers)) {
       throw new Error('strongsNumbers array is required')
     }
+
+    console.log(`Starting translation batch ${batchId} for ${strongsNumbers.length} definitions in ${targetLanguage}`);
+
+    // Get active prompt from database
+    const promptName = `strongs_translation_${targetLanguage}`;
+    const { data: promptData, error: promptError } = await supabase
+      .from('ai_prompts')
+      .select('*')
+      .eq('name', promptName)
+      .eq('is_active', true)
+      .order('version', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (promptError || !promptData) {
+      console.error('Error fetching prompt:', promptError);
+      throw new Error(`No active prompt found for ${promptName}`);
+    }
+
+    promptId = promptData.id;
+    console.log(`Using prompt version ${promptData.version} for ${promptName}`);
 
     // Buscar definições para traduzir
     const { data: definitions, error: fetchError } = await supabase
@@ -36,6 +62,7 @@ serve(async (req) => {
     }
 
     if (!definitions || definitions.length === 0) {
+      await logOperation(supabase, batchId, promptId, strongsNumbers, targetLanguage, 0, strongsNumbers.length, 0, 0, Date.now() - startTime);
       return new Response(
         JSON.stringify({ success: false, message: 'No definitions found' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -47,12 +74,9 @@ serve(async (req) => {
       `${def.strongs_number}: ${def.definition}`
     ).join('\n\n')
 
-    const prompt = `Traduza as seguintes definições bíblicas do dicionário Strong's do inglês para o português brasileiro. 
-Mantenha o formato "NÚMERO: DEFINIÇÃO" e seja preciso com os termos teológicos e bíblicos:
+    const fullPrompt = `${promptData.prompt}\n\n${definitionsText}\n\nResponda apenas com as traduções no mesmo formato, uma por linha.`;
 
-${definitionsText}
-
-Responda apenas com as traduções no mesmo formato, uma por linha.`
+    console.log(`Sending ${definitions.length} definitions to OpenAI for translation`);
 
     // Chamar OpenAI para tradução
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -70,11 +94,11 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
           },
           {
             role: 'user',
-            content: prompt
+            content: fullPrompt
           }
         ],
         temperature: 0.3,
-        max_tokens: 2000
+        max_tokens: 3000
       })
     })
 
@@ -84,10 +108,14 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
 
     const openaiData = await openaiResponse.json()
     const translatedText = openaiData.choices[0]?.message?.content
+    const tokensUsed = openaiData.usage?.total_tokens || 0;
+    const estimatedCost = (tokensUsed * 0.00015) / 1000; // Approximate cost for gpt-4o-mini
 
     if (!translatedText) {
       throw new Error('No translation received from OpenAI')
     }
+
+    console.log(`Received translation from OpenAI. Tokens used: ${tokensUsed}`);
 
     // Processar traduções
     const translations = translatedText.split('\n').filter(line => line.trim())
@@ -108,6 +136,8 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
         }
       }
     }
+
+    console.log(`Processing ${updates.length} translations for database update`);
 
     // Atualizar definições no banco
     let successCount = 0
@@ -132,13 +162,22 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
       }
     }
 
-    console.log(`Translation batch completed: ${successCount} success, ${errorCount} errors`)
+    const durationMs = Date.now() - startTime;
+
+    // Log the operation
+    await logOperation(supabase, batchId, promptId, strongsNumbers, targetLanguage, successCount, errorCount, tokensUsed, estimatedCost, durationMs);
+
+    console.log(`Translation batch ${batchId} completed: ${successCount} success, ${errorCount} errors in ${durationMs}ms`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
+        batchId,
         translated: successCount,
         errors: errorCount,
+        tokensUsed,
+        estimatedCost,
+        durationMs,
         message: `Translated ${successCount} definitions successfully`
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -146,6 +185,20 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
 
   } catch (error) {
     console.error('Translation error:', error)
+    
+    // Log failed operation if we have the required data
+    if (batchId && promptId) {
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        )
+        await logOperation(supabase, batchId, promptId, [], 'pt', 0, 1, 0, 0, Date.now() - startTime);
+      } catch (logError) {
+        console.error('Failed to log error operation:', logError);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
       { 
@@ -155,3 +208,23 @@ Responda apenas com as traduções no mesmo formato, uma por linha.`
     )
   }
 })
+
+async function logOperation(supabase: any, batchId: string, promptId: string, strongsNumbers: string[], targetLanguage: string, successCount: number, errorCount: number, totalTokens: number, costUsd: number, durationMs: number) {
+  try {
+    await supabase
+      .from('translation_operations')
+      .insert({
+        batch_id: batchId,
+        prompt_id: promptId,
+        strongs_numbers: strongsNumbers,
+        target_language: targetLanguage,
+        success_count: successCount,
+        error_count: errorCount,
+        total_tokens: totalTokens,
+        cost_usd: costUsd,
+        duration_ms: durationMs
+      });
+  } catch (error) {
+    console.error('Failed to log operation:', error);
+  }
+}
