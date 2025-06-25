@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface StrongsWord {
@@ -10,36 +11,16 @@ export interface StrongsWord {
   part_of_speech: string;
 }
 
-// Enhanced cache for word availability with better performance
+// Cache para palavras disponíveis no Strong's
 const availableWordsCache = new Map<string, boolean>();
-const batchCheckCache = new Map<string, Set<string>>(); // Cache for batch word availability
-const cacheExpiry = 10 * 60 * 1000; // 10 minutes
+const cacheExpiry = 5 * 60 * 1000; // 5 minutos
 let lastCacheUpdate = 0;
 
 /**
  * Verifica se uma palavra tem definição disponível no Strong's
- * Otimizado com cache mais inteligente
  */
 export const hasStrongsDefinition = async (word: string): Promise<boolean> => {
   const cleanWord = word.toLowerCase().trim();
-  
-  // Skip very short words
-  if (cleanWord.length <= 2) {
-    return false;
-  }
-  
-  // Skip common Portuguese/English words that are unlikely to be in Strong's
-  const commonWords = new Set([
-    'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-    'que', 'de', 'da', 'do', 'das', 'dos', 'em', 'na', 'no', 'nas', 'nos', 'para',
-    'por', 'com', 'sem', 'sob', 'sobre', 'entre', 'contra', 'até', 'desde', 'ao',
-    'à', 'aos', 'às', 'um', 'uma', 'uns', 'umas', 'o', 'a', 'os', 'as', 'e', 'ou',
-    'mas', 'se', 'como', 'quando', 'onde', 'porque', 'então', 'também', 'já', 'não'
-  ]);
-  
-  if (commonWords.has(cleanWord)) {
-    return false;
-  }
   
   // Verificar cache primeiro
   if (availableWordsCache.has(cleanWord) && Date.now() - lastCacheUpdate < cacheExpiry) {
@@ -69,69 +50,6 @@ export const hasStrongsDefinition = async (word: string): Promise<boolean> => {
     console.error('Error in hasStrongsDefinition:', error);
     return false;
   }
-};
-
-/**
- * Batch check for multiple words - more efficient for checking many words at once
- */
-export const checkWordsInBatch = async (words: string[]): Promise<Map<string, boolean>> => {
-  const results = new Map<string, boolean>();
-  const wordsToCheck: string[] = [];
-  
-  // Filter and check cache first
-  for (const word of words) {
-    const cleanWord = word.toLowerCase().trim();
-    
-    if (cleanWord.length <= 2) {
-      results.set(word, false);
-      continue;
-    }
-    
-    if (availableWordsCache.has(cleanWord) && Date.now() - lastCacheUpdate < cacheExpiry) {
-      results.set(word, availableWordsCache.get(cleanWord) || false);
-    } else {
-      wordsToCheck.push(word);
-    }
-  }
-  
-  // Batch check remaining words
-  if (wordsToCheck.length > 0) {
-    try {
-      const { data, error } = await supabase
-        .from('bible_word_definitions')
-        .select('word, transliteration')
-        .or(wordsToCheck.map(w => `word.ilike.${w.toLowerCase()},transliteration.ilike.${w.toLowerCase()}`).join(','));
-      
-      if (!error && data) {
-        const foundWords = new Set([
-          ...data.map(d => d.word?.toLowerCase()),
-          ...data.map(d => d.transliteration?.toLowerCase())
-        ].filter(Boolean));
-        
-        for (const word of wordsToCheck) {
-          const cleanWord = word.toLowerCase().trim();
-          const hasDefinition = foundWords.has(cleanWord);
-          
-          results.set(word, hasDefinition);
-          availableWordsCache.set(cleanWord, hasDefinition);
-        }
-        
-        lastCacheUpdate = Date.now();
-      } else {
-        // On error, mark all as false
-        for (const word of wordsToCheck) {
-          results.set(word, false);
-        }
-      }
-    } catch (error) {
-      console.error('Error in batch word check:', error);
-      for (const word of wordsToCheck) {
-        results.set(word, false);
-      }
-    }
-  }
-  
-  return results;
 };
 
 /**

@@ -1,5 +1,5 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { getActivePrompt, logTranslationOperation } from './PromptService';
 
 export interface TranslationMapping {
   strongs_number: string;
@@ -86,18 +86,15 @@ export const translateStrongsDefinitions = async (
   strongsNumbers: string[],
   targetLanguage: string = 'pt',
   batchSize: number = 5
-): Promise<{ success: number; errors: number; operations: string[] }> => {
+): Promise<{ success: number; errors: number }> => {
   let success = 0;
   let errors = 0;
-  const operations: string[] = [];
   
   // Processar em lotes para não sobrecarregar a API
   for (let i = 0; i < strongsNumbers.length; i += batchSize) {
     const batch = strongsNumbers.slice(i, i + batchSize);
     
     try {
-      console.log(`Processing batch ${i / batchSize + 1}: ${batch.length} definitions`);
-      
       const { data, error } = await supabase.functions.invoke('translate-strongs-batch', {
         body: {
           strongsNumbers: batch,
@@ -108,28 +105,20 @@ export const translateStrongsDefinitions = async (
       if (error) {
         console.error('Translation batch error:', error);
         errors += batch.length;
-        operations.push(`Batch ${i / batchSize + 1}: Error - ${error.message}`);
-      } else if (data?.success) {
-        success += data.translated || 0;
-        errors += data.errors || 0;
-        operations.push(`Batch ${i / batchSize + 1}: ${data.translated} translated, ${data.errors} errors (${data.tokensUsed} tokens, $${data.estimatedCost?.toFixed(4)})`);
-        console.log(`Batch ${i / batchSize + 1} completed: ${data.translated} translated, ${data.errors} errors`);
       } else {
-        console.error('Translation batch failed:', data);
-        errors += batch.length;
-        operations.push(`Batch ${i / batchSize + 1}: Unexpected response format`);
+        success += batch.length;
+        console.log(`Translated batch ${i / batchSize + 1}: ${batch.length} definitions`);
       }
     } catch (error) {
       console.error('Translation batch failed:', error);
       errors += batch.length;
-      operations.push(`Batch ${i / batchSize + 1}: Exception - ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
     
     // Pausa entre lotes para evitar sobrecarga
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
-  return { success, errors, operations };
+  return { success, errors };
 };
 
 /**
