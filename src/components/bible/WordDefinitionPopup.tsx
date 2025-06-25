@@ -88,6 +88,19 @@ const WordDefinitionPopup = ({
     return type === 'hebrew' ? '🇮🇱' : '🇬🇷';
   };
 
+  const hasTranslation = () => {
+    if (!definition) return false;
+    
+    let currentLanguage = 'en';
+    if (typeof language === 'string') {
+      currentLanguage = language;
+    } else if (language && typeof language === 'object' && 'code' in language) {
+      currentLanguage = (language as any).code;
+    }
+    
+    return currentLanguage === 'pt-br' && definition.definition_pt;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
@@ -129,6 +142,11 @@ const WordDefinitionPopup = ({
                       {definition.strongs_number}
                     </Badge>
                   )}
+                  {hasTranslation() && (
+                    <Badge variant="default" className="bg-green-100 text-green-800">
+                      🇧🇷 Traduzido
+                    </Badge>
+                  )}
                 </div>
                 
                 {definition.transliteration && (
@@ -160,6 +178,11 @@ const WordDefinitionPopup = ({
                 <p className="text-gray-700 leading-relaxed">
                   {getDefinitionText()}
                 </p>
+                {!hasTranslation() && (
+                  <p className="text-xs text-amber-600 mt-2 p-2 bg-amber-50 rounded">
+                    ⚠️ Definição em inglês - tradução em português em desenvolvimento
+                  </p>
+                )}
               </div>
               
               {definition.etymology && (

@@ -4,24 +4,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { RefreshCw, Database, BookOpen } from 'lucide-react';
+import { RefreshCw, Database, BookOpen, Languages, Download } from 'lucide-react';
 import { getSampleStrongsWords, getStrongsStatistics, clearStrongsCache, type StrongsWord } from '@/services/bible/StrongsService';
+import { getUntranslatedDefinitions, translateStrongsDefinitions, clearTranslationCache } from '@/services/bible/StrongsTranslationService';
 
 const StrongsDebugPanel = () => {
   const [sampleWords, setSampleWords] = useState<StrongsWord[]>([]);
   const [statistics, setStatistics] = useState({ hebrew: 0, greek: 0, total: 0 });
+  const [untranslatedCount, setUntranslatedCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [words, stats] = await Promise.all([
+      const [words, stats, untranslated] = await Promise.all([
         getSampleStrongsWords(15),
-        getStrongsStatistics()
+        getStrongsStatistics(),
+        getUntranslatedDefinitions('pt', 1000)
       ]);
       
       setSampleWords(words);
       setStatistics(stats);
+      setUntranslatedCount(untranslated.length);
     } catch (error) {
       console.error('Error loading Strong\'s data:', error);
     } finally {
@@ -31,7 +36,25 @@ const StrongsDebugPanel = () => {
 
   const handleClearCache = () => {
     clearStrongsCache();
+    clearTranslationCache();
     console.log('Strong\'s cache cleared');
+  };
+
+  const handleTranslateBatch = async () => {
+    setTranslating(true);
+    try {
+      const untranslated = await getUntranslatedDefinitions('pt', 50);
+      if (untranslated.length > 0) {
+        const result = await translateStrongsDefinitions(untranslated, 'pt', 5);
+        console.log('Translation result:', result);
+        // Recarregar dados após tradução
+        await loadData();
+      }
+    } catch (error) {
+      console.error('Error translating definitions:', error);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   useEffect(() => {
@@ -45,13 +68,22 @@ const StrongsDebugPanel = () => {
           <Database className="w-5 h-5" />
           Strong's Dictionary Analysis
         </CardTitle>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button onClick={loadData} disabled={loading} size="sm">
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Reload Data
           </Button>
           <Button onClick={handleClearCache} variant="outline" size="sm">
             Clear Cache
+          </Button>
+          <Button 
+            onClick={handleTranslateBatch} 
+            disabled={translating || untranslatedCount === 0} 
+            variant="secondary" 
+            size="sm"
+          >
+            <Languages className={`w-4 h-4 mr-2 ${translating ? 'animate-spin' : ''}`} />
+            {translating ? 'Translating...' : 'Translate Batch (PT)'}
           </Button>
         </div>
       </CardHeader>
@@ -63,7 +95,7 @@ const StrongsDebugPanel = () => {
             <BookOpen className="w-4 h-4" />
             Database Statistics
           </h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
               <div className="text-2xl font-bold text-blue-600">{statistics.hebrew}</div>
               <div className="text-sm text-blue-700">Hebrew Words</div>
@@ -75,6 +107,37 @@ const StrongsDebugPanel = () => {
             <div className="text-center p-3 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">{statistics.total}</div>
               <div className="text-sm text-purple-700">Total Words</div>
+            </div>
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">{untranslatedCount}</div>
+              <div className="text-sm text-orange-700">Untranslated (PT)</div>
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Translation Progress */}
+        <div>
+          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Languages className="w-4 h-4" />
+            Translation Progress
+          </h3>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Portuguese Translation</span>
+              <span className="text-sm text-gray-600">
+                {Math.round(((statistics.total - untranslatedCount) / statistics.total) * 100)}% Complete
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${((statistics.total - untranslatedCount) / statistics.total) * 100}%` }}
+              ></div>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {statistics.total - untranslatedCount} of {statistics.total} definitions translated
             </div>
           </div>
         </div>

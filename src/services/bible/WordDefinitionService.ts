@@ -1,4 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
+import { getStrongsTranslation } from './StrongsTranslationService';
 
 export interface WordDefinition {
   strongs_number: string;
@@ -76,13 +78,23 @@ export const getWordDefinition = async (
       strongs_type: bestMatch.strongs_type
     });
     
+    // Buscar tradução se necessário
+    let translatedDefinition = bestMatch.definition;
+    if (language !== 'en' && bestMatch.strongs_number) {
+      const translation = await getStrongsTranslation(bestMatch.strongs_number, language);
+      if (translation) {
+        translatedDefinition = translation;
+        console.log(`Found translation for ${bestMatch.strongs_number} in ${language}`);
+      }
+    }
+    
     const result: WordDefinition = {
       strongs_number: bestMatch.strongs_number || '',
       word: bestMatch.word || word,
       transliteration: bestMatch.transliteration || '',
       pronunciation: bestMatch.pronunciation || '',
       part_of_speech: bestMatch.part_of_speech || '',
-      definition: bestMatch.definition || '',
+      definition: translatedDefinition || bestMatch.definition || '',
       definition_pt: bestMatch.definition_pt || '',
       definition_es: bestMatch.definition_es || '',
       definition_fr: bestMatch.definition_fr || '',
