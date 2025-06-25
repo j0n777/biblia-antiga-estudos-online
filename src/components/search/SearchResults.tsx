@@ -11,9 +11,10 @@ interface SearchResultsProps {
   results: SearchResult[];
   isLoading: boolean;
   searchTerm: string;
+  onVerseClick?: (bookId: string, chapterNumber: number, verseNumber: number) => void;
 }
 
-const SearchResults = ({ results, isLoading, searchTerm }: SearchResultsProps) => {
+const SearchResults = ({ results, isLoading, searchTerm, onVerseClick }: SearchResultsProps) => {
   const { t } = useLanguage();
 
   // Função para renderizar texto com palavras clicáveis Smart Strong's
@@ -56,6 +57,12 @@ const SearchResults = ({ results, isLoading, searchTerm }: SearchResultsProps) =
         </mark>
       ) : part
     );
+  };
+
+  const handleVerseClick = (bookId: string, chapterNumber: number, verseNumber: number) => {
+    if (onVerseClick) {
+      onVerseClick(bookId, chapterNumber, verseNumber);
+    }
   };
 
   if (isLoading) {
@@ -104,7 +111,11 @@ const SearchResults = ({ results, isLoading, searchTerm }: SearchResultsProps) =
       <Separator />
       
       {results.map((result, index) => (
-        <Card key={`${result.book_id}-${result.chapter_number}-${result.verse_number}-${index}`} className="hover:shadow-md transition-shadow">
+        <Card 
+          key={`${result.book_id}-${result.chapter_number}-${result.verse_number}-${index}`} 
+          className="hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => handleVerseClick(result.book_id, result.chapter_number, result.verse_number)}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
               <Badge variant="outline" className="text-xs">

@@ -37,6 +37,15 @@ export interface BibleVerse {
   version_id?: string;
 }
 
+export interface SearchResult {
+  book_id: string;
+  book_name: string;
+  chapter_number: number;
+  verse_number: number;
+  text: string;
+  version_id: string;
+}
+
 export interface WordDefinition {
   id: string;
   word: string;

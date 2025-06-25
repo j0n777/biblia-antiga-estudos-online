@@ -1,8 +1,9 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import SearchInput from '@/components/search/SearchInput';
-import SearchResults, { SearchResult } from '@/components/search/SearchResults';
+import SearchResults from '@/components/search/SearchResults';
 import SearchHistory from '@/components/search/SearchHistory';
 import SearchSuggestions from '@/components/search/SearchSuggestions';
 import { useSearchBible } from '@/hooks/useSearchBible';
@@ -11,6 +12,7 @@ import { trackSearchClick } from '@/services/reading/ReadingHistoryService';
 import { getUserProfile } from '@/services/ProfileService';
 import { determineBestBibleVersion } from '@/utils/language-utils';
 import { Search as SearchIcon } from 'lucide-react';
+import { SearchResult } from '@/types/bible.types';
 
 const Search = () => {
   const [query, setQuery] = useState('');
@@ -126,16 +128,9 @@ const Search = () => {
 
             {query && (
               <SearchResults
-                isSearching={isSearching}
-                hasSearched={!!query}
-                searchResults={formattedSearchResults}
-                totalResults={totalResults || searchResults.length}
-                hasMoreResults={hasMoreResults}
-                onLoadMore={loadMore}
-                wholeWordsOnly={wholeWordsOnly}
-                onToggleWholeWords={toggleWholeWordsOnly}
-                error={error}
-                query={query}
+                results={formattedSearchResults}
+                isLoading={isSearching}
+                searchTerm={query}
                 onVerseClick={handleVerseClick}
               />
             )}
