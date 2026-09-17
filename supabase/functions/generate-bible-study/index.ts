@@ -1,3 +1,5 @@
+// 17/09/2026: OPENAI_BASE_URL e OPENAI_MODEL opcionais — permitem usar OpenRouter
+// (https://openrouter.ai/api/v1, modelo ex. 'openai/gpt-4o-mini') com a mesma chave em OPENAI_API_KEY.
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -164,14 +166,14 @@ serve(async (req) => {
     // Gerar estudo com OpenAI
     const prompt = `${STUDY_PROMPT}\n\nVersículo para estudar: ${verse_reference} - "${verse_text}"`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`${Deno.env.get('OPENAI_BASE_URL') || 'https://api.openai.com/v1'}/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: Deno.env.get('OPENAI_MODEL') || 'gpt-4o-mini',
         messages: [
           { 
             role: 'system', 
