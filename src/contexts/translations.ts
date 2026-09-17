@@ -492,7 +492,7 @@ export const translations: { [key: string]: { [key in Language]: string } } = {
     'fr': 'Tapez n\'importe quel mot (ex: amour, paix, Jésus) ou référence (Jean 3:16)...',
     'ar': 'اكتب أي كلمة (مثل: محبة، سلام، يسوع) أو مرجع (يوحنا 3:16)...',
   },
-  'verseOfDay.title': {
+  'home.verseOfTheDay': {
     'pt-BR': 'Versículo do Dia',
     'en': 'Verse of the Day',
     'es': 'Versículo del Día',

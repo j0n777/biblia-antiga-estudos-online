@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,8 @@ import { Progress } from '@/components/ui/progress';
 import { Database, Upload, CheckCircle, AlertCircle, Book } from 'lucide-react';
 import BibleImportDialog from '@/components/admin/BibleImportDialog';
 import DictionaryImportDialog from '@/components/admin/DictionaryImportDialog';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminImport = () => {
   const [selectedVersion, setSelectedVersion] = useState('kja');
@@ -19,6 +21,20 @@ const AdminImport = () => {
     message: string;
     details?: any;
   } | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth');
+        return;
+      }
+      // Se houvesse um check específico de admin via API, faríamos aqui.
+      // Por ora, exigimos apenas estar logado, e o endpoint da edge function validará o token.
+    };
+    checkAdmin();
+  }, [navigate]);
 
   const handleImport = async () => {
     setIsImporting(true);

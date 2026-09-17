@@ -38,10 +38,11 @@ export const useChapterNavigation = ({
     }
   }, [initialChapterNumber, chapterNumber]);
   
-  const handleBookChange = (newBookId: string) => {
+  const handleBookChange = (newBookId: string, specificChapter?: number) => {
     setBookId(newBookId);
-    setChapterNumber(1);
-    return { newBookId, newChapterNumber: 1 };
+    const targetChapter = specificChapter || 1;
+    setChapterNumber(targetChapter);
+    return { newBookId, newChapterNumber: targetChapter };
   };
 
   const handleChapterChange = (newChapterNumber: number) => {

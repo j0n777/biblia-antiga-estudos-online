@@ -38,15 +38,16 @@ const Read = () => {
     const urlBook = searchParams.get('book');
     const urlChapter = searchParams.get('chapter');
     const urlVerse = searchParams.get('verse');
-    if (urlBook && urlChapter && urlBook !== bookId) {
+    
+    // Only trigger if URL book or chapter is different from current state
+    if (urlBook && urlChapter && (urlBook !== bookId || parseInt(urlChapter) !== chapterNumber)) {
       console.log(`Navigating to ${urlBook} ${urlChapter} from search`);
-      handleBookChange(urlBook);
-      handleChapterChange(parseInt(urlChapter));
+      handleBookChange(urlBook, parseInt(urlChapter));
       if (urlVerse) {
         console.log(`Will scroll to verse ${urlVerse}`);
       }
     }
-  }, [searchParams, bookId, handleBookChange, handleChapterChange]);
+  }, [searchParams, bookId, chapterNumber, handleBookChange]);
   const handleFontSizeChange = useCallback((size: 'large' | 'extra-large' | 'huge') => {
     setFontSize(size);
   }, []);

@@ -38,6 +38,8 @@ const ReadingControls = ({
   const [userFontSize, setUserFontSize] = useState<'large' | 'extra-large' | 'huge'>('large');
   
   useEffect(() => {
+    if (compact) return; // Prevent duplicate profile fetches in compact mode
+    
     const loadUserFontSize = async () => {
       try {
         const profile = await getUserProfile();
@@ -52,7 +54,7 @@ const ReadingControls = ({
     };
     
     loadUserFontSize();
-  }, [onFontSizeChange]);
+  }, [onFontSizeChange, compact]);
   
   const handleBookChange = useCallback((value: string) => {
     if (value !== bookId) {

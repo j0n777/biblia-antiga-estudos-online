@@ -39,8 +39,7 @@
   }
 
   /* Texto secundário/muted */
-  .text-secondary,
-  .text-muted-foreground {
+  .text-secondary {
     @apply text-xs text-muted-foreground;
   }
 

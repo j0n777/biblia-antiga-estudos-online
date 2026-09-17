@@ -163,8 +163,8 @@ export const useBibleReading = ({ defaultVersion = 'kja' }: UseBibleReadingProps
   }, [setReadingVerse]);
   
   // Wrapper functions with useCallback to prevent unnecessary rerenders
-  const handleBookChange = useCallback((newBookId: string) => {
-    const result = navigationHandleBookChange(newBookId);
+  const handleBookChange = useCallback((newBookId: string, specificChapter?: number) => {
+    const result = navigationHandleBookChange(newBookId, specificChapter);
     if (result) {
       setBookId(result.newBookId);
       setChapterNumber(result.newChapterNumber);

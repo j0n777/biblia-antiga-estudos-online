@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import StyleDebug from '@/components/debug/StyleDebug';
+
 import HomeHeader from '@/components/home/HomeHeader';
 import VerseOfTheDaySection from '@/components/home/VerseOfTheDaySection';
 import StreakSection from '@/components/home/StreakSection';
@@ -42,7 +42,6 @@ const Index = () => {
 
   return (
     <PageLayout>
-      <StyleDebug />
       
       <HomeHeader />
       
